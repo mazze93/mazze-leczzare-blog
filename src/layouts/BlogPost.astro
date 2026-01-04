@@ -7,7 +7,20 @@ import FormattedDate from '../components/FormattedDate.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const props = Astro.props;
+const { title, description, heroImage } = props;
+
+// Handle both Date objects and string dates, with proper fallback
+const rawPubDate = props.pubDate;
+const rawUpdatedDate = props.updatedDate;
+
+const pubDate = rawPubDate 
+  ? (typeof rawPubDate === 'string' ? new Date(rawPubDate) : rawPubDate)
+  : new Date(); // Fallback to current date if missing
+
+const updatedDate = rawUpdatedDate 
+  ? (typeof rawUpdatedDate === 'string' ? new Date(rawUpdatedDate) : rawUpdatedDate)
+  : undefined;
 ---
 
 <html lang="en">

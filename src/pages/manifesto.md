@@ -1,6 +1,8 @@
 ---
-layout: layout.html
-title: Manifesto
+layout: ../layouts/BlogPost.astro
+title: "The Mazzeleczzare Manifesto"
+description: "Core principles and beliefs that guide this project"
+pubDate: "Jan 04 2026"
 ---
 
 # The Mazzeleczzare Manifesto
