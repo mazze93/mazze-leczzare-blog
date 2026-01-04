@@ -5,9 +5,29 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+// Support both blog collection entries and markdown pages with frontmatter
+type Props = {
+  title: string;
+  description: string;
+  pubDate?: Date | string;
+  updatedDate?: Date | string;
+  heroImage?: string;
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const props = Astro.props;
+const { title, description, heroImage } = props;
+
+// Handle both Date objects and string dates, with proper fallback
+const rawPubDate = props.pubDate;
+const rawUpdatedDate = props.updatedDate;
+
+const pubDate = rawPubDate 
+  ? (typeof rawPubDate === 'string' ? new Date(rawPubDate) : rawPubDate)
+  : new Date(); // Fallback to current date if missing
+
+const updatedDate = rawUpdatedDate 
+  ? (typeof rawUpdatedDate === 'string' ? new Date(rawUpdatedDate) : rawUpdatedDate)
+  : undefined;
 ---
 
 <html lang="en">

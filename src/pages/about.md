@@ -1,6 +1,8 @@
 ---
-layout: layout.html
-title: About
+layout: ../layouts/BlogPost.astro
+title: "About"
+description: "Former neuroscientist turned storyteller, marketer, and cybersecurity explorer"
+pubDate: "Jan 04 2026"
 ---
 
 # About Mazzeleczzare
