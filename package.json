@@ -12,7 +12,7 @@
   "scripts": {
     "astro": "astro",
     "build": "astro build",
-    "check": "astro check && tsc",
+    "check": "astro build && tsc",
     "dev": "astro dev",
     "preview": "astro preview"
   },

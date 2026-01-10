@@ -31,10 +31,18 @@ The site will be automatically deployed on every push to your main branch.
 
 ## Getting Started
 
-You can start a new project with this template using your preferred package manager:
+To create a similar blog project with Astro:
 
 ```bash
 npm create astro@latest -- --template blog
+```
+
+Or clone this repository and install dependencies:
+
+```bash
+git clone <your-repo-url>
+cd mazze-leczzare-blog
+npm install
 ```
 
 ## 🚀 Project Structure
