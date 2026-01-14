@@ -14,7 +14,7 @@ This guide explains how to deploy this blog to Cloudflare Pages with the domain 
 
 1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/)
 2. Navigate to **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**
-3. Select your GitHub repository: `mazze93/mazze-leczzare-blog`
+3. Select your GitHub repository: `mazze93/mazze-leczzare-blog` (this repository)
 4. Configure the build settings:
 
    **Build Configuration:**
