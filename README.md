@@ -1,10 +1,10 @@
-# Astro Starter Kit: Blog
+# Mazze Leczzare Blog
 
 ![Astro Template Preview](https://github.com/withastro/astro/assets/2244813/ff10799f-a816-4703-b967-c78997e8323d)
 
 <!-- dash-content-start -->
 
-Create a blog with Astro and deploy it on Cloudflare Pages as a [static website](https://developers.cloudflare.com/pages/).
+Personal blog built with Astro and deployed on Cloudflare Pages at [mazzeleczzare.com](https://mazzeleczzare.com).
 
 Features:
 
@@ -19,13 +19,14 @@ Features:
 
 ## Deployment
 
-This blog is configured for static deployment to Cloudflare Pages:
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on deploying this blog to Cloudflare Pages with the custom domain mazzeleczzare.com.
+
+**Quick Start:**
 
 1. Connect your GitHub repository to Cloudflare Pages
-2. Use the following build settings:
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Root directory**: `/` (default)
+2. Use build command: `npm run build`
+3. Set build output directory: `dist`
+4. Add custom domain: `mazzeleczzare.com`
 
 The site will be automatically deployed on every push to your main branch.
 
