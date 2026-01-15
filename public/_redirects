@@ -1,0 +1,3 @@
+# Cloudflare Pages redirect rules
+# Redirect www to non-www
+https://www.mazzeleczzare.com/* https://mazzeleczzare.com/:splat 301
