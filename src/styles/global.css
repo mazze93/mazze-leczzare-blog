@@ -1,21 +1,51 @@
 /*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
- */
+  ✨ Mazzeleczzare Blog Aesthetics ✨
+  Grimes-inspired cyber-ethereal meets bohemian neurodivergent-friendly design
+  Iridescent, aery, queer-coded, and thoughtfully spaced for ADHD accessibility
+*/
 
 :root {
-  --accent: #2337ff;
-  --accent-dark: #000d8a;
-  --black: 15, 18, 25;
-  --gray: 96, 115, 159;
-  --gray-light: 229, 233, 240;
-  --gray-dark: 34, 41, 57;
-  --gray-gradient: rgba(var(--gray-light), 50%), #fff;
-  --box-shadow:
-    0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
-    0 16px 32px rgba(var(--gray), 33%);
+  /* 🌈 Cyber-Ethereal Pride Palette */
+  --neon-cyan: #00E5FF;        /* Electric dreams */
+  --violet-haze: #B794F6;      /* Lavender twilight */
+  --hot-pink: #FF1493;         /* Bold queer energy */
+  --soft-lilac: #E0B0FF;       /* Gentle bohemian */
+  --mint-glow: #B0FFE8;        /* Airy freshness */
+  --peach-shimmer: #FFB3BA;    /* Warm embrace */
+  --indigo-depth: #4B0082;     /* Deep contemplation */
+  --pearl: #F5F5F0;            /* Soft grounding */
+  
+  /* Grimes-inspired gradients */
+  --cyber-gradient: linear-gradient(135deg, 
+    #00E5FF 0%, 
+    #B794F6 25%, 
+    #FF1493 50%, 
+    #E0B0FF 75%, 
+    #00E5FF 100%);
+  
+  --ethereal-glow: radial-gradient(circle at 50% 50%, 
+    rgba(0, 229, 255, 0.15) 0%, 
+    rgba(183, 148, 246, 0.1) 40%, 
+    transparent 70%);
+  
+  /* Neurodivergent-friendly spacing (generous, predictable) */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  
+  /* Readable, dyslexia-friendly sizing */
+  --text-base: 20px;
+  --line-height-relaxed: 1.8;
+  --letter-spacing-open: 0.02em;
+  
+  /* Subtle shadows for depth */
+  --glow-shadow: 0 0 20px rgba(0, 229, 255, 0.3),
+                 0 0 40px rgba(183, 148, 246, 0.2);
+  --soft-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
 @font-face {
   font-family: "Atkinson";
   src: url("/fonts/atkinson-regular.woff") format("woff");
@@ -23,6 +53,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Atkinson";
   src: url("/fonts/atkinson-bold.woff") format("woff");
@@ -30,112 +61,239 @@
   font-style: normal;
   font-display: swap;
 }
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: "Atkinson", sans-serif;
+  font-family: "Atkinson", "Comic Sans MS", "Lexend", sans-serif;
   margin: 0;
   padding: 0;
-  text-align: left;
-  background: linear-gradient(var(--gray-gradient)) no-repeat;
-  background-size: 100% 600px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  color: rgb(var(--gray-dark));
-  font-size: 20px;
-  line-height: 1.7;
+  background: #0A0F1F;
+  background-image: 
+    var(--ethereal-glow),
+    linear-gradient(180deg, #0A0F1F 0%, #1E293B 100%);
+  background-attachment: fixed;
+  color: var(--pearl);
+  font-size: var(--text-base);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-open);
+  overflow-x: hidden;
 }
+
+/* Subtle animated gradient overlay for that Grimes aesthetic */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--cyber-gradient);
+  opacity: 0.03;
+  animation: shimmer 15s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.03; transform: translateX(0); }
+  50% { opacity: 0.06; transform: translateX(5px); }
+}
+
 main {
   width: 720px;
   max-width: calc(100% - 2em);
   margin: auto;
-  padding: 3em 1em;
+  padding: var(--space-xl) var(--space-md);
+  position: relative;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0 0 0.5rem 0;
-  color: rgb(var(--black));
-  line-height: 1.2;
+
+/* Aery floating elements */
+main::after {
+  content: "✨";
+  position: fixed;
+  top: 10%;
+  right: 5%;
+  font-size: 2em;
+  opacity: 0.3;
+  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
 }
-h1 {
-  font-size: 3.052em;
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
-h2 {
-  font-size: 2.441em;
-}
-h3 {
-  font-size: 1.953em;
-}
-h4 {
-  font-size: 1.563em;
-}
-h5 {
-  font-size: 1.25em;
-}
-strong,
-b {
+
+/* Generous spacing for neurodivergent comfort */
+h1, h2, h3, h4, h5, h6 {
+  margin: var(--space-lg) 0 var(--space-md) 0;
+  background: var(--cyber-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
   font-weight: 700;
+  letter-spacing: 0.01em;
 }
+
+h1 {
+  font-size: 3.2em;
+  text-shadow: var(--glow-shadow);
+  animation: gentlePulse 4s ease-in-out infinite;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+h2 { font-size: 2.5em; }
+h3 { font-size: 2em; }
+h4 { font-size: 1.6em; }
+h5 { font-size: 1.3em; }
+
+strong, b {
+  font-weight: 700;
+  color: var(--hot-pink);
+}
+
 a {
-  color: var(--accent);
+  color: var(--neon-cyan);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
 }
+
 a:hover {
-  color: var(--accent);
+  color: var(--violet-haze);
+  border-bottom-color: var(--hot-pink);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
-p {
-  margin-bottom: 1em;
+
+/* Pride-coded link underline animation */
+a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--cyber-gradient);
+  transition: width 0.3s ease;
 }
-.prose p {
-  margin-bottom: 2em;
-}
-textarea {
+
+a:hover::after {
   width: 100%;
-  font-size: 16px;
 }
-input {
-  font-size: 16px;
+
+p {
+  margin-bottom: var(--space-md);
+  max-width: 65ch; /* Optimal reading width */
 }
+
+.prose p {
+  margin-bottom: var(--space-lg);
+}
+
+/* Neurodivergent-friendly form elements */
+textarea, input {
+  width: 100%;
+  font-size: 18px;
+  padding: var(--space-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--violet-haze);
+  border-radius: 12px;
+  color: var(--pearl);
+  transition: all 0.3s ease;
+}
+
+textarea:focus, input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: var(--glow-shadow);
+}
+
 table {
   width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  border-radius: 12px;
+  overflow: hidden;
 }
+
 img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--glow-shadow);
+}
+
 code {
-  padding: 2px 5px;
-  background-color: rgb(var(--gray-light));
-  border-radius: 2px;
+  padding: 4px 8px;
+  background: rgba(183, 148, 246, 0.15);
+  border: 1px solid var(--violet-haze);
+  border-radius: 6px;
+  color: var(--mint-glow);
+  font-family: "SF Mono", "Monaco", monospace;
+  font-size: 0.9em;
 }
+
 pre {
-  padding: 1.5em;
-  border-radius: 8px;
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--violet-haze);
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: var(--soft-shadow);
 }
+
 pre > code {
   all: unset;
+  color: var(--mint-glow);
 }
+
 blockquote {
-  border-left: 4px solid var(--accent);
-  padding: 0 0 0 20px;
-  margin: 0px;
-  font-size: 1.333em;
+  border-left: 4px solid var(--hot-pink);
+  padding: var(--space-sm) 0 var(--space-sm) var(--space-md);
+  margin: var(--space-lg) 0;
+  background: rgba(255, 20, 147, 0.05);
+  border-radius: 0 8px 8px 0;
+  font-size: 1.2em;
+  font-style: italic;
+  color: var(--soft-lilac);
 }
+
 hr {
   border: none;
-  border-top: 1px solid rgb(var(--gray-light));
+  height: 2px;
+  background: var(--cyber-gradient);
+  margin: var(--space-xl) 0;
+  border-radius: 2px;
 }
+
+/* Mobile responsive with preserved spacing */
 @media (max-width: 720px) {
   body {
     font-size: 18px;
   }
   main {
-    padding: 1em;
+    padding: var(--space-lg) var(--space-sm);
   }
+  h1 { font-size: 2.5em; }
+  h2 { font-size: 2em; }
 }
 
+/* Accessibility: screen reader only */
 .sr-only {
   border: 0;
   padding: 0;
@@ -144,12 +302,15 @@ hr {
   height: 1px;
   width: 1px;
   overflow: hidden;
-  /* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
   clip: rect(1px 1px 1px 1px);
-  /* maybe deprecated but we need to support legacy browsers */
   clip: rect(1px, 1px, 1px, 1px);
-  /* modern browsers, clip-path works inwards from each corner */
   clip-path: inset(50%);
-  /* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
   white-space: nowrap;
+}
+
+/* ✨ Bonus: sparkle cursor trail effect (subtle, not distracting) */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="1" fill="%2300E5FF" opacity="0.8"/></svg>'), auto;
+  }
 }
