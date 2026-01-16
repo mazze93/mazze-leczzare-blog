@@ -14,7 +14,12 @@
     "build": "astro build",
     "check": "astro build && tsc",
     "dev": "astro dev",
-    "preview": "astro preview"
+    "preview": "astro build && wrangler pages dev dist",
+    "cf-typegen": "wrangler types"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
+    "wrangler": "^4.59.2"
+  }
 }
