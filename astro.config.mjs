@@ -8,6 +8,7 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   site: "https://example.com",
   adapter: cloudflare({
+    // Enable local development access to Cloudflare runtime APIs and bindings
     platformProxy: {
       enabled: true,
     },
