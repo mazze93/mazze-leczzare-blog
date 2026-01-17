@@ -296,7 +296,7 @@ Defined in `src/styles/global.css` as CSS custom properties:
    ---
    title: "My New Post"
    description: "A concise summary for SEO and social sharing"
-   pubDate: 2026-01-17
+   pubDate: 2025-01-17
    heroImage: /blog-placeholder-1.jpg
    ---
    ```
