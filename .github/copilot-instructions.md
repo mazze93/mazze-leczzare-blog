@@ -259,7 +259,7 @@ Defined in `src/styles/global.css` as CSS custom properties:
 - **Node version**: Specified in `.nvmrc` or package.json `engines` (if present)
 
 **Current Site URL**: `https://example.com` (placeholder in `astro.config.mjs`)  
-⚠️ Update `site` value in `astro.config.mjs` before production deployment.
+⚠️ **Action Required**: Update `site: "https://example.com"` to `site: "https://mazzeleczzare.com"` in `astro.config.mjs` before production deployment.
 
 ### Testing & Quality Assurance
 
