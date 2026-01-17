@@ -310,9 +310,4 @@ hr {
   white-space: nowrap;
 }
 
-/* ✨ Bonus: sparkle cursor trail effect (subtle, not distracting) */
-@media (prefers-reduced-motion: no-preference) {
-  * {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="1" fill="%2300E5FF" opacity="0.8"/></svg>'), auto;
-  }
-}
+
