@@ -90,11 +90,15 @@ body::before {
   height: 100%;
   background: var(--cyber-gradient);
   opacity: 0.03;
-  animation: shimmer 15s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  body::before {
+    animation: shimmer 15s ease-in-out infinite;
+  }
+}
 @keyframes shimmer {
   0%, 100% { opacity: 0.03; transform: translateX(0); }
   50% { opacity: 0.06; transform: translateX(5px); }
