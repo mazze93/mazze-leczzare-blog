@@ -112,7 +112,7 @@ main {
   position: relative;
 }
 
-/* Aery floating elements */
+/* Airy floating elements */
 main::after {
   content: "✨";
   position: fixed;
