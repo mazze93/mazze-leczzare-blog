@@ -39,7 +39,7 @@ Example frontmatter for a new post (`src/content/blog/my-post.md`):
 title: "My Post"
 description: "Short summary"
 pubDate: 2025-01-01
-heroImage: /blog-placeholder-1.jpg
+heroImage: /blog-placeholder-1.jpg  # Placeholder images 1-5 available in public/
 ---
 
 Your post content here...
