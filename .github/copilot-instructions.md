@@ -26,7 +26,8 @@ Below are the immediate, discoverable conventions and examples an AI agent needs
 - **Pages**: Route files in `src/pages/` (e.g., `src/pages/blog/[...slug].astro` and `src/pages/blog/index.astro`)
 - **Layouts & components**: `src/layouts/` and `src/components/` contain shared UI. Global constants in `src/consts.ts`
 - **Static assets**: `public/` directory (fonts, images) — files served directly from root path
-- **Integrations**: MDX (`@astrojs/mdx`), Sitemap (`@astrojs/sitemap`), RSS feed generation (`@astrojs/rss`)
+- **Integrations**: MDX (`@astrojs/mdx`), Sitemap (`@astrojs/sitemap`)
+- **RSS Feed**: Generated via `@astrojs/rss` package in `src/pages/rss.xml.js` (not an Astro integration)
 
 ## Project-Specific Conventions
 
