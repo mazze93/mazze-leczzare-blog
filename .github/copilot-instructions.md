@@ -62,7 +62,7 @@ Your post content here...
 
 - **Build output**: `./dist/` directory (excluded from git via `.gitignore`)
 - **Deployment target**: Cloudflare Pages (or any static hosting platform)
-- **Production URL**: Update `site` in `astro.config.mjs` to your canonical domain (currently set to `https://example.com`)
+- **Production URL**: Configured in `astro.config.mjs` as `https://mazzeleczzare.com`
 - **Deployment process**: Connect repository to Cloudflare Pages with build command `npm run build` and output directory `dist`
 
 ## TypeScript & Typing
