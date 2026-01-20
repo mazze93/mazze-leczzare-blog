@@ -77,32 +77,22 @@ body {
   line-height: var(--line-height-relaxed);
   letter-spacing: var(--letter-spacing-open);
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Subtle animated gradient overlay for that Grimes aesthetic */
+/* Subtle gradient overlay for that Grimes aesthetic (static for performance) */
 body::before {
   content: "";
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background: var(--cyber-gradient);
   opacity: 0.03;
   pointer-events: none;
   z-index: 0;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  body::before {
-    animation: shimmer 15s ease-in-out infinite;
-  }
-}
-@keyframes shimmer {
-  0%, 100% { opacity: 0.03; }
-  50% { opacity: 0.06; }
-}
-
 main {
   width: 720px;
   max-width: calc(100% - 2em);
