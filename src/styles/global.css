@@ -198,7 +198,7 @@ a:hover::after {
 
 p {
   margin-bottom: var(--space-md);
-  max-width: 65ch; /* Optimal reading width */
+  max-width: min(65ch, 100%); /* Optimal reading width without exceeding container */
 }
 
 .prose p {
