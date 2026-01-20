@@ -1,17 +1,17 @@
-<!-- Copilot/AI agent instructions tailored to this Astro + Cloudflare blog starter -->
+<!-- Copilot/AI agent instructions tailored to this Astro blog starter -->
 # Project quickstart for AI coding agents
 
-This repo is an Astro-based static blog scaffold, deployed to Cloudflare Workers using the `@astrojs/cloudflare` adapter.
+This repo is an Astro-based static blog, deployed to Cloudflare Pages as a static website.
 Below are the immediate, discoverable conventions and examples an AI agent needs to be productive here.
 
 ## Quick Commands
 
-- `npm install` : install deps
-- `npm run dev` : local dev server (Astro, :4321)
-- `npm run build` : produce `./dist`
-- `npm run preview` : build + `wrangler dev` (preview on Cloudflare runtime)
-- `npm run cf-typegen` : `wrangler types` (generate Cloudflare types)
-- `npm run check` : build + `tsc` + `wrangler deploy --dry-run` (CI-style check)
+- `npm install` : install dependencies
+- `npm run dev` : local dev server (Astro, localhost:4321)
+- `npm run build` : build production site to `./dist`
+- `npm run preview` : preview production build locally
+- `npm run check` : build + TypeScript type checking
+- `npm run astro ...` : run Astro CLI commands (e.g., `npm run astro add`, `npm run astro check`)
 
 ## Testing & Linting
 
@@ -21,11 +21,12 @@ Below are the immediate, discoverable conventions and examples an AI agent needs
 
 ## Architecture Overview
 
-- **Framework**: `astro` (see `astro.config.mjs`), deployed with `@astrojs/cloudflare` adapter. Note `platformProxy.enabled` is set in the adapter.
-- **Content**: Markdown/MDX files live in `src/content/blog/`. Content Collections are configured in `src/content.config.ts`.
-- **Pages**: Route files are in `src/pages/` (e.g. `src/pages/blog/[...slug].astro` and `src/pages/blog/index.astro`).
+- **Framework**: `astro` (see `astro.config.mjs`), configured for static output (`output: "static"`).
+- **Deployment**: Static site deployed to Cloudflare Pages (not Workers).
+- **Content**: Markdown/MDX files live in `src/content/blog/`. Content Collections are configured in `src/content.config.ts` using Astro's glob loader.
+- **Pages**: Route files are in `src/pages/` (e.g., `src/pages/blog/[...slug].astro` for individual posts and `src/pages/blog/index.astro` for the listing page).
 - **Layouts & components**: `src/layouts/` and `src/components/` contain shared UI. Global constants are in `src/consts.ts`.
-- **Static assets**: `public/` (fonts, images) and referenced directly from templates.
+- **Static assets**: `public/` directory (fonts, images) served directly without processing.
 
 ## Project-Specific Conventions
 
@@ -42,7 +43,7 @@ heroImage: /assets/my-hero.jpg
 ---
 ```
 
-**Routing**: pages use `getCollection('blog')` and `post.id` as the slug. URLs follow `/blog/{post.id}/` (see `src/pages/blog/[...slug].astro`).
+**Routing**: pages use `getCollection('blog')` to retrieve blog posts. Each post's `id` (derived from the file path) serves as the URL slug. URLs follow `/blog/{post.id}/` pattern (see `src/pages/blog/[...slug].astro`).
 
 **Rendering MDX/Markdown**: use `render(post)` from `astro:content` to extract `Content` for insertion into `BlogPost` layout.
 
@@ -56,15 +57,18 @@ heroImage: /assets/my-hero.jpg
 
 ## Build & Deploy
 
-- The repo expects Cloudflare Tools: `wrangler` is used (`devDependencies`). CI scripts call `wrangler deploy --dry-run` in `npm run check`.
-- Before deploying, ensure `site` in `astro.config.mjs` points to the canonical domain (it currently uses `https://example.com`).
+- **Deployment target**: Cloudflare Pages (static site deployment).
+- **Build command**: `npm run build` (produces `./dist` directory).
 - **Build output**: `./dist/` directory (excluded from git).
+- **Site URL**: Configured in `astro.config.mjs` as `site: "https://example.com"` - update this to your actual domain before deploying.
+- **Deployment**: Connect your GitHub repository to Cloudflare Pages with build command `npm run build` and output directory `dist`.
 
 ## TypeScript & Typing
 
-- Content collection types are used (`astro:content` types, `CollectionEntry<'blog'>`). When changing frontmatter, update `src/content.config.ts` schema accordingly.
-- Run `npm run cf-typegen` or `wrangler types` if adding Cloudflare-specific bindings.
-- Type checking is enforced via `tsc` in the check script.
+- Content collection types are generated from `astro:content` (e.g., `CollectionEntry<'blog'>` type).
+- When changing frontmatter schema, update the Zod schema in `src/content.config.ts` accordingly.
+- Type checking is enforced via `tsc` as part of the `npm run check` command.
+- TypeScript configuration is in `tsconfig.json`.
 
 ## Styling & Layout
 
@@ -79,9 +83,10 @@ heroImage: /assets/my-hero.jpg
 
 ## Troubleshooting
 
-- If you encounter build errors, check that all dependencies are installed (`npm install`).
-- For type errors, run `npm run cf-typegen` to regenerate Cloudflare types.
-- Ensure frontmatter in blog posts matches the schema in `src/content.config.ts`.
+- If you encounter build errors, ensure all dependencies are installed with `npm install`.
+- For type errors, run `npm run check` to get detailed TypeScript diagnostics.
+- Ensure blog post frontmatter matches the Zod schema defined in `src/content.config.ts`.
+- Check that the `site` URL in `astro.config.mjs` is correct for your deployment.
 
 ---
 
