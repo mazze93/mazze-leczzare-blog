@@ -44,11 +44,13 @@
   --soft-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   /* Legacy variables for backward compatibility with existing components */
-  --black: #050510;
-  --gray-light: #e5e5ec;
-  --gray: #b5b5c2;
-  --gray-dark: #4a4a5c;
-  --gray-gradient: linear-gradient(180deg, var(--gray-light) 0%, var(--gray-dark) 100%);
+  /* Defined as RGB channel triplets for use in rgb()/rgba() */
+  --black: 5, 5, 16;
+  --gray-light: 229, 229, 236;
+  --gray: 181, 181, 194;
+  --gray-dark: 74, 74, 92;
+  /* Gradient stop list for use in linear-gradient(var(--gray-gradient)) */
+  --gray-gradient: var(--gray-light) 0%, var(--gray-dark) 100%;
   --accent: var(--hot-pink);
   --accent-dark: var(--violet-haze);
   --box-shadow: var(--soft-shadow);
