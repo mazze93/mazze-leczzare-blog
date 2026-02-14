@@ -125,13 +125,19 @@ main::after {
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)) ,
               radial-gradient(circle at 70% 70%, rgba(0, 229, 255, 0.8), rgba(0, 229, 255, 0));
   opacity: 0.3;
-  animation: float 6s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+/* Only animate if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  main::after {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
 }
 
 /* Generous spacing for neurodivergent comfort */
@@ -149,12 +155,18 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 3.2em;
   text-shadow: var(--glow-shadow);
-  animation: gentlePulse 4s ease-in-out infinite;
 }
 
-@keyframes gentlePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.9; }
+/* Only animate if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  h1 {
+    animation: gentlePulse 4s ease-in-out infinite;
+  }
+
+  @keyframes gentlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
+  }
 }
 
 h2 { font-size: 2.5em; }
@@ -171,8 +183,14 @@ a {
   color: var(--neon-cyan);
   text-decoration: none;
   border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
   position: relative;
+}
+
+/* Only add transitions if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition: color 0.3s ease, border-bottom-color 0.3s ease, text-shadow 0.3s ease;
+  }
 }
 
 a:hover {
@@ -190,11 +208,24 @@ a::after {
   width: 0;
   height: 2px;
   background: var(--cyber-gradient);
-  transition: width 0.3s ease;
+}
+
+/* Only add transition if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  a::after {
+    transition: width 0.3s ease;
+  }
 }
 
 a:hover::after {
   width: 100%;
+}
+
+/* For users who prefer reduced motion, show underline immediately */
+@media (prefers-reduced-motion: reduce) {
+  a:hover::after {
+    width: 100%;
+  }
 }
 
 p {
@@ -215,7 +246,13 @@ textarea, input {
   border: 2px solid var(--violet-haze);
   border-radius: 12px;
   color: var(--pearl);
-  transition: all 0.3s ease;
+}
+
+/* Only add transitions if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  textarea, input {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
 }
 
 textarea:focus, input:focus {
@@ -237,12 +274,25 @@ img {
   height: auto;
   border-radius: 16px;
   box-shadow: var(--soft-shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-img:hover {
-  transform: scale(1.02);
-  box-shadow: var(--glow-shadow);
+/* Only add transitions and transforms if user hasn't requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  img:hover {
+    transform: scale(1.02);
+    box-shadow: var(--glow-shadow);
+  }
+}
+
+/* For users who prefer reduced motion, just change box-shadow on hover */
+@media (prefers-reduced-motion: reduce) {
+  img:hover {
+    box-shadow: var(--glow-shadow);
+  }
 }
 
 code {
