@@ -170,14 +170,12 @@ strong, b {
 a {
   color: var(--neon-cyan);
   text-decoration: none;
-  border-bottom: 2px solid transparent;
   transition: all 0.3s ease;
   position: relative;
 }
 
 a:hover {
   color: var(--violet-haze);
-  border-bottom-color: var(--hot-pink);
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
 
