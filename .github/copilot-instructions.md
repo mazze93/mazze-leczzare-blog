@@ -1,7 +1,8 @@
 <!-- Copilot/AI agent instructions tailored to this Astro + Cloudflare blog starter -->
 # Project quickstart for AI coding agents
 
-This repo is an Astro-based static blog scaffold, deployed to Cloudflare Pages using the `@astrojs/cloudflare` adapter.
+This repo is an Astro-based blog scaffold using static site generation (SSG), deployed to Cloudflare Pages.
+It uses the `@astrojs/cloudflare` adapter with `output: "static"` mode to enable Cloudflare-specific features while prerendering all pages at build time.
 Below are the immediate, discoverable conventions and examples an AI agent needs to be productive here.
 
 ## Quick Commands
