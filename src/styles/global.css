@@ -221,13 +221,6 @@ a:hover::after {
   width: 100%;
 }
 
-/* For users who prefer reduced motion, show underline immediately */
-@media (prefers-reduced-motion: reduce) {
-  a:hover::after {
-    width: 100%;
-  }
-}
-
 p {
   margin-bottom: var(--space-md);
   max-width: min(65ch, 100%); /* Optimal reading width without exceeding container */
