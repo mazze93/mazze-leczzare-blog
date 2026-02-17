@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://mazze-leczzare-blog.pages.dev",
+  site: "https://mazzeleczzare.com",
   output: "static",
   integrations: [mdx(), sitemap()],
 });
