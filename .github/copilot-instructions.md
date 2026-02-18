@@ -1,7 +1,8 @@
 <!-- Copilot/AI agent instructions tailored to this Astro + Cloudflare blog starter -->
 # Project quickstart for AI coding agents
 
-This repo is an Astro-based static blog scaffold, deployed to Cloudflare Workers using the `@astrojs/cloudflare` adapter.
+This repo is an Astro-based blog scaffold using static site generation (SSG), deployed to Cloudflare Pages.
+It uses the `@astrojs/cloudflare` adapter with `output: "static"` mode to enable Cloudflare-specific features while prerendering all pages at build time.
 Below are the immediate, discoverable conventions and examples an AI agent needs to be productive here.
 
 ## Quick Commands
@@ -9,9 +10,9 @@ Below are the immediate, discoverable conventions and examples an AI agent needs
 - `npm install` : install deps
 - `npm run dev` : local dev server (Astro, :4321)
 - `npm run build` : produce `./dist`
-- `npm run preview` : build + `wrangler dev` (preview on Cloudflare runtime)
+- `npm run preview` : build + `wrangler pages dev dist` (preview on Cloudflare runtime)
 - `npm run cf-typegen` : `wrangler types` (generate Cloudflare types)
-- `npm run check` : build + `tsc` + `wrangler deploy --dry-run` (CI-style check)
+- `npm run check` : build + `tsc` (CI-style check)
 
 ## Testing & Linting
 
@@ -56,7 +57,8 @@ heroImage: /assets/my-hero.jpg
 
 ## Build & Deploy
 
-- The repo expects Cloudflare Tools: `wrangler` is used (`devDependencies`). CI scripts call `wrangler deploy --dry-run` in `npm run check`.
+- The repo expects Cloudflare Tools: `wrangler` is used (`devDependencies`). CI scripts call `npm run check` which runs build + TypeScript type checking.
+- For Cloudflare Pages deployment, use the Cloudflare dashboard to connect your repository, or use `wrangler pages deploy dist` manually after building.
 - Before deploying, ensure `site` in `astro.config.mjs` points to the canonical domain (it currently uses `https://example.com`).
 - **Build output**: `./dist/` directory (excluded from git).
 
