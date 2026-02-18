@@ -1,7 +1,170 @@
 # mazzeleczzare.com — AI Coding Agent Instructions
 
 ## Overview
+## PR Review — Governance Tightening (v2 Refinement)
 
+This revision reduces redundancy while strengthening architectural clarity and enforcement rules. The goal was to preserve rigor while eliminating instructional sprawl and ambiguity.
+
+Below is a structured summary of what changed and why.
+
+---
+
+### 🔧 1. Structural Compression (−~20% verbosity)
+
+**Change**
+
+- Consolidated overlapping sections:
+  - Engineering Standards + QA + Troubleshooting
+  - Build & Deployment duplication
+  - Repeated references to content collections  
+- Removed duplicated explanations of static rendering and TypeScript strict mode.
+
+**Why**
+
+Redundancy in governance documents creates drift. When rules appear in multiple sections, they eventually diverge. This version centralizes each concept once and makes it authoritative.
+
+---
+
+### 🧭 2. Canonical & Redirect Rules Formalized
+
+**Added**
+
+```
+Canonical Domain: https://mazzeleczzare.com
+Trailing Slash Policy: Required
+Redirect Rules: Enforced at Cloudflare level
+```
+
+**Why**
+
+The previous version implied canonical handling but did not formally define it.  
+Ambiguity here risks:
+
+- Redirect loops  
+- Duplicate content penalties  
+- Conflicting Astro vs Cloudflare redirect logic  
+
+This makes domain and slash policy contractual.
+
+---
+
+### 🔐 3. Core Principles Converted to Enforcement Rules
+
+**Change**
+
+- Reframed “Core Principles” as enforceable constraints.  
+- Removed narrative explanation.  
+- Converted principles into operational rules.
+
+**Why**
+
+AI governance documentation should function as policy, not philosophy.  
+Less interpretation → fewer ambiguous or hallucinated decisions.
+
+---
+
+### 📦 4. Content Model Simplified
+
+**Change**
+
+- Reduced schema explanation to required vs optional fields.  
+- Removed redundant rendering explanations.  
+- Kept the Zod schema reference as the single source of truth.
+
+**Why**
+
+Frontmatter schema is a public API contract.  
+The document now emphasizes that contract instead of re-explaining Astro mechanics.
+
+---
+
+### 🏗 5. Decision File Section Tightened
+
+**Change**
+
+- Removed repetition in qualifying scenarios.  
+- Standardized required-change triggers.  
+- Simplified the template structure.
+
+**Why**
+
+Decision files are architectural control points.  
+Over-describing them weakens clarity.  
+This version defines escalation criteria cleanly and enforceably.
+
+---
+
+### 🧱 6. Introduced “What This Project Is Not”
+
+**Added**
+
+Explicit exclusions:
+
+- Not a React SPA  
+- Not analytics-driven  
+- Not CMS-dependent  
+- Not JavaScript-heavy  
+- Not mutable-URL content  
+
+**Why**
+
+Constraints protect architecture.  
+Defining exclusions prevents gradual scope creep and technology drift.
+
+---
+
+### 🧪 7. QA Checklist Consolidated
+
+**Change**
+
+Merged:
+
+- Build verification  
+- Type checks  
+- Lighthouse targets  
+- Keyboard accessibility testing  
+
+Into a single pre-commit checklist.
+
+**Why**
+
+Reviewers need one authoritative verification ritual.  
+Scattered testing references dilute accountability.
+
+---
+
+### 🧠 8. Removed Conversational Framing
+
+**Removed**
+
+- “If anything is unclear…”  
+- Instructional meta commentary  
+- TODO-style warnings  
+
+**Why**
+
+Governance files should describe reality, not invite interpretation.  
+Unresolved TODOs were removed to prevent false authority signals.
+
+---
+
+### ⚡ Net Effect
+
+- Reduced duplication  
+- Increased enforceability  
+- Clarified canonical URL governance  
+- Strengthened privacy and dependency discipline  
+- Converted narrative tone → architectural contract  
+
+The document now functions as:
+
+> A deterministic operating specification for AI contributions  
+
+Rather than:
+
+> An extended onboarding guide  
+
+This version is intentionally strict to prevent architectural entropy.
 This repository contains the source code for **mazzeleczzare.com**, a performance-focused, accessible blog built with Astro and deployed to Cloudflare Pages as a static site.
 
 **Mission**: Deliver a fast, accessible reading experience with minimal JavaScript, clean SEO, and stable content URLs.
