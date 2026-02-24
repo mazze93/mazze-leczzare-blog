@@ -77,4 +77,4 @@ Check out [our documentation](https://docs.astro.build) or jump into our [Discor
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
 
 ## Archived Repository
-This repository has been archived because the blog is now deployed and running locally. No further updates are planned.
+This repository has been archived and is no longer actively maintained. The blog is now deployed from a different codebase, and this repository is kept for reference only. No further updates are planned here.
