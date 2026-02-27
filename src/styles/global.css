@@ -309,10 +309,14 @@ pre {
   border-radius: 12px;
   overflow-x: auto;
   box-shadow: var(--soft-shadow);
+  font-family: "SF Mono", "Monaco", monospace;
+  font-size: 0.9em;
 }
 
 pre > code {
   all: unset;
+  font-family: "SF Mono", "Monaco", monospace;
+  font-size: 0.9em;
   color: var(--mint-glow);
 }
 
