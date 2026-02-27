@@ -50,7 +50,7 @@
   --gray: 181, 181, 194;
   --gray-dark: 74, 74, 92;
   /* Gradient stop list for use in linear-gradient(var(--gray-gradient)) */
-  --gray-gradient: var(--gray-light) 0%, var(--gray-dark) 100%;
+  --gray-gradient: rgb(var(--gray-light)) 0%, rgb(var(--gray-dark)) 100%;
   --accent: var(--hot-pink);
   --accent-dark: var(--violet-haze);
   --box-shadow: var(--soft-shadow);
