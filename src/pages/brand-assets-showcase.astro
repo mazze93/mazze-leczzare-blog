@@ -1,0 +1,244 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mazzeleczzare Brand Assets</title>
+    <style>
+      :root {
+        --bg0: #0a0f1f;
+        --bg1: #1e293b;
+        --fg: #f5f5f0;
+        --outline: rgba(0, 229, 255, 0.6);
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+        background: linear-gradient(135deg, var(--bg0) 0%, var(--bg1) 100%);
+        color: var(--fg);
+        padding: 2rem;
+        min-height: 100vh;
+      }
+      a {
+        color: inherit;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+      h1 {
+        font-size: clamp(1.75rem, 3vw, 2.6rem);
+        margin-bottom: 0.4rem;
+        background: linear-gradient(135deg, #00e5ff, #ff1493);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+      .card {
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+      .card h2 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.15rem;
+      }
+      .variants {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+      .variant {
+        padding: 0.75rem;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.25);
+        text-align: center;
+      }
+      .variant svg {
+        height: 60px;
+      }
+      .variant-name {
+        margin-top: 0.4rem;
+        font-size: 0.85rem;
+        opacity: 0.85;
+      }
+      .tip {
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        opacity: 0.75;
+      }
+      .skip {
+        position: absolute;
+        left: -10000px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      .skip:focus {
+        left: 1rem;
+        top: 1rem;
+        width: auto;
+        height: auto;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        outline: 2px solid var(--outline);
+      }
+      @media (max-width: 800px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .variants {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to brand assets</a>
+
+    <svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none;opacity:0">
+      <defs>
+        <linearGradient id="nmGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#00E5FF" />
+          <stop offset="1" stop-color="#7A5CFF" />
+        </linearGradient>
+        <linearGradient id="spGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#00E5FF" />
+          <stop offset="1" stop-color="#FF1493" />
+        </linearGradient>
+        <linearGradient id="spRainbowGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#FF1493" />
+          <stop offset="25%" stop-color="#FF69B4" />
+          <stop offset="50%" stop-color="#00E5FF" />
+          <stop offset="75%" stop-color="#7A5CFF" />
+          <stop offset="100%" stop-color="#C9A227" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <main id="main" class="container">
+      <header>
+        <h1>Mazzeleczzare Brand System</h1>
+        <p>Two marks tuned for systems thinking, security, and pride.</p>
+      </header>
+
+      <section class="grid" aria-label="Brand assets">
+        <article class="card">
+          <h2>
+            <svg role="img" aria-label="Neural Maze M" viewBox="0 0 256 256">
+              <path d="M64 224 L64 64 L128 163 L192 64 L192 224" fill="none" stroke="url(#nmGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="64" cy="64" r="7" fill="#00E5FF" />
+              <circle cx="128" cy="163" r="7" fill="#00E5FF" />
+              <circle cx="192" cy="64" r="7" fill="#00E5FF" />
+            </svg>
+            Neural Maze "M"
+          </h2>
+
+          <div class="variants" aria-label="Neural Maze variants">
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <path d="M64 224 L64 64 L128 163 L192 64 L192 224" fill="none" stroke="url(#nmGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="64" cy="64" r="7" fill="#00E5FF" />
+                <circle cx="128" cy="163" r="7" fill="#00E5FF" />
+                <circle cx="192" cy="64" r="7" fill="#00E5FF" />
+              </svg>
+              <div class="variant-name">Light</div>
+            </div>
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <rect x="32" y="32" width="192" height="192" rx="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="8" />
+                <path d="M64 224 L64 64 L128 163 L192 64 L192 224" fill="none" stroke="url(#nmGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="64" cy="64" r="7" fill="#00E5FF" />
+                <circle cx="128" cy="163" r="7" fill="#00E5FF" />
+                <circle cx="192" cy="64" r="7" fill="#00E5FF" />
+              </svg>
+              <div class="variant-name">Dark</div>
+            </div>
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <path d="M64 224 L64 64 L128 163 L192 64 L192 224" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="64" cy="64" r="7" fill="#FFFFFF" />
+                <circle cx="128" cy="163" r="7" fill="#FFFFFF" />
+                <circle cx="192" cy="64" r="7" fill="#FFFFFF" />
+              </svg>
+              <div class="variant-name">Monochrome</div>
+            </div>
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <path d="M64 224 L64 64 L128 163 L192 64 L192 224" fill="none" stroke="#00E5FF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <div class="variant-name">Favicon</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <svg role="img" aria-label="Secure Pride" viewBox="0 0 256 256">
+              <path d="M 96 163 Q 96 80 128 64 Q 160 80 160 163" fill="none" stroke="url(#spGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+              <rect x="80" y="180" width="96" height="60" rx="12" fill="none" stroke="url(#spGradient)" stroke-width="16" stroke-linejoin="round" />
+              <path d="M 128 200 C 124 197 118 197 116 201 C 114 204 116 210 128 218 C 140 210 142 204 140 201 C 138 197 132 197 128 200 Z" fill="#00E5FF" />
+            </svg>
+            Secure Pride
+          </h2>
+
+          <div class="variants" aria-label="Secure Pride variants">
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <path d="M 96 163 Q 96 80 128 64 Q 160 80 160 163" fill="none" stroke="url(#spGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="80" y="180" width="96" height="60" rx="12" fill="none" stroke="url(#spGradient)" stroke-width="16" stroke-linejoin="round" />
+                <path d="M 128 200 C 124 197 118 197 116 201 C 114 204 116 210 128 218 C 140 210 142 204 140 201 C 138 197 132 197 128 200 Z" fill="#00E5FF" />
+              </svg>
+              <div class="variant-name">Light</div>
+            </div>
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <rect x="32" y="32" width="192" height="192" rx="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="8" />
+                <path d="M 96 163 Q 96 80 128 64 Q 160 80 160 163" fill="none" stroke="url(#spGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="80" y="180" width="96" height="60" rx="12" fill="none" stroke="url(#spGradient)" stroke-width="16" stroke-linejoin="round" />
+                <path d="M 128 200 C 124 197 118 197 116 201 C 114 204 116 210 128 218 C 140 210 142 204 140 201 C 138 197 132 197 128 200 Z" fill="#00E5FF" />
+              </svg>
+              <div class="variant-name">Dark</div>
+            </div>
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <path d="M 96 163 Q 96 80 128 64 Q 160 80 160 163" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="80" y="180" width="96" height="60" rx="12" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linejoin="round" />
+                <path d="M 128 200 C 124 197 118 197 116 201 C 114 204 116 210 128 218 C 140 210 142 204 140 201 C 138 197 132 197 128 200 Z" fill="#FFFFFF" />
+              </svg>
+              <div class="variant-name">Monochrome</div>
+            </div>
+            <div class="variant">
+              <svg aria-hidden="true" viewBox="0 0 256 256">
+                <path d="M 96 163 Q 96 80 128 64 Q 160 80 160 163" fill="none" stroke="url(#spRainbowGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="80" y="180" width="96" height="60" rx="12" fill="none" stroke="url(#spRainbowGradient)" stroke-width="16" stroke-linejoin="round" />
+                <path d="M 128 200 C 124 197 118 197 116 201 C 114 204 116 210 128 218 C 140 210 142 204 140 201 C 138 197 132 197 128 200 Z" fill="#FF1493" />
+              </svg>
+              <div class="variant-name">Rainbow</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <p class="tip">
+        Tip: gradients are defined once at the top of the document to avoid duplicate IDs and ensure consistent rendering across variants.
+      </p>
+    </main>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 Contact: mailto:security@mazzeleczzare.com
-Expires: 2026-08-31T23:59:59Z
+Expires: 2026-12-31T23:59:59Z
 Preferred-Languages: en
 Canonical: https://mazzeleczzare.com/.well-known/security.txt
 Policy: https://github.com/mazze93/mazze-leczzare-blog/security/policy
