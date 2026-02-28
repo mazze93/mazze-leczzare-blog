@@ -216,28 +216,6 @@ a:hover {
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
 
-/* Pride-coded link underline animation */
-a::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--cyber-gradient);
-}
-
-/* Only add transition if user hasn't requested reduced motion */
-@media (prefers-reduced-motion: no-preference) {
-  a::after {
-    transition: width 0.3s ease;
-  }
-}
-
-a:hover::after {
-  width: 100%;
-}
-
 p {
   margin-bottom: var(--space-md);
   max-width: min(65ch, 100%); /* Optimal reading width without exceeding container */
