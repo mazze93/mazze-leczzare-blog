@@ -99,6 +99,8 @@ body {
   font-size: var(--text-base);
   line-height: var(--line-height-relaxed);
   letter-spacing: var(--letter-spacing-open);
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
   overflow-x: hidden;
   position: relative;
 }
