@@ -127,12 +127,20 @@ gap: 0.5em;
 }
 </style>
 <script>
-// Add scrolled class for enhanced shadow on scroll
-const header = document.querySelector('header');
-const onScroll = () => {
-if (header) {
-header.classList.toggle('scrolled', window.scrollY > 10);
-}
-};
-window.addEventListener('scroll', onScroll, { passive: true });
+	// Add scrolled class for enhanced shadow on scroll
+	const header = document.querySelector('header');
+	const controller = new AbortController();
+	window.addEventListener(
+		'scroll',
+		() => {
+			if (header) {
+				header.classList.toggle('scrolled', window.scrollY > 10);
+			}
+		},
+		{ passive: true, signal: controller.signal },
+	);
+	// Clean up when the page is hidden (navigation away)
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') controller.abort();
+	}, { once: true });
 </script>
