@@ -9,6 +9,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ title, subtitle, ctaLabel, ctaHref }: HeroSectionProps) {
   const [visible, setVisible] = useState(false);
+  const [ctaHovered, setCtaHovered] = useState(false);
 
   useEffect(() => {
     // Trigger animation after mount
@@ -112,21 +113,15 @@ export default function HeroSection({ title, subtitle, ctaLabel, ctaHref }: Hero
             fontWeight: 700,
             fontSize: '1rem',
             textDecoration: 'none',
-            boxShadow: '0 4px 20px rgba(108,99,255,0.4)',
+            boxShadow: ctaHovered
+              ? '0 8px 32px rgba(108,99,255,0.6)'
+              : '0 4px 20px rgba(108,99,255,0.4)',
             opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(16px)',
-            transition: 'opacity 0.7s ease 0.4s, transform 0.7s ease 0.4s, box-shadow 0.25s ease',
+            transform: ctaHovered ? 'translateY(-2px)' : visible ? 'translateY(0)' : 'translateY(16px)',
+            transition: 'opacity 0.7s ease 0.4s, transform 0.25s ease, box-shadow 0.25s ease',
           }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLAnchorElement;
-            el.style.boxShadow = '0 8px 32px rgba(108,99,255,0.6)';
-            el.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLAnchorElement;
-            el.style.boxShadow = '0 4px 20px rgba(108,99,255,0.4)';
-            el.style.transform = visible ? 'translateY(0)' : 'translateY(16px)';
-          }}
+          onMouseEnter={() => setCtaHovered(true)}
+          onMouseLeave={() => setCtaHovered(false)}
         >
           {ctaLabel}
         </a>
