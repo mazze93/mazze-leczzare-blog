@@ -42,3 +42,26 @@ Risks:
 
 Mitigation:
 Keep snapshot concise and rotate by timestamp files.
+
+## DECISION-003
+Date: 2026-03-05
+Category: Tooling
+Title: Make post-commit hooks non-mutating for tracked files
+
+Context:
+Automatic post-commit cache writes changed tracked files immediately after commits and kept the tree dirty.
+
+Decision:
+Replace post-commit cache mutation with a reminder-only hook. Keep cache updates explicit via `git ctx` or script commands.
+
+Why:
+- Prevents dirty-tree churn after every commit.
+- Reduces accidental cache-only follow-up commits.
+- Keeps reviews focused on product changes.
+
+Risks:
+- Context cache may become stale if contributors forget manual refresh.
+
+Mitigation:
+- Install `git ctx` alias in `setup-hooks.sh`.
+- Keep one-command `session-handoff.sh` for explicit updates.

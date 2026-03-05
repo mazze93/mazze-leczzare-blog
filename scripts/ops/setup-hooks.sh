@@ -11,14 +11,15 @@ cat > "$POST_COMMIT" <<'HOOK'
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-"$REPO_ROOT/scripts/ops/update-context-cache.sh" >/dev/null 2>&1 || true
-"$REPO_ROOT/scripts/ops/prune-context-cache.sh" 30 >/dev/null 2>&1 || true
+# Post-commit hooks must not mutate tracked files.
+echo "INFO: context cache is not auto-updated on commit (by design)."
+echo "Run: scripts/ops/update-context-cache.sh"
 HOOK
 
 chmod +x "$POST_COMMIT"
 git -C "$REPO_ROOT" config core.hooksPath .githooks
+git -C "$REPO_ROOT" config alias.ctx '!scripts/ops/update-context-cache.sh'
 
 echo "Git hooks enabled via core.hooksPath=.githooks"
-echo "post-commit now refreshes docs/operations/memory/context-cache/latest.md"
-echo "post-commit now prunes context-cache snapshots to latest 30 timestamped files"
+echo "post-commit is non-mutating by design (no tracked file writes)."
+echo "Use 'git ctx' or scripts/ops/update-context-cache.sh for explicit refresh."
