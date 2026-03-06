@@ -1,21 +1,25 @@
-# Astro Starter Kit: Blog
+# Mazze Leczzare Blog
+![Framework](https://img.shields.io/badge/Framework-Astro-orange)
+![Hosting](https://img.shields.io/badge/Hosting-Cloudflare%20Pages-blue)
+![Content](https://img.shields.io/badge/Content-Markdown%20%2B%20MDX-success)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
-![Astro Template Preview](https://github.com/withastro/astro/assets/2244813/ff10799f-a816-4703-b967-c78997e8323d)
+![Mazze Leczzare Blog Social Preview](.github/social-preview.png)
 
-<!-- dash-content-start -->
+Personal editorial platform for essays, project notes, and public-facing narrative around privacy, cognition, and security-forward design.
 
-Create a blog with Astro and deploy it on Cloudflare Pages as a [static website](https://developers.cloudflare.com/pages/).
+## At a glance
+- Fast, SEO-forward Astro site with clean content workflow.
+- Markdown/MDX publishing with lightweight deployment on Cloudflare Pages.
+- Designed for expressive long-form writing on web and mobile.
 
-Features:
+## Quick links
+- [Deployment](#deployment)
+- [Getting Started](#getting-started)
+- [Project Structure](#-project-structure)
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-
-<!-- dash-content-end -->
+## GitHub social preview
+Upload `.github/social-preview.png` in repository `Settings -> General -> Social preview` to use the branded card on link shares.
 
 ## Deployment
 
