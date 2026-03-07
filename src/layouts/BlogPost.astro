@@ -1,5 +1,4 @@
 ---
-import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -18,14 +17,28 @@ type Props = {
   pubDate?: Date | string;
   updatedDate?: Date | string;
   heroImage?: string;
+  frontmatter?: {
+    title?: string;
+    description?: string;
+    pubDate?: Date | string;
+    updatedDate?: Date | string;
+    heroImage?: string;
+  };
 };
 
-const props = Astro.props;
-const { title, description, heroImage } = props;
+const props = Astro.props as Props;
+const frontmatter = props.frontmatter ?? {};
+const resolved = {
+  ...frontmatter,
+  ...props,
+};
+const title = resolved.title ?? 'Untitled';
+const description = resolved.description ?? '';
+const heroImage = resolved.heroImage;
 
 // Handle both Date objects and string dates, with proper fallback
-const rawPubDate = props.pubDate;
-const rawUpdatedDate = props.updatedDate;
+const rawPubDate = resolved.pubDate;
+const rawUpdatedDate = resolved.updatedDate;
 
 const pubDate = rawPubDate 
   ? (typeof rawPubDate === 'string' ? new Date(rawPubDate) : rawPubDate)
