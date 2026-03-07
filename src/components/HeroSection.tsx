@@ -5,9 +5,16 @@ interface HeroSectionProps {
   subtitle: string;
   ctaLabel: string;
   ctaHref: string;
+  artworkSrc?: string;
 }
 
-export default function HeroSection({ title, subtitle, ctaLabel, ctaHref }: HeroSectionProps) {
+export default function HeroSection({
+  title,
+  subtitle,
+  ctaLabel,
+  ctaHref,
+  artworkSrc = '/hero-signal-grid.svg',
+}: HeroSectionProps) {
   const [visible, setVisible] = useState(false);
   const [ctaHovered, setCtaHovered] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -180,8 +187,8 @@ export default function HeroSection({ title, subtitle, ctaLabel, ctaHref }: Hero
           }}
         >
           <img
-            src="/blog-placeholder-about.jpg"
-            alt="Editorial portrait placeholder for Mazze Leczzare"
+            src={artworkSrc}
+            alt="Signal-grid artwork for Mazze Leczzare"
             style={{
               display: 'block',
               width: '100%',
