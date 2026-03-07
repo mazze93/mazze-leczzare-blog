@@ -14,10 +14,22 @@ const posts = (await getCollection('blog')).sort(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Blog | ${SITE_TITLE}`} description="Recent essays and field notes from Mazze Leczzare." />
 		<style>
 			main {
 				width: 960px;
+			}
+			.blog-intro {
+				margin-bottom: 2rem;
+				padding: 1.5rem 0 1rem;
+			}
+			.blog-intro h1 {
+				margin-bottom: 0.5rem;
+			}
+			.blog-intro p {
+				margin: 0;
+				max-width: 42rem;
+				color: rgb(var(--gray));
 			}
 			ul {
 				display: flex;
@@ -88,6 +100,12 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
+			<section class="blog-intro">
+				<h1>Field Notes</h1>
+				<p>
+					Essays, architecture notes, and public working documents from the studio.
+				</p>
+			</section>
 			<section>
 				<ul>
 					{
