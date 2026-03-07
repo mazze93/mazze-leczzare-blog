@@ -4,6 +4,12 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import {
+  SITE_AUTHOR,
+  SITE_DEFAULT_OG_IMAGE,
+  SITE_TITLE,
+  SITE_URL,
+} from '../consts';
 
 // Support both blog collection entries and markdown pages with frontmatter
 type Props = {
@@ -28,11 +34,47 @@ const pubDate = rawPubDate
 const updatedDate = rawUpdatedDate 
   ? (typeof rawUpdatedDate === 'string' ? new Date(rawUpdatedDate) : rawUpdatedDate)
   : undefined;
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  image: [new URL(heroImage ?? SITE_DEFAULT_OG_IMAGE, SITE_URL).toString()],
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: {
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    url: SITE_URL,
+  },
+  publisher: {
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    url: SITE_URL,
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': Astro.url.toString(),
+  },
+  isPartOf: {
+    '@type': 'Blog',
+    name: SITE_TITLE,
+    url: SITE_URL,
+  },
+};
 ---
 
 <html lang="en">
 <head>
-<BaseHead title={title} description={description} />
+<BaseHead
+title={title}
+description={description}
+image={heroImage}
+type="article"
+publishedTime={pubDate.toISOString()}
+modifiedTime={(updatedDate ?? pubDate).toISOString()}
+/>
+<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
 <style>
 main {
 width: calc(100% - 2em);
