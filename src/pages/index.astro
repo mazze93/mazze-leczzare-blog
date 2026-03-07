@@ -2,49 +2,184 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import HeroSection from '../components/HeroSection.tsx';
+import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+).slice(0, 6);
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+<head>
+<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+</head>
+<body>
+<Header />
+<main>
+<HeroSection
+client:load
+title="Mazze Leczzare"
+subtitle="Former neuroscientist turned storyteller, marketer, and cybersecurity explorer. Mapping ideas at the intersection of science, art, and technology."
+ctaLabel="Read the Blog"
+ctaHref="/blog"
+/>
+
+{posts.length > 0 && (
+<section class="posts-section" aria-label="Recent posts">
+<div class="posts-container">
+<h2 class="section-title">Recent Writing</h2>
+<ul class="posts-grid" role="list">
+{posts.map((post, index) => (
+<li class="post-card" style={`animation-delay: ${index * 80}ms`}>
+<a href={`/blog/${post.id}/`} aria-label={`Read: ${post.data.title}`}>
+{post.data.heroImage && (
+<figure class="card-image">
+<img
+src={post.data.heroImage}
+alt={post.data.title}
+width={720}
+height={360}
+loading="lazy"
+decoding="async"
+/>
+</figure>
+)}
+<div class="card-body">
+<p class="card-date">
+<FormattedDate date={post.data.pubDate} />
+</p>
+<h3 class="card-title">{post.data.title}</h3>
+{post.data.description && (
+<p class="card-desc">{post.data.description}</p>
+)}
+</div>
+</a>
+</li>
+))}
+</ul>
+<div class="view-all">
+<a href="/blog" class="btn btn-primary">View All Posts</a>
+</div>
+</div>
+</section>
+)}
+</main>
+<Footer />
+</body>
 </html>
+<style>
+main {
+width: 100%;
+max-width: 100%;
+margin: 0;
+padding: 0;
+}
+
+/* Posts Section */
+.posts-section {
+padding: 5em 1.5em;
+background: rgba(var(--surface), 0.88);
+}
+.posts-container {
+max-width: 1100px;
+margin: 0 auto;
+}
+.section-title {
+font-size: clamp(1.5rem, 3vw, 2rem);
+color: rgb(var(--text-main));
+margin-bottom: 2em;
+text-align: center;
+letter-spacing: -0.02em;
+}
+.posts-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 2rem;
+list-style: none;
+margin: 0;
+padding: 0;
+}
+.post-card {
+animation: cardEntrance 0.5s ease both;
+}
+.post-card a {
+display: block;
+text-decoration: none;
+background: rgba(var(--surface-elevated), 0.96);
+border-radius: 16px;
+box-shadow: 0 4px 20px rgba(var(--black), 8%);
+overflow: hidden;
+transition: transform 0.25s ease, box-shadow 0.25s ease;
+height: 100%;
+}
+.post-card a:hover {
+transform: translateY(-6px);
+box-shadow: 0 12px 40px rgba(var(--black), 16%);
+}
+.card-image {
+margin: 0;
+aspect-ratio: 2 / 1;
+overflow: hidden;
+}
+.card-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 0;
+transition: transform 0.4s ease;
+}
+.post-card a:hover .card-image img {
+transform: scale(1.05);
+}
+.card-body {
+padding: 1.25em 1.5em 1.5em;
+}
+.card-date {
+margin: 0 0 0.4em;
+font-size: 0.8em;
+color: rgb(var(--gray));
+letter-spacing: 0.05em;
+text-transform: uppercase;
+}
+.card-title {
+margin: 0 0 0.5em;
+font-size: 1.1rem;
+color: rgb(var(--text-main));
+line-height: 1.3;
+font-weight: 700;
+}
+.card-desc {
+margin: 0;
+font-size: 0.9em;
+color: rgb(var(--gray));
+line-height: 1.5;
+display: -webkit-box;
+-webkit-line-clamp: 3;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.view-all {
+text-align: center;
+margin-top: 3em;
+}
+
+@media (max-width: 1024px) {
+.posts-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+
+@media (max-width: 768px) {
+.posts-section {
+padding: 3em 1em;
+}
+.posts-grid {
+grid-template-columns: 1fr;
+gap: 1.25rem;
+}
+}
+</style>
