@@ -2,7 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import HeroSection from '../components/HeroSection.tsx';
+import SignalHero from '../components/SignalHero.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
@@ -20,14 +20,7 @@ const posts = (await getCollection('blog')).sort(
 <body>
 <Header />
 <main>
-<HeroSection
-client:load
-title="Mazze Leczzare"
-subtitle="Static-first essays and working notes on science, story, brand systems, and cybersecurity. Built to think in public without dragging the whole web stack into the room."
-ctaLabel="Read the Blog"
-ctaHref="/blog"
-artworkSrc="/hero-signal-grid.svg"
-/>
+<SignalHero />
 
 {posts.length > 0 && (
 <section class="posts-section" aria-label="Recent posts">

@@ -31,6 +31,12 @@
     rgba(0, 0, 0, 0.3) 0%,
     rgba(0, 0, 0, 0.6) 100%
   );
+  --hero-text: #f2f4f8;
+  --hero-text-muted: #b7c0d1;
+  --hero-teal: #2bd3c6;
+  --hero-magenta: #c04bb7;
+  --hero-amber: #f4a261;
+  --hero-line: rgba(255, 255, 255, 0.08);
 
   /* Shadows */
   --box-shadow:
