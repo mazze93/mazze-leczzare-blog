@@ -1,9 +1,14 @@
 ---
-import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import {
+  SITE_AUTHOR,
+  SITE_DEFAULT_OG_IMAGE,
+  SITE_TITLE,
+  SITE_URL,
+} from '../consts';
 
 // Support both blog collection entries and markdown pages with frontmatter
 type Props = {
@@ -12,14 +17,28 @@ type Props = {
   pubDate?: Date | string;
   updatedDate?: Date | string;
   heroImage?: string;
+  frontmatter?: {
+    title?: string;
+    description?: string;
+    pubDate?: Date | string;
+    updatedDate?: Date | string;
+    heroImage?: string;
+  };
 };
 
-const props = Astro.props;
-const { title, description, heroImage } = props;
+const props = Astro.props as Props;
+const frontmatter = props.frontmatter ?? {};
+const resolved = {
+  ...frontmatter,
+  ...props,
+};
+const title = resolved.title ?? 'Untitled';
+const description = resolved.description ?? '';
+const heroImage = resolved.heroImage;
 
 // Handle both Date objects and string dates, with proper fallback
-const rawPubDate = props.pubDate;
-const rawUpdatedDate = props.updatedDate;
+const rawPubDate = resolved.pubDate;
+const rawUpdatedDate = resolved.updatedDate;
 
 const pubDate = rawPubDate 
   ? (typeof rawPubDate === 'string' ? new Date(rawPubDate) : rawPubDate)
@@ -28,78 +47,137 @@ const pubDate = rawPubDate
 const updatedDate = rawUpdatedDate 
   ? (typeof rawUpdatedDate === 'string' ? new Date(rawUpdatedDate) : rawUpdatedDate)
   : undefined;
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  image: [new URL(heroImage ?? SITE_DEFAULT_OG_IMAGE, SITE_URL).toString()],
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: {
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    url: SITE_URL,
+  },
+  publisher: {
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    url: SITE_URL,
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': Astro.url.toString(),
+  },
+  isPartOf: {
+    '@type': 'Blog',
+    name: SITE_TITLE,
+    url: SITE_URL,
+  },
+};
 ---
 
 <html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
+<head>
+<BaseHead
+title={title}
+description={description}
+image={heroImage}
+type="article"
+publishedTime={pubDate.toISOString()}
+modifiedTime={(updatedDate ?? pubDate).toISOString()}
+/>
+<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+<style>
+main {
+width: calc(100% - 2em);
+max-width: 100%;
+margin: 0;
+}
+.hero-image {
+width: 100%;
+}
+.hero-image figure {
+margin: 0;
+}
+.hero-image img {
+display: block;
+margin: 0 auto;
+border-radius: 12px;
+box-shadow: var(--box-shadow);
+transition: opacity var(--transition-base);
+}
+.hero-image figcaption {
+text-align: center;
+font-size: 0.85em;
+color: rgb(var(--gray));
+margin-top: 0.5em;
+}
+.prose {
+width: 720px;
+max-width: calc(100% - 2em);
+margin: auto;
+padding: 1em;
+color: rgb(var(--gray-dark));
+animation: slideUp 0.4s ease both;
+}
+.title {
+margin-bottom: 1em;
+padding: 1em 0;
+text-align: center;
+line-height: 1;
+}
+.title h1 {
+margin: 0 0 0.5em 0;
+}
+.date {
+margin-bottom: 0.5em;
+color: rgb(var(--gray));
+font-size: 0.9em;
+}
+.last-updated-on {
+font-style: italic;
+}
+</style>
+</head>
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
+<body>
+<Header />
+<main>
+<article>
+<div class="hero-image">
+{heroImage && (
+<figure>
+<img
+width={1020}
+height={510}
+src={heroImage}
+alt={title}
+loading="lazy"
+decoding="async"
+/>
+</figure>
+)}
+</div>
+<div class="prose">
+<div class="title">
+<div class="date">
+<FormattedDate date={pubDate} />
+{
+updatedDate && (
+<div class="last-updated-on">
+Last updated on <FormattedDate date={updatedDate} />
+</div>
+)
+}
+</div>
+<h1>{title}</h1>
+<hr />
+</div>
+<slot />
+</div>
+</article>
+</main>
+<Footer />
+</body>
 </html>
