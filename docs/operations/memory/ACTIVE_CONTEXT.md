@@ -16,6 +16,9 @@ Last Updated: 2026-03-05 13:35:00Z
 - Main branch requires PR + checks before merge.
 
 ## Next Commands
+- `git add docs/operations scripts/ops .githooks scripts/bootstrap-dev-toolbelt.sh`
+- `git commit -m 'Establish operations baseline with memory framework and automation'`
+- `git push`
 - `bash scripts/ops/setup-hooks.sh`
 - `git ctx`
 - `bash scripts/ops/prune-context-cache.sh 30`

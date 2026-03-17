@@ -17,6 +17,7 @@ Build and ship production-safe changes with command-first verification, honest c
 ## At-a-Glance Dashboard
 - 🟩 Build Flow: `Understand -> Verify -> Design -> Build -> Validate -> Deploy`
 - 🟩 Execution Mode: CLI-first, evidence-first
+- 🟩 Memory Mode: persistent files + auto context-cache snapshots
 - 🟩 Memory Mode: persistent files + explicit context-cache refresh
 - 🟨 Confidence Rule: no "works" claim without validation evidence
 - 🟥 Escalation Triggers: sensitive data handling, legal/policy calls, destructive irreversible actions
