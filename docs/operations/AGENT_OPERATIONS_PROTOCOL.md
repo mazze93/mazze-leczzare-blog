@@ -18,6 +18,7 @@ Build and ship production-safe changes with command-first verification, honest c
 - 🟩 Build Flow: `Understand -> Verify -> Design -> Build -> Validate -> Deploy`
 - 🟩 Execution Mode: CLI-first, evidence-first
 - 🟩 Memory Mode: persistent files + auto context-cache snapshots
+- 🟩 Memory Mode: persistent files + explicit context-cache refresh
 - 🟨 Confidence Rule: no "works" claim without validation evidence
 - 🟥 Escalation Triggers: sensitive data handling, legal/policy calls, destructive irreversible actions
 
@@ -84,10 +85,10 @@ Context cache artifacts:
 - `context-cache/YYYY-MM-DDTHHMMSSZ.md`
 
 ## Prompt/Context Caching Policy
-- 🟩 Enabled through local git hook automation (post-commit).
+- 🟩 Enabled through explicit command (`git ctx` or script), not automatic hook mutation.
 - 🟨 Cache contains operational context only (no secrets).
-- 🟨 On every commit, regenerate `latest.md` and a timestamped snapshot.
-- 🟩 Keep only the latest 30 timestamped snapshots via `scripts/ops/prune-context-cache.sh`.
+- 🟨 `post-commit` must remain non-mutating for tracked files.
+- 🟩 Keep only the latest 30 timestamped snapshots via `scripts/ops/prune-context-cache.sh` (manual or scheduled).
 - 🟩 Use `scripts/ops/session-handoff.sh` for one-command memory updates.
 
 ## File Ownership

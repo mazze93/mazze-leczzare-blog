@@ -200,3 +200,6 @@ dist
 
 ### Astro ###
 .astro/
+
+### Local Agent Worktrees ###
+.claude/

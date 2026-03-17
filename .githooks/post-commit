@@ -4,3 +4,6 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 "$REPO_ROOT/scripts/ops/update-context-cache.sh" >/dev/null 2>&1 || true
 "$REPO_ROOT/scripts/ops/prune-context-cache.sh" 30 >/dev/null 2>&1 || true
+# Post-commit hooks must not mutate tracked files.
+echo "INFO: context cache is not auto-updated on commit (by design)."
+echo "Run: scripts/ops/update-context-cache.sh"
