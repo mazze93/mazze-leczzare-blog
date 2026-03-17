@@ -33,6 +33,22 @@ This blog is configured for static deployment to Cloudflare Pages:
 
 The site will be automatically deployed on every push to your main branch.
 
+### Contact form delivery
+
+Cloudflare Pages does not support the `send_email` binding directly in a Pages `wrangler.toml`.
+
+To enable the `/contact` form in production, configure one of these delivery paths:
+
+1. Set `CONTACT_WEBHOOK_URL` in Pages environment variables to a webhook or Worker endpoint that accepts the contact payload.
+2. Run the contact endpoint in a Worker context that provides a `CONTACT_EMAIL` binding.
+
+Optional variables:
+
+- `CONTACT_TO_EMAIL`
+- `CONTACT_FROM_EMAIL`
+- `CONTACT_SUBJECT_PREFIX`
+- `CONTACT_WEBHOOK_AUTH_HEADER`
+
 ## Getting Started
 
 To create a similar blog project with Astro:
