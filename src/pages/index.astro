@@ -2,185 +2,263 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import HeroSection from '../components/HeroSection.tsx';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog')).sort(
-(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-).slice(0, 6);
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 6);
 ---
 
 <!doctype html>
 <html lang="en">
 <head>
-<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
 <body>
-<Header />
-<main>
-<HeroSection
-client:load
-title="Mazze Leczzare"
-subtitle="Static-first essays and working notes on science, story, brand systems, and cybersecurity. Built to think in public without dragging the whole web stack into the room."
-ctaLabel="Read the Blog"
-ctaHref="/blog"
-artworkSrc="/hero-signal-grid.svg"
-/>
+  <Header />
+  <main>
+    <!-- Hero -->
+    <section class="hero" aria-label="Introduction">
+      <div class="hero-inner">
+        <p class="hero-label">Field Notes — mazzeleczzare.com</p>
+        <h1 class="hero-title">Essays, experiments,<br />and dispatches from<br />the edge.</h1>
+        <p class="hero-sub">
+          Science, story, brand systems, cybersecurity, and the stubborn attempt to
+          make complex ideas legible without flattening them.
+        </p>
+        <div class="hero-actions">
+          <a href="/blog" class="btn-primary">Read the Writing</a>
+          <a href="/about" class="btn-ghost">About</a>
+        </div>
+      </div>
+    </section>
 
-{posts.length > 0 && (
-<section class="posts-section" aria-label="Recent posts">
-<div class="posts-container">
-<h2 class="section-title">Recent Writing</h2>
-<ul class="posts-grid" role="list">
-{posts.map((post, index) => (
-<li class="post-card" style={`animation-delay: ${index * 80}ms`}>
-<a href={`/blog/${post.id}/`} aria-label={`Read: ${post.data.title}`}>
-{post.data.heroImage && (
-<figure class="card-image">
-<img
-src={post.data.heroImage}
-alt={post.data.title}
-width={720}
-height={360}
-loading="lazy"
-decoding="async"
-/>
-</figure>
-)}
-<div class="card-body">
-<p class="card-date">
-<FormattedDate date={post.data.pubDate} />
-</p>
-<h3 class="card-title">{post.data.title}</h3>
-{post.data.description && (
-<p class="card-desc">{post.data.description}</p>
-)}
-</div>
-</a>
-</li>
-))}
-</ul>
-<div class="view-all">
-<a href="/blog" class="btn btn-primary">View All Posts</a>
-</div>
-</div>
-</section>
-)}
-</main>
-<Footer />
+    <!-- Recent Posts -->
+    {posts.length > 0 && (
+      <section class="posts-section" aria-label="Recent writing">
+        <div class="posts-header">
+          <span class="section-label">Recent Writing</span>
+          <a href="/blog" class="see-all">All posts →</a>
+        </div>
+        <ul class="posts-list" role="list">
+          {posts.map((post, i) => (
+            <li class="post-item">
+              <a href={`/blog/${post.id}/`} class="post-link">
+                <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="post-body">
+                  <span class="post-title">{post.data.title}</span>
+                  {post.data.description && (
+                    <span class="post-desc">{post.data.description}</span>
+                  )}
+                </span>
+                <span class="post-date">
+                  <FormattedDate date={post.data.pubDate} />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </main>
+  <Footer />
 </body>
 </html>
+
 <style>
 main {
-width: 100%;
-max-width: 100%;
-margin: 0;
-padding: 0;
+  width: 960px;
+  max-width: calc(100% - 2em);
+  margin: 0 auto;
+  padding: 0 1em;
 }
 
-/* Posts Section */
+/* Hero */
+.hero {
+  padding: 7em 0 5em;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-label {
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 1.5em;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1.05;
+  margin: 0 0 0.8em;
+  letter-spacing: 0.01em;
+}
+
+.hero-sub {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--text-dim);
+  line-height: 1.8;
+  max-width: 52ch;
+  margin: 0 0 2.5em;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  background: var(--teal);
+  padding: 0.75em 1.5em;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background: var(--teal-dim);
+  color: var(--charcoal);
+}
+
+.btn-ghost {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border: 1px solid var(--rule);
+  padding: 0.75em 1.5em;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-ghost:hover {
+  color: var(--teal);
+  border-color: rgba(58, 184, 160, 0.3);
+}
+
+/* Posts section */
 .posts-section {
-padding: 5em 1.5em;
-background: rgba(var(--surface), 0.88);
-}
-.posts-container {
-max-width: 1100px;
-margin: 0 auto;
-}
-.section-title {
-font-size: clamp(1.5rem, 3vw, 2rem);
-color: rgb(var(--text-main));
-margin-bottom: 2em;
-text-align: center;
-letter-spacing: -0.02em;
-}
-.posts-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 2rem;
-list-style: none;
-margin: 0;
-padding: 0;
-}
-.post-card {
-animation: cardEntrance 0.5s ease both;
-}
-.post-card a {
-display: block;
-text-decoration: none;
-background: rgba(var(--surface-elevated), 0.96);
-border-radius: 16px;
-box-shadow: 0 4px 20px rgba(var(--black), 8%);
-overflow: hidden;
-transition: transform 0.25s ease, box-shadow 0.25s ease;
-height: 100%;
-}
-.post-card a:hover {
-transform: translateY(-6px);
-box-shadow: 0 12px 40px rgba(var(--black), 16%);
-}
-.card-image {
-margin: 0;
-aspect-ratio: 2 / 1;
-overflow: hidden;
-}
-.card-image img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-border-radius: 0;
-transition: transform 0.4s ease;
-}
-.post-card a:hover .card-image img {
-transform: scale(1.05);
-}
-.card-body {
-padding: 1.25em 1.5em 1.5em;
-}
-.card-date {
-margin: 0 0 0.4em;
-font-size: 0.8em;
-color: rgb(var(--gray));
-letter-spacing: 0.05em;
-text-transform: uppercase;
-}
-.card-title {
-margin: 0 0 0.5em;
-font-size: 1.1rem;
-color: rgb(var(--text-main));
-line-height: 1.3;
-font-weight: 700;
-}
-.card-desc {
-margin: 0;
-font-size: 0.9em;
-color: rgb(var(--gray));
-line-height: 1.5;
-display: -webkit-box;
--webkit-line-clamp: 3;
--webkit-box-orient: vertical;
-overflow: hidden;
-}
-.view-all {
-text-align: center;
-margin-top: 3em;
+  padding: 3.5em 0;
 }
 
-@media (max-width: 1024px) {
-.posts-grid {
-grid-template-columns: repeat(2, 1fr);
-}
+.posts-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.5em;
+  padding-bottom: 0.75em;
+  border-bottom: 1px solid var(--rule);
 }
 
-@media (max-width: 768px) {
-.posts-section {
-padding: 3em 1em;
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
 }
-.posts-grid {
-grid-template-columns: 1fr;
-gap: 1.25rem;
+
+.see-all {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 0.06em;
+  color: var(--teal);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
+
+.see-all:hover { color: var(--coral); }
+
+.posts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-item {
+  border-bottom: 1px solid var(--rule);
+}
+
+.post-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25em;
+  padding: 1.1em 0;
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.post-link:hover .post-title { color: var(--teal); }
+.post-link:hover .post-num { color: var(--teal); }
+
+.post-num {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  width: 2em;
+  transition: color var(--transition-fast);
+}
+
+.post-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.post-title {
+  font-family: var(--font-display);
+  font-size: 1.2em;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.25;
+  transition: color var(--transition-fast);
+}
+
+.post-desc {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  color: var(--text-faint);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-date {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .hero { padding: 4em 0 3em; }
+  .post-link { flex-wrap: wrap; gap: 0.5em; }
+  .post-date { width: 100%; }
+  .post-desc { display: none; }
 }
 </style>
