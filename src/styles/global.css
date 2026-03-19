@@ -13,20 +13,24 @@
    CSS Custom Properties
    =========================== */
 :root {
-  /* Palette */
-  --charcoal:   #0f1210;
+  /* Fixed palette */
   --teal:       #3ab8a0;
   --teal-dim:   #2a8a78;
   --coral:      #e8705a;
   --coral-dim:  #c45544;
   --gold:       #c8a060;
+
+  /* Dark mode tokens (default) */
+  --charcoal:   #0f1210;
+  --bg:         #0f1210;
   --text:       #c8cec8;
   --text-dim:   #8a9890;
   --text-faint: #506058;
   --rule:       #1e2a26;
+  --surface:    #111a17;
+  --header-bg:  rgba(15, 18, 16, 0.92);
 
   /* Semantic aliases */
-  --bg:         var(--charcoal);
   --accent:     var(--teal);
   --accent-alt: var(--coral);
 
@@ -56,6 +60,24 @@
 }
 
 /* ===========================
+   Light Mode Overrides
+   =========================== */
+[data-theme="light"] {
+  --bg:         #f5f0e8;
+  --charcoal:   #f5f0e8;
+  --text:       #1a2420;
+  --text-dim:   #3e5450;
+  --text-faint: #7a9090;
+  --rule:       #d4ccc0;
+  --surface:    #ede8de;
+  --header-bg:  rgba(245, 240, 232, 0.92);
+  --teal:       #28907c;
+  --teal-dim:   #1e6e5e;
+  --coral:      #cc4f38;
+  --coral-dim:  #a83c2a;
+}
+
+/* ===========================
    Keyframe Animations
    =========================== */
 @keyframes fadeIn {
@@ -77,14 +99,14 @@
 
 html {
   scroll-behavior: smooth;
-  background: var(--charcoal);
+  background: var(--bg);
 }
 
 body {
   font-family: var(--font-mono);
   margin: 0;
   padding: 0;
-  background: var(--charcoal);
+  background: var(--bg);
   color: var(--text);
   font-size: 15px;
   line-height: 1.75;
@@ -194,7 +216,7 @@ pre {
   padding: 1.5em;
   border-radius: var(--radius-md);
   border: 1px solid var(--rule);
-  background: #0a100e;
+  background: var(--surface);
   overflow-x: auto;
 }
 

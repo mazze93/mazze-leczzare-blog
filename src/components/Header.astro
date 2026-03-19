@@ -1,5 +1,6 @@
 ---
 import { SITE_TITLE } from '../consts';
+import ThemeToggle from './ThemeToggle';
 ---
 
 <header role="banner">
@@ -13,6 +14,7 @@ import { SITE_TITLE } from '../consts';
     <div class="nav-util">
       <a href="https://github.com/mazze93" target="_blank" rel="noopener noreferrer" class="util-link">GitHub</a>
       <a href="/rss.xml" class="util-link">RSS</a>
+      <ThemeToggle client:load />
     </div>
   </nav>
 </header>
@@ -22,7 +24,7 @@ header {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: rgba(15, 18, 16, 0.92);
+  background: var(--header-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--rule);
@@ -99,6 +101,31 @@ nav {
 .util-link:hover {
   color: var(--teal);
   border-color: rgba(58, 184, 160, 0.3);
+}
+
+:global(.theme-toggle) {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 0.3em 0.6em;
+  cursor: pointer;
+  line-height: 1.6;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+:global(.theme-toggle:hover) {
+  color: var(--teal);
+  border-color: rgba(58, 184, 160, 0.3);
+}
+
+:global(.theme-toggle:focus-visible) {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {
