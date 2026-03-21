@@ -94,8 +94,6 @@ const articleSchema = {
     modifiedTime={(updatedDate ?? pubDate).toISOString()}
   />
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <style>
     main {
       width: calc(100% - 2em);

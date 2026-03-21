@@ -31,7 +31,7 @@ export default function ThemeToggle() {
     window.localStorage.setItem('theme-preference', nextTheme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      metaTheme.setAttribute('content', nextTheme === 'dark' ? '#0f172a' : '#f7f4ed');
+      metaTheme.setAttribute('content', nextTheme === 'dark' ? '#0f1210' : '#f5f0e8');
     }
   }
 
