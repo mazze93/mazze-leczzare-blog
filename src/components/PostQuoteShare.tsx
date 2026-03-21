@@ -7,7 +7,6 @@ type PostQuoteShareProps = {
 
 type ShareEventName = 'quote_share_clicked' | 'quote_share_visited';
 
-const SITE_ORIGIN = 'https://mazzeleczzare.com';
 const BUTTON_CLASS = 'quote-share-button';
 const HIGHLIGHT_CLASS = 'quote-share-highlight';
 const PARAGRAPH_CLASS = 'quote-share-paragraph';
@@ -26,8 +25,8 @@ function normalizePathname(pathname: string) {
   return pathname.endsWith('/') ? pathname : `${pathname}/`;
 }
 
-function buildShareUrl(pathname: string, quoteId: string) {
-  const url = new URL(normalizePathname(pathname), SITE_ORIGIN);
+function buildShareUrl(origin: string, pathname: string, quoteId: string) {
+  const url = new URL(normalizePathname(pathname), origin);
   url.searchParams.set('quote', quoteId);
   url.searchParams.set('via', 'quote-share');
   return url.toString();
@@ -79,6 +78,7 @@ async function sendShareEvent(event: ShareEventName, path: string, quoteId: stri
 
 export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps) {
   useEffect(() => {
+    const pageOrigin = window.location.origin;
     const normalizedPathname = normalizePathname(pathname);
     const paragraphs = Array.from(document.querySelectorAll<HTMLParagraphElement>('.prose > p'));
 
@@ -135,6 +135,7 @@ export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps)
         return;
       }
 
+      const paragraphShareText = paragraph.textContent?.trim() || title;
       const button = document.createElement('button');
       button.type = 'button';
       button.className = BUTTON_CLASS;
@@ -143,8 +144,7 @@ export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps)
       button.setAttribute('aria-label', `Share paragraph link from ${title}`);
 
       const onClick = async () => {
-        const shareUrl = buildShareUrl(normalizedPathname, paragraph.id);
-        const shareText = paragraph.textContent?.trim() || title;
+        const shareUrl = buildShareUrl(pageOrigin, normalizedPathname, paragraph.id);
 
         void sendShareEvent('quote_share_clicked', normalizedPathname, paragraph.id);
 
@@ -152,7 +152,7 @@ export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps)
           if (typeof navigator.share === 'function') {
             await navigator.share({
               title,
-              text: shareText,
+              text: paragraphShareText,
               url: shareUrl,
             });
             showButtonFeedback(button, 'Shared');
