@@ -41,11 +41,11 @@ const heroImage = resolved.heroImage;
 const rawPubDate = resolved.pubDate;
 const rawUpdatedDate = resolved.updatedDate;
 
-const pubDate = rawPubDate 
+const pubDate = rawPubDate
   ? (typeof rawPubDate === 'string' ? new Date(rawPubDate) : rawPubDate)
-  : new Date(); // Fallback to current date if missing
+  : new Date();
 
-const updatedDate = rawUpdatedDate 
+const updatedDate = rawUpdatedDate
   ? (typeof rawUpdatedDate === 'string' ? new Date(rawUpdatedDate) : rawUpdatedDate)
   : undefined;
 const articleSchema = {
@@ -141,7 +141,7 @@ font-style: italic;
 }
 :global(.prose > p.quote-share-paragraph) {
 position: relative;
-padding-right: 5.5rem;
+padding-right: 6rem;
 scroll-margin-top: 8rem;
 transition:
 background-color var(--transition-base),
@@ -160,7 +160,7 @@ right: 0;
 display: inline-flex;
 align-items: center;
 justify-content: center;
-min-width: 4.5rem;
+min-width: 4.75rem;
 padding: 0.35rem 0.75rem;
 border: 1px solid rgba(var(--gray), 0.18);
 border-radius: 999px;
@@ -183,7 +183,7 @@ color var(--transition-fast);
 }
 :global(.prose > p.quote-share-paragraph:hover .quote-share-button),
 :global(.prose > p.quote-share-paragraph:focus-within .quote-share-button),
-:global(.prose > p.quote-share-paragraph .quote-share-button.is-success) {
+:global(.prose > p.quote-share-paragraph .quote-share-button[data-state='success']) {
 opacity: 1;
 transform: translateY(0);
 }
@@ -197,7 +197,7 @@ outline-offset: 2px;
 opacity: 1;
 transform: translateY(0);
 }
-:global(.prose > p.quote-share-paragraph .quote-share-button.is-success) {
+:global(.prose > p.quote-share-paragraph .quote-share-button[data-state='success']) {
 background: rgba(var(--accent-rgb), 0.12);
 border-color: rgba(var(--accent-rgb), 0.35);
 color: var(--accent);
@@ -250,7 +250,7 @@ Last updated on <FormattedDate date={updatedDate} />
 <h1>{title}</h1>
 <hr />
 </div>
-<PostQuoteShare client:load title={title} pathname={Astro.url.pathname} />
+<PostQuoteShare client:load title={title} path={Astro.url.pathname} />
 <slot />
 </div>
 </article>

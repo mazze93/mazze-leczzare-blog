@@ -20,5 +20,8 @@
     "dev": "astro dev",
     "preview": "astro preview"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "wrangler": "^4.76.0"
+  }
 }

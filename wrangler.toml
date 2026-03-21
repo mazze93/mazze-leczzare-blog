@@ -5,3 +5,11 @@ pages_build_output_dir = "dist"
 send_email = [
   { name = "CONTACT_EMAIL" }
 ]
+
+[[ratelimits]]
+name = "SHARE_EVENT_RATE_LIMITER"
+namespace_id = "23021"
+
+  [ratelimits.simple]
+  limit = 20
+  period = 60

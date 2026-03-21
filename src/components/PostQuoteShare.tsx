@@ -2,33 +2,49 @@ import { useEffect } from 'react';
 
 type PostQuoteShareProps = {
   title: string;
-  pathname: string;
+  path: string;
 };
 
 type ShareEventName = 'quote_share_clicked' | 'quote_share_visited';
 
-const BUTTON_CLASS = 'quote-share-button';
-const HIGHLIGHT_CLASS = 'quote-share-highlight';
-const PARAGRAPH_CLASS = 'quote-share-paragraph';
-const SUCCESS_TIMEOUT_MS = 2500;
-const VISITED_STORAGE_PREFIX = 'quote-share-visited';
+type FeedbackLabel = 'Link copied' | 'Shared';
 
-function normalizePathname(pathname: string) {
-  if (!pathname.startsWith('/')) {
+const BUTTON_CLASS = 'quote-share-button';
+const PARAGRAPH_CLASS = 'quote-share-paragraph';
+const HIGHLIGHT_CLASS = 'quote-share-highlight';
+const SUCCESS_TIMEOUT_MS = 2500;
+const HIGHLIGHT_TIMEOUT_MS = 4000;
+const SHARE_SOURCE = 'quote-share';
+const VISITED_STORAGE_PREFIX = 'quote-share-visited';
+const QUOTE_ID_PATTERN = /^quote-\d{1,4}$/;
+const QUOTE_SHARE_ID_ATTRIBUTE = 'data-quote-share-id';
+
+function normalizePath(path: string) {
+  if (!path.startsWith('/')) {
     return '/';
   }
 
-  if (pathname === '/') {
-    return pathname;
+  if (path === '/') {
+    return '/';
   }
 
-  return pathname.endsWith('/') ? pathname : `${pathname}/`;
+  return path.endsWith('/') ? path : path + '/';
 }
 
-function buildShareUrl(origin: string, pathname: string, quoteId: string) {
-  const url = new URL(normalizePathname(pathname), origin);
+function truncateQuote(value: string) {
+  const normalized = value.replace(/\s+/g, ' ').trim();
+
+  if (normalized.length <= 220) {
+    return normalized;
+  }
+
+  return normalized.slice(0, 217).trimEnd() + '...';
+}
+
+function buildShareUrl(origin: string, path: string, quoteId: string) {
+  const url = new URL(path, origin);
   url.searchParams.set('quote', quoteId);
-  url.searchParams.set('via', 'quote-share');
+  url.searchParams.set('via', SHARE_SOURCE);
   return url.toString();
 }
 
@@ -41,8 +57,9 @@ async function copyToClipboard(value: string) {
   const input = document.createElement('textarea');
   input.value = value;
   input.setAttribute('readonly', 'true');
-  input.style.position = 'absolute';
+  input.style.position = 'fixed';
   input.style.left = '-9999px';
+  input.style.opacity = '0';
   document.body.append(input);
   input.select();
 
@@ -57,30 +74,66 @@ async function copyToClipboard(value: string) {
   }
 }
 
-async function sendShareEvent(event: ShareEventName, path: string, quoteId: string) {
-  try {
-    await fetch('/api/share-event', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        event,
-        path,
-        quoteId,
-      }),
-      keepalive: true,
-    });
-  } catch {
-    // Quote sharing should remain local-first even if measurement fails.
+function sendShareEvent(event: ShareEventName, path: string, quoteId: string) {
+  const body = JSON.stringify({ event, path, quoteId });
+
+  if (navigator.sendBeacon) {
+    const accepted = navigator.sendBeacon(
+      '/api/share-event',
+      new Blob([body], { type: 'application/json' }),
+    );
+
+    if (accepted) {
+      return;
+    }
   }
+
+  void fetch('/api/share-event', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+    keepalive: true,
+  }).catch(() => {
+    // Measurement stays best-effort and must never block reading or sharing.
+  });
 }
 
-export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps) {
+function setButtonFeedback(
+  button: HTMLButtonElement,
+  label: FeedbackLabel,
+  feedbackTimeouts: Map<HTMLButtonElement, number>,
+) {
+  const existingTimeout = feedbackTimeouts.get(button);
+
+  if (existingTimeout) {
+    window.clearTimeout(existingTimeout);
+  }
+
+  button.textContent = label;
+  button.dataset.state = 'success';
+
+  const timeoutId = window.setTimeout(() => {
+    button.textContent = button.dataset.defaultLabel || 'Share';
+    button.dataset.state = 'idle';
+    feedbackTimeouts.delete(button);
+  }, SUCCESS_TIMEOUT_MS);
+
+  feedbackTimeouts.set(button, timeoutId);
+}
+
+export default function PostQuoteShare({ title, path }: PostQuoteShareProps) {
   useEffect(() => {
-    const pageOrigin = window.location.origin;
-    const normalizedPathname = normalizePathname(pathname);
-    const paragraphs = Array.from(document.querySelectorAll<HTMLParagraphElement>('.prose > p'));
+    const prose = document.querySelector<HTMLElement>('.prose');
+    if (!prose) {
+      return;
+    }
+
+    const normalizedPath = normalizePath(path);
+    const paragraphs = Array.from(prose.children).filter(
+      (node): node is HTMLParagraphElement => node instanceof HTMLParagraphElement && Boolean(node.textContent?.trim()),
+    );
 
     if (!paragraphs.length) {
       return;
@@ -88,107 +141,88 @@ export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps)
 
     const cleanupHandlers: Array<() => void> = [];
     const feedbackTimeouts = new Map<HTMLButtonElement, number>();
+    const buttonById = new Map<string, HTMLButtonElement>();
     let highlightTimeout = 0;
 
-    const resetButtonLabel = (button: HTMLButtonElement) => {
-      button.textContent = button.dataset.defaultLabel || 'Share';
-      button.classList.remove('is-success');
-    };
-
-    const showButtonFeedback = (button: HTMLButtonElement, label: 'Link copied' | 'Shared') => {
-      const existingTimeout = feedbackTimeouts.get(button);
-
-      if (existingTimeout) {
-        window.clearTimeout(existingTimeout);
-      }
-
-      button.textContent = label;
-      button.classList.add('is-success');
-
-      const timeoutId = window.setTimeout(() => {
-        resetButtonLabel(button);
-        feedbackTimeouts.delete(button);
-      }, SUCCESS_TIMEOUT_MS);
-
-      feedbackTimeouts.set(button, timeoutId);
-    };
-
     paragraphs.forEach((paragraph, index) => {
-      paragraph.classList.add(PARAGRAPH_CLASS);
-      cleanupHandlers.push(() => {
-        paragraph.classList.remove(PARAGRAPH_CLASS);
-        paragraph.classList.remove(HIGHLIGHT_CLASS);
-      });
-
-      if (!paragraph.id) {
-        paragraph.id = `quote-${index + 1}`;
-        cleanupHandlers.push(() => {
-          paragraph.removeAttribute('id');
-        });
-      }
-
-      const existingControl = Array.from(paragraph.children).find((child) =>
-        child.classList.contains(BUTTON_CLASS),
-      );
-
-      if (existingControl instanceof HTMLButtonElement) {
-        return;
-      }
-
-      const paragraphShareText = paragraph.textContent?.trim() || title;
+      const quoteId = 'quote-' + String(index + 1);
+      const quoteText = truncateQuote(paragraph.textContent ?? title);
       const button = document.createElement('button');
-      button.type = 'button';
+
+      paragraph.classList.add(PARAGRAPH_CLASS);
+      paragraph.setAttribute(QUOTE_SHARE_ID_ATTRIBUTE, quoteId);
       button.className = BUTTON_CLASS;
-      button.dataset.defaultLabel = 'Share';
+      button.type = 'button';
       button.textContent = 'Share';
-      button.setAttribute('aria-label', `Share paragraph link from ${title}`);
+      button.dataset.defaultLabel = 'Share';
+      button.dataset.state = 'idle';
+      button.setAttribute('aria-label', 'Share paragraph ' + String(index + 1) + ' from ' + title);
+      button.setAttribute('title', 'Copy or share a direct link to this paragraph');
 
       const onClick = async () => {
-        const shareUrl = buildShareUrl(pageOrigin, normalizedPathname, paragraph.id);
-
-        void sendShareEvent('quote_share_clicked', normalizedPathname, paragraph.id);
+        const shareUrl = buildShareUrl(window.location.origin, normalizedPath, quoteId);
+        let feedbackLabel: FeedbackLabel | null = null;
 
         try {
           if (typeof navigator.share === 'function') {
             await navigator.share({
               title,
-              text: paragraphShareText,
+              text: '"' + quoteText + '"',
               url: shareUrl,
             });
-            showButtonFeedback(button, 'Shared');
-            return;
+            feedbackLabel = 'Shared';
+          } else {
+            await copyToClipboard(shareUrl);
+            feedbackLabel = 'Link copied';
           }
-
-          await copyToClipboard(shareUrl);
-          showButtonFeedback(button, 'Link copied');
         } catch (error) {
           if (error instanceof DOMException && error.name === 'AbortError') {
             return;
           }
+
+          try {
+            await copyToClipboard(shareUrl);
+            feedbackLabel = 'Link copied';
+          } catch {
+            return;
+          }
         }
+
+        sendShareEvent('quote_share_clicked', normalizedPath, quoteId);
+        setButtonFeedback(button, feedbackLabel, feedbackTimeouts);
       };
 
       button.addEventListener('click', onClick);
       paragraph.append(button);
+      buttonById.set(quoteId, button);
 
       cleanupHandlers.push(() => {
         button.removeEventListener('click', onClick);
         const timeoutId = feedbackTimeouts.get(button);
-
         if (timeoutId) {
           window.clearTimeout(timeoutId);
           feedbackTimeouts.delete(button);
         }
-
         button.remove();
+        paragraph.classList.remove(PARAGRAPH_CLASS, HIGHLIGHT_CLASS);
+        paragraph.removeAttribute(QUOTE_SHARE_ID_ATTRIBUTE);
       });
     });
 
-    const quoteId = new URLSearchParams(window.location.search).get('quote');
-    const targetParagraph = quoteId ? document.getElementById(quoteId) : null;
+    const searchParams = new URLSearchParams(window.location.search);
+    const quoteId = searchParams.get('quote');
+    const shareSource = searchParams.get('via');
+    const targetParagraph = quoteId
+      ? prose.querySelector<HTMLParagraphElement>(`p[${QUOTE_SHARE_ID_ATTRIBUTE}="${quoteId}"]`)
+      : null;
 
-    if (targetParagraph instanceof HTMLParagraphElement && targetParagraph.matches('.prose > p')) {
-      const targetQuoteId = targetParagraph.id;
+    if (
+      quoteId &&
+      QUOTE_ID_PATTERN.test(quoteId) &&
+      targetParagraph instanceof HTMLParagraphElement &&
+      targetParagraph.matches('.prose > p')
+    ) {
+      const targetButton = buttonById.get(quoteId);
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       window.requestAnimationFrame(() => {
@@ -201,17 +235,23 @@ export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps)
 
       highlightTimeout = window.setTimeout(() => {
         targetParagraph.classList.remove(HIGHLIGHT_CLASS);
-      }, SUCCESS_TIMEOUT_MS);
+      }, HIGHLIGHT_TIMEOUT_MS);
 
-      try {
-        const visitKey = `${VISITED_STORAGE_PREFIX}:${normalizedPathname}:${targetQuoteId}`;
-
-        if (!window.sessionStorage.getItem(visitKey)) {
-          window.sessionStorage.setItem(visitKey, '1');
-          void sendShareEvent('quote_share_visited', normalizedPathname, targetQuoteId);
+      if (shareSource === SHARE_SOURCE) {
+        if (targetButton) {
+          setButtonFeedback(targetButton, 'Shared', feedbackTimeouts);
         }
-      } catch {
-        void sendShareEvent('quote_share_visited', normalizedPathname, targetQuoteId);
+
+        try {
+          const visitKey = VISITED_STORAGE_PREFIX + ':' + normalizedPath + ':' + quoteId;
+
+          if (!window.sessionStorage.getItem(visitKey)) {
+            window.sessionStorage.setItem(visitKey, '1');
+            sendShareEvent('quote_share_visited', normalizedPath, quoteId);
+          }
+        } catch {
+          sendShareEvent('quote_share_visited', normalizedPath, quoteId);
+        }
       }
     }
 
@@ -224,7 +264,7 @@ export default function PostQuoteShare({ title, pathname }: PostQuoteShareProps)
       feedbackTimeouts.forEach((timeoutId) => window.clearTimeout(timeoutId));
       feedbackTimeouts.clear();
     };
-  }, [pathname, title]);
+  }, [path, title]);
 
   return null;
 }
