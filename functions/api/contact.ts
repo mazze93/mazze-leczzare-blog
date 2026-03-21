@@ -127,14 +127,19 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const email = toTrimmedString(payload.email).toLowerCase();
   const message = toTrimmedString(payload.message);
   const company = toTrimmedString(payload.company);
-  const startedAt = typeof payload.startedAt === 'number' ? payload.startedAt : 0;
-  const elapsedMs = Date.now() - startedAt;
+  const startedAt = typeof payload.startedAt === 'number' ? payload.startedAt : Number.NaN;
 
   if (company) {
     return json({ ok: true, message: 'Message sent.' });
   }
 
-  if (startedAt && elapsedMs < 1500) {
+  if (!Number.isFinite(startedAt) || startedAt <= 0) {
+    return json({ ok: false, error: 'Submission rejected. Please refresh the page and try again.' }, 400);
+  }
+
+  const elapsedMs = Date.now() - startedAt;
+
+  if (elapsedMs < 1500) {
     return json({ ok: false, error: 'Submission rejected. Please try again.' }, 400);
   }
 
