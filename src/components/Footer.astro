@@ -1,5 +1,5 @@
 ---
-import { SITE_EMAIL, SITE_GITHUB_URL, SITE_RSS_URL } from '../consts';
+import { SITE_GITHUB_URL, SITE_RSS_URL } from '../consts';
 const today = new Date();
 ---
 
@@ -12,6 +12,7 @@ const today = new Date();
 <nav aria-label="Footer links">
 <a href="/">Home</a>
 <a href="/blog">Blog</a>
+<a href="/contact">Contact</a>
 <a href="/about">About</a>
 <a href="/manifesto">Manifesto</a>
 </nav>
@@ -20,7 +21,7 @@ const today = new Date();
 <div class="social-links">
 <a href={SITE_GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
 <a href={SITE_RSS_URL}>RSS</a>
-<a href={SITE_EMAIL}>Contact</a>
+<a href="/contact">Contact</a>
 </div>
 </section>
 </div>

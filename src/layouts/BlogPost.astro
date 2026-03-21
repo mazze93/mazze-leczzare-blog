@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import PostQuoteShare from '../components/PostQuoteShare';
 import {
   SITE_AUTHOR,
   SITE_DEFAULT_OG_IMAGE,
@@ -138,6 +139,81 @@ font-size: 0.9em;
 .last-updated-on {
 font-style: italic;
 }
+:global(.prose > p.quote-share-paragraph) {
+position: relative;
+padding-right: 5.5rem;
+scroll-margin-top: 8rem;
+transition:
+background-color var(--transition-base),
+box-shadow var(--transition-base),
+padding var(--transition-base);
+}
+:global(.prose > p.quote-share-highlight) {
+background: rgba(var(--accent-rgb), 0.12);
+box-shadow: 0 0 0 0.45rem rgba(var(--accent-rgb), 0.12);
+border-radius: var(--radius-md);
+}
+:global(.prose > p.quote-share-paragraph .quote-share-button) {
+position: absolute;
+top: 0.1rem;
+right: 0;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 4.5rem;
+padding: 0.35rem 0.75rem;
+border: 1px solid rgba(var(--gray), 0.18);
+border-radius: 999px;
+background: rgba(var(--surface-elevated), 0.92);
+box-shadow: var(--card-shadow);
+color: rgb(var(--gray-dark));
+font: inherit;
+font-size: 0.72rem;
+font-weight: 700;
+letter-spacing: 0.02em;
+cursor: pointer;
+opacity: 0;
+transform: translateY(0.2rem);
+transition:
+opacity var(--transition-fast),
+transform var(--transition-fast),
+border-color var(--transition-fast),
+background var(--transition-fast),
+color var(--transition-fast);
+}
+:global(.prose > p.quote-share-paragraph:hover .quote-share-button),
+:global(.prose > p.quote-share-paragraph:focus-within .quote-share-button),
+:global(.prose > p.quote-share-paragraph .quote-share-button.is-success) {
+opacity: 1;
+transform: translateY(0);
+}
+:global(.prose > p.quote-share-paragraph .quote-share-button:hover) {
+border-color: rgba(var(--accent-rgb), 0.35);
+color: var(--accent);
+}
+:global(.prose > p.quote-share-paragraph .quote-share-button:focus-visible) {
+outline: 2px solid rgba(var(--accent-rgb), 0.4);
+outline-offset: 2px;
+opacity: 1;
+transform: translateY(0);
+}
+:global(.prose > p.quote-share-paragraph .quote-share-button.is-success) {
+background: rgba(var(--accent-rgb), 0.12);
+border-color: rgba(var(--accent-rgb), 0.35);
+color: var(--accent);
+}
+@media (max-width: 720px) {
+:global(.prose > p.quote-share-paragraph) {
+padding-right: 0;
+padding-bottom: 0.4rem;
+}
+:global(.prose > p.quote-share-paragraph .quote-share-button) {
+position: static;
+margin-top: 0.75rem;
+opacity: 1;
+transform: none;
+}
+}
 </style>
 </head>
 
@@ -174,6 +250,7 @@ Last updated on <FormattedDate date={updatedDate} />
 <h1>{title}</h1>
 <hr />
 </div>
+<PostQuoteShare client:load title={title} pathname={Astro.url.pathname} />
 <slot />
 </div>
 </article>
