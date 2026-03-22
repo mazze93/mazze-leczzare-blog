@@ -25,9 +25,14 @@ header {
   top: 0;
   z-index: var(--z-header);
   background: var(--header-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--rule);
+}
+
+@supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+  header {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 nav {
@@ -63,11 +68,11 @@ nav {
 }
 
 .nav-links a {
-  font-family: var(--font-mono);
-  font-size: 0.75em;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-faint);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-dim);
   text-decoration: none;
   padding: 0.4em 0.7em;
   transition: color var(--transition-fast);
@@ -128,6 +133,14 @@ nav {
   outline-offset: 2px;
 }
 
+.wordmark:focus-visible,
+.nav-links a:focus-visible,
+.util-link:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 @media (max-width: 640px) {
   nav {
     gap: 1em;
@@ -135,7 +148,12 @@ nav {
     min-height: 48px;
     flex-wrap: wrap;
   }
-  .nav-util { display: none; }
+  .nav-util {
+    display: flex;
+    margin-left: auto;
+  }
+  .util-link { display: none; }
+  :global(.theme-toggle) { display: inline-flex; }
   .nav-links a { padding: 0.3em 0.5em; }
 }
 </style>

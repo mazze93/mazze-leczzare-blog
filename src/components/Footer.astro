@@ -63,8 +63,8 @@ footer {
 
 .footer-desc {
   font-family: var(--font-mono);
-  font-size: 0.78em;
-  color: var(--text-faint);
+  font-size: 0.875rem;
+  color: var(--text-dim);
   line-height: 1.7;
   margin: 0;
   max-width: 28ch;
@@ -73,10 +73,10 @@ footer {
 .col-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.65em;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   margin-bottom: 1em;
 }
 
@@ -101,6 +101,13 @@ footer {
   color: var(--teal);
 }
 
+.footer-nav a:focus-visible,
+.footer-links a:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .footer-bottom {
   display: flex;
   align-items: center;
@@ -113,14 +120,14 @@ footer {
 
 .footer-meta {
   font-family: var(--font-mono);
-  font-size: 0.7em;
-  color: var(--text-faint);
+  font-size: 0.8125rem;
+  color: var(--text-dim);
   letter-spacing: 0.04em;
 }
 
 .footer-sep {
   color: var(--rule);
-  font-size: 0.7em;
+  font-size: 0.8125rem;
 }
 
 @media (max-width: 640px) {

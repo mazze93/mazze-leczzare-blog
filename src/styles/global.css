@@ -75,6 +75,10 @@
 
   /* Z-index */
   --z-header: 100;
+
+  /* Theme-color values (used by JS to update <meta name="theme-color">) */
+  --theme-color-dark:  #0f1210;
+  --theme-color-light: #f5f0e8;
 }
 
 /* ===========================
