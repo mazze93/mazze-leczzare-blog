@@ -1,7 +1,6 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import HomepageLayout from '../layouts/HomepageLayout.astro';
+import HeroSection from '../components/HeroSection';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
@@ -11,252 +10,175 @@ const posts = (await getCollection('blog'))
   .slice(0, 6);
 ---
 
-<!doctype html>
-<html lang="en">
-<head>
-  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-</head>
-<body>
-  <Header />
-  <main>
-    <!-- Hero -->
-    <section class="hero" aria-label="Introduction">
-      <div class="hero-inner">
-        <p class="hero-label">Field Notes — mazzeleczzare.com</p>
-        <h1 class="hero-title">Essays, experiments,<br />and dispatches from<br />the edge.</h1>
-        <p class="hero-sub">
-          Science, story, brand systems, cybersecurity, and the stubborn attempt to
-          make complex ideas legible without flattening them.
-        </p>
-        <div class="hero-actions">
-          <a href="/blog" class="btn-primary">Read the Writing</a>
-          <a href="/about" class="btn-ghost">About</a>
-        </div>
-      </div>
-    </section>
+<HomepageLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 
-    <!-- Recent Posts -->
-    {posts.length > 0 && (
-      <section class="posts-section" aria-label="Recent writing">
-        <div class="posts-header">
-          <span class="section-label">Recent Writing</span>
-          <a href="/blog" class="see-all">All posts →</a>
-        </div>
-        <ul class="posts-list" role="list">
+  <!-- Hero — full-viewport editorial canvas -->
+  <HeroSection
+    client:load
+    headline={"Essays, experiments,\nand dispatches\nfrom the edge."}
+    tagline="Science, story, brand systems, cybersecurity, and the stubborn attempt to make complex ideas legible without flattening them."
+    ctaLabel="Read the Writing"
+    ctaHref="/blog"
+    secondaryLabel="About"
+    secondaryHref="/about"
+    disciplines={['Neuroscience', 'Brand', 'Cybersecurity', 'Narrative', 'Design']}
+  />
+
+  <!-- Recent writing — editorial post index -->
+  {posts.length > 0 && (
+    <section class="writing-index" aria-label="Recent writing">
+      <div class="index-inner">
+
+        <header class="index-header">
+          <span class="index-eyebrow">Recent Writing</span>
+          <a href="/blog" class="index-all-link">All posts →</a>
+        </header>
+
+        <ol class="index-list" role="list">
           {posts.map((post, i) => (
-            <li class="post-item">
-              <a href={`/blog/${post.id}/`} class="post-link">
-                <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
-                <span class="post-body">
-                  <span class="post-title">{post.data.title}</span>
+            <li class="index-item">
+              <a href={`/blog/${post.id}/`} class="index-link">
+                <span class="index-num" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="index-body">
+                  <span class="index-title">{post.data.title}</span>
                   {post.data.description && (
-                    <span class="post-desc">{post.data.description}</span>
+                    <span class="index-desc">{post.data.description}</span>
                   )}
                 </span>
-                <span class="post-date">
+                <span class="index-date">
                   <FormattedDate date={post.data.pubDate} />
                 </span>
               </a>
             </li>
           ))}
-        </ul>
-      </section>
-    )}
-  </main>
-  <Footer />
-</body>
-</html>
+        </ol>
+
+      </div>
+    </section>
+  )}
+
+</HomepageLayout>
 
 <style>
-main {
-  width: 960px;
-  max-width: calc(100% - 2em);
+/* ── Writing index ──────────────────────────────────────────────────── */
+.writing-index {
+  border-top: 1px solid var(--home-rule);
+  padding: 4rem 1.5rem 6rem;
+}
+
+.index-inner {
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 0 1em;
 }
 
-/* Hero */
-.hero {
-  padding: 7em 0 5em;
-  border-bottom: 1px solid var(--rule);
-}
-
-.hero-label {
-  font-family: var(--font-mono);
-  font-size: 0.7em;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin: 0 0 1.5em;
-}
-
-.hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
-  font-weight: 300;
-  color: var(--text);
-  line-height: 1.05;
-  margin: 0 0 0.8em;
-  letter-spacing: 0.01em;
-}
-
-.hero-sub {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  color: var(--text-dim);
-  line-height: 1.8;
-  max-width: 52ch;
-  margin: 0 0 2.5em;
-}
-
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 1em;
-  flex-wrap: wrap;
-}
-
-.btn-primary {
-  font-family: var(--font-mono);
-  font-size: 0.75em;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--charcoal);
-  background: var(--teal);
-  padding: 0.75em 1.5em;
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-  transition: background var(--transition-fast);
-}
-
-.btn-primary:hover {
-  background: var(--teal-dim);
-  color: var(--charcoal);
-}
-
-.btn-ghost {
-  font-family: var(--font-mono);
-  font-size: 0.75em;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  border: 1px solid var(--rule);
-  padding: 0.75em 1.5em;
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-  transition: color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.btn-ghost:hover {
-  color: var(--teal);
-  border-color: rgba(58, 184, 160, 0.3);
-}
-
-/* Posts section */
-.posts-section {
-  padding: 3.5em 0;
-}
-
-.posts-header {
+.index-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 1.5em;
-  padding-bottom: 0.75em;
-  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--home-rule);
 }
 
-.section-label {
-  font-family: var(--font-mono);
-  font-size: 0.68em;
-  letter-spacing: 0.12em;
+.index-eyebrow {
+  font-family: var(--font-home-sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--home-text-faint);
 }
 
-.see-all {
-  font-family: var(--font-mono);
-  font-size: 0.68em;
-  letter-spacing: 0.06em;
-  color: var(--teal);
+.index-all-link {
+  font-family: var(--font-home-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--home-gold);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: opacity 150ms ease;
 }
+.index-all-link:hover { opacity: 0.7; }
 
-.see-all:hover { color: var(--coral); }
-
-.posts-list {
+.index-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.post-item {
-  border-bottom: 1px solid var(--rule);
+.index-item {
+  border-bottom: 1px solid var(--home-rule);
 }
 
-.post-link {
+.index-link {
   display: flex;
   align-items: baseline;
-  gap: 1.25em;
-  padding: 1.1em 0;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
   text-decoration: none;
-  transition: background var(--transition-fast);
 }
 
-.post-link:hover .post-title { color: var(--teal); }
-.post-link:hover .post-num { color: var(--teal); }
-
-.post-num {
-  font-family: var(--font-mono);
-  font-size: 0.65em;
-  color: var(--text-faint);
+.index-num {
+  font-family: var(--font-home-sans);
+  font-size: 0.62rem;
+  color: var(--home-text-faint);
   letter-spacing: 0.06em;
   flex-shrink: 0;
-  width: 2em;
-  transition: color var(--transition-fast);
+  width: 1.8em;
+  transition: color 150ms ease;
 }
 
-.post-body {
+.index-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.2em;
+  gap: 0.25em;
   min-width: 0;
 }
 
-.post-title {
-  font-family: var(--font-display);
-  font-size: 1.2em;
+.index-title {
+  font-family: var(--font-home-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
   font-weight: 400;
-  color: var(--text);
-  line-height: 1.25;
-  transition: color var(--transition-fast);
+  color: var(--home-text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  transition: color 150ms ease;
 }
 
-.post-desc {
-  font-family: var(--font-mono);
-  font-size: 0.75em;
-  color: var(--text-faint);
+.index-desc {
+  font-family: var(--font-home-sans);
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--home-text-faint);
   line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.post-date {
-  font-family: var(--font-mono);
-  font-size: 0.68em;
-  color: var(--text-faint);
+.index-date {
+  font-family: var(--font-home-sans);
+  font-size: 0.68rem;
+  color: var(--home-text-faint);
   letter-spacing: 0.04em;
   flex-shrink: 0;
   white-space: nowrap;
 }
 
+.index-link:hover .index-title { color: var(--home-gold); }
+.index-link:hover .index-num   { color: var(--home-gold); }
+
+.index-link:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
 @media (max-width: 640px) {
-  .hero { padding: 4em 0 3em; }
-  .post-link { flex-wrap: wrap; gap: 0.5em; }
-  .post-date { width: 100%; }
-  .post-desc { display: none; }
+  .writing-index { padding: 3rem 1rem 4rem; }
+  .index-link    { flex-wrap: wrap; gap: 0.5rem; }
+  .index-date    { width: 100%; }
+  .index-desc    { display: none; }
 }
 </style>

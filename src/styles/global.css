@@ -79,6 +79,40 @@
   /* Theme-color values (used by JS to update <meta name="theme-color">) */
   --theme-color-dark:  #0f1210;
   --theme-color-light: #f5f0e8;
+
+  /* ---- Homepage design tokens ----------------------------------------- */
+  /* Typography — Playfair Display (Freight analog) + DM Sans (Suisse analog) */
+  --font-home-display: 'Playfair Display', 'Georgia', serif;
+  --font-home-sans:    'DM Sans', system-ui, sans-serif;
+
+  /* Palette — deep editorial navy, distinct from blog's warm charcoal */
+  --home-bg:           #08080e;
+  --home-surface:      #0d0d16;
+  --home-text:         #f0ede6;
+  --home-text-dim:     rgba(240, 237, 230, 0.65);
+  --home-text-faint:   rgba(240, 237, 230, 0.35);
+  --home-gold:         #c8a060;
+  --home-rule:         rgba(240, 237, 230, 0.10);
+  --home-header-bg:    rgba(8, 8, 14, 0.92);
+}
+
+/* ===========================
+   Homepage body — remap shared CSS vars so Header/Footer auto-adapt
+   without any changes to those components
+   =========================== */
+body[data-layout="homepage"] {
+  background: var(--home-bg);
+  color: var(--home-text);
+
+  /* Override shared tokens used by Header, Footer, links */
+  --bg:         var(--home-bg);
+  --surface:    var(--home-surface);
+  --text:       var(--home-text);
+  --text-dim:   var(--home-text-dim);
+  --text-faint: var(--home-text-faint);
+  --rule:       var(--home-rule);
+  --header-bg:  var(--home-header-bg);
+  /* --teal and --coral remain as brand constants across both contexts */
 }
 
 /* ===========================
