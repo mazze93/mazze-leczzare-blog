@@ -1,0 +1,250 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Sign In | ${SITE_TITLE}`}
+      description="Sign in to access the admin area."
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="login-shell">
+        <div class="login-intro">
+          <p class="eyebrow">Admin</p>
+          <h1>Sign in</h1>
+          <p class="lede">Access restricted to authorized users.</p>
+        </div>
+        <div class="login-card">
+          <form id="login-form" class="login-form" novalidate>
+            <div class="field-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                required
+                placeholder="Enter your password"
+              />
+            </div>
+            <div class="form-footer">
+              <button type="submit" id="submit-btn">Sign in</button>
+            </div>
+            <p id="form-status" class="form-status" aria-live="polite" hidden></p>
+          </form>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const statusEl = document.getElementById('form-status') as HTMLParagraphElement;
+
+  function showStatus(msg: string, type: 'success' | 'error') {
+    statusEl.textContent = msg;
+    statusEl.className = `form-status ${type}`;
+    statusEl.hidden = false;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing in…';
+    statusEl.hidden = true;
+
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      if (res.ok) {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect') ?? '/admin';
+        window.location.href = redirect;
+      } else {
+        showStatus('Invalid password. Please try again.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign in';
+      }
+    } catch {
+      showStatus('Network error. Please try again.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign in';
+    }
+  });
+</script>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .login-shell {
+    min-height: calc(100vh - 68px);
+    padding: 4rem 1.25rem 5rem;
+    background:
+      radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.12), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(244, 114, 182, 0.12), transparent 28%),
+      linear-gradient(165deg, rgba(9, 12, 20, 0.98), rgba(12, 28, 34, 0.96));
+  }
+
+  .login-intro,
+  .login-card {
+    width: min(480px, 100%);
+    margin: 0 auto;
+  }
+
+  .login-card {
+    margin-top: 1.75rem;
+    padding: 2.25rem;
+    border-radius: 32px;
+    border: 1px solid rgba(135, 148, 171, 0.18);
+    background: rgba(99, 110, 116, 0.68);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  }
+
+  .eyebrow {
+    margin: 0 0 1rem;
+    color: #f79a6d;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: 0.95;
+    color: #f5f1e8;
+  }
+
+  .lede {
+    max-width: 42rem;
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.65;
+    color: rgba(245, 241, 232, 0.88);
+  }
+
+  .login-form {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .field-group {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .field-group label {
+    color: #f5f1e8;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .field-group input {
+    width: 100%;
+    border: 2px solid rgba(35, 62, 69, 0.9);
+    border-radius: 24px;
+    background: rgba(159, 167, 172, 0.76);
+    color: #112027;
+    font: inherit;
+    padding: 1rem 1.15rem;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    box-sizing: border-box;
+  }
+
+  .field-group input:focus {
+    outline: none;
+    border-color: rgba(247, 154, 109, 0.92);
+    box-shadow: 0 0 0 4px rgba(247, 154, 109, 0.16);
+    background: rgba(182, 188, 192, 0.9);
+  }
+
+  .form-footer {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .login-form button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.95rem 1.5rem;
+    font: inherit;
+    font-weight: 700;
+    color: #fdfaf5;
+    background: linear-gradient(135deg, #f79a6d, #dd6b8f);
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(221, 107, 143, 0.24);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+  }
+
+  .login-form button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px rgba(221, 107, 143, 0.3);
+  }
+
+  .login-form button:disabled {
+    opacity: 0.72;
+    cursor: wait;
+    transform: none;
+  }
+
+  .form-status {
+    margin: 0;
+    padding: 0.95rem 1.1rem;
+    border-radius: 18px;
+    font-weight: 600;
+  }
+
+  .form-status.success {
+    background: rgba(59, 130, 246, 0.14);
+    color: #d8ebff;
+    border: 1px solid rgba(96, 165, 250, 0.32);
+  }
+
+  .form-status.error {
+    background: rgba(239, 68, 68, 0.14);
+    color: #ffe2e2;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+  }
+
+  @media (max-width: 720px) {
+    .login-shell {
+      padding: 2.5rem 1rem 4rem;
+    }
+
+    .login-card {
+      padding: 1.5rem;
+      border-radius: 24px;
+    }
+
+    .login-form button {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

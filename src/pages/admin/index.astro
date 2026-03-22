@@ -1,0 +1,255 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { SITE_TITLE } from '../../consts';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const sorted = posts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Admin | ${SITE_TITLE}`}
+      description="Admin dashboard"
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="admin-shell">
+        <div class="admin-header">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h1>Dashboard</h1>
+          </div>
+          <button id="logout-btn" class="logout-btn">Sign out</button>
+        </div>
+
+        <div class="admin-content">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <span class="stat-value">{posts.length}</span>
+              <span class="stat-label">Total posts</span>
+            </div>
+          </div>
+
+          <div class="posts-section">
+            <h2>Posts</h2>
+            <ul class="posts-list">
+              {sorted.map((post) => (
+                <li class="post-row">
+                  <a href={`/blog/${post.id}`} class="post-title">
+                    {post.data.title}
+                  </a>
+                  <span class="post-date">
+                    {post.data.pubDate.toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
+
+  logoutBtn.addEventListener('click', async () => {
+    logoutBtn.disabled = true;
+    logoutBtn.textContent = 'Signing out…';
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/';
+  });
+</script>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .admin-shell {
+    min-height: calc(100vh - 68px);
+    padding: 3rem 1.25rem 5rem;
+    background:
+      radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.08), transparent 24%),
+      linear-gradient(165deg, rgba(9, 12, 20, 0.98), rgba(12, 28, 34, 0.96));
+  }
+
+  .admin-header {
+    width: min(860px, 100%);
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .admin-content {
+    width: min(860px, 100%);
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.5rem;
+    color: #f79a6d;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1;
+    color: #f5f1e8;
+  }
+
+  .logout-btn {
+    border: 1px solid rgba(135, 148, 171, 0.3);
+    border-radius: 999px;
+    padding: 0.6rem 1.25rem;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(245, 241, 232, 0.8);
+    background: rgba(99, 110, 116, 0.3);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  .logout-btn:hover {
+    border-color: rgba(247, 154, 109, 0.5);
+    color: #f79a6d;
+    background: rgba(247, 154, 109, 0.08);
+  }
+
+  .logout-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  .stat-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    padding: 1.5rem 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(135, 148, 171, 0.18);
+    background: rgba(99, 110, 116, 0.4);
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 10rem;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #f5f1e8;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: rgba(245, 241, 232, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+
+  .posts-section {
+    padding: 1.75rem 2rem;
+    border-radius: 24px;
+    border: 1px solid rgba(135, 148, 171, 0.18);
+    background: rgba(99, 110, 116, 0.4);
+    backdrop-filter: blur(12px);
+  }
+
+  h2 {
+    margin: 0 0 1.25rem;
+    color: #f5f1e8;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .post-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    transition: background var(--transition-fast);
+  }
+
+  .post-row:hover {
+    background: rgba(135, 148, 171, 0.12);
+  }
+
+  .post-title {
+    color: #f5f1e8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-title:hover {
+    color: #f79a6d;
+  }
+
+  .post-date {
+    font-size: 0.85rem;
+    color: rgba(245, 241, 232, 0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 720px) {
+    .admin-shell {
+      padding: 2rem 1rem 4rem;
+    }
+
+    .posts-section {
+      padding: 1.25rem 1rem;
+    }
+  }
+</style>
