@@ -19,6 +19,10 @@ const VISITED_STORAGE_PREFIX = 'quote-share-visited';
 const QUOTE_ID_PATTERN = /^quote-\d{1,4}$/;
 const QUOTE_SHARE_ID_ATTRIBUTE = 'data-quote-share-id';
 
+type QuoteParagraph = HTMLParagraphElement & {
+  dataset: DOMStringMap;
+};
+
 function normalizePath(path: string) {
   if (!path.startsWith('/')) {
     return '/';
@@ -39,6 +43,33 @@ function truncateQuote(value: string) {
   }
 
   return normalized.slice(0, 217).trimEnd() + '...';
+}
+
+function getQuoteId(index: number) {
+  return 'quote-' + String(index + 1);
+}
+
+function getQuoteParagraphs(prose: HTMLElement) {
+  return Array.from(prose.children).filter(
+    (node): node is QuoteParagraph =>
+      node instanceof HTMLParagraphElement && Boolean(node.textContent?.trim()),
+  );
+}
+
+function setQuoteIdentifier(paragraph: QuoteParagraph, quoteId: string) {
+  paragraph.setAttribute(QUOTE_SHARE_ID_ATTRIBUTE, quoteId);
+
+  if (!paragraph.id) {
+    paragraph.id = quoteId;
+    return () => {
+      paragraph.removeAttribute('id');
+      paragraph.removeAttribute(QUOTE_SHARE_ID_ATTRIBUTE);
+    };
+  }
+
+  return () => {
+    paragraph.removeAttribute(QUOTE_SHARE_ID_ATTRIBUTE);
+  };
 }
 
 function buildShareUrl(origin: string, path: string, quoteId: string) {
@@ -131,9 +162,7 @@ export default function PostQuoteShare({ title, path }: PostQuoteShareProps) {
     }
 
     const normalizedPath = normalizePath(path);
-    const paragraphs = Array.from(prose.children).filter(
-      (node): node is HTMLParagraphElement => node instanceof HTMLParagraphElement && Boolean(node.textContent?.trim()),
-    );
+    const paragraphs = getQuoteParagraphs(prose);
 
     if (!paragraphs.length) {
       return;
@@ -145,12 +174,12 @@ export default function PostQuoteShare({ title, path }: PostQuoteShareProps) {
     let highlightTimeout = 0;
 
     paragraphs.forEach((paragraph, index) => {
-      const quoteId = 'quote-' + String(index + 1);
+      const quoteId = getQuoteId(index);
       const quoteText = truncateQuote(paragraph.textContent ?? title);
       const button = document.createElement('button');
 
       paragraph.classList.add(PARAGRAPH_CLASS);
-      paragraph.setAttribute(QUOTE_SHARE_ID_ATTRIBUTE, quoteId);
+      const cleanupQuoteIdentifier = setQuoteIdentifier(paragraph, quoteId);
       button.className = BUTTON_CLASS;
       button.type = 'button';
       button.textContent = 'Share';
@@ -205,7 +234,7 @@ export default function PostQuoteShare({ title, path }: PostQuoteShareProps) {
         }
         button.remove();
         paragraph.classList.remove(PARAGRAPH_CLASS, HIGHLIGHT_CLASS);
-        paragraph.removeAttribute(QUOTE_SHARE_ID_ATTRIBUTE);
+        cleanupQuoteIdentifier();
       });
     });
 

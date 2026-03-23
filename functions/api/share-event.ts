@@ -15,7 +15,7 @@ type RateLimitBinding = {
 };
 
 type Env = {
-  SHARE_EVENT_RATE_LIMITER: RateLimitBinding;
+  SHARE_EVENT_RATE_LIMITER?: RateLimitBinding;
 };
 
 const ALLOWED_EVENTS = new Set<ShareEventName>(['quote_share_clicked', 'quote_share_visited']);
@@ -65,6 +65,13 @@ function getRequestOrigin(request: Request) {
   return null;
 }
 
+function hasMatchingOrigin(request: Request) {
+  const expectedOrigin = new URL(request.url).origin;
+  const requestOrigin = getRequestOrigin(request);
+
+  return requestOrigin === expectedOrigin;
+}
+
 async function buildRateLimitKey(request: Request) {
   const ipAddress = toTrimmedString(request.headers.get('cf-connecting-ip')) || 'unknown-ip';
   const userAgent = toTrimmedString(request.headers.get('user-agent')).slice(0, 160) || 'unknown-ua';
@@ -73,22 +80,11 @@ async function buildRateLimitKey(request: Request) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('').slice(0, 32);
 }
 
-export async function onRequestPost(context: { request: Request; env: Env }) {
-  const { request, env } = context;
-  const expectedOrigin = new URL(request.url).origin;
-  const requestOrigin = getRequestOrigin(request);
-
-  if (requestOrigin !== expectedOrigin) {
-    return json({ ok: false, error: 'Forbidden origin.' }, 403);
-  }
-
-  const rateLimitKey = await buildRateLimitKey(request);
-  const rateLimitResult = await env.SHARE_EVENT_RATE_LIMITER.limit({ key: rateLimitKey });
-
-  if (!rateLimitResult.success) {
-    console.warn(
+async function enforceRateLimit(request: Request, rateLimiter?: RateLimitBinding) {
+  if (!rateLimiter || typeof rateLimiter.limit !== 'function') {
+    console.error(
       JSON.stringify({
-        type: 'share_event_rate_limited',
+        type: 'share_event_rate_limiter_unavailable',
         route: '/api/share-event',
         receivedAt: new Date().toISOString(),
       }),
@@ -97,15 +93,51 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json(
       {
         ok: false,
-        error: 'Rate limit exceeded. Please slow down and try again shortly.',
+        error: 'Share tracking is temporarily unavailable.',
       },
-      429,
-      {
-        'Retry-After': String(RATE_LIMIT_WINDOW_SECONDS),
-        'X-RateLimit-Limit': String(RATE_LIMIT_MAX_REQUESTS),
-        'X-RateLimit-Window': String(RATE_LIMIT_WINDOW_SECONDS),
-      },
+      503,
     );
+  }
+
+  const rateLimitKey = await buildRateLimitKey(request);
+  const rateLimitResult = await rateLimiter.limit({ key: rateLimitKey });
+
+  if (rateLimitResult.success) {
+    return null;
+  }
+
+  console.warn(
+    JSON.stringify({
+      type: 'share_event_rate_limited',
+      route: '/api/share-event',
+      receivedAt: new Date().toISOString(),
+    }),
+  );
+
+  return json(
+    {
+      ok: false,
+      error: 'Rate limit exceeded. Please slow down and try again shortly.',
+    },
+    429,
+    {
+      'Retry-After': String(RATE_LIMIT_WINDOW_SECONDS),
+      'X-RateLimit-Limit': String(RATE_LIMIT_MAX_REQUESTS),
+      'X-RateLimit-Window': String(RATE_LIMIT_WINDOW_SECONDS),
+    },
+  );
+}
+
+export async function onRequestPost(context: { request: Request; env: Env }) {
+  const { request, env } = context;
+
+  if (!hasMatchingOrigin(request)) {
+    return json({ ok: false, error: 'Forbidden origin.' }, 403);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, env.SHARE_EVENT_RATE_LIMITER);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   let payload: ShareEventPayload;
