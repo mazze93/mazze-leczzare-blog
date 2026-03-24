@@ -7,7 +7,6 @@ interface ContactEmailBinding {
 
 interface Env {
   CONTACT_EMAIL?: ContactEmailBinding;
-  CONTACT_TO_EMAIL?: string;
   CONTACT_FROM_EMAIL?: string;
   CONTACT_SUBJECT_PREFIX?: string;
   CONTACT_WEBHOOK_URL?: string;
@@ -112,17 +111,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       {
         ok: false,
         error:
-          'Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL for Pages or provide a CONTACT_EMAIL send binding.',
-      },
-      500,
-    );
-  }
-
-  if (!webhookUrl && !env.CONTACT_TO_EMAIL) {
-    return json(
-      {
-        ok: false,
-        error: 'Contact delivery is not configured yet. Set CONTACT_TO_EMAIL in Cloudflare Pages settings.',
+          'Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL as a secret or provide a targeted CONTACT_EMAIL send binding.',
       },
       500,
     );
@@ -222,10 +211,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       return json({ ok: false, error: 'Unable to send your message right now. Please try again later.' }, 502);
     }
   }
-  const recipient = escapeHeader(env.CONTACT_TO_EMAIL || '');
   const mimeMessage = createMimeMessage();
   mimeMessage.setSender({ name: 'Mazzeleczzare.com contact form', addr: fromAddress });
-  mimeMessage.setRecipient(recipient);
   mimeMessage.setSubject(`${subjectPrefix}: ${safeName}`);
   mimeMessage.addMessage({
     contentType: 'text/plain',
@@ -238,7 +225,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   mimeMessage.setHeader('Reply-To', replyTo);
 
   try {
-    const emailMessage = new EmailMessage(fromAddress, recipient, mimeMessage.asRaw());
+    // Targeted send_email bindings provide the envelope recipient at deploy time.
+    const emailMessage = new EmailMessage(fromAddress, undefined, mimeMessage.asRaw());
     await env.CONTACT_EMAIL?.send(emailMessage);
     return json({ ok: true, message: 'Message sent. Thanks for reaching out.' });
   } catch (error) {

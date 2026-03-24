@@ -35,19 +35,23 @@ The site will be automatically deployed on every push to your main branch.
 
 ### Contact form delivery
 
-Cloudflare Pages does not support the `send_email` binding directly in a Pages `wrangler.toml`.
+The `/contact` form supports two delivery paths, in this order:
 
-To enable the `/contact` form in production, configure one of these delivery paths:
+1. `CONTACT_WEBHOOK_URL` as a Cloudflare secret, with optional `CONTACT_WEBHOOK_AUTH_HEADER` as a secret.
+2. `CONTACT_EMAIL` as a targeted `send_email` binding in `wrangler.toml`.
 
-1. Set `CONTACT_WEBHOOK_URL` in Pages environment variables to a webhook or Worker endpoint that accepts the contact payload.
-2. Run the contact endpoint in a Worker context that provides a `CONTACT_EMAIL` binding.
+Recommended setup:
 
-Optional variables:
+- Keep `CONTACT_FROM_EMAIL` and `CONTACT_SUBJECT_PREFIX` in `wrangler.toml` under `[vars]`.
+- Keep `CONTACT_WEBHOOK_URL` and `CONTACT_WEBHOOK_AUTH_HEADER` out of git and set them with `npx wrangler secret put`.
+- Configure `CONTACT_EMAIL` with a verified `destination_address` and constrained `allowed_sender_addresses`.
 
-- `CONTACT_TO_EMAIL`
-- `CONTACT_FROM_EMAIL`
-- `CONTACT_SUBJECT_PREFIX`
-- `CONTACT_WEBHOOK_AUTH_HEADER`
+Example secret commands:
+
+```bash
+npx wrangler secret put CONTACT_WEBHOOK_URL
+npx wrangler secret put CONTACT_WEBHOOK_AUTH_HEADER
+```
 
 ## Getting Started
 
