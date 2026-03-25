@@ -51,7 +51,19 @@ Do not assume `wrangler dev`, `wrangler deploy --dry-run`, or Cloudflare typegen
 - **Routes** use `post.id` and resolve to `/blog/{post.id}/`.
 - **Markdown/MDX rendering** uses `render(post)` from `astro:content` and the `BlogPost.astro` layout.
 - **Component styling** is split between `src/styles/global.css` and inline `<style>` blocks in `.astro` files. Follow the existing pattern.
+- **Theme state** is driven by `document.documentElement.dataset.theme` and `localStorage['theme-preference']`. Update both UI code and theme-color metadata together if you change theme behavior.
+- **Quote sharing** is paragraph-level and imperative. Preserve authored paragraph anchors when touching `src/components/PostQuoteShare.tsx` or the `.prose` markup in `src/layouts/BlogPost.astro`.
+- **Contact delivery** prefers a webhook secret over the Cloudflare email binding. If you change delivery behavior, keep the secret-based path and email-binding fallback both documented.
 - **Functions** should stay small, privacy-conscious, and explicit about validation and response shapes.
+
+## Runtime Surfaces
+
+- **Homepage**: `src/pages/index.astro` renders the hero plus the latest 6 posts.
+- **Blog index**: `src/pages/blog/index.astro` lists all posts newest-first.
+- **Blog posts**: `src/pages/blog/[...slug].astro` resolves collection entries by `post.id`.
+- **Markdown pages**: `src/pages/about.md`, `src/pages/manifesto.md`, and `src/pages/roadmap.md` flow through the shared `BlogPost.astro` layout.
+- **Contact API**: `functions/api/contact.ts` accepts JSON or `FormData`, enforces honeypot and timing checks, and returns `{ ok, error?, message? }` with `Cache-Control: no-store`.
+- **Share telemetry API**: `functions/api/share-event.ts` accepts only first-party quote-share events, rate-limits via Cloudflare, and should remain fire-and-forget from the reader's perspective.
 
 ## Key Files
 
@@ -65,8 +77,14 @@ Do not assume `wrangler dev`, `wrangler deploy --dry-run`, or Cloudflare typegen
 - `src/pages/contact.astro` — contact page shell
 - `src/components/ContactForm.tsx` — contact form island
 - `src/components/PostQuoteShare.tsx` — paragraph quote sharing island
+- `src/components/HeroSection.tsx` — homepage hero island
+- `src/components/ThemeToggle.tsx` — persisted theme selector island
+- `src/components/BaseHead.astro` — global metadata, theme bootstrap, and JSON-LD
 - `functions/api/contact.ts` — contact delivery handler
 - `functions/api/share-event.ts` — first-party quote-share telemetry handler
+- `scripts/ops/update-context-cache.sh` — explicit context snapshot helper
+- `scripts/ops/session-handoff.sh` — handoff updater for memory files
+- `docs/operations/AGENT_OPERATIONS_PROTOCOL.md` — repo-local agent execution protocol
 
 ## Cloudflare Notes
 
@@ -75,6 +93,11 @@ Do not assume `wrangler dev`, `wrangler deploy --dry-run`, or Cloudflare typegen
 - `functions/api/share-event.ts` may depend on a rate-limiter binding when configured.
 - If you change function bindings, update both code and `wrangler.toml` together.
 - If you introduce new Cloudflare-specific runtime requirements, document the manual validation path because the default `npm run check` does not execute them.
+- Current configured bindings in `wrangler.toml` are:
+  - `CONTACT_FROM_EMAIL`
+  - `CONTACT_SUBJECT_PREFIX`
+  - `CONTACT_EMAIL` (`send_email`)
+  - `SHARE_EVENT_RATE_LIMITER` (`ratelimits`)
 
 ## Privacy and Security Guidance
 

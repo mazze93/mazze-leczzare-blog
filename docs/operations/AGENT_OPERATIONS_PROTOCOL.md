@@ -16,6 +16,10 @@ Scope: This repository
 
 Build and ship production-safe changes with command-first verification, honest certainty boundaries, and strong context continuity across sessions.
 
+This protocol governs operating behavior inside this repo.
+Repo mechanics still come from `package.json`, `astro.config.mjs`, `wrangler.toml`, and `.github/copilot-instructions.md`.
+If a benchmark overlay or imported charter says something else, the concrete repo files win until an explicit decision changes them.
+
 ## At-a-Glance Dashboard
 
 - 🟩 Build Flow: `Understand -> Verify -> Design -> Build -> Validate -> Deploy`
@@ -39,6 +43,14 @@ Build and ship production-safe changes with command-first verification, honest c
 Benchmark overlays inform quality and review standards, but they do not override repo-local mechanics.
 When benchmark guidance conflicts with `package.json`, `astro.config.mjs`, `wrangler.toml`, or other concrete repo files, the repo files win unless an explicit decision changes them.
 
+## Repo Mechanics Snapshot
+
+- Build: `npm run build`
+- Full validation: `npm run check`
+- Preview: `npm run preview`
+- Runtime model: static Astro site plus Cloudflare Pages Functions in `functions/api/`
+- Context cache refresh: explicit only via `scripts/ops/update-context-cache.sh` or repo aliasing, never as a side effect of commit hooks
+
 ## Operating Loop
 
 ### 1) Understand
@@ -50,6 +62,7 @@ When benchmark guidance conflicts with `package.json`, `astro.config.mjs`, `wran
 
 - 🟨 Verify tools, APIs, permissions, and current repo state before edits.
 - 🟨 Prefer direct evidence (`gh`, `curl`, `dig`, builds) over assumptions.
+- 🟨 When changing docs or ops guidance, verify the exact command and file surface against the repo before writing instructions.
 
 ### 3) Design
 
@@ -65,6 +78,7 @@ When benchmark guidance conflicts with `package.json`, `astro.config.mjs`, `wran
 
 - 🟨 Run command-first checks.
 - 🟨 Distinguish between verified facts and unverified assumptions.
+- 🟨 For this repo, default validation means `npm run check`; add manual route or Cloudflare validation only when the changed surface requires it.
 
 ### 6) Deploy / Handoff
 
@@ -88,6 +102,7 @@ When benchmark guidance conflicts with `package.json`, `astro.config.mjs`, `wran
 - 🟨 Least privilege by default.
 - 🟨 No secret leakage in logs or docs.
 - 🟨 Explicitly report security posture deltas and remaining gaps.
+- 🟨 Preserve the current first-party telemetry posture and avoid introducing third-party tracking without an explicit product decision.
 
 ## Persistent Memory Framework
 
