@@ -26,10 +26,10 @@ Build and ship production-safe changes with command-first verification, honest c
 1. Platform/system/runtime safety rules
 2. Active developer instructions
 3. User request for current task
-4. Benchmark docs:
-- Mindful Development Charter
-- Secure Pride Copilot Instructions
-5. Repo-local instructions in `.github/copilot-instructions.md`
+4. Repo-local instruction files (`AGENTS.md`, `.github/copilot-instructions.md`, docs in this repo)
+5. External benchmark docs (Mindful Development Charter, Secure Pride Copilot Instructions)
+
+Conflict rule: if any repo-local or external benchmark guidance conflicts with platform/developer/user runtime instructions, follow platform/developer/user order and treat lower-priority guidance as non-authoritative context.
 
 ## Operating Loop
 ### 1) Understand
@@ -90,6 +90,7 @@ Context cache artifacts:
 - 🟨 `post-commit` must remain non-mutating for tracked files.
 - 🟩 Keep only the latest 30 timestamped snapshots via `scripts/ops/prune-context-cache.sh` (manual or scheduled).
 - 🟩 Use `scripts/ops/session-handoff.sh` for one-command memory updates.
+- 🟨 Script references in this protocol must map to real paths in `scripts/ops/`; remove or update stale references immediately.
 
 ## File Ownership
 - This protocol is authoritative for future agents operating in this repo.
