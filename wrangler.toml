@@ -7,11 +7,6 @@ pages_build_output_dir = "dist"
 CONTACT_FROM_EMAIL = "contact@mazzeleczzare.com"
 CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 
-[[send_email]]
-name = "CONTACT_EMAIL"
-destination_address = "security@mazzeleczzare.com"
-allowed_sender_addresses = ["contact@mazzeleczzare.com"]
-
 [[ratelimits]]
 name = "SHARE_EVENT_RATE_LIMITER"
 namespace_id = "23021"

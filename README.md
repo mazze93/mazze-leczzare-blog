@@ -38,13 +38,13 @@ The site will be automatically deployed on every push to your main branch.
 The `/contact` form supports two delivery paths, in this order:
 
 1. `CONTACT_WEBHOOK_URL` as a Cloudflare secret, with optional `CONTACT_WEBHOOK_AUTH_HEADER` as a secret.
-2. `CONTACT_EMAIL` as a targeted `send_email` binding in `wrangler.toml`.
+2. `CONTACT_EMAIL` as a Worker-only `send_email` binding when this endpoint is deployed outside Pages.
 
 Recommended setup:
 
 - Keep `CONTACT_FROM_EMAIL` and `CONTACT_SUBJECT_PREFIX` in `wrangler.toml` under `[vars]`.
 - Keep `CONTACT_WEBHOOK_URL` and `CONTACT_WEBHOOK_AUTH_HEADER` out of git and set them with `npx wrangler secret put`.
-- Configure `CONTACT_EMAIL` with a verified `destination_address` and constrained `allowed_sender_addresses`.
+- Do not add `send_email` to this Pages `wrangler.toml`; use a separate Worker configuration if you need the email-binding fallback.
 
 Example secret commands:
 
