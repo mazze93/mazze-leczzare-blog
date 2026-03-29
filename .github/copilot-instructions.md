@@ -1,88 +1,51 @@
-<!-- Copilot/AI agent instructions tailored to this Astro + Cloudflare blog starter -->
+<!-- Copilot/AI agent instructions tailored to this Astro + Cloudflare Pages blog -->
 # Project quickstart for AI coding agents
 
-This repo is an Astro-based static blog scaffold, deployed to Cloudflare Workers using the `@astrojs/cloudflare` adapter.
-Below are the immediate, discoverable conventions and examples an AI agent needs to be productive here.
+This repo is an Astro-based static blog deployed to **Cloudflare Pages**.
+Use this file as operational guidance that matches the current repository state.
 
-## Quick Commands
+## Canonical Commands (must match `package.json`)
 
-- `npm install` : install deps
-- `npm run dev` : local dev server (Astro, :4321)
+- `npm install` : install dependencies
+- `npm run dev` : local dev server (Astro on :4321)
 - `npm run build` : produce `./dist`
-- `npm run preview` : build + `wrangler dev` (preview on Cloudflare runtime)
-- `npm run cf-typegen` : `wrangler types` (generate Cloudflare types)
-- `npm run check` : build + `tsc` + `wrangler deploy --dry-run` (CI-style check)
+- `npm run preview` : local preview of the built site (`astro preview`)
+- `npm run check` : build + TypeScript check (`astro build && tsc`)
+- `npm run docs:check` : verify instruction/docs consistency
 
 ## Testing & Linting
 
-- **No test framework**: This project does not have automated tests. Manual verification is required for changes.
-- **Type checking**: TypeScript type checking is done via `tsc` (part of `npm run check`).
-- **No linters**: No ESLint or Prettier configuration. Follow existing code style in the project.
+- **No formal unit test framework is configured** in this repo.
+- **Type checking** is done via `tsc` in `npm run check`.
+- **Docs integrity check** is done via `npm run docs:check`.
+- **No ESLint/Prettier config** is currently enforced; follow existing style.
 
 ## Architecture Overview
 
-- **Framework**: `astro` (see `astro.config.mjs`), deployed with `@astrojs/cloudflare` adapter. Note `platformProxy.enabled` is set in the adapter.
-- **Content**: Markdown/MDX files live in `src/content/blog/`. Content Collections are configured in `src/content.config.ts`.
-- **Pages**: Route files are in `src/pages/` (e.g. `src/pages/blog/[...slug].astro` and `src/pages/blog/index.astro`).
-- **Layouts & components**: `src/layouts/` and `src/components/` contain shared UI. Global constants are in `src/consts.ts`.
-- **Static assets**: `public/` (fonts, images) and referenced directly from templates.
+- **Runtime/deployment model**: static output (`output: "static"`) for Cloudflare Pages.
+- **Content**: Markdown/MDX files in `src/content/blog/`, schema in `src/content.config.ts`.
+- **Pages**: route files under `src/pages/`.
+- **Layouts/components**: `src/layouts/` and `src/components/`.
+- **Static assets**: `public/`.
+- **Functions**: API endpoints in `functions/` (e.g., contact/share event handlers).
 
 ## Project-Specific Conventions
 
-**Content collection schema** (see `src/content.config.ts`): frontmatter must include `title`, `description`, and `pubDate` (coerced to Date). Optional keys: `updatedDate`, `heroImage`.
-
-Example frontmatter for a new post (`src/content/blog/my-post.md`):
-
-```
----
-title: "My Post"
-description: "Short summary"
-pubDate: 2025-01-01
-heroImage: /assets/my-hero.jpg
----
-```
-
-**Routing**: pages use `getCollection('blog')` and `post.id` as the slug. URLs follow `/blog/{post.id}/` (see `src/pages/blog/[...slug].astro`).
-
-**Rendering MDX/Markdown**: use `render(post)` from `astro:content` to extract `Content` for insertion into `BlogPost` layout.
-
-## Key Files to Reference
-
-- `src/content.config.ts` — collection loader and Zod schema (frontmatter rules).
-- `src/pages/blog/index.astro` — listing page, sorts posts by `pubDate`.
-- `src/pages/blog/[...slug].astro` & `src/layouts/BlogPost.astro` — post routing and layout.
-- `src/components/*` — site header/footer and small reusable components (link pattern, formatted date).
-- `src/consts.ts` — global site constants like `SITE_TITLE` and `SITE_DESCRIPTION`.
+- Keep blog frontmatter aligned with `src/content.config.ts` (`title`, `description`, `pubDate`; optional `updatedDate`, `heroImage`).
+- Blog routes use collection-derived IDs (see `src/pages/blog/[...slug].astro`).
+- Update `src/consts.ts` for global site metadata changes.
 
 ## Build & Deploy
 
-- The repo expects Cloudflare Tools: `wrangler` is used (`devDependencies`). CI scripts call `wrangler deploy --dry-run` in `npm run check`.
-- Before deploying, ensure `site` in `astro.config.mjs` points to the canonical domain (it currently uses `https://example.com`).
-- **Build output**: `./dist/` directory (excluded from git).
-
-## TypeScript & Typing
-
-- Content collection types are used (`astro:content` types, `CollectionEntry<'blog'>`). When changing frontmatter, update `src/content.config.ts` schema accordingly.
-- Run `npm run cf-typegen` or `wrangler types` if adding Cloudflare-specific bindings.
-- Type checking is enforced via `tsc` in the check script.
-
-## Styling & Layout
-
-- **Global styles**: `src/styles/global.css`.
-- **Component styles**: Components often inline small `<style>` blocks inside `.astro` files — follow the existing style placement and variable usage (CSS variables used in components).
-
-## Common Tasks
-
-- **Add new blog post**: create MD/MDX in `src/content/blog/` with frontmatter matching the Zod schema.
-- **Update site metadata**: edit `src/consts.ts` (site title/description) and `astro.config.mjs` (site URL).
-- **Change layout**: modify `src/layouts/BlogPost.astro` or `src/components/*`.
+- Build output is `dist/`.
+- Primary deployment target is Cloudflare Pages.
+- Keep deployment docs aligned with:
+  1. `astro.config.mjs`
+  2. `package.json` scripts
+  3. `README.md`
 
 ## Troubleshooting
 
-- If you encounter build errors, check that all dependencies are installed (`npm install`).
-- For type errors, run `npm run cf-typegen` to regenerate Cloudflare types.
-- Ensure frontmatter in blog posts matches the schema in `src/content.config.ts`.
-
----
-
-If anything in these notes is missing or unclear, tell me which area (routing, content schema, build/deploy) you want expanded and I will update this file.
+- Run `npm install` if modules are missing.
+- Run `npm run check` for build/type failures.
+- Run `npm run docs:check` after changing instruction/docs files.
