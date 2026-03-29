@@ -5,7 +5,7 @@ These repo-local instructions are the source of truth for mechanics in this work
 External charters can be used as benchmark overlays for quality, privacy, and review discipline,
 but they do not override the actual scripts, package manifest, or deployment/config files in this repo.
 
-## Quick Commands
+## Canonical Commands (must match `package.json`)
 
 - `npm install` : install dependencies
 - `npm run dev` : Astro dev server on localhost

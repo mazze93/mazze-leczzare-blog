@@ -128,6 +128,7 @@ Context cache artifacts:
 - 🟨 Refreshes are explicit only; commits, branch switches, and PR updates must not mutate tracked cache files as a side effect.
 - 🟩 Keep only the latest 30 timestamped snapshots via `scripts/ops/prune-context-cache.sh` (manual or scheduled).
 - 🟩 Use `scripts/ops/session-handoff.sh` for one-command memory updates.
+- 🟨 Script references in this protocol must map to real paths in `scripts/ops/`; remove or update stale references immediately.
 
 ## Security Baseline Scope
 
