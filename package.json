@@ -21,5 +21,12 @@
     "preview": "astro preview",
     "docs:check": "bash scripts/ops/verify-docs-integrity.sh"
   },
-  "type": "module"
+  "type": "module",
+  "overrides": {
+    "fast-xml-parser": "^5.5.9",
+    "h3": "^1.15.9"
+  },
+  "devDependencies": {
+    "wrangler": "^4.76.0"
+  }
 }
