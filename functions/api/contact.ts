@@ -12,6 +12,14 @@ type ContactPayload = {
   startedAt?: unknown;
 };
 
+type ParsedContactPayload = {
+  name: string;
+  email: string;
+  message: string;
+  company: string;
+  startedAt: number | null;
+};
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function toTrimmedString(value: unknown) {
@@ -30,6 +38,24 @@ function json(body: unknown, status = 200) {
       'Cache-Control': 'no-store',
     },
   });
+}
+
+function parseStartedAt(value: unknown) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return value;
+}
+
+function parseContactPayload(payload: ContactPayload): ParsedContactPayload {
+  return {
+    name: toTrimmedString(payload.name),
+    email: toTrimmedString(payload.email).toLowerCase(),
+    message: toTrimmedString(payload.message),
+    company: toTrimmedString(payload.company),
+    startedAt: parseStartedAt(payload.startedAt),
+  };
 }
 
 async function deliverViaWebhook(
@@ -89,17 +115,13 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json({ ok: false, error: 'Invalid request payload.' }, 400);
   }
 
-  const name = toTrimmedString(payload.name);
-  const email = toTrimmedString(payload.email).toLowerCase();
-  const message = toTrimmedString(payload.message);
-  const company = toTrimmedString(payload.company);
-  const startedAt = typeof payload.startedAt === 'number' ? payload.startedAt : Number.NaN;
+  const { name, email, message, company, startedAt } = parseContactPayload(payload);
 
   if (company) {
     return json({ ok: true, message: 'Message sent.' });
   }
 
-  if (!Number.isFinite(startedAt) || startedAt <= 0) {
+  if (startedAt === null) {
     return json({ ok: false, error: 'Submission rejected. Please refresh the page and try again.' }, 400);
   }
 
