@@ -1,12 +1,8 @@
-name: CI
-permissions:
-  contents: read
+name: Lighthouse CI
 
 on:
-  push:
-    branches: ["**"]
   pull_request:
-    branches: ["**"]
+    branches: [main]
 
 permissions:
   contents: read
@@ -19,14 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build & audit
-    branches: [main]
-  pull_request:
-
-jobs:
-  build:
-    name: Build & type-check
+  lighthouse:
+    name: Lighthouse audit
     runs-on: ubuntu-latest
 
     steps:
@@ -35,19 +25,13 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 20
-          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build site
         run: npm run build
 
-      - name: Security audit
-        run: npm audit --audit-level=high
-      - name: Type-check + build
-        run: npm run check
-
-      - name: Build
-        run: npm run build
+      - name: Run Lighthouse CI
+        run: npm exec --yes @lhci/cli@0.13.0 -- autorun

@@ -1,179 +1,184 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import SignalHero from '../components/SignalHero.astro';
+import HomepageLayout from '../layouts/HomepageLayout.astro';
+import HeroSection from '../components/HeroSection';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog')).sort(
-(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-).slice(0, 6);
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 6);
 ---
 
-<!doctype html>
-<html lang="en">
-<head>
-<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-</head>
-<body>
-<Header />
-<main>
-<SignalHero />
+<HomepageLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 
-{posts.length > 0 && (
-<section class="posts-section" aria-label="Recent posts">
-<div class="posts-container">
-<h2 class="section-title">Recent Writing</h2>
-<ul class="posts-grid" role="list">
-{posts.map((post, index) => (
-<li class="post-card" style={`animation-delay: ${index * 80}ms`}>
-<a href={`/blog/${post.id}/`} aria-label={`Read: ${post.data.title}`}>
-{post.data.heroImage && (
-<figure class="card-image">
-<img
-src={post.data.heroImage}
-alt={post.data.title}
-width={720}
-height={360}
-loading="lazy"
-decoding="async"
-/>
-</figure>
-)}
-<div class="card-body">
-<p class="card-date">
-<FormattedDate date={post.data.pubDate} />
-</p>
-<h3 class="card-title">{post.data.title}</h3>
-{post.data.description && (
-<p class="card-desc">{post.data.description}</p>
-)}
-</div>
-</a>
-</li>
-))}
-</ul>
-<div class="view-all">
-<a href="/blog" class="btn btn-primary">View All Posts</a>
-</div>
-</div>
-</section>
-)}
-</main>
-<Footer />
-</body>
-</html>
+  <!-- Hero — full-viewport editorial canvas -->
+  <HeroSection
+    client:load
+    headline={"Essays, experiments,\nand dispatches\nfrom the edge."}
+    tagline="Science, story, brand systems, cybersecurity, and the stubborn attempt to make complex ideas legible without flattening them."
+    ctaLabel="Read the Writing"
+    ctaHref="/blog"
+    secondaryLabel="About"
+    secondaryHref="/about"
+    disciplines={['Neuroscience', 'Brand', 'Cybersecurity', 'Narrative', 'Design']}
+  />
+
+  <!-- Recent writing — editorial post index -->
+  {posts.length > 0 && (
+    <section class="writing-index" aria-label="Recent writing">
+      <div class="index-inner">
+
+        <header class="index-header">
+          <span class="index-eyebrow">Recent Writing</span>
+          <a href="/blog" class="index-all-link">All posts →</a>
+        </header>
+
+        <ol class="index-list" role="list">
+          {posts.map((post, i) => (
+            <li class="index-item">
+              <a href={`/blog/${post.id}/`} class="index-link">
+                <span class="index-num" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="index-body">
+                  <span class="index-title">{post.data.title}</span>
+                  {post.data.description && (
+                    <span class="index-desc">{post.data.description}</span>
+                  )}
+                </span>
+                <span class="index-date">
+                  <FormattedDate date={post.data.pubDate} />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+
+      </div>
+    </section>
+  )}
+
+</HomepageLayout>
+
 <style>
-main {
-width: 100%;
-max-width: 100%;
-margin: 0;
-padding: 0;
+/* ── Writing index ──────────────────────────────────────────────────── */
+.writing-index {
+  border-top: 1px solid var(--home-rule);
+  padding: 4rem 1.5rem 6rem;
 }
 
-/* Posts Section */
-.posts-section {
-padding: 5em 1.5em;
-background: rgba(var(--surface), 0.88);
-}
-.posts-container {
-max-width: 1100px;
-margin: 0 auto;
-}
-.section-title {
-font-size: clamp(1.5rem, 3vw, 2rem);
-color: rgb(var(--text-main));
-margin-bottom: 2em;
-text-align: center;
-letter-spacing: -0.02em;
-}
-.posts-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 2rem;
-list-style: none;
-margin: 0;
-padding: 0;
-}
-.post-card {
-animation: cardEntrance 0.5s ease both;
-}
-.post-card a {
-display: block;
-text-decoration: none;
-background: rgba(var(--surface-elevated), 0.96);
-border-radius: 16px;
-box-shadow: 0 4px 20px rgba(var(--black), 8%);
-overflow: hidden;
-transition: transform 0.25s ease, box-shadow 0.25s ease;
-height: 100%;
-}
-.post-card a:hover {
-transform: translateY(-6px);
-box-shadow: 0 12px 40px rgba(var(--black), 16%);
-}
-.card-image {
-margin: 0;
-aspect-ratio: 2 / 1;
-overflow: hidden;
-}
-.card-image img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-border-radius: 0;
-transition: transform 0.4s ease;
-}
-.post-card a:hover .card-image img {
-transform: scale(1.05);
-}
-.card-body {
-padding: 1.25em 1.5em 1.5em;
-}
-.card-date {
-margin: 0 0 0.4em;
-font-size: 0.8em;
-color: rgb(var(--gray));
-letter-spacing: 0.05em;
-text-transform: uppercase;
-}
-.card-title {
-margin: 0 0 0.5em;
-font-size: 1.1rem;
-color: rgb(var(--text-main));
-line-height: 1.3;
-font-weight: 700;
-}
-.card-desc {
-margin: 0;
-font-size: 0.9em;
-color: rgb(var(--gray));
-line-height: 1.5;
-display: -webkit-box;
--webkit-line-clamp: 3;
--webkit-box-orient: vertical;
-overflow: hidden;
-}
-.view-all {
-text-align: center;
-margin-top: 3em;
+.index-inner {
+  max-width: 1120px;
+  margin: 0 auto;
 }
 
-@media (max-width: 1024px) {
-.posts-grid {
-grid-template-columns: repeat(2, 1fr);
-}
+.index-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--home-rule);
 }
 
-@media (max-width: 768px) {
-.posts-section {
-padding: 3em 1em;
+.index-eyebrow {
+  font-family: var(--font-home-sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--home-text-faint);
 }
-.posts-grid {
-grid-template-columns: 1fr;
-gap: 1.25rem;
+
+.index-all-link {
+  font-family: var(--font-home-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--home-gold);
+  text-decoration: none;
+  transition: opacity 150ms ease;
 }
+.index-all-link:hover { opacity: 0.7; }
+
+.index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.index-item {
+  border-bottom: 1px solid var(--home-rule);
+}
+
+.index-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+  text-decoration: none;
+}
+
+.index-num {
+  font-family: var(--font-home-sans);
+  font-size: 0.62rem;
+  color: var(--home-text-faint);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  width: 1.8em;
+  transition: color 150ms ease;
+}
+
+.index-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  min-width: 0;
+}
+
+.index-title {
+  font-family: var(--font-home-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-weight: 400;
+  color: var(--home-text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  transition: color 150ms ease;
+}
+
+.index-desc {
+  font-family: var(--font-home-sans);
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--home-text-faint);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.index-date {
+  font-family: var(--font-home-sans);
+  font-size: 0.68rem;
+  color: var(--home-text-faint);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.index-link:hover .index-title { color: var(--home-gold); }
+.index-link:hover .index-num   { color: var(--home-gold); }
+
+.index-link:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .writing-index { padding: 3rem 1rem 4rem; }
+  .index-link    { flex-wrap: wrap; gap: 0.5rem; }
+  .index-date    { width: 100%; }
+  .index-desc    { display: none; }
 }
 </style>

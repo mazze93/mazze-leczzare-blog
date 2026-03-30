@@ -1,8 +1,5 @@
 name: Docs Integrity
 
-permissions:
-  contents: read
-
 on:
   pull_request:
   push:
