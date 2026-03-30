@@ -1,14 +1,4 @@
-import { EmailMessage } from 'cloudflare:email';
-import { createMimeMessage } from 'mimetext/browser';
-
-interface ContactEmailBinding {
-  send(message: EmailMessage): Promise<void>;
-}
-
 interface Env {
-  CONTACT_EMAIL?: ContactEmailBinding;
-  CONTACT_TO_EMAIL?: string;
-  CONTACT_FROM_EMAIL?: string;
   CONTACT_SUBJECT_PREFIX?: string;
   CONTACT_WEBHOOK_URL?: string;
   CONTACT_WEBHOOK_AUTH_HEADER?: string;
@@ -22,6 +12,14 @@ type ContactPayload = {
   startedAt?: unknown;
 };
 
+type ParsedContactPayload = {
+  name: string;
+  email: string;
+  message: string;
+  company: string;
+  startedAt: number | null;
+};
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function toTrimmedString(value: unknown) {
@@ -32,15 +30,6 @@ function escapeHeader(value: string) {
   return value.replace(/[\r\n]+/g, ' ').trim();
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -49,6 +38,24 @@ function json(body: unknown, status = 200) {
       'Cache-Control': 'no-store',
     },
   });
+}
+
+function parseStartedAt(value: unknown) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return value;
+}
+
+function parseContactPayload(payload: ContactPayload): ParsedContactPayload {
+  return {
+    name: toTrimmedString(payload.name),
+    email: toTrimmedString(payload.email).toLowerCase(),
+    message: toTrimmedString(payload.message),
+    company: toTrimmedString(payload.company),
+    startedAt: parseStartedAt(payload.startedAt),
+  };
 }
 
 async function deliverViaWebhook(
@@ -79,25 +86,10 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const { request, env } = context;
   const webhookUrl = toTrimmedString(env.CONTACT_WEBHOOK_URL);
   const webhookAuthHeader = toTrimmedString(env.CONTACT_WEBHOOK_AUTH_HEADER);
-  const hasEmailBinding = Boolean(env.CONTACT_EMAIL && typeof env.CONTACT_EMAIL.send === 'function');
 
-  if (!webhookUrl && !hasEmailBinding) {
+  if (!webhookUrl) {
     return json(
-      {
-        ok: false,
-        error:
-          'Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL for Pages or provide a CONTACT_EMAIL send binding.',
-      },
-      500,
-    );
-  }
-
-  if (!webhookUrl && !env.CONTACT_TO_EMAIL) {
-    return json(
-      {
-        ok: false,
-        error: 'Contact delivery is not configured yet. Set CONTACT_TO_EMAIL in Cloudflare Pages settings.',
-      },
+      { ok: false, error: 'Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL.' },
       500,
     );
   }
@@ -123,17 +115,13 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json({ ok: false, error: 'Invalid request payload.' }, 400);
   }
 
-  const name = toTrimmedString(payload.name);
-  const email = toTrimmedString(payload.email).toLowerCase();
-  const message = toTrimmedString(payload.message);
-  const company = toTrimmedString(payload.company);
-  const startedAt = typeof payload.startedAt === 'number' ? payload.startedAt : Number.NaN;
+  const { name, email, message, company, startedAt } = parseContactPayload(payload);
 
   if (company) {
     return json({ ok: true, message: 'Message sent.' });
   }
 
-  if (!Number.isFinite(startedAt) || startedAt <= 0) {
+  if (startedAt === null) {
     return json({ ok: false, error: 'Submission rejected. Please refresh the page and try again.' }, 400);
   }
 
@@ -155,72 +143,23 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json({ ok: false, error: 'Please enter a message with at least 20 characters.' }, 400);
   }
 
-  const replyTo = escapeHeader(email);
   const safeName = escapeHeader(name);
   const subjectPrefix = escapeHeader(env.CONTACT_SUBJECT_PREFIX || 'Mazze Contact');
-  const fromAddress = escapeHeader(env.CONTACT_FROM_EMAIL || 'contact@mazzeleczzare.com');
   const submittedAt = new Date().toISOString();
-
-  const textBody = [
-    'New contact form submission',
-    '',
-    `Name: ${safeName}`,
-    `Email: ${replyTo}`,
-    `Submitted: ${submittedAt}`,
-    '',
-    message,
-  ].join('\n');
-  const safeMessageHtml = escapeHtml(message);
-
-  const htmlBody = `
-    <h1>New contact form submission</h1>
-    <p><strong>Name:</strong> ${escapeHtml(safeName)}</p>
-    <p><strong>Email:</strong> ${escapeHtml(replyTo)}</p>
-    <p><strong>Submitted:</strong> ${escapeHtml(submittedAt)}</p>
-    <hr />
-    <pre style="white-space: pre-wrap; font: 16px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;">${safeMessageHtml}</pre>
-  `;
 
   const deliveryPayload = {
     subject: `${subjectPrefix}: ${safeName}`,
     submittedAt,
     name: safeName,
-    email: replyTo,
+    email,
     message,
-    text: textBody,
-    html: htmlBody,
   };
 
-  if (webhookUrl) {
-    try {
-      await deliverViaWebhook(webhookUrl, webhookAuthHeader || undefined, deliveryPayload);
-      return json({ ok: true, message: 'Message sent. Thanks for reaching out.' });
-    } catch (error) {
-      console.error('Contact webhook delivery failed', error);
-      return json({ ok: false, error: 'Unable to send your message right now. Please try again later.' }, 502);
-    }
-  }
-  const recipient = escapeHeader(env.CONTACT_TO_EMAIL || '');
-  const mimeMessage = createMimeMessage();
-  mimeMessage.setSender({ name: 'Mazzeleczzare.com contact form', addr: fromAddress });
-  mimeMessage.setRecipient(recipient);
-  mimeMessage.setSubject(`${subjectPrefix}: ${safeName}`);
-  mimeMessage.addMessage({
-    contentType: 'text/plain',
-    data: textBody,
-  });
-  mimeMessage.addMessage({
-    contentType: 'text/html',
-    data: htmlBody,
-  });
-  mimeMessage.setHeader('Reply-To', replyTo);
-
   try {
-    const emailMessage = new EmailMessage(fromAddress, recipient, mimeMessage.asRaw());
-    await env.CONTACT_EMAIL?.send(emailMessage);
+    await deliverViaWebhook(webhookUrl, webhookAuthHeader || undefined, deliveryPayload);
     return json({ ok: true, message: 'Message sent. Thanks for reaching out.' });
   } catch (error) {
-    console.error('Contact form delivery failed', error);
+    console.error('Contact webhook delivery failed', error);
     return json({ ok: false, error: 'Unable to send your message right now. Please try again later.' }, 502);
   }
 }

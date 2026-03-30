@@ -13,14 +13,14 @@ Use this file as operational guidance that matches the current repository state.
 - `npm run check` : build + TypeScript check (`astro build && tsc`)
 - `npm run docs:check` : verify instruction/docs consistency
 
-## Testing & Linting
+## Testing and Validation
 
 - **No formal unit test framework is configured** in this repo.
 - **Type checking** is done via `tsc` in `npm run check`.
 - **Docs integrity check** is done via `npm run docs:check`.
 - **No ESLint/Prettier config** is currently enforced; follow existing style.
 
-## Architecture Overview
+For code changes, prefer this validation order:
 
 - **Runtime/deployment model**: static output (`output: "static"`) for Cloudflare Pages.
 - **Content**: Markdown/MDX files in `src/content/blog/`, schema in `src/content.config.ts`.
