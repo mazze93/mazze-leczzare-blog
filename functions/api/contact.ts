@@ -7,7 +7,6 @@ interface ContactEmailBinding {
 
 interface Env {
   CONTACT_EMAIL?: ContactEmailBinding;
-  CONTACT_TO_EMAIL?: string;
   CONTACT_FROM_EMAIL?: string;
   CONTACT_SUBJECT_PREFIX?: string;
   CONTACT_WEBHOOK_URL?: string;
@@ -20,6 +19,14 @@ type ContactPayload = {
   message?: unknown;
   company?: unknown;
   startedAt?: unknown;
+};
+
+type ParsedContactPayload = {
+  name: string;
+  email: string;
+  message: string;
+  company: string;
+  startedAt: number | null;
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,6 +58,24 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function parseStartedAt(value: unknown) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return value;
+}
+
+function parseContactPayload(payload: ContactPayload): ParsedContactPayload {
+  return {
+    name: toTrimmedString(payload.name),
+    email: toTrimmedString(payload.email).toLowerCase(),
+    message: toTrimmedString(payload.message),
+    company: toTrimmedString(payload.company),
+    startedAt: parseStartedAt(payload.startedAt),
+  };
+}
+
 async function deliverViaWebhook(
   webhookUrl: string,
   authHeader: string | undefined,
@@ -77,12 +102,16 @@ async function deliverViaWebhook(
 
 export async function onRequestPost(context: { request: Request; env: Env }) {
   const { request, env } = context;
+  const webhookUrl = toTrimmedString(env.CONTACT_WEBHOOK_URL);
+  const webhookAuthHeader = toTrimmedString(env.CONTACT_WEBHOOK_AUTH_HEADER);
+  const hasEmailBinding = Boolean(env.CONTACT_EMAIL && typeof env.CONTACT_EMAIL.send === 'function');
 
-  if (!env.CONTACT_TO_EMAIL) {
+  if (!webhookUrl && !hasEmailBinding) {
     return json(
       {
         ok: false,
-        error: 'Contact delivery is not configured yet. Set CONTACT_TO_EMAIL in Cloudflare Pages settings.',
+        error:
+          'Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL as a secret or provide a targeted CONTACT_EMAIL send binding.',
       },
       500,
     );
@@ -109,18 +138,19 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json({ ok: false, error: 'Invalid request payload.' }, 400);
   }
 
-  const name = toTrimmedString(payload.name);
-  const email = toTrimmedString(payload.email).toLowerCase();
-  const message = toTrimmedString(payload.message);
-  const company = toTrimmedString(payload.company);
-  const startedAt = typeof payload.startedAt === 'number' ? payload.startedAt : 0;
-  const elapsedMs = Date.now() - startedAt;
+  const { name, email, message, company, startedAt } = parseContactPayload(payload);
 
   if (company) {
     return json({ ok: true, message: 'Message sent.' });
   }
 
-  if (startedAt && elapsedMs < 1500) {
+  if (startedAt === null) {
+    return json({ ok: false, error: 'Submission rejected. Please refresh the page and try again.' }, 400);
+  }
+
+  const elapsedMs = Date.now() - startedAt;
+
+  if (elapsedMs < 1500) {
     return json({ ok: false, error: 'Submission rejected. Please try again.' }, 400);
   }
 
@@ -140,12 +170,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const safeName = escapeHeader(name);
   const subjectPrefix = escapeHeader(env.CONTACT_SUBJECT_PREFIX || 'Mazze Contact');
   const fromAddress = escapeHeader(env.CONTACT_FROM_EMAIL || 'contact@mazzeleczzare.com');
-  const recipient = escapeHeader(env.CONTACT_TO_EMAIL);
-  const webhookUrl = toTrimmedString(env.CONTACT_WEBHOOK_URL);
-  const webhookAuthHeader = toTrimmedString(env.CONTACT_WEBHOOK_AUTH_HEADER);
   const submittedAt = new Date().toISOString();
-  const ipAddress = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const userAgent = request.headers.get('User-Agent') || 'unknown';
 
   const textBody = [
     'New contact form submission',
@@ -153,8 +178,6 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     `Name: ${safeName}`,
     `Email: ${replyTo}`,
     `Submitted: ${submittedAt}`,
-    `IP: ${ipAddress}`,
-    `User-Agent: ${userAgent}`,
     '',
     message,
   ].join('\n');
@@ -165,8 +188,6 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     <p><strong>Name:</strong> ${escapeHtml(safeName)}</p>
     <p><strong>Email:</strong> ${escapeHtml(replyTo)}</p>
     <p><strong>Submitted:</strong> ${escapeHtml(submittedAt)}</p>
-    <p><strong>IP:</strong> ${escapeHtml(ipAddress)}</p>
-    <p><strong>User-Agent:</strong> ${escapeHtml(userAgent)}</p>
     <hr />
     <pre style="white-space: pre-wrap; font: 16px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;">${safeMessageHtml}</pre>
   `;
@@ -177,22 +198,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     name: safeName,
     email: replyTo,
     message,
-    ip: ipAddress,
-    userAgent,
     text: textBody,
     html: htmlBody,
   };
-
-  if (!webhookUrl && !env.CONTACT_EMAIL?.send) {
-    return json(
-      {
-        ok: false,
-        error:
-          'Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL for Pages or provide a CONTACT_EMAIL binding in a Worker context.',
-      },
-      500,
-    );
-  }
 
   if (webhookUrl) {
     try {
@@ -203,10 +211,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       return json({ ok: false, error: 'Unable to send your message right now. Please try again later.' }, 502);
     }
   }
-
   const mimeMessage = createMimeMessage();
   mimeMessage.setSender({ name: 'Mazzeleczzare.com contact form', addr: fromAddress });
-  mimeMessage.setRecipient(recipient);
   mimeMessage.setSubject(`${subjectPrefix}: ${safeName}`);
   mimeMessage.addMessage({
     contentType: 'text/plain',
@@ -219,7 +225,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   mimeMessage.setHeader('Reply-To', replyTo);
 
   try {
-    const emailMessage = new EmailMessage(fromAddress, recipient, mimeMessage.asRaw());
+    // Targeted send_email bindings provide the envelope recipient at deploy time.
+    const emailMessage = new EmailMessage(fromAddress, undefined, mimeMessage.asRaw());
     await env.CONTACT_EMAIL?.send(emailMessage);
     return json({ ok: true, message: 'Message sent. Thanks for reaching out.' });
   } catch (error) {

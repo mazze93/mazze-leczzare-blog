@@ -19,6 +19,12 @@ concurrency:
 jobs:
   build:
     name: Build & audit
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Build & type-check
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -37,3 +44,8 @@ jobs:
 
       - name: Security audit
         run: npm audit --audit-level=high
+      - name: Type-check + build
+        run: npm run check
+
+      - name: Build
+        run: npm run build

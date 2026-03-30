@@ -1,0 +1,454 @@
+---
+/**
+ * SignalHero.astro
+ * Homepage hero: "From Erasure → Signal"
+ *
+ * A full-viewport landing section with a canvas-based particle network
+ * that visually progresses from noise (left) to structured signal (right).
+ *
+ * Animation is lightweight (<canvas>), respects prefers-reduced-motion,
+ * and degrades gracefully without JS.
+ */
+---
+
+<section class="signal-hero" aria-label="Site introduction">
+  <canvas class="signal-hero__canvas" aria-hidden="true"></canvas>
+  <div class="signal-hero__overlay" aria-hidden="true"></div>
+  <div class="signal-hero__content">
+    <h1 class="signal-hero__headline">
+      From Erasure <span class="signal-hero__arrow" aria-label="to">&rarr;</span> Signal
+    </h1>
+    <p class="signal-hero__tagline">
+      <!-- Option A (active): -->
+      Finding signal inside complex systems.
+      <!-- Option B: Writing, security, and systems thinking at the edge of meaning. -->
+      <!-- Option C: Technology, pattern recognition, and the architecture of human sense-making. -->
+    </p>
+    <div class="signal-hero__actions">
+      <a href="/blog" class="signal-hero__cta">Read the writing</a>
+      <a href="/manifesto" class="signal-hero__cta signal-hero__cta--secondary">Explore the work</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .signal-hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--hero-bg, #0b0d12);
+  }
+
+  .signal-hero__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* Subtle radial vignette + gradient overlay */
+  .signal-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(43, 211, 198, 0.04), transparent),
+      radial-gradient(ellipse 40% 60% at 20% 50%, rgba(192, 75, 183, 0.03), transparent),
+      linear-gradient(180deg, transparent 60%, var(--hero-bg, #0b0d12));
+    pointer-events: none;
+  }
+
+  .signal-hero__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    max-width: 48rem;
+    animation: heroFadeIn 1.2s ease-out both;
+  }
+
+  .signal-hero__headline {
+    font-family: "Atkinson", system-ui, -apple-system, sans-serif;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 700;
+    color: var(--hero-text, #f2f4f8);
+    line-height: 1.1;
+    margin: 0 0 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .signal-hero__arrow {
+    display: inline-block;
+    color: var(--hero-teal, #2bd3c6);
+    transition: transform 0.4s ease;
+  }
+
+  .signal-hero__headline:hover .signal-hero__arrow {
+    transform: translateX(4px);
+  }
+
+  .signal-hero__tagline {
+    font-family: "Atkinson", system-ui, -apple-system, sans-serif;
+    font-size: clamp(1rem, 2.2vw, 1.35rem);
+    color: var(--hero-text-muted, #b7c0d1);
+    margin: 0 0 2.5rem;
+    line-height: 1.6;
+    max-width: 36rem;
+    margin-inline: auto;
+  }
+
+  .signal-hero__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .signal-hero__cta {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-family: "Atkinson", system-ui, -apple-system, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background 0.25s ease,
+      color 0.25s ease,
+      box-shadow 0.25s ease,
+      transform 0.2s ease;
+  }
+
+  .signal-hero__cta:not(.signal-hero__cta--secondary) {
+    background: var(--hero-teal, #2bd3c6);
+    color: #0b0d12;
+  }
+
+  .signal-hero__cta:not(.signal-hero__cta--secondary):hover {
+    background: #34e8d9;
+    box-shadow: 0 4px 20px rgba(43, 211, 198, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .signal-hero__cta--secondary {
+    background: transparent;
+    color: var(--hero-text-muted, #b7c0d1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .signal-hero__cta--secondary:hover {
+    color: var(--hero-text, #f2f4f8);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  @keyframes heroFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .signal-hero__content {
+      animation: none;
+    }
+    .signal-hero__arrow {
+      transition: none;
+    }
+    .signal-hero__cta {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .signal-hero {
+      min-height: 80vh;
+    }
+    .signal-hero__content {
+      padding: 2rem 1rem;
+    }
+    .signal-hero__actions {
+      flex-direction: column;
+      align-items: center;
+    }
+    .signal-hero__cta {
+      width: 100%;
+      max-width: 16rem;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Signal Network Canvas Animation
+   *
+   * Renders a particle network that transitions from noise (left)
+   * to ordered signal (right). Lightweight, throttled to ~30fps,
+   * respects prefers-reduced-motion.
+   *
+   * Tunable constants are grouped at the top for easy adjustment.
+   */
+
+  // ── Tunable constants ─────────────────────────────────────────
+  const PARTICLE_COUNT = 90;
+  const CONNECTION_DISTANCE = 120;
+  const BASE_SPEED = 0.15;
+  const TARGET_FPS = 30;
+  const NODE_MIN_RADIUS = 1;
+  const NODE_MAX_RADIUS = 2.5;
+  const LINE_OPACITY_MAX = 0.18;
+  const TEAL = { r: 43, g: 211, b: 198 };
+  const MAGENTA = { r: 192, g: 75, b: 183 };
+  const AMBER = { r: 244, g: 162, b: 97 };
+  // ──────────────────────────────────────────────────────────────
+
+  function initSignalCanvas() {
+    const canvas = document.querySelector<HTMLCanvasElement>('.signal-hero__canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Respect reduced motion
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (motionQuery.matches) {
+      drawStaticFrame(canvas, ctx);
+      return;
+    }
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let particles: Particle[] = [];
+    let animId = 0;
+    let lastTime = 0;
+    const frameDuration = 1000 / TARGET_FPS;
+
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      baseX: number;
+      baseY: number;
+      zone: number; // 0=left(noise), 0.5=center, 1=right(signal)
+      radius: number;
+      anchor: number; // how strongly pulled toward base position (0-1)
+    }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      initParticles();
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        const zone = x / width; // 0..1 left to right
+
+        // Anchor strength increases toward the right (signal = more order)
+        const anchor = zone * zone * 0.6;
+
+        // Speed decreases toward right (signal = calmer)
+        const speedMult = 1 - zone * 0.7;
+
+        particles.push({
+          x,
+          y,
+          baseX: x,
+          baseY: y,
+          vx: (Math.random() - 0.5) * BASE_SPEED * speedMult * 2,
+          vy: (Math.random() - 0.5) * BASE_SPEED * speedMult * 2,
+          zone,
+          radius: NODE_MIN_RADIUS + zone * (NODE_MAX_RADIUS - NODE_MIN_RADIUS),
+          anchor,
+        });
+      }
+    }
+
+    function lerpColor(
+      a: { r: number; g: number; b: number },
+      b: { r: number; g: number; b: number },
+      t: number
+    ) {
+      return {
+        r: a.r + (b.r - a.r) * t,
+        g: a.g + (b.g - a.g) * t,
+        b: a.b + (b.b - a.b) * t,
+      };
+    }
+
+    function getNodeColor(zone: number) {
+      if (zone < 0.4) {
+        // Left: magenta-ish, faint
+        return lerpColor(MAGENTA, AMBER, zone / 0.4);
+      } else if (zone < 0.7) {
+        // Center: amber to teal transition
+        const t = (zone - 0.4) / 0.3;
+        return lerpColor(AMBER, TEAL, t);
+      } else {
+        // Right: teal, brighter
+        return TEAL;
+      }
+    }
+
+    function update() {
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Anchor pull (stronger on the right / signal side)
+        if (p.anchor > 0) {
+          p.vx += (p.baseX - p.x) * p.anchor * 0.002;
+          p.vy += (p.baseY - p.y) * p.anchor * 0.002;
+        }
+
+        // Soft boundary bounce
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+        p.x = Math.max(0, Math.min(width, p.x));
+        p.y = Math.max(0, Math.min(height, p.y));
+
+        // Damping
+        p.vx *= 0.998;
+        p.vy *= 0.998;
+
+        // Slight random perturbation (more on the left / noise side)
+        const noise = (1 - p.zone) * 0.02;
+        p.vx += (Math.random() - 0.5) * noise;
+        p.vy += (Math.random() - 0.5) * noise;
+      }
+    }
+
+    function draw() {
+      ctx!.clearRect(0, 0, width, height);
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          // Connection distance increases toward the right (denser network)
+          const avgZone = (a.zone + b.zone) / 2;
+          const maxDist = CONNECTION_DISTANCE * (0.5 + avgZone * 0.8);
+
+          if (dist < maxDist) {
+            const opacity = (1 - dist / maxDist) * LINE_OPACITY_MAX * (0.3 + avgZone * 0.7);
+            const color = getNodeColor(avgZone);
+            ctx!.beginPath();
+            ctx!.moveTo(a.x, a.y);
+            ctx!.lineTo(b.x, b.y);
+            ctx!.strokeStyle = `rgba(${color.r | 0},${color.g | 0},${color.b | 0},${opacity})`;
+            ctx!.lineWidth = 0.5 + avgZone * 0.5;
+            ctx!.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      for (const p of particles) {
+        const color = getNodeColor(p.zone);
+        const alpha = 0.2 + p.zone * 0.6;
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(${color.r | 0},${color.g | 0},${color.b | 0},${alpha})`;
+        ctx!.fill();
+
+        // Glow on signal-side nodes
+        if (p.zone > 0.65) {
+          ctx!.beginPath();
+          ctx!.arc(p.x, p.y, p.radius * 3, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(${TEAL.r},${TEAL.g},${TEAL.b},${0.03 + p.zone * 0.04})`;
+          ctx!.fill();
+        }
+      }
+    }
+
+    function drawStaticFrame(c: HTMLCanvasElement, cx: CanvasRenderingContext2D) {
+      // For reduced-motion: draw one static frame
+      const d = Math.min(window.devicePixelRatio || 1, 2);
+      const w = c.clientWidth;
+      const h = c.clientHeight;
+      c.width = w * d;
+      c.height = h * d;
+      cx.setTransform(d, 0, 0, d, 0, 0);
+
+      for (let i = 0; i < 60; i++) {
+        const x = Math.random() * w;
+        const y = Math.random() * h;
+        const zone = x / w;
+        const color = getNodeColor(zone);
+        const alpha = 0.15 + zone * 0.5;
+        const r = NODE_MIN_RADIUS + zone * (NODE_MAX_RADIUS - NODE_MIN_RADIUS);
+
+        cx.beginPath();
+        cx.arc(x, y, r, 0, Math.PI * 2);
+        cx.fillStyle = `rgba(${color.r | 0},${color.g | 0},${color.b | 0},${alpha})`;
+        cx.fill();
+      }
+    }
+
+    function loop(time: number) {
+      animId = requestAnimationFrame(loop);
+      if (time - lastTime < frameDuration) return;
+      lastTime = time;
+      update();
+      draw();
+    }
+
+    // Visibility-based pause
+    function handleVisibility() {
+      if (document.hidden) {
+        cancelAnimationFrame(animId);
+      } else {
+        lastTime = performance.now();
+        animId = requestAnimationFrame(loop);
+      }
+    }
+
+    // Listen for reduced-motion changes
+    motionQuery.addEventListener('change', (e) => {
+      if (e.matches) {
+        cancelAnimationFrame(animId);
+        drawStaticFrame(canvas, ctx!);
+      } else {
+        resize();
+        lastTime = performance.now();
+        animId = requestAnimationFrame(loop);
+      }
+    });
+
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    resize();
+    animId = requestAnimationFrame(loop);
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSignalCanvas);
+  } else {
+    initSignalCanvas();
+  }
+</script>

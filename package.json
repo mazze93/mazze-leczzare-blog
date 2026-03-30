@@ -18,7 +18,8 @@
     "build": "astro build",
     "check": "astro build && tsc",
     "dev": "astro dev",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "docs:check": "bash scripts/ops/verify-docs-integrity.sh"
   },
   "type": "module",
   "overrides": {

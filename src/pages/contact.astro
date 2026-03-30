@@ -1,0 +1,221 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import ContactForm from '../components/ContactForm';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Contact | ${SITE_TITLE}`}
+      description="Send a private message to Mazze Leczzare without exposing mailbox addresses publicly."
+      image="/hero-signal-grid.svg"
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="contact-shell">
+        <div class="contact-intro">
+          <p class="eyebrow">Contact</p>
+          <h1>Send a message</h1>
+          <p class="lede">
+            To minimize spam, mailbox addresses are not published on this site. Use the form and your
+            message will be routed privately.
+          </p>
+        </div>
+        <div class="contact-card">
+          <ContactForm client:load />
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-shell {
+    min-height: calc(100vh - 68px);
+    padding: 4rem 1.25rem 5rem;
+    background:
+      radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.12), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(244, 114, 182, 0.12), transparent 28%),
+      linear-gradient(165deg, rgba(9, 12, 20, 0.98), rgba(12, 28, 34, 0.96));
+  }
+
+  .contact-intro,
+  .contact-card {
+    width: min(860px, 100%);
+    margin: 0 auto;
+  }
+
+  .contact-card {
+    margin-top: 1.75rem;
+    padding: 2.25rem;
+    border-radius: 32px;
+    border: 1px solid rgba(135, 148, 171, 0.18);
+    background: rgba(99, 110, 116, 0.68);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  }
+
+  .eyebrow {
+    margin: 0 0 1rem;
+    color: #f79a6d;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(3rem, 7vw, 5rem);
+    line-height: 0.95;
+    color: #f5f1e8;
+  }
+
+  .lede {
+    max-width: 42rem;
+    margin: 0;
+    font-size: clamp(1.1rem, 2.3vw, 1.55rem);
+    line-height: 1.65;
+    color: rgba(245, 241, 232, 0.88);
+  }
+
+  :global(.contact-form) {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  :global(.field-group) {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  :global(.field-group label) {
+    color: #f5f1e8;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  :global(.field-group input),
+  :global(.field-group textarea) {
+    width: 100%;
+    border: 2px solid rgba(35, 62, 69, 0.9);
+    border-radius: 24px;
+    background: rgba(159, 167, 172, 0.76);
+    color: #112027;
+    font: inherit;
+    padding: 1rem 1.15rem;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  }
+
+  :global(.field-group textarea) {
+    min-height: 14rem;
+    resize: vertical;
+  }
+
+  :global(.field-group input:focus),
+  :global(.field-group textarea:focus) {
+    outline: none;
+    border-color: rgba(247, 154, 109, 0.92);
+    box-shadow: 0 0 0 4px rgba(247, 154, 109, 0.16);
+    background: rgba(182, 188, 192, 0.9);
+  }
+
+  :global(.form-footer) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  :global(.contact-form button) {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.95rem 1.5rem;
+    font: inherit;
+    font-weight: 700;
+    color: #fdfaf5;
+    background: linear-gradient(135deg, #f79a6d, #dd6b8f);
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(221, 107, 143, 0.24);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+  }
+
+  :global(.contact-form button:hover) {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px rgba(221, 107, 143, 0.3);
+  }
+
+  :global(.contact-form button:disabled) {
+    opacity: 0.72;
+    cursor: wait;
+    transform: none;
+  }
+
+  :global(.form-note) {
+    margin: 0;
+    color: rgba(245, 241, 232, 0.78);
+    font-size: 0.98rem;
+  }
+
+  :global(.form-status) {
+    margin: 0;
+    padding: 0.95rem 1.1rem;
+    border-radius: 18px;
+    font-weight: 600;
+  }
+
+  :global(.form-status.success) {
+    background: rgba(59, 130, 246, 0.14);
+    color: #d8ebff;
+    border: 1px solid rgba(96, 165, 250, 0.32);
+  }
+
+  :global(.form-status.error) {
+    background: rgba(239, 68, 68, 0.14);
+    color: #ffe2e2;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+  }
+
+  :global(.honeypot) {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 720px) {
+    .contact-shell {
+      padding: 2.5rem 1rem 4rem;
+    }
+
+    .contact-card {
+      padding: 1.5rem;
+      border-radius: 24px;
+    }
+
+    :global(.form-footer) {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    :global(.contact-form button) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

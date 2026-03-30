@@ -65,3 +65,32 @@ Risks:
 Mitigation:
 - Install `git ctx` alias in `setup-hooks.sh`.
 - Keep one-command `session-handoff.sh` for explicit updates.
+
+## DECISION-004
+Date: 2026-03-23
+Category: Operations
+Title: Treat external charters as benchmark overlays, not repo mechanics
+
+Context:
+External benchmark instructions and stale repo-local Copilot notes diverged from the actual repo scripts,
+Astro config, Cloudflare usage, and context-cache workflow. That drift made it easy for agents to suggest
+wrong commands and reintroduce cache churn into feature branches.
+
+Decision:
+Use external charters as quality and review overlays only. Keep repo-local instructions, `package.json`,
+`astro.config.mjs`, `wrangler.toml`, and other concrete repo files authoritative for commands,
+architecture, and deployment mechanics. Normalize context-cache policy to explicit refresh only, with
+no tracked-file mutation as a side effect of commits or branch operations.
+
+Why:
+- Keeps build/deploy guidance accurate.
+- Prevents benchmark guidance from silently rewriting repo architecture.
+- Reduces PR noise from generated operational state.
+- Makes conflicts between style guidance and repo mechanics easier to resolve.
+
+Risks:
+- Benchmark docs may be treated too loosely and lose influence on quality.
+
+Mitigation:
+- Reference benchmark docs in the instruction order as overlays.
+- Keep repo-local mechanics docs current when scripts, bindings, or workflow rules change.
