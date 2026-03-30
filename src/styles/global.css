@@ -1,44 +1,61 @@
 /*
   Global stylesheet — Mazze Leczzare Blog
-  Modern editorial design with CSS3 features
+  Editorial dark system: Cormorant Garamond / DM Mono
+  Teal / Coral accent system — dark always
 */
+
+/* ===========================
+   Self-hosted fonts via @fontsource (Vite resolves these at build time;
+   font files are copied to dist/ — no external network requests in production)
+   =========================== */
+/* Cormorant Garamond — latin subset, weights used in design */
+@import '@fontsource/cormorant-garamond/latin-300.css';
+@import '@fontsource/cormorant-garamond/latin-300-italic.css';
+@import '@fontsource/cormorant-garamond/latin-400.css';
+@import '@fontsource/cormorant-garamond/latin-400-italic.css';
+@import '@fontsource/cormorant-garamond/latin-500.css';
+@import '@fontsource/cormorant-garamond/latin-500-italic.css';
+@import '@fontsource/cormorant-garamond/latin-600.css';
+@import '@fontsource/cormorant-garamond/latin-600-italic.css';
+/* DM Mono — latin subset, weights used in design */
+@import '@fontsource/dm-mono/latin-300.css';
+@import '@fontsource/dm-mono/latin-300-italic.css';
+@import '@fontsource/dm-mono/latin-400.css';
+@import '@fontsource/dm-mono/latin-400-italic.css';
+@import '@fontsource/dm-mono/latin-500.css';
+@import '@fontsource/dm-mono/latin-500-italic.css';
 
 /* ===========================
    CSS Custom Properties
    =========================== */
 :root {
-  /* Colors */
-  --accent: #6c63ff;
-  --accent-dark: #4b44cc;
-  --accent-rgb: 108, 99, 255;
-  --accent-gradient: linear-gradient(135deg, #6c63ff 0%, #e040fb 100%);
-  --black: 15, 18, 25;
-  --gray: 96, 115, 159;
-  --gray-light: 229, 233, 240;
-  --gray-dark: 34, 41, 57;
-  --white: 255, 255, 255;
-  --surface: 247, 244, 237;
-  --surface-elevated: 255, 252, 247;
-  --line-color: 219, 223, 232;
-  --text-main: 34, 41, 57;
-  --text-muted: 96, 115, 159;
-  --gray-gradient: rgba(var(--gray-light), 0.45), rgb(var(--surface));
+  color-scheme: dark;
 
-  /* Hero */
-  --hero-bg: linear-gradient(160deg, #0f1219 0%, #1a1040 50%, #0d0d1a 100%);
-  --hero-overlay: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
+  /* Fixed palette */
+  --teal:       #3ab8a0;
+  --teal-dim:   #2a8a78;
+  --coral:      #e8705a;
+  --coral-dim:  #c45544;
+  --gold:       #c8a060;
 
-  /* Shadows */
-  --box-shadow:
-    0 2px 6px rgba(var(--gray), 25%),
-    0 8px 24px rgba(var(--gray), 33%),
-    0 16px 32px rgba(var(--gray), 33%);
-  --card-shadow: 0 4px 20px rgba(var(--black), 12%);
-  --card-shadow-hover: 0 8px 40px rgba(var(--black), 20%);
+  /* Dark mode tokens (default) */
+  --charcoal:   #0f1210;
+  --bg:         #0f1210;
+  --text:       #c8cec8;
+  --text-dim:   #8a9890;
+  --text-faint: #6a7e78;
+  --rule:       #1e2a26;
+  --surface:    #111a17;
+  --header-bg:  rgba(15, 18, 16, 0.92);
+
+  /* Semantic aliases */
+  --accent:     var(--teal);
+  --accent-alt: var(--coral);
+
+  /* Typography */
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-mono:    'DM Mono', 'Courier New', monospace;
+  --font-sans:    var(--font-display);
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -47,18 +64,9 @@
   --spacing-lg: 2rem;
   --spacing-xl: 4rem;
 
-  /* Typography */
-  --font-sans: "Atkinson", system-ui, sans-serif;
-  --font-size-base: 20px;
-  --font-size-sm: 0.875rem;
-  --font-size-lg: 1.25rem;
-  --line-height: 1.7;
-
   /* Borders */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -67,144 +75,102 @@
 
   /* Z-index */
   --z-header: 100;
-  --z-overlay: 50;
+
+  /* Theme-color values (used by JS to update <meta name="theme-color">) */
+  --theme-color-dark:  #0f1210;
+  --theme-color-light: #f5f0e8;
+
+  /* ---- Homepage design tokens ----------------------------------------- */
+  /* Typography — Playfair Display (Freight analog) + DM Sans (Suisse analog) */
+  --font-home-display: 'Playfair Display', 'Georgia', serif;
+  --font-home-sans:    'DM Sans', system-ui, sans-serif;
+
+  /* Palette — deep editorial navy, distinct from blog's warm charcoal */
+  --home-bg:           #08080e;
+  --home-surface:      #0d0d16;
+  --home-text:         #f0ede6;
+  --home-text-dim:     rgba(240, 237, 230, 0.65);
+  --home-text-faint:   rgba(240, 237, 230, 0.35);
+  --home-gold:         #c8a060;
+  --home-rule:         rgba(240, 237, 230, 0.10);
+  --home-header-bg:    rgba(8, 8, 14, 0.92);
 }
 
-:root[data-theme="dark"] {
-  --surface: 10, 14, 23;
-  --surface-elevated: 17, 24, 39;
-  --line-color: 38, 49, 69;
-  --text-main: 232, 238, 249;
-  --text-muted: 159, 174, 201;
-  --gray-dark: 232, 238, 249;
-  --gray: 159, 174, 201;
-  --gray-light: 38, 49, 69;
-  --gray-gradient: rgba(19, 27, 41, 0.96), rgb(var(--surface));
-  --card-shadow: 0 12px 36px rgba(0, 0, 0, 0.34);
-  --card-shadow-hover: 0 18px 50px rgba(0, 0, 0, 0.46);
-  --box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.28),
-    0 18px 40px rgba(0, 0, 0, 0.32);
+/* ===========================
+   Homepage body — remap shared CSS vars so Header/Footer auto-adapt
+   without any changes to those components
+   =========================== */
+body[data-layout="homepage"] {
+  background: var(--home-bg);
+  color: var(--home-text);
+
+  /* Override shared tokens used by Header, Footer, links */
+  --bg:         var(--home-bg);
+  --surface:    var(--home-surface);
+  --text:       var(--home-text);
+  --text-dim:   var(--home-text-dim);
+  --text-faint: var(--home-text-faint);
+  --rule:       var(--home-rule);
+  --header-bg:  var(--home-header-bg);
+  /* --teal and --coral remain as brand constants across both contexts */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --surface: 10, 14, 23;
-    --surface-elevated: 17, 24, 39;
-    --line-color: 38, 49, 69;
-    --text-main: 232, 238, 249;
-    --text-muted: 159, 174, 201;
-    --gray-dark: 232, 238, 249;
-    --gray: 159, 174, 201;
-    --gray-light: 38, 49, 69;
-    --gray-gradient: rgba(19, 27, 41, 0.96), rgb(var(--surface));
-    --card-shadow: 0 12px 36px rgba(0, 0, 0, 0.34);
-    --card-shadow-hover: 0 18px 50px rgba(0, 0, 0, 0.46);
-    --box-shadow:
-      0 2px 6px rgba(0, 0, 0, 0.18),
-      0 12px 30px rgba(0, 0, 0, 0.28),
-      0 18px 40px rgba(0, 0, 0, 0.32);
-  }
+/* ===========================
+   Light Mode Overrides
+   =========================== */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:         #f5f0e8;
+  --charcoal:   #f5f0e8;
+  --text:       #1a2420;
+  --text-dim:   #3e5450;
+  --text-faint: #4e6460;
+  --rule:       #d4ccc0;
+  --surface:    #ede8de;
+  --header-bg:  rgba(245, 240, 232, 0.92);
+  --teal:       #1e7060;
+  --teal-dim:   #155248;
+  --coral:      #b03020;
+  --coral-dim:  #8c2418;
 }
 
 /* ===========================
    Keyframe Animations
    =========================== */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(32px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes heroReveal {
-  0% {
-    opacity: 0;
-    transform: translateY(48px) scale(0.97);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes cardEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===========================
-   Font Faces
-   =========================== */
-@font-face {
-  font-family: "Atkinson";
-  src: url("/fonts/atkinson-regular.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Atkinson";
-  src: url("/fonts/atkinson-bold.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ===========================
    Base Styles
    =========================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   margin: 0;
   padding: 0;
-  text-align: left;
-  background:
-    radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.12), transparent 32%),
-    linear-gradient(var(--gray-gradient)) no-repeat;
-  background-size: 100% 600px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.75;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  color: rgb(var(--text-main));
-  font-size: var(--font-size-base);
-  line-height: var(--line-height);
   animation: fadeIn var(--transition-slow) ease both;
-  transition: background var(--transition-slow), color var(--transition-base);
 }
 
 main {
@@ -217,89 +183,53 @@ main {
 /* ===========================
    Typography
    =========================== */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0 0 0.5rem 0;
-  color: rgb(var(--black));
-  line-height: 1.2;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.15;
+  margin: 0 0 0.6em;
+  letter-spacing: 0.01em;
 }
 
-h1 {
-  font-size: clamp(2rem, 5vw, 3.052em);
-}
-h2 {
-  font-size: clamp(1.5rem, 4vw, 2.441em);
-}
-h3 {
-  font-size: clamp(1.25rem, 3vw, 1.953em);
-}
-h4 {
-  font-size: 1.563em;
-}
-h5 {
-  font-size: 1.25em;
-}
+h1 { font-size: clamp(2.4rem, 6vw, 4rem); }
+h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+h3 { font-size: clamp(1.4rem, 3vw, 2rem); }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.15rem; }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.title,
-.section-title {
-  color: rgb(var(--text-main));
-}
+strong, b { font-weight: 500; color: var(--text); }
 
-strong,
-b {
-  font-weight: 700;
-}
+p { margin-bottom: 1em; }
 
-p {
-  margin-bottom: 1em;
-}
-
-.prose p {
-  margin-bottom: 2em;
-}
+.prose p { margin-bottom: 1.6em; }
 
 /* ===========================
    Links
    =========================== */
 a {
-  color: var(--accent);
+  color: var(--teal);
   text-decoration: none;
-  position: relative;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--accent-dark);
+  color: var(--coral);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
 /* ===========================
    Selection
    =========================== */
 ::selection {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* ===========================
-   Form Elements
-   =========================== */
-textarea {
-  width: 100%;
-  font-size: 16px;
-}
-
-input {
-  font-size: 16px;
+  background: var(--teal);
+  color: var(--charcoal);
 }
 
 /* ===========================
@@ -307,6 +237,22 @@ input {
    =========================== */
 table {
   width: 100%;
+  border-collapse: collapse;
+}
+
+td, th {
+  padding: 0.5em 0.75em;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.9em;
+  color: var(--text-dim);
+}
+
+th {
+  color: var(--text-faint);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75em;
 }
 
 /* ===========================
@@ -316,35 +262,48 @@ img {
   max-width: 100%;
   height: auto;
   border-radius: var(--radius-md);
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 /* ===========================
    Code
    =========================== */
 code {
-  padding: 2px 5px;
-  background-color: rgba(var(--gray-light), 0.72);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 2px 6px;
+  background: rgba(58, 184, 160, 0.08);
+  border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
+  color: var(--teal);
 }
 
 pre {
   padding: 1.5em;
   border-radius: var(--radius-md);
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  overflow-x: auto;
 }
 
 pre > code {
   all: unset;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--text-dim);
 }
 
 /* ===========================
    Blockquote
    =========================== */
 blockquote {
-  border-left: 4px solid var(--accent);
-  padding: 0 0 0 20px;
-  margin: 0;
-  font-size: 1.333em;
+  border-left: 2px solid var(--teal);
+  padding: 0.25em 0 0.25em 1.5em;
+  margin: 1.5em 0;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: 1.25em;
+  font-style: italic;
+  line-height: 1.5;
 }
 
 /* ===========================
@@ -352,24 +311,51 @@ blockquote {
    =========================== */
 hr {
   border: none;
-  border-top: 1px solid rgba(var(--line-color), 1);
+  border-top: 1px solid var(--rule);
+  margin: 2em 0;
 }
 
 /* ===========================
-   Cards
+   Forms
    =========================== */
-.card {
-  background: rgba(var(--surface-elevated), 0.96);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-  transition:
-    transform var(--transition-base),
-    box-shadow var(--transition-base);
+textarea, input {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--charcoal);
+  border: 1px solid var(--rule);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 0.5em 0.75em;
 }
 
+/* ===========================
+   Tags / Labels
+   =========================== */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--coral);
+  border: 1px solid rgba(232, 112, 90, 0.3);
+  padding: 0.2em 0.6em;
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.tag:hover {
+  color: var(--coral-dim);
+  border-color: rgba(232, 112, 90, 0.5);
+}
+
+/* ===========================
+   Accessibility
+   =========================== */
 .sr-only {
-  position: absolute;
+  position: absolute !important;
   width: 1px;
   height: 1px;
   padding: 0;
@@ -380,88 +366,26 @@ hr {
   border: 0;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-}
-
-/* ===========================
-   Buttons
-   =========================== */
-.btn {
-  display: inline-block;
-  padding: 0.75em 1.75em;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition:
-    background var(--transition-fast),
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast);
-  text-decoration: none;
-}
-
-.btn-primary {
-  background: var(--accent-gradient);
-  color: #fff;
-  border: none;
-  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.35);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.5);
-  color: #fff;
-}
-
 /* ===========================
    Responsive
    =========================== */
 @media (max-width: 768px) {
-  body {
-    font-size: 18px;
-  }
-  main {
-    padding: 1em;
-  }
+  body { font-size: 14px; }
+  main { padding: 2em 1em; }
 }
 
 @media (max-width: 480px) {
-  body {
-    font-size: 16px;
-  }
+  body { font-size: 13px; }
 }
 
 /* ===========================
-   Accessibility
+   Reduced Motion
    =========================== */
-.sr-only {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px 1px 1px 1px);
-  clip: rect(1px, 1px, 1px, 1px);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  html {
-    scroll-behavior: auto;
-  }
+  html { scroll-behavior: auto; }
 }
