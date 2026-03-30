@@ -7,7 +7,7 @@
     "@astrojs/react": "^4.4.2",
     "@astrojs/rss": "4.0.17",
     "@astrojs/sitemap": "3.4.1",
-    "astro": "5.18.0",
+    "astro": "5.18.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "typescript": "5.8.3"
