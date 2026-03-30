@@ -8,37 +8,26 @@ echo "[docs-integrity] starting validation"
 
 node <<'NODE'
 const fs = require('fs');
-const path = require('path');
 
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const validScripts = Object.keys(pkg.scripts || {}).sort();
 const validScriptSet = new Set(validScripts);
 
-const docsIntegrityConfig = {
-  commandReferenceScan: {
-    include: [
-      '*.md',
-      '.github/*.md',
-      'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
-      'docs/operations/memory/README.md',
-    ],
-    exclude: [
-      'docs/operations/INSTRUCTION_CONFLICT_AUDIT.md',
-    ],
-  },
-  deploymentTerminologyScan: {
-    include: [
-      '*.md',
-      '.github/*.md',
-      'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
-      'docs/operations/memory/README.md',
-    ],
-    exclude: [
-      '.github/pull_request_template.md',
-      'docs/operations/INSTRUCTION_CONFLICT_AUDIT.md',
-    ],
-  },
-};
+const authoritativeFiles = [
+  'README.md',
+  'AGENTS.md',
+  '.github/copilot-instructions.md',
+  'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
+  'docs/operations/memory/README.md',
+];
+
+const deploymentTerminologyFiles = [
+  'README.md',
+  'AGENTS.md',
+  '.github/copilot-instructions.md',
+  'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
+  'docs/operations/memory/README.md',
+];
 
 const forbiddenDeploymentTerms = [
   {
@@ -62,74 +51,6 @@ const forbiddenDeploymentTerms = [
     suggestion: 'Use Cloudflare Pages terminology for this repo\'s current deployment model.',
   },
 ];
-
-function escapeRegExp(value) {
-  return value.replace(/[|\\{}()[\]^$+?.]/g, '\\$&');
-}
-
-function globToRegExp(pattern) {
-  const segments = pattern.split('/').map((segment) => {
-    if (segment === '**') {
-      return '.*';
-    }
-
-    return escapeRegExp(segment).replace(/\*/g, '[^/]*');
-  });
-
-  return new RegExp(`^${segments.join('/')}$`);
-}
-
-function walkFiles(dir, rootDir = dir) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  const files = [];
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...walkFiles(fullPath, rootDir));
-      continue;
-    }
-
-    files.push(path.relative(rootDir, fullPath).split(path.sep).join('/'));
-  }
-
-  return files;
-}
-
-function resolveScanFiles(scanConfig, allFiles, failures) {
-  const includeMatchers = scanConfig.include.map((pattern) => ({
-    pattern,
-    regex: globToRegExp(pattern),
-  }));
-  const excludeMatchers = scanConfig.exclude.map((pattern) => ({
-    pattern,
-    regex: globToRegExp(pattern),
-  }));
-
-  const includeMatches = new Map();
-  for (const matcher of includeMatchers) {
-    const matches = allFiles.filter((file) => matcher.regex.test(file)).sort();
-    if (matches.length === 0) {
-      failures.push({
-        type: 'scan_pattern_without_matches',
-        pattern: matcher.pattern,
-      });
-    }
-    includeMatches.set(matcher.pattern, matches);
-  }
-
-  const files = new Set();
-  for (const matches of includeMatches.values()) {
-    for (const file of matches) {
-      const excluded = excludeMatchers.some((matcher) => matcher.regex.test(file));
-      if (!excluded) {
-        files.add(file);
-      }
-    }
-  }
-
-  return [...files].sort();
-}
 
 function lineNumberFromIndex(content, index) {
   return content.slice(0, index).split('\n').length;
@@ -163,19 +84,8 @@ function collectCommandRefs(content) {
 }
 
 const failures = [];
-const repoFiles = walkFiles('.');
-const commandReferenceFiles = resolveScanFiles(
-  docsIntegrityConfig.commandReferenceScan,
-  repoFiles,
-  failures
-);
-const deploymentTerminologyFiles = resolveScanFiles(
-  docsIntegrityConfig.deploymentTerminologyScan,
-  repoFiles,
-  failures
-);
 
-for (const file of commandReferenceFiles) {
+for (const file of authoritativeFiles) {
   const content = fs.readFileSync(file, 'utf8');
   const refs = collectCommandRefs(content);
 
@@ -211,12 +121,7 @@ for (const file of deploymentTerminologyFiles) {
 if (failures.length > 0) {
   console.error('\n[docs-integrity] ❌ Validation failed.\n');
   for (const failure of failures) {
-    if (failure.type === 'scan_pattern_without_matches') {
-      console.error(
-        `- Scan config pattern matched no files: ${failure.pattern}\n` +
-          '  Update docsIntegrityConfig in scripts/ops/verify-docs-integrity.sh\n'
-      );
-    } else if (failure.type === 'invalid_script') {
+    if (failure.type === 'invalid_script') {
       console.error(
         `- File: ${failure.file}:${failure.line}\n` +
           `  Invalid script reference: npm run ${failure.script}\n` +

@@ -38,17 +38,6 @@ If a benchmark overlay or imported charter says something else, the concrete rep
 
 Conflict rule: if any repo-local or external benchmark guidance conflicts with platform/developer/user runtime instructions, follow platform/developer/user order and treat lower-priority guidance as non-authoritative context.
 
-Benchmark overlays inform quality and review standards, but they do not override repo-local mechanics.
-When benchmark guidance conflicts with `package.json`, `astro.config.mjs`, `wrangler.toml`, or other concrete repo files, the repo files win unless an explicit decision changes them.
-
-## Repo Mechanics Snapshot
-
-- Build: `npm run build`
-- Full validation: `npm run check`
-- Preview: `npm run preview`
-- Runtime model: static Astro site plus Cloudflare Pages Functions in `functions/api/`
-- Context cache refresh: explicit only via `scripts/ops/update-context-cache.sh` or repo aliasing, never as a side effect of commit hooks
-
 ## Operating Loop
 
 ### 1) Understand

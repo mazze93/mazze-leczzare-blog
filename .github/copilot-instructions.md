@@ -35,12 +35,7 @@ For code changes, prefer this validation order:
 - Blog routes use collection-derived IDs (see `src/pages/blog/[...slug].astro`).
 - Update `src/consts.ts` for global site metadata changes.
 
-- **Framework**: Astro 5 static site (`astro.config.mjs` sets `output: "static"`)
-- **Interactive UI**: React islands via `@astrojs/react`
-- **Content**: Markdown/MDX in `src/content/blog/` using Astro Content Collections
-- **Backend surface**: Cloudflare Pages Functions in `functions/api/`
-- **Build output**: `dist/`
-- **Cloudflare config**: `wrangler.toml` manages bindings and runtime metadata
+## Build & Deploy
 
 - Build output is `dist/`.
 - Primary deployment target is Cloudflare Pages.
