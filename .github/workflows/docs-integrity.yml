@@ -2,24 +2,60 @@ name: Docs Integrity
 
 on:
   pull_request:
+    paths:
+      - "README.md"
+      - "AGENTS.md"
+      - "CONTRIBUTING.md"
+      - ".github/pull_request_template.md"
+      - ".github/copilot-instructions.md"
+      - "scripts/ops/verify-docs-integrity.sh"
+      - ".github/workflows/docs-integrity.yml"
+      - "package.json"
+      - "package-lock.json"
   push:
     branches: [main]
+    paths:
+      - "README.md"
+      - "AGENTS.md"
+      - "CONTRIBUTING.md"
+      - ".github/pull_request_template.md"
+      - ".github/copilot-instructions.md"
+      - "scripts/ops/verify-docs-integrity.sh"
+      - ".github/workflows/docs-integrity.yml"
+      - "package.json"
+      - "package-lock.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-integrity-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   docs-integrity:
+    name: docs-integrity
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: "24"
           cache: npm
 
+      - name: Validate lockfile exists
+        run: |
+          test -f package-lock.json || {
+            echo "ERROR: package-lock.json is missing — run npm install and commit it"
+            exit 1
+          }
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run docs integrity checks
         run: npm run docs:check
