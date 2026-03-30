@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 
+type ContactApiResponse = { ok?: boolean; error?: string; message?: string };
+
 type FormState = {
   name: string;
   email: string;
@@ -48,7 +50,7 @@ export default function ContactForm() {
         }),
       });
 
-      const payload = (await response.json()) as { ok?: boolean; error?: string; message?: string };
+      const payload = (await response.json()) as ContactApiResponse;
 
       if (!response.ok || !payload.ok) {
         throw new Error(payload.error || 'Unable to send your message right now.');

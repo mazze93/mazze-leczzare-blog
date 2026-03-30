@@ -1,0 +1,123 @@
+/*
+  Homepage stylesheet — fashion-editorial modern aesthetic
+  Playfair Display (Freight Display analog) + DM Sans (Suisse Intl analog)
+  Deep editorial navy palette — distinct from the blog's warm charcoal
+*/
+
+/* ===========================
+   Homepage fonts (self-hosted via fontsource / Vite)
+   =========================== */
+/* Playfair Display — editorial display serif, high contrast */
+@import '@fontsource/playfair-display/latin-400.css';
+@import '@fontsource/playfair-display/latin-400-italic.css';
+@import '@fontsource/playfair-display/latin-500.css';
+@import '@fontsource/playfair-display/latin-700.css';
+@import '@fontsource/playfair-display/latin-700-italic.css';
+
+/* DM Sans — geometric grotesque, clean UI/body text */
+@import '@fontsource/dm-sans/latin-300.css';
+@import '@fontsource/dm-sans/latin-400.css';
+@import '@fontsource/dm-sans/latin-500.css';
+
+/* ===========================
+   Tailwind utilities
+   (base/preflight disabled in tailwind.config.mjs — global.css owns that)
+   =========================== */
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================
+   Hero entrance animations
+   Referenced by HeroSection.tsx class names
+   =========================== */
+@keyframes ruleExpand {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes heroSlideRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Rule lines */
+.hero-rule {
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.hero-mounted .hero-rule {
+  animation: ruleExpand 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.hero-mounted .hero-rule-bottom {
+  animation-delay: 0.1s;
+}
+
+/* Label row */
+.hero-label-row {
+  opacity: 0;
+}
+.hero-mounted .hero-label-row {
+  animation: heroFadeIn 0.5s ease forwards;
+  animation-delay: 0.35s;
+}
+
+/* Title words — each sets --word-delay via inline style */
+.hero-word {
+  display: inline-block;
+  opacity: 0;
+}
+.hero-mounted .hero-word {
+  animation: heroFadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--word-delay, 0.5s);
+}
+
+/* Tagline + CTAs */
+.hero-body {
+  opacity: 0;
+}
+.hero-mounted .hero-body {
+  animation: heroFadeUp 0.6s ease forwards;
+  animation-delay: 0.95s;
+}
+
+/* Artwork panel */
+.hero-art-panel {
+  opacity: 0;
+}
+.hero-mounted .hero-art-panel {
+  animation: heroSlideRight 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.55s;
+}
+
+/* Discipline bar */
+.hero-disciplines {
+  opacity: 0;
+}
+.hero-mounted .hero-disciplines {
+  animation: heroFadeIn 0.5s ease forwards;
+  animation-delay: 1.1s;
+}
+
+/* Disable all animations when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-rule,
+  .hero-label-row,
+  .hero-word,
+  .hero-body,
+  .hero-art-panel,
+  .hero-disciplines {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

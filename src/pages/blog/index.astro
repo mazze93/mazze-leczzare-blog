@@ -2,128 +2,346 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
-import FormattedDate from '../../components/FormattedDate.astro';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+const allPosts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+const [featured, ...rest] = allPosts;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={`Blog | ${SITE_TITLE}`} description="Recent essays and field notes from Mazze Leczzare." />
-		<style>
-			main {
-				width: 960px;
-			}
-			.blog-intro {
-				margin-bottom: 2rem;
-				padding: 1.5rem 0 1rem;
-			}
-			.blog-intro h1 {
-				margin-bottom: 0.5rem;
-			}
-			.blog-intro p {
-				margin: 0;
-				max-width: 42rem;
-				color: rgb(var(--gray));
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--text-main));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<section class="blog-intro">
-				<h1>Field Notes</h1>
-				<p>
-					Essays, architecture notes, and public working documents from the studio.
-				</p>
-			</section>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									<img width={720} height={360} src={post.data.heroImage} alt="" />
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
-		</main>
-		<Footer />
-	</body>
+<head>
+  <BaseHead title={`Writing — ${SITE_TITLE}`} description="Essays, architecture notes, and field dispatches from the studio." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+</head>
+<body>
+  <Header />
+  <main>
+    <div class="blog-header">
+      <p class="section-label">Writing</p>
+      <h1 class="page-title">Field Notes</h1>
+      <p class="page-desc">Essays, architecture notes, and public working documents from the studio.</p>
+    </div>
+
+    <!-- Featured post -->
+    {featured && (
+      <section class="featured-section" aria-label="Featured post">
+        <span class="featured-label">Latest</span>
+        <a href={`/blog/${featured.id}/`} class="featured-link">
+          {featured.data.heroImage && (
+            <div class="featured-image">
+              <img
+                src={featured.data.heroImage}
+                alt={featured.data.title}
+                width={960}
+                height={400}
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+          )}
+          <div class="featured-body">
+            <p class="featured-date"><FormattedDate date={featured.data.pubDate} /></p>
+            <h2 class="featured-title">{featured.data.title}</h2>
+            {(featured.data as any).subtitle && (
+              <p class="featured-subtitle">{(featured.data as any).subtitle}</p>
+            )}
+            {featured.data.description && (
+              <p class="featured-desc">{featured.data.description}</p>
+            )}
+            {(featured.data as any).tags && (featured.data as any).tags.length > 0 && (
+              <div class="featured-tags">
+                {(featured.data as any).tags.map((tag: string) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+            <span class="read-more">Read essay →</span>
+          </div>
+        </a>
+      </section>
+    )}
+
+    <!-- Post list -->
+    {rest.length > 0 && (
+      <section class="posts-section" aria-label="All posts">
+        <div class="posts-header">
+          <span class="section-label">Archive</span>
+          <span class="post-count">{rest.length} {rest.length === 1 ? 'post' : 'posts'}</span>
+        </div>
+        <ul class="posts-list" role="list">
+          {rest.map((post, i) => (
+            <li class="post-item">
+              <a href={`/blog/${post.id}/`} class="post-link">
+                <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="post-body">
+                  <span class="post-title">{post.data.title}</span>
+                  {post.data.description && (
+                    <span class="post-desc">{post.data.description}</span>
+                  )}
+                </span>
+                <span class="post-date">
+                  <FormattedDate date={post.data.pubDate} />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </main>
+  <Footer />
+</body>
 </html>
+
+<style>
+main {
+  width: 960px;
+  max-width: calc(100% - 2em);
+  margin: 0 auto;
+  padding: 0 1em 5em;
+}
+
+.blog-header {
+  padding: 4em 0 3em;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 3em;
+}
+
+.section-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.75em;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 300;
+  color: var(--text);
+  margin: 0 0 0.5em;
+  line-height: 1.05;
+}
+
+.page-desc {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--text-dim);
+  margin: 0;
+  max-width: 52ch;
+  line-height: 1.7;
+}
+
+/* Featured section */
+.featured-section {
+  margin-bottom: 4em;
+}
+
+.featured-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25em;
+}
+
+.featured-link {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-base);
+}
+
+.featured-link:hover {
+  border-color: rgba(58, 184, 160, 0.3);
+}
+
+.featured-image {
+  width: 100%;
+  aspect-ratio: 12 / 5;
+  overflow: hidden;
+}
+
+.featured-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  filter: brightness(0.7);
+  transition: filter var(--transition-slow), transform var(--transition-slow);
+}
+
+.featured-link:hover .featured-image img {
+  filter: brightness(0.8);
+  transform: scale(1.02);
+}
+
+.featured-body {
+  padding: 2em 2.5em 2.5em;
+}
+
+.featured-date {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 0.75em;
+}
+
+.featured-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.1;
+  margin: 0 0 0.3em;
+  letter-spacing: 0.01em;
+  transition: color var(--transition-fast);
+}
+
+.featured-link:hover .featured-title { color: var(--teal); }
+
+.featured-subtitle {
+  font-family: var(--font-display);
+  font-size: 1.1em;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-dim);
+  margin: 0 0 0.75em;
+}
+
+.featured-desc {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 0 0 1.25em;
+  max-width: 60ch;
+}
+
+.featured-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-bottom: 1.5em;
+}
+
+.read-more {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  letter-spacing: 0.06em;
+  color: var(--teal);
+  text-transform: uppercase;
+}
+
+/* Posts list */
+.posts-section {
+  padding-top: 1em;
+}
+
+.posts-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.5em;
+  padding-bottom: 0.75em;
+  border-bottom: 1px solid var(--rule);
+}
+
+.post-count {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+}
+
+.posts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-item {
+  border-bottom: 1px solid var(--rule);
+}
+
+.post-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25em;
+  padding: 1.1em 0;
+  text-decoration: none;
+}
+
+.post-link:hover .post-title { color: var(--teal); }
+.post-link:hover .post-num { color: var(--teal); }
+
+.post-num {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  width: 2em;
+  transition: color var(--transition-fast);
+}
+
+.post-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.post-title {
+  font-family: var(--font-display);
+  font-size: 1.2em;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.25;
+  transition: color var(--transition-fast);
+}
+
+.post-desc {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  color: var(--text-faint);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-date {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .featured-body { padding: 1.5em; }
+  .post-link { flex-wrap: wrap; gap: 0.5em; }
+  .post-date { width: 100%; }
+  .post-desc { display: none; }
+}
+</style>
