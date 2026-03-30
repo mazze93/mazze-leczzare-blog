@@ -8,8 +8,7 @@
     "@astrojs/rss": "4.0.11",
     "@astrojs/sitemap": "3.4.1",
     "astro": "5.18.0",
-    "mimetext": "^3.0.28",
-    "react": "^19.2.4",
+"react": "^19.2.4",
     "react-dom": "^19.2.4",
     "typescript": "5.8.3"
   },
