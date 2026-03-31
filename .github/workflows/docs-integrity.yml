@@ -2,7 +2,6 @@ name: Docs Integrity
 
 on:
   pull_request:
-<<<<<<< claude/bold-davinci
     paths:
       - "README.md"
       - "AGENTS.md"
@@ -40,10 +39,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "24"
           cache: npm
@@ -57,26 +56,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
-=======
-  push:
-    branches: [main]
-
-jobs:
-  docs-integrity:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
->>>>>>> main
 
       - name: Run docs integrity checks
         run: npm run docs:check
