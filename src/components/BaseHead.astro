@@ -95,7 +95,7 @@ const personSchema = {
 
 <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
-<script is:inline>
+<script is:inline data-cfasync="false">
   (() => {
     const root = document.documentElement;
     const metaTheme = document.querySelector('meta[name="theme-color"]');
