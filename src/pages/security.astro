@@ -1,0 +1,190 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_EMAIL } from '../consts';
+
+const securityEmail = SITE_EMAIL.replace('mailto:', '');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title="Security"
+      description="How to report security vulnerabilities for mazzeleczzare.com"
+      image="/hero-signal-grid.svg"
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="security-shell">
+        <div class="security-intro">
+          <p class="eyebrow">Security</p>
+          <h1>Security</h1>
+          <p class="lede">
+            If you discover a security vulnerability affecting this site, please report it responsibly.
+            Valid reports will be reviewed and investigated.
+          </p>
+        </div>
+
+        <div class="security-card">
+          <section aria-labelledby="what-to-report">
+            <h2 id="what-to-report">What to report</h2>
+            <ul>
+              <li>Authentication or authorization issues</li>
+              <li>Data exposure or leakage</li>
+              <li>
+                Cross-site scripting (XSS), CSRF, injection, or similar client/server vulnerabilities
+              </li>
+              <li>Misconfigurations that expose sensitive systems or content</li>
+              <li>Anything that could materially affect user privacy, integrity, or availability</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="contact">
+            <h2 id="contact">Contact</h2>
+            <p>
+              <a href={SITE_EMAIL}>{securityEmail}</a>
+            </p>
+          </section>
+
+          <section aria-labelledby="scope">
+            <h2 id="scope">Scope</h2>
+            <p>
+              This policy applies to <code>https://mazzeleczzare.com</code> and infrastructure directly
+              controlled for this site, including subdomains under <code>mazzeleczzare.com</code>, if any.
+            </p>
+          </section>
+
+          <section aria-labelledby="no-bug-bounty">
+            <h2 id="no-bug-bounty">No bug bounty</h2>
+            <p>
+              This is a personal project. I do not offer monetary rewards for vulnerability reports, but
+              I appreciate responsible disclosure.
+            </p>
+          </section>
+
+          <section aria-labelledby="disclosure-note" class="closing-note">
+            <h2 id="disclosure-note">Private disclosure</h2>
+            <p>
+              Please do not publicly disclose vulnerabilities until they have been investigated and
+              addressed.
+            </p>
+          </section>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    width: min(100%, 960px);
+    max-width: calc(100% - 2rem);
+    padding: 3.5rem 0 5rem;
+  }
+
+  .security-shell {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .security-card {
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 2rem;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    margin: 0 0 1rem;
+    font-family: var(--font-mono);
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+  }
+
+  .lede {
+    max-width: 48rem;
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .security-card section + section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  h2 {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text);
+  }
+
+  li + li {
+    margin-top: 0.65rem;
+  }
+
+  a {
+    color: var(--teal);
+  }
+
+  a:hover {
+    color: var(--coral);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    padding: 0.16em 0.4em;
+    border: 1px solid var(--rule);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text);
+  }
+
+  .closing-note {
+    border-left: 2px solid var(--teal);
+    padding: 1.5rem;
+    background: rgba(58, 184, 160, 0.04);
+  }
+
+  .closing-note h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 720px) {
+    main {
+      max-width: calc(100% - 1.5rem);
+      padding: 2.5rem 0 4rem;
+    }
+
+    .security-card {
+      padding: 1.5rem;
+    }
+
+    .security-card section + section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+    }
+  }
+</style>

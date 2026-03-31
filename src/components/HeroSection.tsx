@@ -30,7 +30,7 @@ export default function HeroSection({
   ctaLabel,
   ctaHref,
   secondaryLabel = 'About',
-  secondaryHref = '/about',
+  secondaryHref = '/about/',
   artworkSrc = '/hero-signal-grid.svg',
   artworkCaption = 'Working studio',
   disciplines = ['Science', 'Brand', 'Cybersecurity', 'Story'],
