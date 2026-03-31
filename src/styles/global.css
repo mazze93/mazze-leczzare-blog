@@ -43,7 +43,7 @@
   --bg:         #0f1210;
   --text:       #c8cec8;
   --text-dim:   #8a9890;
-  --text-faint: #6a7e78;
+  --text-faint: #7a9090;
   --rule:       #1e2a26;
   --surface:    #111a17;
   --header-bg:  rgba(15, 18, 16, 0.92);
@@ -90,7 +90,7 @@
   --home-surface:      #0d0d16;
   --home-text:         #f0ede6;
   --home-text-dim:     rgba(240, 237, 230, 0.65);
-  --home-text-faint:   rgba(240, 237, 230, 0.35);
+  --home-text-faint:   rgba(240, 237, 230, 0.55);
   --home-gold:         #c8a060;
   --home-rule:         rgba(240, 237, 230, 0.10);
   --home-header-bg:    rgba(8, 8, 14, 0.92);
