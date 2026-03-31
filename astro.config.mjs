@@ -8,6 +8,7 @@ import tailwind from "@astrojs/tailwind";
 // https://astro.build/config
 export default defineConfig({
   site: "https://mazzeleczzare.com",
+  trailingSlash: "always",
   output: "static",
   integrations: [
     mdx(),
