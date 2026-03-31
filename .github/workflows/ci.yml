@@ -25,14 +25,8 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Debug workspace
-        run: |
-          echo "=== pwd ===" && pwd
-          echo "=== ls -la ===" && ls -la
-          echo "=== npm version ===" && npm --version
-          echo "=== node version ===" && node --version
-          echo "=== npm config list ===" && npm config list
-          echo "=== package-lock head ===" && head -3 package-lock.json
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci

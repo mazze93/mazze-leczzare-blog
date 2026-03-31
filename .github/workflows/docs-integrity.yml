@@ -46,6 +46,9 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Validate lockfile exists
         run: |
           test -f package-lock.json || {
