@@ -25,11 +25,11 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Update npm
-        run: npm install -g npm@latest
-
       - name: Install dependencies
-        run: npm ci
+        run: |
+          echo "npm version: $(npm --version)"
+          npm install --prefer-offline
+          echo "installed via npm install"
 
       - name: Type-check + build
         run: npm run check
