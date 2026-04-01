@@ -8,6 +8,8 @@ on:
       - "CONTRIBUTING.md"
       - ".github/pull_request_template.md"
       - ".github/copilot-instructions.md"
+      - "docs/operations/AGENT_OPERATIONS_PROTOCOL.md"
+      - "docs/operations/memory/README.md"
       - "scripts/ops/verify-docs-integrity.sh"
       - ".github/workflows/docs-integrity.yml"
       - "package.json"
@@ -20,6 +22,8 @@ on:
       - "CONTRIBUTING.md"
       - ".github/pull_request_template.md"
       - ".github/copilot-instructions.md"
+      - "docs/operations/AGENT_OPERATIONS_PROTOCOL.md"
+      - "docs/operations/memory/README.md"
       - "scripts/ops/verify-docs-integrity.sh"
       - ".github/workflows/docs-integrity.yml"
       - "package.json"
@@ -39,12 +43,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "24"
+          cache: npm
 
       - name: Validate lockfile exists
         run: |
@@ -54,7 +59,7 @@ jobs:
           }
 
       - name: Install dependencies
-        run: npm install --prefer-offline --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Run docs integrity checks
         run: npm run docs:check
