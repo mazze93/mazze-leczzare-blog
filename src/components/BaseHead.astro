@@ -2,6 +2,7 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
+import displayFontUrl from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
 import {
   SITE_AUTHOR,
   SITE_DEFAULT_OG_IMAGE,
@@ -60,13 +61,12 @@ const personSchema = {
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
 
-<!-- Font preloads -->
-<link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
-<link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin />
-
-<!-- Theme color -->
-<meta name="theme-color" content="#0f172a" />
+<!-- Theme color (default: dark; updated immediately by inline script below) -->
+<meta name="theme-color" content="#0f1210" />
 <meta name="color-scheme" content="light dark" />
+
+<!-- Preload critical display font to prevent layout shift -->
+<link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
@@ -95,7 +95,7 @@ const personSchema = {
 
 <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
-<script is:inline>
+<script is:inline data-cfasync="false">
   (() => {
     const root = document.documentElement;
     const metaTheme = document.querySelector('meta[name="theme-color"]');
@@ -104,7 +104,11 @@ const personSchema = {
     const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : systemTheme;
     root.dataset.theme = theme;
     if (metaTheme) {
-      metaTheme.setAttribute('content', theme === 'dark' ? '#0f172a' : '#f7f4ed');
+      const styles = getComputedStyle(root);
+      const color = styles.getPropertyValue(
+        theme === 'dark' ? '--theme-color-dark' : '--theme-color-light'
+      ).trim();
+      metaTheme.setAttribute('content', color);
     }
   })();
 </script>

@@ -31,7 +31,11 @@ export default function ThemeToggle() {
     window.localStorage.setItem('theme-preference', nextTheme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      metaTheme.setAttribute('content', nextTheme === 'dark' ? '#0f172a' : '#f7f4ed');
+      const styles = getComputedStyle(document.documentElement);
+      const color = styles.getPropertyValue(
+        nextTheme === 'dark' ? '--theme-color-dark' : '--theme-color-light'
+      ).trim();
+      metaTheme.setAttribute('content', color);
     }
   }
 

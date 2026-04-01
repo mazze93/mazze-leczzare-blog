@@ -1,168 +1,159 @@
 ---
-import HeaderLink from './HeaderLink.astro';
-import ThemeToggle from './ThemeToggle';
 import { SITE_TITLE } from '../consts';
+import ThemeToggle from './ThemeToggle';
 ---
 
 <header role="banner">
-<nav aria-label="Main navigation">
-<h2><a href="/" aria-label={`${SITE_TITLE} — home`}>{SITE_TITLE}</a></h2>
-<div class="internal-links">
-<HeaderLink href="/">Home</HeaderLink>
-<HeaderLink href="/blog">Blog</HeaderLink>
-<HeaderLink href="/contact">Contact</HeaderLink>
-<HeaderLink href="/about">About</HeaderLink>
-<HeaderLink href="/manifesto">Manifesto</HeaderLink>
-</div>
-<div class="header-actions">
-<div class="social-links" aria-label="Site links">
-<a href="https://github.com/mazze93" target="_blank" rel="noopener noreferrer">GitHub</a>
-<a href="/rss.xml">RSS</a>
-<a href="/contact">Contact</a>
-</div>
-<ThemeToggle client:load />
-</div>
-</nav>
+  <nav aria-label="Main navigation">
+    <a href="/" class="wordmark" aria-label={`${SITE_TITLE} — home`}>{SITE_TITLE}</a>
+    <div class="nav-links">
+      <a href="/blog/">Writing</a>
+      <a href="/about/">About</a>
+      <a href="/manifesto/">Manifesto</a>
+    </div>
+    <div class="nav-util">
+      <a href="https://github.com/mazze93" target="_blank" rel="noopener noreferrer" class="util-link">GitHub</a>
+      <a href="/rss.xml" class="util-link">RSS</a>
+      <ThemeToggle client:load />
+    </div>
+  </nav>
 </header>
+
 <style>
 header {
-position: sticky;
-top: 0;
-z-index: var(--z-header);
-margin: 0;
-padding: 0 1.5em;
-background: rgba(var(--surface-elevated), 0.88);
-backdrop-filter: blur(12px);
--webkit-backdrop-filter: blur(12px);
-box-shadow: 0 1px 0 rgba(var(--black), 8%);
-transition: box-shadow var(--transition-base);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--rule);
 }
-header.scrolled {
-box-shadow: 0 4px 24px rgba(var(--black), 12%);
+
+@supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+  header {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
-h2 {
-margin: 0;
-font-size: 1.1em;
-}
-h2 a,
-h2 a.active {
-text-decoration: none;
-color: rgb(var(--text-main));
-font-weight: 700;
-letter-spacing: -0.02em;
-transition: color var(--transition-fast);
-}
-h2 a:hover {
-color: var(--accent);
-}
+
 nav {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 1em;
-min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5em;
+  min-height: 56px;
 }
-nav a {
-padding: 0.5em 0.6em;
-color: rgb(var(--gray-dark));
-border-bottom: 2px solid transparent;
-text-decoration: none;
-font-size: 0.95em;
-transition: color var(--transition-fast), border-color var(--transition-fast);
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 1.1em;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
 }
-nav a.active {
-text-decoration: none;
-border-bottom-color: var(--accent);
-color: var(--accent);
+
+.wordmark:hover {
+  color: var(--teal);
 }
-nav a:hover {
-color: var(--accent);
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  flex: 1;
 }
-.internal-links {
-display: flex;
-align-items: center;
-gap: 0.25em;
+
+.nav-links a {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 0.4em 0.7em;
+  transition: color var(--transition-fast);
 }
-.social-links,
-.social-links a,
-.header-actions {
-display: flex;
-align-items: center;
+
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+  color: var(--teal);
 }
-.header-actions {
-gap: 0.75em;
+
+.nav-util {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-left: auto;
 }
-.social-links {
-gap: 0.5em;
+
+.util-link {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-decoration: none;
+  padding: 0.3em 0.6em;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
 }
-.social-links a {
-padding: 0.45em 0.8em;
-border-radius: 999px;
-border: 1px solid rgba(var(--gray), 0.18);
-background: rgba(var(--surface), 0.72);
-color: rgb(var(--gray-dark));
-transition: color var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
-font-size: 0.82em;
-letter-spacing: 0.02em;
+
+.util-link:hover {
+  color: var(--teal);
+  border-color: rgba(58, 184, 160, 0.3);
 }
-.social-links a:hover {
-color: var(--accent);
-transform: translateY(-2px);
-border-color: rgba(var(--accent-rgb), 0.35);
-}
+
 :global(.theme-toggle) {
-border: 1px solid rgba(var(--gray), 0.18);
-background: rgba(var(--surface), 0.78);
-color: rgb(var(--gray-dark));
-border-radius: 999px;
-padding: 0.55rem 0.95rem;
-font: inherit;
-font-size: 0.82em;
-font-weight: 700;
-cursor: pointer;
-transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 0.3em 0.6em;
+  cursor: pointer;
+  line-height: 1.6;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
 }
+
 :global(.theme-toggle:hover) {
-transform: translateY(-1px);
-border-color: rgba(var(--accent-rgb), 0.35);
+  color: var(--teal);
+  border-color: rgba(58, 184, 160, 0.3);
 }
+
 :global(.theme-toggle:focus-visible) {
-outline: 2px solid rgba(var(--accent-rgb), 0.45);
-outline-offset: 2px;
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
 }
-@media (max-width: 768px) {
-nav {
-gap: 0.75em;
-align-items: flex-start;
-padding: 0.75em 0;
-flex-direction: column;
+
+.wordmark:focus-visible,
+.nav-links a:focus-visible,
+.util-link:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
-.internal-links,
-.header-actions {
-width: 100%;
-justify-content: space-between;
-}
-.social-links {
-gap: 0.4em;
-flex-wrap: wrap;
-}
+
+@media (max-width: 640px) {
+  nav {
+    gap: 1em;
+    padding: 0 1em;
+    min-height: 48px;
+    flex-wrap: wrap;
+  }
+  .nav-util {
+    display: flex;
+    margin-left: auto;
+  }
+  .util-link { display: none; }
+  :global(.theme-toggle) { display: inline-flex; }
+  .nav-links a { padding: 0.3em 0.5em; }
 }
 </style>
-<script>
-	// Add scrolled class for enhanced shadow on scroll
-	const header = document.querySelector('header');
-	const controller = new AbortController();
-	window.addEventListener(
-		'scroll',
-		() => {
-			if (header) {
-				header.classList.toggle('scrolled', window.scrollY > 10);
-			}
-		},
-		{ passive: true, signal: controller.signal },
-	);
-	// Clean up when the page is hidden (navigation away)
-	document.addEventListener('visibilitychange', () => {
-		if (document.visibilityState === 'hidden') controller.abort();
-	}, { once: true });
-</script>

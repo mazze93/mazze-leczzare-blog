@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & type-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Verify lockfile
+        run: bash scripts/ops/verify-lockfile.sh
+
+      - name: Install dependencies
+        run: |
+          echo "npm version: $(npm --version)"
+          npm install --prefer-offline
+          echo "installed via npm install"
+
+      - name: Type-check + build
+        run: npm run check
+
+      - name: Security audit
+        run: npm audit --audit-level=high

@@ -1,106 +1,147 @@
 ---
-import { SITE_GITHUB_URL, SITE_RSS_URL } from '../consts';
-const today = new Date();
+import { SITE_EMAIL, SITE_GITHUB_URL, SITE_RSS_URL } from '../consts';
+const year = new Date().getFullYear();
 ---
 
 <footer role="contentinfo">
-<div class="footer-grid">
-<section class="footer-brand" aria-label="Brand">
-<p class="footer-tagline">Essays, experiments, and field notes from the edge of science, design, story, and security.</p>
-</section>
-<section class="footer-nav" aria-label="Footer navigation">
-<nav aria-label="Footer links">
-<a href="/">Home</a>
-<a href="/blog">Blog</a>
-<a href="/contact">Contact</a>
-<a href="/about">About</a>
-<a href="/manifesto">Manifesto</a>
-</nav>
-</section>
-<section class="footer-social" aria-label="Site links">
-<div class="social-links">
-<a href={SITE_GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
-<a href={SITE_RSS_URL}>RSS</a>
-<a href="/contact">Contact</a>
-</div>
-</section>
-</div>
-<div class="footer-bottom">
-<p>&copy; {today.getFullYear()} Mazze Leczzare. All rights reserved.</p>
-</div>
+  <div class="footer-inner">
+    <div class="footer-col footer-brand">
+      <span class="footer-wordmark">Mazze Leczzare</span>
+      <p class="footer-desc">Essays, experiments, and field notes from the edge of science, design, story, and security.</p>
+    </div>
+    <div class="footer-col footer-nav">
+      <span class="col-label">Navigation</span>
+      <nav aria-label="Footer navigation">
+        <a href="/">Home</a>
+        <a href="/blog/">Writing</a>
+        <a href="/about/">About</a>
+        <a href="/manifesto/">Manifesto</a>
+        <a href="/security/">Security</a>
+      </nav>
+    </div>
+    <div class="footer-col footer-links">
+      <span class="col-label">Links</span>
+      <nav aria-label="External links">
+        <a href={SITE_GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href={SITE_RSS_URL}>RSS Feed</a>
+        <a href={SITE_EMAIL}>Contact</a>
+      </nav>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-meta">&copy; {year} Mazze Leczzare</span>
+    <span class="footer-sep">·</span>
+    <span class="footer-meta">mazzeleczzare.com</span>
+    <span class="footer-sep">·</span>
+    <span class="footer-meta">Built with Astro</span>
+  </div>
 </footer>
+
 <style>
 footer {
-background: linear-gradient(var(--gray-gradient)) no-repeat;
-color: rgb(var(--gray));
-padding: 3em 2em 2em;
-border-top: 1px solid rgba(var(--line-color), 1);
+  border-top: 1px solid var(--rule);
+  padding: 3em 1.5em 2em;
+  background: var(--surface);
 }
-.footer-grid {
-display: grid;
-grid-template-columns: 2fr 1fr 1fr;
-gap: 2em;
-max-width: 960px;
-margin: 0 auto 2em;
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2.5em;
+  max-width: 960px;
+  margin: 0 auto 2.5em;
 }
-.footer-brand {
-max-width: 280px;
+
+.footer-wordmark {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.1em;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.75em;
+  letter-spacing: 0.02em;
 }
-.footer-tagline {
-margin: 0;
-font-size: 0.95em;
-line-height: 1.6;
+
+.footer-desc {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 28ch;
 }
-.footer-nav nav {
-display: flex;
-flex-direction: column;
-gap: 0.5em;
+
+.col-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 1em;
 }
-.footer-nav a {
-color: rgb(var(--gray));
-text-decoration: none;
-font-size: 0.9em;
-transition: color var(--transition-fast);
+
+.footer-nav nav,
+.footer-links nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
 }
-.footer-nav a:hover {
-color: var(--accent);
+
+.footer-nav a,
+.footer-links a {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
-.social-links {
-display: flex;
-gap: 0.75em;
+
+.footer-nav a:hover,
+.footer-links a:hover {
+  color: var(--teal);
 }
-.social-links a {
-padding: 0.5em 0.85em;
-border-radius: 999px;
-border: 1px solid rgba(var(--gray), 0.16);
-background: rgba(var(--surface), 0.72);
-color: rgb(var(--gray-dark));
-text-decoration: none;
-transition: color var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+
+.footer-nav a:focus-visible,
+.footer-links a:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
-.social-links a:hover {
-color: var(--accent);
-transform: translateY(-2px);
-border-color: rgba(var(--accent-rgb), 0.35);
-}
+
 .footer-bottom {
-text-align: center;
-padding-top: 1.5em;
-border-top: 1px solid rgba(var(--line-color), 1);
-max-width: 960px;
-margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  max-width: 960px;
+  margin: 0 auto;
+  padding-top: 1.5em;
+  border-top: 1px solid var(--rule);
 }
-.footer-bottom p {
-margin: 0;
-font-size: 0.85em;
+
+.footer-meta {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
 }
-@media (max-width: 768px) {
-.footer-grid {
-grid-template-columns: 1fr;
-gap: 1.5em;
+
+.footer-sep {
+  color: var(--rule);
+  font-size: 0.8125rem;
 }
-.footer-brand {
-max-width: 100%;
-}
+
+@media (max-width: 640px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 2em;
+  }
+  .footer-desc { max-width: 100%; }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25em;
+  }
+  .footer-sep { display: none; }
 }
 </style>

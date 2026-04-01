@@ -5,11 +5,10 @@
   "dependencies": {
     "@astrojs/mdx": "4.3.0",
     "@astrojs/react": "^4.4.2",
-    "@astrojs/rss": "4.0.11",
+    "@astrojs/rss": "4.0.17",
     "@astrojs/sitemap": "3.4.1",
-    "astro": "5.18.0",
-    "mimetext": "^3.0.28",
-    "react": "^19.2.4",
+    "astro": "5.18.1",
+"react": "^19.2.4",
     "react-dom": "^19.2.4",
     "typescript": "5.8.3"
   },
@@ -21,5 +20,19 @@
     "preview": "astro preview",
     "docs:check": "bash scripts/ops/verify-docs-integrity.sh"
   },
-  "type": "module"
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "overrides": {
+    "fast-xml-parser": "5.5.8"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/dm-mono": "^5.2.7",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/playfair-display": "^5.2.8",
+    "tailwindcss": "^3.4.19"
+  }
 }
