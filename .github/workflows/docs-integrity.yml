@@ -3,6 +3,7 @@ name: Docs Integrity
 on:
   pull_request:
     paths:
+<<<<<<< ours
       - "README.md"
       - "AGENTS.md"
       - "CONTRIBUTING.md"
@@ -37,6 +38,27 @@ jobs:
     name: docs-integrity
     runs-on: ubuntu-latest
     timeout-minutes: 10
+=======
+      - '**/*.md'
+      - 'package.json'
+      - 'astro.config.mjs'
+      - 'scripts/ops/verify-docs-integrity.sh'
+      - '.github/workflows/docs-integrity.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+      - 'package.json'
+      - 'astro.config.mjs'
+      - 'scripts/ops/verify-docs-integrity.sh'
+      - '.github/workflows/docs-integrity.yml'
+
+jobs:
+  docs-integrity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+>>>>>>> theirs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +66,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
+<<<<<<< ours
           node-version: "24"
 
       - name: Validate lockfile exists
@@ -55,6 +78,13 @@ jobs:
 
       - name: Install dependencies
         run: npm install --prefer-offline --ignore-scripts
+=======
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+>>>>>>> theirs
 
       - name: Run docs integrity checks
         run: npm run docs:check

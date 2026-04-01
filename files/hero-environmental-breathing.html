@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From Erasure → Signal</title>
+  <style>
+    :root {
+      --charcoal: #0b0d12;
+      --indigo: #131722;
+      --teal: #2bd3c6;
+      --magenta: #c04bb7;
+      --amber: #f4a261;
+      --white: #f2f4f8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Suisse Int\'l', 'Suisse Works', 'Neue Haas Grotesk', 'Founders Grotesk', 'Aktiv Grotesk', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--charcoal);
+      overflow: hidden;
+    }
+
+    .hero {
+      width: 100%;
+      height: 100vh;
+      display: grid;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: right;
+      padding-right: clamp(2rem, 10vw, 8rem);
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: 0;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      margin: 0 0 1rem 0;
+      line-height: 1.05;
+      font-family: 'Freight Display', 'Freight Text', 'Canela', 'Tiempos', 'Chronicle Display', 'Noe Display', Georgia, serif;
+    }
+
+    .arrow {
+      color: var(--teal);
+      filter: drop-shadow(0 0 12px rgba(43, 211, 198, 0.6));
+      display: inline-block;
+      margin: 0 0.3em;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      font-weight: 400;
+      letter-spacing: 0.015em;
+      color: rgba(242, 244, 248, 0.65);
+      line-height: 1.6;
+      font-family: 'Suisse Int\'l', 'Suisse Works', 'Neue Haas Grotesk', 'Founders Grotesk', 'Aktiv Grotesk', 'IBM Plex Sans', -apple-system, sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      .hero-content {
+        text-align: center;
+        padding: 2rem;
+        margin: 0 auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #canvas {
+        display: none;
+      }
+
+      .hero {
+        background: linear-gradient(90deg, var(--charcoal) 0%, var(--indigo) 100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <canvas id="canvas"></canvas>
+    <div class="hero-content">
+      <h1>From Erasure <span class="arrow">→</span> Signal</h1>
+      <p class="subtitle">Technology, systems thinking, and the architecture of meaning.</p>
+    </div>
+  </section>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let particles = [];
+    let nodes = [];
+    let connections = [];
+    let mouse = { x: 0, y: 0 };
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initializeSystem();
+    }
+
+    // Particle class for Zone 1 (Noise)
+    class Particle {
+      constructor(x, y, zone) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 0.2;
+        this.vy = (Math.random() - 0.5) * 0.2;
+        this.size = Math.random() * 1.5 + 0.5;
+        this.opacity = Math.random() * 0.15 + 0.05;
+        this.zone = zone;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0) this.x = width / 3;
+        if (this.x > width / 3) this.x = 0;
+        if (this.y < 0) this.y = height;
+        if (this.y > height) this.y = 0;
+
+        this.vx += (Math.random() - 0.5) * 0.015;
+        this.vy += (Math.random() - 0.5) * 0.015;
+        this.vx *= 0.99;
+        this.vy *= 0.99;
+      }
+
+      draw() {
+        ctx.fillStyle = `rgba(242, 244, 248, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Node class - breathes darkness into surrounding space
+    class Node {
+      constructor(x, y, zone) {
+        this.x = x;
+        this.y = y;
+        this.baseX = x;
+        this.baseY = y;
+        this.zone = zone;
+        this.size = zone === 2 ? Math.random() * 2 + 1.5 : Math.random() * 2.5 + 2;
+        this.baseOpacity = zone === 2 ? Math.random() * 0.5 + 0.4 : Math.random() * 0.7 + 0.5;
+        
+        // Environmental breathing - very slow cycle
+        this.breathPhase = Math.random() * Math.PI * 2;
+        this.breathSpeed = 0.0008 + Math.random() * 0.0004; // Much slower
+        this.darknessRadius = zone === 2 ? 80 : 120; // Area of influence
+        
+        // Color assignment
+        if (zone === 2) {
+          this.color = Math.random() > 0.5 ? 'teal' : 'magenta';
+        } else {
+          const rand = Math.random();
+          if (rand < 0.4) this.color = 'teal';
+          else if (rand < 0.7) this.color = 'amber';
+          else this.color = 'white';
+        }
+      }
+
+      update(mouseX, mouseY) {
+        // Slow environmental breathing
+        this.breathPhase += this.breathSpeed;
+
+        // Strong mouse interaction - nodes respond to presence
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 150) {
+          const force = (150 - dist) / 150;
+          // Pull toward mouse more strongly
+          this.x += dx * force * 0.03;
+          this.y += dy * force * 0.03;
+        }
+
+        // Return to base position slowly
+        this.x += (this.baseX - this.x) * 0.03;
+        this.y += (this.baseY - this.y) * 0.03;
+      }
+
+      draw() {
+        // Environmental darkness breathing - space around node darkens/lightens
+        const breathCycle = Math.sin(this.breathPhase);
+        const darknessIntensity = (breathCycle + 1) / 2; // 0 to 1
+        
+        // Draw darkness field around node
+        const darkGradient = ctx.createRadialGradient(
+          this.x, this.y, this.size,
+          this.x, this.y, this.darknessRadius
+        );
+        
+        darkGradient.addColorStop(0, `rgba(11, 13, 18, 0)`);
+        darkGradient.addColorStop(0.3, `rgba(11, 13, 18, ${darknessIntensity * 0.15})`);
+        darkGradient.addColorStop(0.6, `rgba(11, 13, 18, ${darknessIntensity * 0.25})`);
+        darkGradient.addColorStop(1, `rgba(11, 13, 18, ${darknessIntensity * 0.1})`);
+        
+        ctx.fillStyle = darkGradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.darknessRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw subtle glow
+        const glowSize = this.size * 3;
+        const glowGradient = ctx.createRadialGradient(
+          this.x, this.y, 0,
+          this.x, this.y, glowSize
+        );
+
+        let colorRgb;
+        if (this.color === 'teal') colorRgb = '43, 211, 198';
+        else if (this.color === 'magenta') colorRgb = '192, 75, 183';
+        else if (this.color === 'amber') colorRgb = '244, 162, 97';
+        else colorRgb = '242, 244, 248';
+
+        glowGradient.addColorStop(0, `rgba(${colorRgb}, ${this.baseOpacity * 0.4})`);
+        glowGradient.addColorStop(0.5, `rgba(${colorRgb}, ${this.baseOpacity * 0.15})`);
+        glowGradient.addColorStop(1, `rgba(${colorRgb}, 0)`);
+
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core node - steady, not pulsing
+        ctx.fillStyle = `rgba(${colorRgb}, ${this.baseOpacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      getMouseInfluence(mouseX, mouseY) {
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        return dist < 150 ? (150 - dist) / 150 : 0;
+      }
+    }
+
+    // Connection class
+    class Connection {
+      constructor(node1, node2, zone) {
+        this.node1 = node1;
+        this.node2 = node2;
+        this.opacity = 0;
+        this.targetOpacity = zone === 2 ? Math.random() * 0.2 + 0.1 : Math.random() * 0.35 + 0.2;
+        this.zone = zone;
+        this.formationDelay = Math.random() * 4000;
+        this.formed = false;
+        this.mouseInfluence = 0;
+      }
+
+      update(mouseX, mouseY) {
+        if (!this.formed && Date.now() % 12000 > this.formationDelay) {
+          this.formed = true;
+        }
+
+        if (this.formed) {
+          this.opacity += (this.targetOpacity - this.opacity) * 0.015;
+        }
+
+        // Check mouse influence on both nodes
+        const influence1 = this.node1.getMouseInfluence(mouseX, mouseY);
+        const influence2 = this.node2.getMouseInfluence(mouseX, mouseY);
+        this.mouseInfluence = Math.max(influence1, influence2);
+      }
+
+      draw() {
+        if (this.opacity < 0.01) return;
+
+        const finalOpacity = this.opacity * (1 + this.mouseInfluence * 1.5);
+        const lineWidth = 1 + this.mouseInfluence * 1;
+
+        ctx.strokeStyle = this.zone === 2
+          ? `rgba(43, 211, 198, ${finalOpacity})`
+          : `rgba(244, 162, 97, ${finalOpacity})`;
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(this.node1.x, this.node1.y);
+        ctx.lineTo(this.node2.x, this.node2.y);
+        ctx.stroke();
+      }
+    }
+
+    function initializeSystem() {
+      particles = [];
+      nodes = [];
+      connections = [];
+
+      // Zone 1: Noise particles
+      for (let i = 0; i < 60; i++) {
+        particles.push(new Particle(
+          Math.random() * (width / 3),
+          Math.random() * height,
+          1
+        ));
+      }
+
+      // Zone 2: Emergence nodes
+      const zone2Nodes = [];
+      for (let i = 0; i < 35; i++) {
+        const node = new Node(
+          width / 3 + Math.random() * (width / 3),
+          Math.random() * height,
+          2
+        );
+        nodes.push(node);
+        zone2Nodes.push(node);
+      }
+
+      zone2Nodes.forEach(node => {
+        const nearby = zone2Nodes.filter(other => {
+          const dx = node.x - other.x;
+          const dy = node.y - other.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          return dist < 160 && dist > 0;
+        });
+
+        nearby.slice(0, 3).forEach(other => {
+          connections.push(new Connection(node, other, 2));
+        });
+      });
+
+      // Zone 3: Signal nodes
+      const zone3Nodes = [];
+      for (let i = 0; i < 45; i++) {
+        const node = new Node(
+          (width / 3) * 2 + Math.random() * (width / 3),
+          Math.random() * height,
+          3
+        );
+        nodes.push(node);
+        zone3Nodes.push(node);
+      }
+
+      zone3Nodes.forEach(node => {
+        const nearby = zone3Nodes.filter(other => {
+          const dx = node.x - other.x;
+          const dy = node.y - other.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          return dist < 180 && dist > 0;
+        });
+
+        nearby.slice(0, 4).forEach(other => {
+          connections.push(new Connection(node, other, 3));
+        });
+      });
+    }
+
+    function animate() {
+      // Clear with subtle fade
+      ctx.fillStyle = 'rgba(11, 13, 18, 0.4)';
+      ctx.fillRect(0, 0, width, height);
+
+      // Update and draw particles
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      // Update nodes
+      nodes.forEach(n => n.update(mouse.x, mouse.y));
+
+      // Draw connections
+      connections.forEach(c => {
+        c.update(mouse.x, mouse.y);
+        c.draw();
+      });
+
+      // Draw nodes (they draw their own darkness fields)
+      nodes.forEach(n => n.draw());
+
+      requestAnimationFrame(animate);
+    }
+
+    // Mouse tracking
+    canvas.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    });
+
+    // Initialize
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
+
+    // Respect reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      canvas.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
