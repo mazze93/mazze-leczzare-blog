@@ -21,6 +21,9 @@
     "docs:check": "bash scripts/ops/verify-docs-integrity.sh"
   },
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "overrides": {
     "fast-xml-parser": "5.5.8"
   },

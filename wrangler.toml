@@ -7,10 +7,11 @@ pages_build_output_dir = "dist"
 CONTACT_FROM_EMAIL = "contact@mazzeleczzare.com"
 CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 
-[[ratelimits]]
+[[unsafe.bindings]]
 name = "SHARE_EVENT_RATE_LIMITER"
+type = "ratelimit"
 namespace_id = "23021"
 
-  [ratelimits.simple]
+  [unsafe.bindings.simple]
   limit = 20
   period = 60
