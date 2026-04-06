@@ -14,16 +14,20 @@ import {
 // Support both blog collection entries and markdown pages with frontmatter
 type Props = {
   title: string;
+  subtitle?: string;
   description: string;
   pubDate?: Date | string;
   updatedDate?: Date | string;
   heroImage?: string;
+  tags?: string[];
   frontmatter?: {
     title?: string;
+    subtitle?: string;
     description?: string;
     pubDate?: Date | string;
     updatedDate?: Date | string;
     heroImage?: string;
+    tags?: string[];
   };
 };
 
@@ -34,8 +38,10 @@ const resolved = {
   ...props,
 };
 const title = resolved.title ?? 'Untitled';
+const subtitle = resolved.subtitle;
 const description = resolved.description ?? '';
 const heroImage = resolved.heroImage;
+const tags = resolved.tags ?? [];
 
 // Handle both Date objects and string dates, with proper fallback
 const rawPubDate = resolved.pubDate;
@@ -89,6 +95,8 @@ publishedTime={pubDate.toISOString()}
 modifiedTime={(updatedDate ?? pubDate).toISOString()}
 />
 <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+<!-- Preload blog fonts -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" />
 <style>
 main {
 width: calc(100% - 2em);
@@ -217,7 +225,7 @@ transform: none;
 </style>
 </head>
 
-<body>
+<body class="blog-layout">
 <Header />
 <main>
 <article>
@@ -237,6 +245,15 @@ decoding="async"
 </div>
 <div class="prose">
 <div class="title">
+{tags.length > 0 && (
+<div class="flex flex-wrap gap-2 justify-center mb-4">
+  {tags.map((tag) => (
+    <span class="font-mono text-xs uppercase tracking-mono text-blog-coral border border-blog-coral/30 px-3 py-1 rounded-full">
+      {tag}
+    </span>
+  ))}
+</div>
+)}
 <div class="date">
 <FormattedDate date={pubDate} />
 {
@@ -248,10 +265,15 @@ Last updated on <FormattedDate date={updatedDate} />
 }
 </div>
 <h1>{title}</h1>
+{subtitle && (
+<p class="font-serif text-xl text-blog-text-dim leading-editorial mb-4">{subtitle}</p>
+)}
 <hr />
 </div>
 <PostQuoteShare client:load title={title} pathname={Astro.url.pathname} />
+<div class="prose-blog">
 <slot />
+</div>
 </div>
 </article>
 </main>

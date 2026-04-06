@@ -4,6 +4,91 @@
 */
 
 /* ===========================
+   Dual Design System
+   =========================== */
+
+/* Blog fonts: Cormorant Garamond + DM Mono via Google Fonts */
+@import './fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Homepage/portfolio base — fashion-editorial dark */
+  .homepage-layout {
+    background-color: #0d0d0d;
+    color: #f5f0e8;
+  }
+
+  /* Blog section base — classical timeless editorial */
+  .blog-layout {
+    background-color: #0a0e17;
+    color: #e8e0d0;
+  }
+}
+
+@layer components {
+  /* Homepage prose (for future content blocks) */
+  .prose-home {
+    @apply prose prose-invert max-w-none;
+    --tw-prose-body: theme('colors.home.white');
+    --tw-prose-headings: theme('colors.home.white');
+    --tw-prose-links: theme('colors.home.teal');
+    --tw-prose-code: theme('colors.home.magenta');
+  }
+
+  /* Blog prose — classical editorial typography */
+  .prose-blog {
+    @apply prose prose-invert max-w-none;
+    --tw-prose-body: theme('colors.blog.text');
+    --tw-prose-headings: theme('colors.blog.text');
+    --tw-prose-links: theme('colors.blog.teal');
+    --tw-prose-code: theme('colors.blog.coral');
+    --tw-prose-quotes: theme('colors.blog.text-dim');
+    --tw-prose-quote-borders: theme('colors.blog.teal');
+    font-family: theme('fontFamily.serif');
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+
+  .prose-blog h1,
+  .prose-blog h2,
+  .prose-blog h3,
+  .prose-blog h4 {
+    font-family: theme('fontFamily.serif');
+    font-weight: 300;
+    letter-spacing: theme('letterSpacing.editorial');
+  }
+
+  .prose-blog h2 {
+    line-height: theme('lineHeight.editorial');
+  }
+
+  .prose-blog code {
+    font-family: theme('fontFamily.mono');
+    color: theme('colors.blog.coral');
+    font-size: 0.875em;
+  }
+
+  .prose-blog blockquote {
+    border-left-color: theme('colors.blog.teal');
+    color: theme('colors.blog.text-dim');
+    font-style: italic;
+  }
+
+  .prose-blog a {
+    color: theme('colors.blog.teal');
+    text-decoration-color: theme('colors.blog.teal');
+    opacity: 0.85;
+  }
+
+  .prose-blog a:hover {
+    opacity: 1;
+  }
+}
+
+/* ===========================
    CSS Custom Properties
    =========================== */
 :root {

@@ -1,0 +1,10 @@
+/*
+  Font declarations — Mazze Leczzare Blog
+
+  Blog fonts: Cormorant Garamond + DM Mono via Google Fonts CDN
+  Homepage fonts: System font stacks (New York, Georgia for display;
+                  -apple-system for sans) — see tailwind.config.mjs
+*/
+
+/* Blog section fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap');

@@ -97,12 +97,12 @@ const posts = (await getCollection('blog')).sort(
 			}
 		</style>
 	</head>
-	<body>
+	<body class="blog-layout">
 		<Header />
 		<main>
 			<section class="blog-intro">
-				<h1>Field Notes</h1>
-				<p>
+				<h1 class="font-serif font-light">Field Notes</h1>
+				<p class="font-serif text-blog-text-dim">
 					Essays, architecture notes, and public working documents from the studio.
 				</p>
 			</section>
@@ -113,8 +113,20 @@ const posts = (await getCollection('blog')).sort(
 							<li>
 								<a href={`/blog/${post.id}/`}>
 									<img width={720} height={360} src={post.data.heroImage} alt="" />
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
+									{post.data.tags && post.data.tags.length > 0 && (
+										<div class="flex flex-wrap gap-2 mb-2">
+											{post.data.tags.map((tag) => (
+												<span class="font-mono text-xs uppercase tracking-mono text-blog-coral">
+													{tag}
+												</span>
+											))}
+										</div>
+									)}
+									<h4 class="title font-serif font-light">{post.data.title}</h4>
+									{post.data.subtitle && (
+										<p class="font-serif text-blog-text-dim text-sm mt-1">{post.data.subtitle}</p>
+									)}
+									<p class="date font-mono text-xs uppercase tracking-mono">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
 								</a>
