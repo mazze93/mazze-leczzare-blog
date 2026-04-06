@@ -1,6 +1,6 @@
 ---
 import HomepageLayout from '../layouts/HomepageLayout.astro';
-import HeroSection from '../components/HeroSection';
+import SignalHero from '../components/SignalHero.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
@@ -12,17 +12,8 @@ const posts = (await getCollection('blog'))
 
 <HomepageLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 
-  <!-- Hero — full-viewport editorial canvas -->
-  <HeroSection
-    client:load
-    headline={"Essays, experiments,\nand dispatches\nfrom the edge."}
-    tagline="Science, story, brand systems, cybersecurity, and the stubborn attempt to make complex ideas legible without flattening them."
-    ctaLabel="Read the Writing"
-    ctaHref="/blog/"
-    secondaryLabel="About"
-    secondaryHref="/about/"
-    disciplines={['Neuroscience', 'Brand', 'Cybersecurity', 'Narrative', 'Design']}
-  />
+  <!-- Hero — full-viewport signal canvas -->
+  <SignalHero />
 
   <!-- Recent writing — editorial post index -->
   {posts.length > 0 && (
