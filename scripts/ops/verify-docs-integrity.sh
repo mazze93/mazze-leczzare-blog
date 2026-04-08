@@ -8,32 +8,12 @@ echo "[docs-integrity] starting validation"
 
 node <<'NODE'
 const fs = require('fs');
-<<<<<<< ours
-=======
 const { execSync } = require('child_process');
->>>>>>> theirs
 
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const validScripts = Object.keys(pkg.scripts || {}).sort();
 const validScriptSet = new Set(validScripts);
 
-<<<<<<< ours
-const authoritativeFiles = [
-  'README.md',
-  'AGENTS.md',
-  '.github/copilot-instructions.md',
-  'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
-  'docs/operations/memory/README.md',
-];
-
-const deploymentTerminologyFiles = [
-  'README.md',
-  'AGENTS.md',
-  '.github/copilot-instructions.md',
-  'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
-  'docs/operations/memory/README.md',
-];
-=======
 const discoveredDocs = execSync(
   "git ls-files 'README.md' 'AGENTS.md' 'CONTRIBUTING.md' '.github/**/*.md' 'docs/**/*.md'",
   { encoding: 'utf8' }
@@ -65,30 +45,10 @@ const deploymentTerminologyFiles = discoveredDocs.filter((file) => {
     'docs/operations/memory/README.md',
   ].includes(file);
 });
->>>>>>> theirs
 
 const forbiddenDeploymentTerms = [
   {
     regex: /@astrojs\/cloudflare/g,
-<<<<<<< ours
-    suggestion: 'Use Cloudflare Pages + static Astro wording unless the adapter is actually introduced.',
-  },
-  {
-    regex: /wrangler deploy --dry-run/g,
-    suggestion: 'Use `npm run check` (astro build && tsc) unless deploy validation is reintroduced in package.json.',
-  },
-  {
-    regex: /wrangler dev/g,
-    suggestion: 'Use `npm run preview` (astro preview) for local built-site preview.',
-  },
-  {
-    regex: /platformProxy\.enabled/g,
-    suggestion: 'Remove adapter-specific notes unless adapter config exists in astro.config.mjs.',
-  },
-  {
-    regex: /Cloudflare Workers using/gi,
-    suggestion: 'Use Cloudflare Pages terminology for this repo\'s current deployment model.',
-=======
     suggestion: 'Use Cloudflare Pages + static Astro wording unless the adapter is intentionally added to astro.config.mjs.',
   },
   {
@@ -106,7 +66,6 @@ const forbiddenDeploymentTerms = [
   {
     regex: /Cloudflare Workers using/gi,
     suggestion: 'Use Cloudflare Pages terminology for current deployment unless runtime changes are made.',
->>>>>>> theirs
   },
 ];
 
@@ -117,36 +76,16 @@ function lineNumberFromIndex(content, index) {
 function collectCommandRefs(content) {
   const refs = [];
 
-<<<<<<< ours
-  // Inline code references: `npm run <script>`
-  const inlineRegex = /`npm\s+run\s+([A-Za-z0-9:_-]+)`/g;
-  for (const match of content.matchAll(inlineRegex)) {
-    refs.push({ script: match[1], index: match.index ?? 0, source: 'inline code' });
-  }
-
-  // Fenced shell blocks: ```bash ... npm run <script> ...```
-=======
-  // Inline code references.
   const inlineRegex = /`([^`]+)`/g;
   for (const match of content.matchAll(inlineRegex)) {
     const snippet = match[1] || '';
     refs.push(...collectCommandsFromSnippet(snippet, match.index ?? 0, 'inline code'));
   }
 
-  // Fenced shell blocks.
->>>>>>> theirs
   const fenceRegex = /```(?:bash|sh|zsh|shell)?\s*\n([\s\S]*?)```/g;
   for (const fenceMatch of content.matchAll(fenceRegex)) {
     const fenceBody = fenceMatch[1] ?? '';
     const fenceStart = fenceMatch.index ?? 0;
-<<<<<<< ours
-    const scriptRegex = /\bnpm\s+run\s+([A-Za-z0-9:_-]+)/g;
-    for (const scriptMatch of fenceBody.matchAll(scriptRegex)) {
-      refs.push({
-        script: scriptMatch[1],
-        index: fenceStart + (scriptMatch.index ?? 0),
-        source: 'fenced shell block',
-=======
     refs.push(...collectCommandsFromSnippet(fenceBody, fenceStart, 'fenced shell block'));
   }
 
@@ -169,7 +108,6 @@ function collectCommandsFromSnippet(snippet, offset, source) {
         index: offset + (match.index ?? 0),
         source,
         commandForm: kind,
->>>>>>> theirs
       });
     }
   }
@@ -179,9 +117,6 @@ function collectCommandsFromSnippet(snippet, offset, source) {
 
 const failures = [];
 
-<<<<<<< ours
-for (const file of authoritativeFiles) {
-=======
 if (discoveredDocs.length === 0) {
   failures.push({
     type: 'coverage',
@@ -197,7 +132,6 @@ if (scannedDocs.length + (discoveredDocs.length - scannedDocs.length) !== discov
 }
 
 for (const file of scannedDocs) {
->>>>>>> theirs
   const content = fs.readFileSync(file, 'utf8');
   const refs = collectCommandRefs(content);
 
@@ -209,10 +143,7 @@ for (const file of scannedDocs) {
         line: lineNumberFromIndex(content, ref.index),
         script: ref.script,
         source: ref.source,
-<<<<<<< ours
-=======
         commandForm: ref.commandForm,
->>>>>>> theirs
       });
     }
   }
@@ -234,32 +165,6 @@ for (const file of deploymentTerminologyFiles) {
   }
 }
 
-<<<<<<< ours
-if (failures.length > 0) {
-  console.error('\n[docs-integrity] ❌ Validation failed.\n');
-  for (const failure of failures) {
-    if (failure.type === 'invalid_script') {
-      console.error(
-        `- File: ${failure.file}:${failure.line}\n` +
-          `  Invalid script reference: npm run ${failure.script}\n` +
-          `  Source: ${failure.source}\n` +
-          `  Valid scripts: ${validScripts.join(', ')}\n`
-      );
-    } else if (failure.type === 'forbidden_term') {
-      console.error(
-        `- File: ${failure.file}:${failure.line}\n` +
-          `  Forbidden deployment term found: ${failure.term}\n` +
-          `  Use instead: ${failure.suggestion}\n`
-      );
-    }
-  }
-
-  console.error('[docs-integrity] Fix the above issues, then rerun: npm run docs:check\n');
-  process.exit(1);
-}
-
-console.log('[docs-integrity] ✅ Script references and deployment terminology are valid.');
-=======
 const astroConfig = fs.readFileSync('astro.config.mjs', 'utf8');
 if (!/output:\s*"static"/.test(astroConfig)) {
   failures.push({
@@ -276,7 +181,7 @@ if (!deploymentTerminologyFiles.includes('README.md')) {
 }
 
 if (failures.length > 0) {
-  console.error('\n[docs-integrity] ❌ Validation failed.\n');
+  console.error('\n[docs-integrity] \u274c Validation failed.\n');
 
   for (const failure of failures) {
     if (failure.type === 'invalid_script') {
@@ -286,7 +191,7 @@ if (failures.length > 0) {
       console.error(`- File: ${failure.file}:${failure.line}\n  ${msg}\n  Source: ${failure.source}\n`);
       console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
     } else if (failure.type === 'forbidden_term') {
-      const msg = `Forbidden deployment term \"${failure.term}\". Use instead: ${failure.suggestion}`;
+      const msg = `Forbidden deployment term "${failure.term}". Use instead: ${failure.suggestion}`;
       console.error(`- File: ${failure.file}:${failure.line}\n  ${msg}\n`);
       console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
     } else {
@@ -307,10 +212,9 @@ if (failures.length > 0) {
 
 const ignored = discoveredDocs.filter((file) => !scannedDocs.includes(file));
 if (ignored.length > 0) {
-  console.log('[docs-integrity] ℹ️ Ignored script-validation docs (historical artifacts):');
+  console.log('[docs-integrity] \u2139\ufe0f Ignored script-validation docs (historical artifacts):');
   for (const file of ignored) console.log(`  - ${file}`);
 }
 
-console.log(`[docs-integrity] ✅ Script refs validated in ${scannedDocs.length} docs; deployment terms validated in ${deploymentTerminologyFiles.length} docs.`);
->>>>>>> theirs
+console.log(`[docs-integrity] \u2705 Script refs validated in ${scannedDocs.length} docs; deployment terms validated in ${deploymentTerminologyFiles.length} docs.`);
 NODE

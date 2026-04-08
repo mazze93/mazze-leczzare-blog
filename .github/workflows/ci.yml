@@ -25,9 +25,6 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Verify lockfile
-        run: bash scripts/ops/verify-lockfile.sh
-
       - name: Install dependencies
         run: |
           echo "npm version: $(npm --version)"

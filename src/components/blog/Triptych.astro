@@ -1,0 +1,198 @@
+---
+/**
+ * Triptych — Three-panel visual composition component.
+ * Renders a full-width triptych grid with labeled panels and accent bars.
+ * Each panel takes a src image, label, sublabel, and index.
+ *
+ * Usage in MDX:
+ *   import Triptych from '@/components/blog/Triptych.astro';
+ *   <Triptych
+ *     header="Orientation"
+ *     subheader="Mind  ·  Navigation  ·  Structure"
+ *     panels={[
+ *       { src: '/triptych/triptych-mind.png', label: 'Mind', sublabel: 'cognition · pattern recognition', alt: 'A luminous neural profile visualization' },
+ *       { src: '/triptych/triptych-structure.jpg', label: 'Structure', sublabel: 'reasoning · constraint · governance', alt: 'A systems notebook of reasoning diagrams' },
+ *       { src: '/triptych/triptych-instrument.png', label: 'Instrument', sublabel: 'navigation · inference · orientation', alt: 'A compass in a dark star field' },
+ *     ]}
+ *   />
+ *
+ * @prop header       — optional section heading (small caps)
+ * @prop subheader    — optional subtitle below heading
+ * @prop panels       — array of panel objects (required)
+ */
+interface Panel {
+  src: string;
+  label: string;
+  sublabel?: string;
+  alt: string;
+}
+
+interface Props {
+  header?: string;
+  subheader?: string;
+  panels: Panel[];
+}
+
+const { header, subheader, panels } = Astro.props;
+
+const ACCENT_COLORS = [
+  'var(--color-gold, #c8a060)',
+  'var(--color-teal, #3ab8a0)',
+  'var(--color-text-faint, #506058)',
+];
+---
+
+<section class="triptych" aria-label={header ?? 'Triptych'}>
+  {(header || subheader) && (
+    <header class="triptych__header">
+      {header && <h2 class="triptych__heading">{header}</h2>}
+      {subheader && <p class="triptych__subheading">{subheader}</p>}
+    </header>
+  )}
+
+  <div class="triptych__grid" role="list">
+    {panels.map((panel, i) => (
+      <figure class="triptych__panel" role="listitem">
+        <div
+          class="triptych__accent"
+          style={`background: ${ACCENT_COLORS[i % ACCENT_COLORS.length]}`}
+          aria-hidden="true"
+        />
+        <span class="triptych__index" aria-hidden="true">
+          {['I', 'II', 'III', 'IV'][i] ?? i + 1}
+        </span>
+        <img
+          src={panel.src}
+          alt={panel.alt}
+          loading="lazy"
+          decoding="async"
+          class="triptych__img"
+        />
+        <figcaption class="triptych__caption">
+          <span class="triptych__label">{panel.label}</span>
+          {panel.sublabel && (
+            <span class="triptych__sublabel">{panel.sublabel}</span>
+          )}
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</section>
+
+<style>
+  .triptych {
+    max-width: 1200px;
+    margin: 5rem auto;
+    padding: 0 2rem;
+  }
+
+  .triptych__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .triptych__heading {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--color-teal, #3ab8a0);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .triptych__subheading {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--color-text-faint, #506058);
+    letter-spacing: 0.15em;
+  }
+
+  .triptych__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .triptych__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .triptych__accent {
+    height: 2px;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .triptych__index {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--color-text-faint, #506058);
+    position: absolute;
+    top: 2.5rem;
+    left: 0.5rem;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    z-index: 2;
+  }
+
+  .triptych__img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    display: block;
+    border: 1px solid var(--color-rule, #232e2a);
+    filter: brightness(0.92) contrast(1.05);
+    transition: filter 0.4s ease;
+  }
+
+  .triptych__panel:hover .triptych__img {
+    filter: brightness(1) contrast(1.08);
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .triptych__img {
+      transition: none;
+    }
+  }
+
+  .triptych__caption {
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .triptych__label {
+    font-family: 'Cormorant SC', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.25em;
+    color: var(--color-text-dim, #8a9890);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .triptych__sublabel {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-faint, #506058);
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .triptych__grid {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .triptych__img {
+      aspect-ratio: 16 / 9;
+    }
+  }
+</style>
