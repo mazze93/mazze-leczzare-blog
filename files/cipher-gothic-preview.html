@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Mazze LeCzzare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal:       #34C3B9;
+    --teal-dim:   #1C6964;
+    --teal-ghost: #0e2525;
+    --coral:      #E85A4A;
+    --bg:         #0B1119;
+    --fg:         #EBE7E0;
+    --fg-mid:     #5A6C7C;
+    --fg-sub:     #374856;
+    --border:     #1A3A38;
+    --font-display: "Cormorant Garamond", Georgia, serif;
+    --font-ui:    "Inter Variable", system-ui, sans-serif;
+    --font-mono:  "JetBrains Mono", monospace;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+  }
+
+  body {
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ─────────────────────────────── */
+  .blog-landing {
+    position: relative;
+    max-width: 780px;
+    margin-inline: auto;
+    padding: 5rem 2.5rem 4rem;
+    min-height: 100vh;
+  }
+
+  /* ── Frame marks ────────────────────────── */
+  .frame-mark {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--teal-dim);
+    border-style: solid;
+  }
+  .frame-mark--tl { top: 2rem; left: 2rem; border-width: 1px 0 0 1px; }
+  .frame-mark--tr { top: 2rem; right: 2rem; border-width: 1px 1px 0 0; }
+  .frame-mark--bl { bottom: 2rem; left: 2rem; border-width: 0 0 1px 1px; }
+  .frame-mark--br { bottom: 2rem; right: 2rem; border-width: 0 1px 1px 0; }
+
+  /* ── Header ─────────────────────────────── */
+  .landing-header { margin-bottom: 3.5rem; }
+
+  .landing-label {
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: var(--teal);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5ch;
+    opacity: 0;
+    animation: fade-up 0.5s ease 0.05s both;
+  }
+
+  .label-glyph { color: var(--coral); }
+
+  .landing-thesis {
+    border: none;
+    padding: 0;
+    opacity: 0;
+    animation: thesis-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  }
+
+  .landing-thesis p {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.48;
+    color: var(--fg);
+    letter-spacing: 0.01em;
+  }
+
+  .landing-tagline {
+    font-size: 0.8rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: var(--fg-mid);
+    margin-top: 1.25rem;
+    opacity: 0;
+    animation: fade-up 0.6s ease 0.55s both;
+  }
+
+  .landing-rule {
+    display: flex;
+    align-items: center;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fade-up 0.5s ease 0.65s both;
+  }
+
+  .rule-line { flex: 1; height: 1px; background: var(--border); }
+  .rule-line--short { flex: 0 0 24px; }
+  .rule-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--teal);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Post list ──────────────────────────── */
+  .post-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-entry { border-bottom: 1px solid var(--border); }
+
+  .post-entry:nth-child(1) { animation: fade-up 0.5s ease 0.7s both; opacity: 0; }
+  .post-entry:nth-child(2) { animation: fade-up 0.5s ease 0.8s both; opacity: 0; }
+  .post-entry:nth-child(3) { animation: fade-up 0.5s ease 0.9s both; opacity: 0; }
+
+  .post-link {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr 1.5rem;
+    gap: 0 1.25rem;
+    align-items: start;
+    padding: 1.75rem 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    margin-inline: -0.75rem;
+  }
+
+  .post-link:hover { background: var(--teal-ghost); }
+
+  .post-link:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 4px;
+  }
+
+  .post-index {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--fg-sub);
+    padding-top: 0.3rem;
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+
+  .post-body { min-width: 0; }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .post-date {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+
+  .post-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .post-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-sub);
+    border: 1px solid var(--fg-sub);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  .post-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--fg);
+    margin-bottom: 0.55rem;
+    letter-spacing: 0.01em;
+    transition: color 0.2s ease;
+  }
+
+  .post-link:hover .post-title { color: var(--teal); }
+
+  .post-description {
+    font-size: 0.8rem;
+    line-height: 1.65;
+    color: var(--fg-mid);
+    max-width: 58ch;
+  }
+
+  .post-arc {
+    display: block;
+    width: 10px; height: 24px;
+    border-right: 1px solid transparent;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    border-radius: 0 4px 4px 0;
+    margin-top: 0.25rem;
+    transition: border-color 0.2s ease;
+    align-self: center;
+  }
+
+  .post-link:hover .post-arc { border-color: var(--teal); }
+
+  /* ── Footer ─────────────────────────────── */
+  .landing-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--fg-sub);
+    opacity: 0;
+    animation: fade-up 0.5s ease 1.05s both;
+  }
+
+  .footer-sep { color: var(--border); }
+
+  /* ── Animations ─────────────────────────── */
+  @keyframes thesis-in {
+    from { opacity: 0; transform: translateY(14px); filter: blur(2px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; opacity: 1 !important; }
+  }
+
+  @media (max-width: 600px) {
+    .blog-landing { padding: 3.5rem 1.25rem 3rem; }
+    .post-link { grid-template-columns: 2rem 1fr 1rem; gap: 0 0.75rem; }
+  }
+</style>
+</head>
+<body>
+<main id="main-content" class="blog-landing">
+
+  <span class="frame-mark frame-mark--tl" aria-hidden="true"></span>
+  <span class="frame-mark frame-mark--tr" aria-hidden="true"></span>
+  <span class="frame-mark frame-mark--bl" aria-hidden="true"></span>
+  <span class="frame-mark frame-mark--br" aria-hidden="true"></span>
+
+  <header class="landing-header">
+    <p class="landing-label">
+      <span class="label-glyph">∅</span>
+      CIPHER GOTHIC &nbsp;·&nbsp; FIELD NOTES
+    </p>
+
+    <blockquote class="landing-thesis" cite="/about#colophon">
+      <p>
+        There is a particular tension in work that lives simultaneously inside
+        locked doors and open poems — the knowledge that infrastructure is a kind
+        of literature, that security protocols are a form of care.
+      </p>
+    </blockquote>
+
+    <p class="landing-tagline">Writing at the edge of systems.</p>
+
+    <div class="landing-rule" aria-hidden="true">
+      <span class="rule-line"></span>
+      <span class="rule-dot"></span>
+      <span class="rule-line rule-line--short"></span>
+    </div>
+  </header>
+
+  <ol class="post-list" aria-label="Blog posts">
+    <li class="post-entry">
+      <a href="#" class="post-link" aria-label="Read: The Lock Icon Is Not Security">
+        <span class="post-index" aria-hidden="true">01</span>
+        <article class="post-body">
+          <header class="post-meta">
+            <time class="post-date" datetime="2025-03-15">15 MAR 2025</time>
+            <ul class="post-tags" aria-label="Tags">
+              <li class="post-tag">security</li>
+              <li class="post-tag">essay</li>
+            </ul>
+          </header>
+          <h2 class="post-title">The Lock Icon Is Not Security</h2>
+          <p class="post-description">
+            HTTPS tells you the pipe is encrypted. It says nothing about what's
+            in the pipe, who built the pipe, or whether the pipe was ever meant
+            for you.
+          </p>
+        </article>
+        <span class="post-arc" aria-hidden="true"></span>
+      </a>
+    </li>
+
+    <li class="post-entry">
+      <a href="#" class="post-link" aria-label="Read: Southern Gothic, Queer Survival, and the Poetry of Haunting">
+        <span class="post-index" aria-hidden="true">02</span>
+        <article class="post-body">
+          <header class="post-meta">
+            <time class="post-date" datetime="2025-02-08">08 FEB 2025</time>
+            <ul class="post-tags" aria-label="Tags">
+              <li class="post-tag">culture</li>
+              <li class="post-tag">essay</li>
+            </ul>
+          </header>
+          <h2 class="post-title">Southern Gothic, Queer Survival, and the Poetry of Haunting</h2>
+          <p class="post-description">
+            The South has always known how to hold two truths at once — beauty
+            and rot, hospitality and harm. Queer people here learned the same
+            doubling before they had words for it.
+          </p>
+        </article>
+        <span class="post-arc" aria-hidden="true"></span>
+      </a>
+    </li>
+
+    <li class="post-entry">
+      <a href="#" class="post-link" aria-label="Read: We All Float On">
+        <span class="post-index" aria-hidden="true">03</span>
+        <article class="post-body">
+          <header class="post-meta">
+            <time class="post-date" datetime="2025-01-20">20 JAN 2025</time>
+            <ul class="post-tags" aria-label="Tags">
+              <li class="post-tag">systems</li>
+              <li class="post-tag">reflection</li>
+            </ul>
+          </header>
+          <h2 class="post-title">We All Float On</h2>
+          <p class="post-description">
+            On ambient infrastructure, invisible dependencies, and what it means
+            to build in water.
+          </p>
+        </article>
+        <span class="post-arc" aria-hidden="true"></span>
+      </a>
+    </li>
+  </ol>
+
+  <footer class="landing-footer" aria-label="Page annotation">
+    <span class="footer-coord">35.9940° N &nbsp;·&nbsp; 78.8986° W</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <span>3 entries</span>
+  </footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,67 @@
+---
+/**
+ * MentorQuote — Inline attributed quotation block.
+ * Lighter weight than PullQuote; used for direct quotes from people
+ * embedded within narrative prose.
+ *
+ * Usage in MDX:
+ *   import MentorQuote from '@/components/blog/MentorQuote.astro';
+ *   <MentorQuote attribution="Former PI, 2017">
+ *     I needed to learn my place on the ship.
+ *   </MentorQuote>
+ *
+ * @prop attribution — optional source/speaker label
+ */
+interface Props {
+  attribution?: string;
+}
+
+const { attribution } = Astro.props;
+---
+
+<figure class="mentor-quote">
+  <blockquote>
+    <slot />
+  </blockquote>
+  {attribution && (
+    <figcaption class="mentor-quote__attribution">
+      — {attribution}
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .mentor-quote {
+    margin: 2.5rem 0;
+    padding: 1.5rem 2rem;
+    border-left: 2px solid var(--color-text-faint, #506058);
+    background: var(--color-charcoal-2, #151a18);
+  }
+
+  .mentor-quote blockquote {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--color-text-dim, #8a9890);
+    line-height: 1.7;
+    margin: 0;
+    padding: 0;
+    border: none; /* override any global blockquote styles */
+  }
+
+  .mentor-quote blockquote :global(p) {
+    margin: 0;
+    font-size: inherit;
+    font-style: inherit;
+    color: inherit;
+  }
+
+  .mentor-quote__attribution {
+    margin-top: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-faint, #506058);
+  }
+</style>

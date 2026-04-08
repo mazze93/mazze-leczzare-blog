@@ -203,3 +203,6 @@ dist
 
 ### Local Agent Worktrees ###
 .claude/
+
+# local staging folder
+blog-post-package/

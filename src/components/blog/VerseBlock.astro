@@ -1,0 +1,42 @@
+---
+/**
+ * VerseBlock — Styled verse / fragment block.
+ * Renders short-form verse, isolated fragments, or lyric-style prose with
+ * a teal left rule. Use for poetic asides, aphorisms, or intentional line breaks.
+ *
+ * Usage in MDX:
+ *   import VerseBlock from '@/components/blog/VerseBlock.astro';
+ *   <VerseBlock>
+ *     Not a brain.\
+ *     Not a diagram.\
+ *     A compass.
+ *   </VerseBlock>
+ */
+---
+
+<div class="verse-block" aria-label="Verse">
+  <slot />
+</div>
+
+<style>
+  .verse-block {
+    margin: 2.5rem 0;
+    padding-left: 2rem;
+    border-left: 1px solid var(--color-teal-faint, #1a4a40);
+  }
+
+  /* Each line / paragraph inside the verse block */
+  .verse-block :global(p) {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--color-text-dim, #8a9890);
+    line-height: 1.5;
+    margin-bottom: 0.4rem;
+  }
+
+  .verse-block :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>
