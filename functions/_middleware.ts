@@ -43,7 +43,11 @@ async function verifyJWT(token: string, secret: string): Promise<boolean> {
   }
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export async function onRequest(context: {
+  request: Request;
+  next(): Promise<Response>;
+  env: Env;
+}): Promise<Response> {
   const { request, next, env } = context;
   const url = new URL(request.url);
 
@@ -63,4 +67,4 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   return next();
-};
+}

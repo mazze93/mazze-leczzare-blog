@@ -36,7 +36,11 @@ async function signJWT(payload: object, secret: string): Promise<string> {
   return `${data}.${sigB64}`;
 }
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export async function onRequestPost(context: {
+  request: Request;
+  env: Env;
+}): Promise<Response> {
+  const { request, env } = context;
   let password: string | undefined;
 
   const contentType = request.headers.get("Content-Type") ?? "";
@@ -65,4 +69,4 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       "Set-Cookie": `auth_token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`,
     },
   });
-};
+}

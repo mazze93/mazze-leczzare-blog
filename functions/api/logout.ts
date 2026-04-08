@@ -1,4 +1,7 @@
-export const onRequestPost: PagesFunction = async () => {
+export async function onRequestPost(_context: {
+  request: Request;
+  env: Record<string, unknown>;
+}): Promise<Response> {
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
     headers: {
@@ -7,4 +10,4 @@ export const onRequestPost: PagesFunction = async () => {
         "auth_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0",
     },
   });
-};
+}
