@@ -206,3 +206,5 @@ dist
 
 # local staging folder
 blog-post-package/
+# march working drafts folder
+march_claude_blog/
