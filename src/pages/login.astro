@@ -75,7 +75,10 @@ import { SITE_TITLE } from '../consts';
 
       if (res.ok) {
         const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') ?? '/admin';
+        const raw = params.get('redirect') ?? '';
+        // Restrict to same-origin paths: must start with '/' but not '//'
+        // to prevent open-redirect attacks via crafted redirect params.
+        const redirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/admin';
         window.location.href = redirect;
       } else {
         showStatus('Invalid password. Please try again.', 'error');
