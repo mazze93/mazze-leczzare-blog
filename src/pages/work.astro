@@ -1,0 +1,78 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Work — ${SITE_TITLE}`}
+      description="A collection of projects, case studies, and creative work from Mazze Leczzare."
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <div class="work-shell">
+        <p class="eyebrow">Work</p>
+        <h1>Coming soon</h1>
+        <p class="lede">
+          A selection of projects, case studies, and creative work is being assembled here.
+          In the meantime, <a href="/blog/">the writing</a> is the best place to start.
+        </p>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    width: min(100%, 960px);
+    max-width: calc(100% - 2rem);
+    margin: 0 auto;
+    padding: 6rem 0 8rem;
+  }
+
+  .work-shell {
+    max-width: 48ch;
+  }
+
+  .eyebrow {
+    display: block;
+    margin: 0 0 1rem;
+    font-family: var(--font-mono);
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 300;
+    color: var(--text);
+    margin: 0 0 1.5rem;
+    line-height: 1.05;
+  }
+
+  .lede {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  a {
+    color: var(--teal);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  a:hover {
+    color: var(--coral);
+  }
+</style>

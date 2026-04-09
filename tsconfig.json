@@ -5,7 +5,10 @@
     "**/*"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "march_claude_blog",
+    "blog-post-package",
+    "files"
   ],
   "compilerOptions": {
     "strictNullChecks": true,
