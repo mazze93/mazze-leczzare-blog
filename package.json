@@ -28,7 +28,6 @@
     "fast-xml-parser": "5.5.8"
   },
   "devDependencies": {
-    "@astrojs/tailwind": "^6.0.2",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
