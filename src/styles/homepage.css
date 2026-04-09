@@ -20,13 +20,6 @@
 @import '@fontsource/dm-sans/latin-500.css';
 
 /* ===========================
-   Tailwind utilities
-   (base/preflight disabled in tailwind.config.mjs — global.css owns that)
-   =========================== */
-@tailwind components;
-@tailwind utilities;
-
-/* ===========================
    Hero entrance animations
    Referenced by HeroSection.tsx class names
    =========================== */
