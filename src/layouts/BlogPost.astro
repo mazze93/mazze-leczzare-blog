@@ -95,8 +95,6 @@ publishedTime={pubDate.toISOString()}
 modifiedTime={(updatedDate ?? pubDate).toISOString()}
 />
 <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-<!-- Preload blog fonts -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" />
 <style>
 main {
 width: calc(100% - 2em);

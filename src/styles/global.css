@@ -14,20 +14,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  /* Homepage/portfolio base — fashion-editorial dark */
-  .homepage-layout {
-    background-color: #0d0d0d;
-    color: #f5f0e8;
-  }
-
-  /* Blog section base — classical timeless editorial */
-  .blog-layout {
-    background-color: #0a0e17;
-    color: #e8e0d0;
-  }
-}
-
 @layer components {
   /* Homepage prose (for future content blocks) */
   .prose-home {
@@ -50,41 +36,6 @@
     font-family: theme('fontFamily.serif');
     font-size: 1.125rem;
     line-height: 1.8;
-  }
-
-  .prose-blog h1,
-  .prose-blog h2,
-  .prose-blog h3,
-  .prose-blog h4 {
-    font-family: theme('fontFamily.serif');
-    font-weight: 300;
-    letter-spacing: theme('letterSpacing.editorial');
-  }
-
-  .prose-blog h2 {
-    line-height: theme('lineHeight.editorial');
-  }
-
-  .prose-blog code {
-    font-family: theme('fontFamily.mono');
-    color: theme('colors.blog.coral');
-    font-size: 0.875em;
-  }
-
-  .prose-blog blockquote {
-    border-left-color: theme('colors.blog.teal');
-    color: theme('colors.blog.text-dim');
-    font-style: italic;
-  }
-
-  .prose-blog a {
-    color: theme('colors.blog.teal');
-    text-decoration-color: theme('colors.blog.teal');
-    opacity: 0.85;
-  }
-
-  .prose-blog a:hover {
-    opacity: 1;
   }
 }
 
@@ -292,6 +243,22 @@ body {
   transition: background var(--transition-slow), color var(--transition-base);
 }
 
+/* ===========================
+   Dual Layout Overrides
+   Outside @layer — beats un-layered body rule above
+   =========================== */
+body.homepage-layout {
+  background: #0d0d0d;
+  background-size: unset;
+  color: #f5f0e8;
+}
+
+body.blog-layout {
+  background: #0a0e17;
+  background-size: unset;
+  color: #e8e0d0;
+}
+
 main {
   width: 720px;
   max-width: calc(100% - 2em);
@@ -438,6 +405,45 @@ blockquote {
 hr {
   border: none;
   border-top: 1px solid rgba(var(--line-color), 1);
+}
+
+/* ===========================
+   Prose Blog Element Overrides
+   Outside @layer — beats un-layered element rules above
+   =========================== */
+.prose-blog h1,
+.prose-blog h2,
+.prose-blog h3,
+.prose-blog h4 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.prose-blog h2 {
+  line-height: 1.6;
+}
+
+.prose-blog blockquote {
+  border-left-color: #3ab8a0;
+  color: #a09880;
+  font-style: italic;
+}
+
+.prose-blog code {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 0.875em;
+  background-color: transparent;
+}
+
+.prose-blog a {
+  color: #3ab8a0;
+  text-decoration-color: #3ab8a0;
+  opacity: 0.85;
+}
+
+.prose-blog a:hover {
+  opacity: 1;
 }
 
 /* ===========================

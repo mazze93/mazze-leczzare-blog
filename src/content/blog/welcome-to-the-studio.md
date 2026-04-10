@@ -1,8 +1,10 @@
 ---
 title: "Welcome to the Studio"
+subtitle: "A static-first publishing space for work between disciplines"
 description: "What this site is for, what belongs here, and why it now runs as a static-first publishing space."
 pubDate: "Mar 06 2026"
 heroImage: "/blog-placeholder-about.jpg"
+tags: ["meta", "philosophy"]
 ---
 
 This site is not meant to be a feed mill.
