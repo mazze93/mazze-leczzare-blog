@@ -32,6 +32,8 @@
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/playfair-display": "^5.2.8",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "tailwindcss": "^4.2.2"
   }
 }
