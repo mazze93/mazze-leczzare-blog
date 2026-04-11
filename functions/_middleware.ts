@@ -18,10 +18,15 @@ async function verifyJWT(token: string, secret: string): Promise<boolean> {
       ["verify"]
     );
 
-    const sigBytes = Uint8Array.from(
-      atob(sig.replace(/-/g, "+").replace(/_/g, "/")),
-      (c) => c.charCodeAt(0)
-    );
+    const b64decode = (s: string) =>
+      atob(
+        (s.replace(/-/g, "+").replace(/_/g, "/") + "====").slice(
+          0,
+          s.length + ((4 - (s.length % 4)) % 4)
+        )
+      );
+
+    const sigBytes = Uint8Array.from(b64decode(sig), (c) => c.charCodeAt(0));
     const valid = await crypto.subtle.verify(
       "HMAC",
       key,
@@ -31,9 +36,7 @@ async function verifyJWT(token: string, secret: string): Promise<boolean> {
 
     if (!valid) return false;
 
-    const decoded = JSON.parse(
-      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
-    );
+    const decoded = JSON.parse(b64decode(payload));
     if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000))
       return false;
 
