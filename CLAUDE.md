@@ -1,6 +1,6 @@
 # mazze-leczzare-blog — Claude Context
 
-Personal blog and publishing space for Mazze Leczzare — a former neuroscientist turned
+Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
 storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 "static-first working studio" for essays, field notes, and public working documents.
 
@@ -8,7 +8,7 @@ storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Astro 5 (`output: "static"`, fully SSG) |
+| Framework | Astro 6 (`output: "static"`, fully SSG) |
 | UI islands | React 19 (`@astrojs/react`) — used only where interaction earns its keep |
 | Content | Markdown + MDX via Astro Content Collections |
 | Edge functions | Cloudflare Pages Functions (`functions/api/`) |
@@ -22,10 +22,11 @@ storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 ## Key Commands
 
 ```bash
-npm run dev       # Astro dev server (localhost:4321)
-npm run build     # Static build → dist/
-npm run preview   # Preview dist/ locally
-npm run check     # astro build && tsc (repo-standard validation)
+npm run dev        # Astro dev server (localhost:4321)
+npm run build      # Static build → dist/
+npm run preview    # Preview dist/ locally
+npm run check      # astro build && tsc (repo-standard validation)
+npm run docs:check # Validate doc command references and deployment terminology
 ```
 
 ## Site Identity (`src/consts.ts`)
@@ -50,9 +51,9 @@ All constants are imported from `src/consts.ts` — never hardcode these inline.
 src/
   components/       # Astro + React components (see below)
   content/blog/     # Markdown/MDX blog posts (Content Collection)
-  layouts/          # BlogPost.astro (only layout)
+  layouts/          # BlogPost.astro, HomepageLayout.astro
   pages/            # File-based routes
-  styles/global.css # Global CSS with CSS custom properties
+  styles/           # global.css + homepage.css
   consts.ts         # Site-wide constants
   content.config.ts # Content collection schema
   env.d.ts          # Astro env types
@@ -65,23 +66,25 @@ functions/
 
 scripts/ops/        # Local operational scripts (not part of the site build)
 docs/operations/    # Agent operations protocol and memory files
+docs/              # Component-level documentation (e.g. hero-section.md)
 public/             # Static assets (fonts, images, favicon, hero SVG)
 ```
 
 ## Routes
 
-| URL               | File                                | Notes                             |
-| ----------------- | ----------------------------------- | --------------------------------- |
-| `/`               | `src/pages/index.astro`             | HeroSection + last 6 posts grid   |
-| `/blog`           | `src/pages/blog/index.astro`        | All posts, sorted newest-first    |
-| `/blog/[slug]/`   | `src/pages/blog/[...slug].astro`    | Dynamic blog post route           |
-| `/contact`        | `src/pages/contact.astro`           | ContactForm island                |
-| `/about`          | `src/pages/about.md`                | Markdown page via BlogPost layout |
-| `/manifesto`      | `src/pages/manifesto.md`            | Markdown page via BlogPost layout |
-| `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout |
-| `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                 |
-| `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery         |
-| `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry       |
+| URL               | File                                | Notes                                    |
+| ----------------- | ----------------------------------- | ---------------------------------------- |
+| `/`               | `src/pages/index.astro`             | SignalHero + last 6 posts list           |
+| `/blog`           | `src/pages/blog/index.astro`        | All posts, sorted newest-first           |
+| `/blog/[slug]/`   | `src/pages/blog/[...slug].astro`    | Dynamic blog post route                  |
+| `/contact`        | `src/pages/contact.astro`           | ContactForm island                       |
+| `/about`          | `src/pages/about.md`                | Markdown page via BlogPost layout        |
+| `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
+| `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
+| `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout        |
+| `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                        |
+| `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
+| `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
 
 ## Content Collection
 
@@ -105,7 +108,40 @@ The index page shows the 6 most recent; the blog listing shows all.
 
 ## Components
 
+### Layouts
+
+#### `BlogPost.astro` (layout)
+
+Wraps all blog posts and markdown pages.
+
+- Accepts `Props` that unifies blog collection entries *and* raw markdown frontmatter
+  (both paths resolve via `resolved = { ...frontmatter, ...props }` spread)
+- Injects Article JSON-LD with `headline`, `datePublished`, `dateModified`, `author`, `publisher`
+- All quote-share CSS lives here as scoped `:global()` rules targeting `.prose > p`
+- Mounts `<PostQuoteShare client:load title={title} path={Astro.url.pathname} />` on every post
+- Responsive: at ≤720px the share button moves below the paragraph (static, always visible)
+
+#### `HomepageLayout.astro` (layout)
+
+Homepage-specific layout with the editorial deep-navy palette.
+
+- Imports `src/styles/homepage.css` (Playfair Display + DM Sans) alongside global tokens
+- Sets `data-layout="homepage"` on `<body>` so shared CSS vars remap to the editorial palette
+- Header and Footer auto-adapt to the homepage theme with no component changes
+
 ### Astro (server-only, zero JS by default)
+
+#### `SignalHero.astro`
+
+Homepage hero: "From Erasure → Signal".
+
+- Full-viewport section with a `<canvas>` particle network animation
+- Visually progresses from noise (left/magenta–amber) to signal (right/teal)
+- Runs at ~30fps with `requestAnimationFrame`; pauses on `visibilitychange`
+- Respects `prefers-reduced-motion` — draws one static frame instead of animating
+- Falls back gracefully if JS fails (text renders over the dark CSS gradient)
+- Two CTAs: "Read the writing" → `/blog/` and "Explore the work" → `/work/`
+- Tuning constants and tagline options documented in `docs/hero-section.md`
 
 #### `BaseHead.astro`
 
@@ -119,25 +155,13 @@ Injected into every page `<head>`.
   `document.documentElement.dataset.theme` before paint (prevents flash)
 - Two JSON-LD structured data blocks: `WebSite` schema + `Person` schema on every page
 
-#### `BlogPost.astro` (layout)
-
-Wraps all blog posts and markdown pages.
-
-- Accepts `Props` that unifies blog collection entries *and* raw markdown frontmatter
-  (both paths resolve via `resolved = { ...frontmatter, ...props }` spread)
-- Injects Article JSON-LD with `headline`, `datePublished`, `dateModified`, `author`, `publisher`
-- All quote-share CSS lives here as scoped `:global()` rules targeting `.prose > p`
-- Mounts `<PostQuoteShare client:load title={title} path={Astro.url.pathname} />` on every post
-- Responsive: at ≤720px the share button moves below the paragraph (static, always visible)
-
 #### `Header.astro`
 
-Sticky, `backdrop-filter: blur(12px)` frosted glass.
+Sticky, `backdrop-filter: blur(8px)` frosted glass.
 
-- Nav links: Home, Blog, Contact, About, Manifesto
-- Social links: GitHub, RSS, Contact
+- Nav links: Writing (`/blog/`), About (`/about/`), Work (`/work/`)
+- Utility links: GitHub (external), RSS
 - `ThemeToggle` React island (`client:load`)
-- Inline `<script>` adds `.scrolled` class after 10px scroll, cleaned up on `visibilitychange`
 
 #### `Footer.astro`
 
@@ -155,13 +179,8 @@ Nav link that adds `.active` class when href matches current path.
 
 #### `HeroSection.tsx`
 
-Landing page hero.
-
-- Entrance animation driven by `useState(visible)` + 50ms `setTimeout` (respects
-  `prefers-reduced-motion` via `matchMedia` listener)
-- Two-column grid: text left / artwork card right
-- CTA: "Read the Blog" (gradient pill button) + secondary "Read the manifesto" link
-- Artwork: `/hero-signal-grid.svg` in a frosted-glass `<aside>` card
+Legacy hero component — exists in `src/components/` but is **not currently mounted** on any
+page. The homepage uses `SignalHero.astro` instead. Do not add new usages; consider removal.
 
 #### `ThemeToggle.tsx`
 
@@ -306,6 +325,8 @@ All pages have canonical URLs, OG tags, and Twitter card meta.
 | `prune-context-cache.sh N`| Keeps N most recent snapshots, deletes older ones                            |
 | `session-handoff.sh`      | Updates `ACTIVE_CONTEXT.md` and `SESSION_LOG.md` with structured metadata    |
 | `setup-hooks.sh`          | Installs git hooks path + `git ctx` alias (one-time setup per clone)         |
+| `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology (`npm run docs:check`) |
+| `verify-lockfile.sh`      | Checks `package-lock.json` is in sync with `package.json`                    |
 
 Git hook (`post-commit`): advisory only — prints reminder to run `git ctx` manually.
 Context cache files (`latest.md` and timestamped snapshots) are **not tracked** — excluded
@@ -315,8 +336,9 @@ by `docs/operations/memory/context-cache/.gitignore`.
 
 - **Static output only** — `astro.config.mjs` sets `output: "static"`. No SSR,
   no server endpoints in Astro itself. All dynamic behaviour goes through Cloudflare Functions.
-- **Astro islands discipline** — React is used for `HeroSection`, `ThemeToggle`,
-  `ContactForm`, `PostQuoteShare` only. All four have clear interactive reasons.
+- **Astro islands discipline** — React is used for `ThemeToggle`, `ContactForm`, and
+  `PostQuoteShare` only. All three have clear interactive reasons. `HeroSection.tsx` exists
+  but is unmounted; the homepage hero is `SignalHero.astro` (pure Astro).
   Do not add React for non-interactive rendering.
 - **No external analytics script** — telemetry is first-party only via `share-event.ts`.
 - **No published email address** — contact routes privately through the function;

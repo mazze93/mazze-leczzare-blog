@@ -73,7 +73,7 @@ The headline and tagline are in `SignalHero.astro`. Three tagline options are in
 
 ### CTA buttons
 
-Two CTAs link to `/blog` and `/manifesto`. Edit the `href` and text in the `signal-hero__actions` div.
+Two CTAs link to `/blog/` and `/work/`. Edit the `href` and text in the `signal-hero__actions` div.
 
 ## Disabling or replacing the animation
 
