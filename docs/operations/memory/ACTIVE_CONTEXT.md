@@ -1,24 +1,29 @@
 # Active Context
 
-Last Updated: 2026-03-05 13:35:00Z
+Last Updated: 2026-04-11
 
 ## Current Branch
-- `codex/ops-baseline-clean`
+
+- `main`
 
 ## Active Objective
-- Maintain auditable operations baseline with explicit, non-mutating context refresh.
+
+- Ongoing site development and content publishing.
 
 ## Current State
-- Ops protocol, memory framework, and toolbelt scripts are present in-repo.
-- Post-commit hook is non-mutating; context refresh runs only on explicit command.
+
+- Astro 6 static site deployed on Cloudflare Pages.
+- Homepage uses `HomepageLayout.astro` + `SignalHero.astro` (canvas particle animation).
+- Routes: `/`, `/blog/`, `/blog/[slug]/`, `/contact/`, `/about/`, `/work/`, `/security/`, `/roadmap/`, `/rss.xml`.
+- Ops scripts and memory framework are in place; post-commit hook is non-mutating.
+- `npm run docs:check` validates command references and deployment terminology across docs.
 
 ## Known Constraints
+
 - Main branch requires PR + checks before merge.
+- Static output only — no SSR; all dynamic behaviour goes through Cloudflare Functions.
 
 ## Next Commands
-- `git add docs/operations scripts/ops .githooks scripts/bootstrap-dev-toolbelt.sh`
-- `git commit -m 'Establish operations baseline with memory framework and automation'`
-- `git push`
-- `bash scripts/ops/setup-hooks.sh`
-- `git ctx`
-- `bash scripts/ops/prune-context-cache.sh 30`
+
+- `bash scripts/ops/session-handoff.sh` to update this file and SESSION_LOG.md
+- `bash scripts/ops/update-context-cache.sh` to refresh context cache
