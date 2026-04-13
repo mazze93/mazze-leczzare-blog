@@ -1,22 +1,18 @@
 # Context Cache Snapshot
 
-Generated: 2026-04-06 13:18:01Z
-Branch: fix-actions-v6
-Last Commit: 5a4c567 Fix docs-integrity.yml: resolve merge conflict markers
+Generated: 2026-04-10 07:23:12Z
+Branch: main
+Last Commit: b42129c fix(ci): add legacy-peer-deps to unblock CF Pages npm 10 build
 
 ## Git Status (short)
  M docs/operations/memory/context-cache/latest.md
- M package-lock.json
- M wrangler.toml
-?? HeroSection.astro
-?? files/cipher-gothic-preview.html
 
 ## Ahead/Behind
-## fix-actions-v6...origin/fix-actions-v6 [ahead 1]
+## main...origin/main [ahead 1]
 
 ## Recent Commits
-5a4c567 Fix docs-integrity.yml: resolve merge conflict markers
-c8cabb2 Switch homepage hero to SignalHero canvas; replace /manifesto/ with /work/
-9cbc201 Add security disclosure page and merge latest main
-77c8989 Fix color contrast failures in Lighthouse audit
-a90bd4c Fix lighthouse and docs-integrity: use npm install instead of npm ci
+b42129c fix(ci): add legacy-peer-deps to unblock CF Pages npm 10 build
+5db05c5 fix(deps): remove @astrojs/tailwind incompatible with Astro 6 + Tailwind 4 (#89)
+921795d Add CodeQL analysis workflow (#90)
+e8cea1b fix(deploy): repair broken CI, CSP, routing, and stale config (#88)
+c9c5a6e Bump the github_actions group with 2 updates (#81)

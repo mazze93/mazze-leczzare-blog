@@ -76,12 +76,14 @@ function lineNumberFromIndex(content, index) {
 function collectCommandRefs(content) {
   const refs = [];
 
+  // Inline code references.
   const inlineRegex = /`([^`]+)`/g;
   for (const match of content.matchAll(inlineRegex)) {
     const snippet = match[1] || '';
     refs.push(...collectCommandsFromSnippet(snippet, match.index ?? 0, 'inline code'));
   }
 
+  // Fenced shell blocks.
   const fenceRegex = /```(?:bash|sh|zsh|shell)?\s*\n([\s\S]*?)```/g;
   for (const fenceMatch of content.matchAll(fenceRegex)) {
     const fenceBody = fenceMatch[1] ?? '';
@@ -216,5 +218,5 @@ if (ignored.length > 0) {
   for (const file of ignored) console.log(`  - ${file}`);
 }
 
-console.log(`[docs-integrity] \u2705 Script refs validated in ${scannedDocs.length} docs; deployment terms validated in ${deploymentTerminologyFiles.length} docs.`);
+console.log(`[docs-integrity] ✅ Script refs validated in ${scannedDocs.length} docs; deployment terms validated in ${deploymentTerminologyFiles.length} docs.`);
 NODE
