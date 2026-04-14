@@ -1,18 +1,19 @@
 # Context Cache Snapshot
 
-Generated: 2026-04-10 07:23:12Z
-Branch: main
-Last Commit: b42129c fix(ci): add legacy-peer-deps to unblock CF Pages npm 10 build
+Generated: 2026-04-13 19:30:21Z
+Branch: docs/sync-docs-to-actual-state
+Last Commit: 8c7ea26 fix: wire PostQuoteShare to BlogPost and add share button CSS
 
 ## Git Status (short)
  M docs/operations/memory/context-cache/latest.md
+ D public/writing/we-all-float-on/index.html
 
 ## Ahead/Behind
-## main...origin/main [ahead 1]
+## docs/sync-docs-to-actual-state...origin/docs/sync-docs-to-actual-state [ahead 17]
 
 ## Recent Commits
-b42129c fix(ci): add legacy-peer-deps to unblock CF Pages npm 10 build
-5db05c5 fix(deps): remove @astrojs/tailwind incompatible with Astro 6 + Tailwind 4 (#89)
-921795d Add CodeQL analysis workflow (#90)
-e8cea1b fix(deploy): repair broken CI, CSP, routing, and stale config (#88)
-c9c5a6e Bump the github_actions group with 2 updates (#81)
+8c7ea26 fix: wire PostQuoteShare to BlogPost and add share button CSS
+3ea2606 feat: build out work portfolio with real content from design prototype
+7690764 feat: replace SignalHero with BreathingHero environmental breathing canvas
+30abe7d feat: add three new essays as MDX posts (southern gothic, secure pride, content strategy)
+a896225 feat: restore we-all-float-on with full prose, triptych, and verse components

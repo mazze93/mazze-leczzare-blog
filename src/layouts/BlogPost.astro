@@ -213,6 +213,60 @@ const articleSchema = {
       color: var(--coral);
       border-bottom-color: rgba(232, 112, 90, 0.35);
     }
+
+    /* ── Quote share buttons ── */
+    .prose :global(.quote-share-paragraph) {
+      position: relative;
+    }
+
+    .prose :global(.quote-share-button) {
+      position: absolute;
+      right: -3.5rem;
+      top: 0.1em;
+      display: none;
+      padding: 0.2em 0.55em;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .prose :global(.quote-share-button:hover),
+    .prose :global(.quote-share-button[data-state="success"]) {
+      color: var(--teal);
+      border-color: var(--teal);
+      background: rgba(58, 184, 160, 0.06);
+    }
+
+    .prose :global(.quote-share-paragraph:hover .quote-share-button) {
+      display: inline-block;
+    }
+
+    .prose :global(.quote-share-highlight) {
+      background: rgba(58, 184, 160, 0.08);
+      box-shadow: 0 0 0 3px rgba(58, 184, 160, 0.15);
+      border-radius: var(--radius-sm);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    @media (max-width: 720px) {
+      .prose :global(.quote-share-button) {
+        position: static;
+        display: block;
+        margin-top: 0.5em;
+        width: max-content;
+      }
+    }
   </style>
 </head>
 
@@ -246,6 +300,7 @@ const articleSchema = {
       <div class="prose">
         <slot />
       </div>
+      <PostQuoteShare client:load title={title} path={Astro.url.pathname} />
     </article>
   </main>
   <Footer />

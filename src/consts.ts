@@ -7,4 +7,4 @@ export const SITE_EMAIL = "mailto:security@mazzeleczzare.com";
 export const SITE_GITHUB_URL = "https://github.com/mazze93";
 export const SITE_REPO_URL = "https://github.com/mazze93/mazze-leczzare-blog";
 export const SITE_RSS_URL = "/rss.xml";
-export const SITE_DEFAULT_OG_IMAGE = "/blog-placeholder-about.jpg";
+export const SITE_DEFAULT_OG_IMAGE = "/mazze-leczzare-social-preview.png";
