@@ -1,103 +1,92 @@
-# Mazze Leczzare Blog
-![Framework](https://img.shields.io/badge/Framework-Astro-orange)
+# Mazze LeCzzare — Personal Blog
+
+![Framework](https://img.shields.io/badge/Framework-Astro%206-orange)
 ![Hosting](https://img.shields.io/badge/Hosting-Cloudflare%20Pages-blue)
 ![Content](https://img.shields.io/badge/Content-Markdown%20%2B%20MDX-success)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
-![Mazze Leczzare Blog Social Preview](.github/social-preview.png)
+Personal editorial platform for Mazze LeCzzare Frazer — essays, field notes, and public working documents at the intersection of narrative, cognition, and security-forward design.
 
-Personal editorial platform for essays, project notes, and public-facing narrative around privacy, cognition, and security-forward design.
+## Stack
 
-## At a glance
-- Fast, SEO-forward Astro site with clean content workflow.
-- Markdown/MDX publishing with lightweight deployment on Cloudflare Pages.
-- Designed for expressive long-form writing on web and mobile.
+| Layer | Technology |
+| --- | --- |
+| Framework | Astro 6 (fully static, `output: "static"`) |
+| UI islands | React 19 — interactive components only |
+| Content | Markdown + MDX via Astro Content Collections |
+| Edge functions | Cloudflare Pages Functions (`functions/api/`) |
+| Fonts | Atkinson Hyperlegible (self-hosted) |
+| Deploy | Cloudflare Pages |
 
-## Quick links
-- [Deployment](#deployment)
-- [Getting Started](#getting-started)
-- [Project Structure](#-project-structure)
+## Commands
 
-## GitHub social preview
-Upload `.github/social-preview.png` in repository `Settings -> General -> Social preview` to use the branded card on link shares.
+```bash
+npm install        # Install dependencies
+npm run dev        # Dev server → localhost:4321
+npm run build      # Static build → dist/
+npm run preview    # Preview built site locally
+npm run check      # Build + TypeScript check (repo-standard validation)
+npm run docs:check # Validate docs/instruction consistency
+```
 
 ## Deployment
 
-This blog is configured for static deployment to Cloudflare Pages:
+Deployed to **Cloudflare Pages** (not Workers, not Vercel).
 
-1. Connect your GitHub repository to Cloudflare Pages
-2. Use the following build settings:
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Root directory**: `/` (default)
+Build settings:
+- **Build command**: `npm run build`
+- **Build output directory**: `dist`
+- **Root directory**: `/`
 
-The site will be automatically deployed on every push to your main branch.
+### Contact form
 
-### Contact form delivery
+The `/contact` form (`functions/api/contact.ts`) supports two delivery paths:
 
-The `/contact` form supports two delivery paths, in this order:
+1. **Webhook** — set `CONTACT_WEBHOOK_URL` as a Cloudflare secret. Optional: `CONTACT_WEBHOOK_AUTH_HEADER`.
+2. **Email binding** — `CONTACT_EMAIL` Cloudflare Email binding as fallback.
 
-1. `CONTACT_WEBHOOK_URL` as a Cloudflare secret, with optional `CONTACT_WEBHOOK_AUTH_HEADER` as a secret.
-2. `CONTACT_EMAIL` as a Worker-only `send_email` binding when this endpoint is deployed outside Pages.
-
-Recommended setup:
-
-- Keep `CONTACT_FROM_EMAIL` and `CONTACT_SUBJECT_PREFIX` in `wrangler.toml` under `[vars]`.
-- Keep `CONTACT_WEBHOOK_URL` and `CONTACT_WEBHOOK_AUTH_HEADER` out of git and set them with `npx wrangler secret put`.
-- Do not add `send_email` to this Pages `wrangler.toml`; use a separate Worker configuration if you need the email-binding fallback.
-
-Example secret commands:
+Webhook takes priority when both are configured. Non-secret vars (`CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`) live in `wrangler.toml` under `[vars]`.
 
 ```bash
 npx wrangler secret put CONTACT_WEBHOOK_URL
 npx wrangler secret put CONTACT_WEBHOOK_AUTH_HEADER
 ```
 
-## Getting Started
+## Project Structure
 
-To create a similar blog project with Astro:
+```text
+src/
+  components/       # Astro + React components
+  content/blog/     # Markdown/MDX posts (Content Collection)
+  layouts/          # BlogPost.astro, HomepageLayout.astro
+  pages/            # File-based routes
+  styles/           # global.css + homepage.css
+  consts.ts         # Site-wide constants (single source of truth)
 
-```bash
-npm create astro@latest -- --template blog
+functions/api/
+  contact.ts        # Contact form delivery
+  share-event.ts    # Paragraph quote share telemetry
+
+public/             # Static assets (fonts, images, favicon)
+scripts/ops/        # Local operational scripts
+docs/operations/    # Agent protocol and session memory
 ```
 
-Or clone this repository and install dependencies:
+## Authoring Posts
 
-```bash
-git clone <your-repo-url>
-cd mazze-leczzare-blog
-npm install
+Create `src/content/blog/your-slug.md` with frontmatter:
+
+```yaml
+---
+title: "Post Title"
+description: "One-sentence description."
+pubDate: 2026-04-14
+heroImage: "/your-image.jpg"   # optional
+---
 ```
 
-## 🚀 Project Structure
+Post appears at `/blog/your-slug/` and surfaces on the homepage if in the 6 most recent.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## GitHub social preview
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                                      |
-| :------------------------ | :---------------------------------------------------------- |
-| `npm install`             | Installs dependencies                                       |
-| `npm run dev`             | Starts local dev server at `localhost:4321`                |
-| `npm run build`           | Builds production site to `./dist/`                        |
-| `npm run preview`         | Previews your build locally                                 |
-| `npm run check`           | Runs production build and TypeScript check                 |
-| `npm run docs:check`      | Verifies docs/instruction consistency against repo reality |
-| `npm run astro ...`       | Runs Astro CLI commands like `astro add`, `astro check`    |
-| `npm run astro -- --help` | Gets help using the Astro CLI                               |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Upload `.github/social-preview.png` in `Settings → General → Social preview`.
