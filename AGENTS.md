@@ -67,4 +67,4 @@ Create `src/content/blog/your-slug.md` with `title`, `description`, `pubDate`. B
 
 Cloudflare Pages. Build command: `npm run build`. Output: `dist/`. Functions in `functions/api/` are deployed automatically alongside the static site.
 
-Do not use `wrangler deploy`, `wrangler dev`, `@astrojs/cloudflare`, or Workers adapter terminology — this is a Pages deployment with a static Astro site.
+Do not use Workers adapter terminology or wrangler runtime commands — this is a Pages deployment with a static Astro site. Preview locally with `npm run preview`, not `wrangler` dev commands.
