@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" role="img" aria-labelledby="heroTitle heroDesc">
+  <title id="heroTitle">Signal grid artwork for Mazze Leczzare</title>
+  <desc id="heroDesc">An abstract editorial composition of gradients, grid lines, and a maze-like monogram.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="55%" stop-color="#1d1447" />
+      <stop offset="100%" stop-color="#0a0f18" />
+    </linearGradient>
+    <linearGradient id="stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed" />
+      <stop offset="55%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#f472b6" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.32" />
+      <stop offset="55%" stop-color="#00e5ff" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#bg)" />
+  <rect width="1200" height="1500" fill="url(#glow)" />
+  <g stroke="rgba(255,255,255,0.08)">
+    <path d="M0 250H1200" />
+    <path d="M0 500H1200" />
+    <path d="M0 750H1200" />
+    <path d="M0 1000H1200" />
+    <path d="M0 1250H1200" />
+    <path d="M240 0V1500" />
+    <path d="M480 0V1500" />
+    <path d="M720 0V1500" />
+    <path d="M960 0V1500" />
+  </g>
+  <circle cx="280" cy="280" r="170" fill="#00e5ff" opacity="0.1" />
+  <circle cx="890" cy="1120" r="220" fill="#7c3aed" opacity="0.12" />
+  <path
+    d="M250 1210V320h190l160 270 160-270h190v890h-190V676L600 948 440 676v534Z"
+    fill="none"
+    stroke="url(#stroke)"
+    stroke-width="42"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <g fill="#f8fafc" opacity="0.82" font-family="Atkinson, system-ui, sans-serif">
+    <text x="112" y="132" font-size="46" letter-spacing="8">MAZZE LECZZARE</text>
+    <text x="112" y="1420" font-size="30" letter-spacing="5">SCIENCE / STORY / SYSTEMS / SECURITY</text>
+  </g>
+</svg>
