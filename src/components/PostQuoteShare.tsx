@@ -12,6 +12,7 @@ type FeedbackLabel = 'Link copied' | 'Shared';
 const BUTTON_CLASS = 'quote-share-button';
 const PARAGRAPH_CLASS = 'quote-share-paragraph';
 const HIGHLIGHT_CLASS = 'quote-share-highlight';
+const ACTIVE_CLASS = 'quote-share-active';
 const SUCCESS_TIMEOUT_MS = 2500;
 const HIGHLIGHT_TIMEOUT_MS = 4000;
 const SHARE_SOURCE = 'quote-share';
@@ -236,6 +237,27 @@ export default function PostQuoteShare({ title, path }: PostQuoteShareProps) {
         paragraph.classList.remove(PARAGRAPH_CLASS, HIGHLIGHT_CLASS);
         cleanupQuoteIdentifier();
       });
+    });
+
+    const onSelectionChange = () => {
+      const selection = window.getSelection();
+      paragraphs.forEach((p) => p.classList.remove(ACTIVE_CLASS));
+
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        return;
+      }
+
+      const anchor = selection.getRangeAt(0).commonAncestorContainer;
+      const matched = paragraphs.find((p) => p.contains(anchor));
+      if (matched) {
+        matched.classList.add(ACTIVE_CLASS);
+      }
+    };
+
+    document.addEventListener('selectionchange', onSelectionChange);
+    cleanupHandlers.push(() => {
+      document.removeEventListener('selectionchange', onSelectionChange);
+      paragraphs.forEach((p) => p.classList.remove(ACTIVE_CLASS));
     });
 
     const searchParams = new URLSearchParams(window.location.search);

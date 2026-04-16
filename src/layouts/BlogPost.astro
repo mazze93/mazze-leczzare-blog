@@ -248,7 +248,8 @@ const articleSchema = {
       background: rgba(58, 184, 160, 0.06);
     }
 
-    .prose :global(.quote-share-paragraph:hover .quote-share-button) {
+    .prose :global(.quote-share-paragraph:hover .quote-share-button),
+    .prose :global(.quote-share-paragraph.quote-share-active .quote-share-button) {
       display: inline-block;
     }
 
@@ -262,9 +263,14 @@ const articleSchema = {
     @media (max-width: 720px) {
       .prose :global(.quote-share-button) {
         position: static;
-        display: block;
+        display: none;
         margin-top: 0.5em;
         width: max-content;
+      }
+
+      .prose :global(.quote-share-paragraph:hover .quote-share-button),
+      .prose :global(.quote-share-paragraph.quote-share-active .quote-share-button) {
+        display: block;
       }
     }
   </style>
