@@ -18,7 +18,7 @@
     "check": "astro build && tsc",
     "dev": "astro dev",
     "preview": "astro preview",
-    "docs:check": "bash scripts/ops/verify-docs-integrity.sh"
+    "docs:check": "bash scripts/ops/verify-docs-integrity.sh && bash scripts/ops/check-docs-drift.sh"
   },
   "type": "module",
   "engines": {
