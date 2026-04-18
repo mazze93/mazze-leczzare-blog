@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: GPTBot
 Disallow: /
+
+Sitemap: https://mazzeleczzare.com/sitemap-index.xml
