@@ -1,11 +1,9 @@
 ---
 layout: ../layouts/BlogPost.astro
-title: About
+title: About Mazze LeCzzare
 description: Mazze LeCzzare — content strategist, security researcher, and builder of systems that serve people who need them most.
 slug: about
 ---
-
-# About Mazze LeCzzare
 
 Content strategist, security researcher, and the founder of
 [Secure Pride](https://securepride.org), a privacy-first cybersecurity nonprofit built
