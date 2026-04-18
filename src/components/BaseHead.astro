@@ -8,7 +8,10 @@ import {
   SITE_DEFAULT_OG_IMAGE,
   SITE_DESCRIPTION,
   SITE_EMAIL,
+  SITE_GITHUB_URL,
+  SITE_RSS_URL,
   SITE_TITLE,
+  SITE_TWITTER,
   SITE_URL,
 } from '../consts';
 
@@ -50,7 +53,7 @@ const personSchema = {
   name: SITE_AUTHOR,
   url: SITE_URL,
   email: SITE_EMAIL.replace('mailto:', ''),
-  sameAs: [SITE_URL],
+  sameAs: [SITE_URL, SITE_GITHUB_URL],
   knowsAbout: ['storytelling', 'marketing', 'cybersecurity', 'neuroscience'],
 };
 ---
@@ -75,23 +78,28 @@ const personSchema = {
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
+<meta name="author" content={SITE_AUTHOR} />
+<link rel="alternate" type="application/rss+xml" title={`${SITE_TITLE} RSS feed`} href={SITE_RSS_URL} />
 
-<!-- Open Graph / Facebook -->
+<!-- Open Graph -->
 <meta property="og:type" content={type} />
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImageURL} />
 <meta property="og:site_name" content={SITE_TITLE} />
-
-<!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:url" content={canonicalURL} />
-<meta property="twitter:title" content={title} />
-<meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={ogImageURL} />
+<meta property="og:locale" content="en_US" />
+{type === 'article' && <meta property="article:author" content={SITE_URL} />}
 {publishedTime && <meta property="article:published_time" content={publishedTime} />}
 {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={canonicalURL} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageURL} />
+<meta name="twitter:creator" content={SITE_TWITTER} />
 
 <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
