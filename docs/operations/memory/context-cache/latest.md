@@ -1,19 +1,18 @@
 # Context Cache Snapshot
 
-Generated: 2026-04-13 19:30:21Z
-Branch: docs/sync-docs-to-actual-state
-Last Commit: 8c7ea26 fix: wire PostQuoteShare to BlogPost and add share button CSS
+Generated: 2026-04-18 13:18:45Z
+Branch: fix/docs-author-coda
+Last Commit: 4a88d5b chore: ignore playwright-mcp session artifacts and og preview screenshots
 
 ## Git Status (short)
  M docs/operations/memory/context-cache/latest.md
- D public/writing/we-all-float-on/index.html
 
 ## Ahead/Behind
-## docs/sync-docs-to-actual-state...origin/docs/sync-docs-to-actual-state [ahead 17]
+## fix/docs-author-coda
 
 ## Recent Commits
-8c7ea26 fix: wire PostQuoteShare to BlogPost and add share button CSS
-3ea2606 feat: build out work portfolio with real content from design prototype
-7690764 feat: replace SignalHero with BreathingHero environmental breathing canvas
-30abe7d feat: add three new essays as MDX posts (southern gothic, secure pride, content strategy)
-a896225 feat: restore we-all-float-on with full prose, triptych, and verse components
+4a88d5b chore: ignore playwright-mcp session artifacts and og preview screenshots
+6fdb2a2 docs: update CLAUDE.md to match actual site state, add drift check script
+98279e3 feat: fix goblin post frontmatter, fix about page heading, add author coda
+8f4b217 chore: slim docs, fix lighthouse, track MCP config
+9b96d0c feat: session work — essays, work portfolio, BreathingHero, PostQuoteShare
