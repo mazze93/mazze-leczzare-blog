@@ -86,14 +86,28 @@ done < <(find "$REPO_ROOT/functions/api" -maxdepth 1 -name "*.ts" 2>/dev/null | 
 
 echo ""
 
-# ── 3. Key components ─────────────────────────────────────────────────────────
+# ── 3. Layouts ────────────────────────────────────────────────────────────────
+info "── Layouts (src/layouts/) ──"
+DOCUMENTED_LAYOUTS=(
+  "src/layouts/BlogPost.astro"
+  "src/layouts/HomepageLayout.astro"
+)
+for f in "${DOCUMENTED_LAYOUTS[@]}"; do
+  if [[ -f "$REPO_ROOT/$f" ]]; then
+    pass "$f"
+  else
+    fail "$f — documented but missing"
+  fi
+done
+
+echo ""
+
+# ── 4. Key components ─────────────────────────────────────────────────────────
 info "── Key components (src/components/) ──"
 DOCUMENTED_COMPONENTS=(
   "src/components/BreathingHero.astro"
   "src/components/SignalHero.astro"
   "src/components/AuthorCoda.astro"
-  "src/components/BlogPost.astro"
-  "src/components/HomepageLayout.astro"
   "src/components/PostQuoteShare.tsx"
   "src/components/ContactForm.tsx"
   "src/components/ThemeToggle.tsx"
@@ -106,14 +120,7 @@ DOCUMENTED_COMPONENTS=(
   "src/components/blog/MentorQuote.astro"
   "src/components/blog/VerseBlock.astro"
 )
-# BlogPost and HomepageLayout live in layouts/, not components/ — skip existence check for those
-LAYOUT_EXCEPTIONS=("src/components/BlogPost.astro" "src/components/HomepageLayout.astro")
 for f in "${DOCUMENTED_COMPONENTS[@]}"; do
-  skip=0
-  for ex in "${LAYOUT_EXCEPTIONS[@]}"; do
-    [[ "$f" == "$ex" ]] && skip=1 && break
-  done
-  [[ $skip -eq 1 ]] && continue
   if [[ -f "$REPO_ROOT/$f" ]]; then
     pass "$f"
   else
