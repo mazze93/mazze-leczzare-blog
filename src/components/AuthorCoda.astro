@@ -1,0 +1,115 @@
+---
+import { SITE_AUTHOR } from '../consts';
+
+interface Props {
+  headshot?: string;
+}
+
+const { headshot = '/mazze-headshot.jpg' } = Astro.props;
+---
+
+<aside class="author-coda" aria-label="About the author">
+  <div class="coda-inner">
+    <div class="coda-avatar-wrap">
+      <img
+        src={headshot}
+        alt={SITE_AUTHOR}
+        width={72}
+        height={72}
+        class="coda-avatar"
+        loading="lazy"
+        decoding="async"
+        onerror="this.style.display='none';this.nextElementSibling.removeAttribute('hidden')"
+      />
+      <div class="coda-avatar-fallback" hidden aria-hidden="true"></div>
+    </div>
+    <div class="coda-text">
+      <span class="coda-byline">Written by {SITE_AUTHOR}</span>
+      <p class="coda-bio">
+        Content strategist, security researcher, and founder of
+        <a href="https://securepride.org">Secure Pride</a> — a privacy-first cybersecurity
+        nonprofit built for LGBTQ+ organizations. Former neuroscientist. Essays on memory,
+        infrastructure, and the cost of not naming things.
+      </p>
+    </div>
+  </div>
+</aside>
+
+<style>
+.author-coda {
+  width: 720px;
+  max-width: calc(100% - 2em);
+  margin: 0 auto;
+  padding: 2.5em 1em 4em;
+  border-top: 1px solid var(--rule);
+}
+
+.coda-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.coda-avatar-wrap {
+  flex-shrink: 0;
+}
+
+.coda-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  display: block;
+}
+
+.coda-avatar-fallback {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+
+.coda-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  padding-top: 0.15em;
+}
+
+.coda-byline {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.coda-bio {
+  font-family: var(--font-body, var(--font-mono));
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.coda-bio a {
+  color: var(--teal);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(58, 184, 160, 0.25);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.coda-bio a:hover {
+  color: var(--coral);
+  border-bottom-color: rgba(232, 112, 90, 0.35);
+}
+
+@media (max-width: 480px) {
+  .coda-inner {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+</style>

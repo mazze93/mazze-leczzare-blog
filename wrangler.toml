@@ -1,4 +1,4 @@
-"$schema" = "./node_modules/wrangler/config-schema.json"
+$schema = "./node_modules/wrangler/config-schema.json"
 name = "mazze-leczzare-blog"
 compatibility_date = "2026-03-07"
 pages_build_output_dir = "dist"
@@ -6,12 +6,3 @@ pages_build_output_dir = "dist"
 [vars]
 CONTACT_FROM_EMAIL = "contact@mazzeleczzare.com"
 CONTACT_SUBJECT_PREFIX = "Mazze Contact"
-
-[[unsafe.bindings]]
-name = "SHARE_EVENT_RATE_LIMITER"
-type = "ratelimit"
-namespace_id = "23021"
-
-  [unsafe.bindings.simple]
-  limit = 20
-  period = 60

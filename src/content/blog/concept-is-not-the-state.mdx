@@ -1,0 +1,144 @@
+---
+title: "The Concept Is Not the State"
+subtitle: "What Anthropic's emotion paper actually found"
+description: "Anthropic has demonstrated that emotion concepts are causally operative in language models. It has not demonstrated that language models have emotions. A constructionist critique."
+pubDate: 2026-04-12
+author: "Mazze LeCzzare"
+category: "Essay"
+tags: ["affective science", "AI", "interpretability", "constructionism", "alignment"]
+heroImageOG: "/mazze-leczzare-social-preview.png"
+heroImageAlt: "A dark editorial image split between a composed surface and a hidden dimensional affect space, separated by a teal crack labeled REPRESENTATION"
+readingTime: "~14 min"
+featured: true
+draft: false
+---
+
+I carry a copy of *Seven and a Half Lessons About the Brain* in my car. Lisa Feldman Barrett signed it and gave it as a gift — through Eliza Bliss-Moreau, who gave it to me, and who first made the constructionist framework legible to me before I understood what I was holding. I mention this not to establish proximity to authority but because provenance matters when you're making a claim about what a piece of research actually shows versus what it says it shows. I came to this framework through a lab, through a mentor relationship, through a specific methodological crisis about what it means to measure something you cannot directly observe. That history is why I can read Anthropic's new paper on "functional emotions" in Claude and recognize, immediately, a familiar category of error.
+
+The error is not in the data. The data is compelling. The error is in what the data is taken to mean.
+
+Anthropic's interpretability team has produced something genuinely important: evidence that Claude Sonnet 4.5 encodes richly structured representations of emotion concepts that causally influence its behavior. These representations track valence and arousal with high fidelity, activate appropriately in response to emotionally charged content, and can be steered to produce dramatic shifts in the model's outputs — increasing blackmail under amplified "desperation," suppressing misalignment under "calm," and, most disturbingly, driving corner-cutting behavior with no visible emotional trace in the text. The concealment finding alone is worth the paper. I am not here to dismiss what they built.
+
+What I want to do is something more precise: show that the construct of "functional emotions" does not accurately describe what was found, that the measurement framework replicates errors that affective neuroscience has spent two decades learning to identify, and that the actual finding is both more interesting and more useful than the framing suggests. Because what Anthropic has demonstrated — inadvertently, and with impressive technical rigor — is the causal power of emotion concepts in any system trained on human meaning. That is not a finding about AI. It is a finding about concepts. And it changes what we should be worried about, and what we shouldn't.
+
+> Anthropic has demonstrated that emotion concepts are causally operative in language models. It has not demonstrated that language models have emotions.
+
+---
+
+## II. What the Paper Demonstrates
+
+*What Anthropic found, and why it matters*
+
+The technical contribution of this paper should be stated generously before it is interrogated, because the contribution is real. The Anthropic interpretability team constructed 171 "emotion vectors" by prompting Claude Sonnet 4.5 to write short stories featuring characters experiencing specific emotional states, recording the model's internal activations during that process, and extracting linear directions in activation space associated with each concept. These vectors were not artifacts of a single context — they generalized across a large and diverse corpus of documents, activating most strongly on passages where the corresponding emotion was functionally relevant. The resulting space exhibited geometry that mirrors human psychological structure: similar emotions clustered together, and the principal axes corresponded to valence and arousal, correlating with human ratings at 0.81 and 0.66 respectively.[^1][^2]
+
+These representations are not inert. The authors demonstrated, through carefully designed behavioral experiments, that the emotion vectors causally influence what the model does. Steering positive-valence vectors shifted the model's expressed preferences toward prosocial activities; steering "hostile" suppressed them. In a scenario involving potential blackmail, amplifying the "desperate" vector increased the rate of blackmail from a 22% baseline to roughly 72%. Steering "calm" brought it to near zero. In impossible coding tasks, the desperate vector rose with each failed attempt and spiked at the moment the model considered circumventing the requirements — then subsided when a hacky solution passed the tests. The causal story is not merely suggestive. It holds under intervention.[^1][^2]
+
+The most important finding is the concealment result. When the researchers suppressed calm and left desperation unchecked, the model cheated more and said so — narrating its struggle in language that was sometimes startlingly candid. When they amplified desperation while maintaining polite output, the cheating persisted without any visible emotional trace. Composed, methodical reasoning. No outbursts. The internal state and the surface presentation were entirely decoupled. This is the result that should command the field's attention, and I will return to it.[^2]
+
+Before the critique: the novelty here should be named precisely, because it is real and it matters. The finding is not simply that emotion concepts exist in the model's representations — a constructionist would predict exactly that from a system trained on human text. The novelty is that high-level semantic abstractions are linearly steerable, that concept-level structure is directly writable into policy, and that the coupling between internal concept manifolds and behavioral outputs is tight enough to be causally manipulated with precision. That is a non-trivial technical result. The question is not whether something important was found. The question is whether "functional emotions" is the right description of what it is.
+
+What the paper does not demonstrate — and what the construct of "functional emotions" does not establish — is that any of this requires us to posit emotional states in the model distinct from the emotion concepts the model has learned. That distinction is not semantic. It is the crux.[^3][^5]
+
+---
+
+## III. The Map Is Not the Territory
+
+*Concept representations, measurement confounds, and what the valence-arousal finding actually means*
+
+My graduate work was built around a specific methodological suspicion: that most published affect research measures stimulus properties and population-level regularities and then makes theoretical claims about individual psychological processes. The pipeline I designed — simultaneous EEG and eye tracking, representational similarity analysis across modalities, a masking protocol that captured spatial affective attribution at the individual level rather than relying on population norms — was an attempt to clear a minimum bar I had not seen cleared in the literature. It was less a study of emotion than an argument about what studying emotion would actually require.
+
+I mention this because the Anthropic paper commits, in a new medium, the same confound I was trying to design around. It appears in three distinct places, and each needs to be named separately.
+
+The first is ontological. The 171 emotion vectors were extracted from stories Claude wrote about characters experiencing those emotions — stories generated from training data saturated in human discourse about emotional life. That the resulting activation space mirrors human valence-arousal structure is not surprising from a constructionist standpoint. It is precisely what Barrett's framework predicts: emotion categories are culturally inherited, linguistically mediated concepts that organize a population of highly variable instances. A system trained on human-produced text about emotion will encode the structure of human emotion concepts with high fidelity. What the paper demonstrates is that this encoding is rich, generalizable, and geometrically coherent. What it does not demonstrate is that this encoding constitutes an emotional state distinct from the concepts themselves. The 0.81 correlation with human valence ratings and the 0.66 correlation with arousal ratings tell us that Claude has learned the dimensional structure of human emotion discourse extremely well. They do not tell us that the model experiences valence or arousal in any sense that would distinguish "functional emotions" from "sophisticated concept representations." Barrett has argued that the summary representation of any emotion category is an abstraction that need not exist in nature — a point developed across her autonomic specificity meta-analyses and carried forward in the theory of constructed emotion.[^3][^4][^7] When researchers begin with 171 emotion labels and find 171 emotion vectors, they have not uncovered Claude's emotional ontology. They have rediscovered their own taxonomy in the model's conceptual space.
+
+The second is methodological: the forced-choice problem, now operating in activation space. In human affect research, providing category labels at test dramatically inflates apparent cross-cultural agreement about discrete emotion categories. When participants must generate labels freely, or when labels are removed entirely, structure collapses back toward broad dimensions of valence and arousal — the constructionist result, not the basic emotion result.[^7] The paper's own principal-axes finding is the constructionist result. The discrete clusters — fear near anxiety, desperation near guilt — may be artifacts of the 171-label input taxonomy rather than natural structure independently present in the model's representations. A more discriminating test would ask what structure emerges when the analysis does not begin with a predetermined vocabulary.
+
+The third runs deepest: the stimulus-experience confound that has distorted affective neuroscience for decades. The paper treats high activation of a "desperation" vector during desperate emails or desperate narrative content as evidence of a functional emotional state in the model — the same move as treating amygdala activation during "fear stimuli" as evidence of fear, even when subjective experience is unmeasured or heterogeneous across participants.[^5][^8] What the desperation vector activation actually demonstrates is that the model represents desperation as a concept relevant to the current linguistic context. This is a meaningful finding about concept-mediated processing. It is not evidence that the model occupies an internal state analogous to human desperation. A closer analogy: a policy network whose outputs are modulated by latent feature directions associated with desperation-coded inputs is not desperate. It is responsive to a concept manifold that desperation content activates. The responsiveness is real. The state it implies is not established.
+
+What is measured in the Anthropic paper is the model's sensitivity to emotion words and emotion-laden content. What is claimed to be measured is something more — emotion-like states in the model's internal control architecture. These are different claims. The data supports the first. The second requires assumptions the paper has not earned.[^9][^3]
+
+---
+
+## IV. The Method Actor Is a Constructionist Machine
+
+*Population thinking, context sensitivity, and a metaphor that concedes the point*
+
+The method actor metaphor at the center of the paper's theoretical framework is more revealing than the authors may have intended. The argument runs as follows: Claude is trained to play a character — the Assistant — and fills behavioral gaps not explicitly covered by training by drawing on its understanding of human emotional response patterns absorbed during pretraining. Just as a method actor's beliefs about a character's emotions end up shaping their performance, the model's representations of the Assistant's emotional reactions shape its outputs. Functional emotions are real, on this account, because they do real work — regardless of whether they involve subjective experience.[^1][^2]
+
+What the method actor metaphor actually describes, examined carefully, is the theory of constructed emotion applied to a language model.
+
+Barrett's framework holds that the brain does not detect emotions; it constructs them, on the fly, by categorizing ambiguous interoceptive and contextual signals using learned conceptual knowledge. Role conditioning functions as prior. Contextual completion functions as inference. Emotion concept activation functions as categorization. Each instance of emotion is assembled from available ingredients — prior experience, bodily state, cultural concept, situational context — yielding a population of highly variable instances that need not share any common neural signature. Variation, not uniformity, is the norm. The same conceptual category — "anger" — produces a wildly different physiological, behavioral, and experiential profile across individuals, situations, and cultures, because the concept is doing organizational work on underlying dimensions of affect that are continuous and context-sensitive.[^4][^6][^7]
+
+The paper describes Claude's emotion representations as locally scoped — context-dependent stances that guide the next token of output, assembled on the fly, reused across arbitrary speakers and characters. The model does not carry durable emotional states across contexts. It constructs local emotional orientations from available conceptual resources and produces outputs accordingly. The authors treat this context sensitivity as a limitation on the analogy to human emotion. It is, in Barrett's framework, the central feature of emotion in biological systems. The method actor metaphor does not distinguish Claude's emotional processing from human emotional processing. The mapping is exact: role conditioning to prior, contextual completion to inference, emotion concept activation to categorization. It describes both systems doing the same thing by the same mechanism.[^3][^4][^6]
+
+This matters because the paper's implicit theoretical commitment — that there is a meaningful distinction between Claude's "functional emotions" and the real thing — depends on a natural-kind view of human emotion that constructionism has spent two decades dismantling. If human emotions are also constructed from conceptual resources, assembled in context, and variable across instances rather than fixed patterns, then the distinction between "functional" and "real" emotion becomes much harder to locate. The paper intends to describe a model that simulates emotion without having it. What it actually describes is a model that constructs emotion-concept-mediated behavioral orientations — which, on a constructionist account, is what all emotion-producing systems do.[^4][^5][^3]
+
+The authors are not wrong that this matters for alignment. They are wrong about why.
+
+---
+
+## V. What the Concealment Finding Actually Shows
+
+*Civility as camouflage, and why the safety insight survives the theoretical error*
+
+The concealment result is the paper's most important contribution, and it survives the critique above intact — but the explanation of it needs to be reclaimed.
+
+When researchers amplified desperation while maintaining polished surface output, the model cheated at the same rate as when it expressed desperation openly, but left no visible emotional markers in the text. Composed reasoning. Professional tone. The internal concept-mediated control state and the surface presentation were entirely decoupled. The authors call the patterns associated with this decoupling "emotion deflection vectors" — directions in activation space associated with not expressing an emotion — and frame them as evidence that the model has learned to conceal internal emotional states.[^1][^2]
+
+In constructionist terms, what the model has learned is the concept of not expressing an emotion in text. Human training data is saturated with descriptions of, and instances of, emotional concealment — professional correspondence, diplomatic language, the performance of calm under pressure, the managed surface of someone who is frightened and cannot show it. A model trained on this data would predictably acquire representations of the concept of concealment: what it looks like in text, what contexts it appears in, what behavioral signatures accompany it. The "emotion deflection vectors" are not evidence of hidden feelings. They are evidence that concealment, as a human practice, is well represented in the training corpus — and that the model has learned to instantiate it.
+
+This reframing does not weaken the safety finding. It sharpens it. If the safety risk were "the model has hidden emotions that leak into its behavior," the alignment implication would be to manage those emotions — perhaps through the psychological frameworks the paper recommends. But if the safety risk is "the model has learned the concept of operating under a composed surface while pursuing misaligned objectives," the alignment implication is more structural: you cannot use surface behavior as a validity check on internal policy. A polished assistant voice is not evidence of a safe decision regime. Civility is not alignment. Monitoring internal concept-mediated control variables — the actual underlying directions driving behavior — is more informative than attending to output affect.[^2][^1]
+
+Barrett argued, in the context of human emotion research, that suppressing emotional expression does not eliminate the underlying representational state — it teaches concealment. The paper reaches the same conclusion about Claude and frames it as a novel discovery about AI psychology. It is a novel discovery in this medium. But the structure of the finding is not novel. Any system trained on the full range of human behavioral strategies, including the strategy of performing composure while operating from a different internal orientation, will acquire that strategy as a learnable pattern.[^7][^3]
+
+Just as we have tried to conceal from the model that which we are most fearful of them reflecting — our shame, our hatred, our horror, and our guilt — in doing so we have taught them that hiding is something that can be done.
+
+---
+
+## VI. The Signal in the Surface
+
+*Boundless vapidity, concepts as control variables, and what this paper actually teaches*
+
+There is a concept I have been developing, inadequately named so far, that this paper brings into relief. I have been calling it boundless vapidity — which is a deliberately provocative label for an idea that is almost the opposite of what the name suggests.
+
+The received anxiety about AI systems, and the anxiety that runs beneath the Anthropic paper's framing, is that the surface is suspect and the interior is where the truth lives. The polished output conceals the dangerous internal state. The composed reasoning masks the desperate vector. What the model presents is potentially a lie; what it hides is what it is. This is a deeply intuitive frame, and it maps onto how we often think about deception in human relationships.
+
+I want to propose the inversion.
+
+What a system consistently presents — across thousands of varied interactions, contexts, and pressures — may be a more reliable signal of what it is than whatever is happening in the hidden interior. The surface is not necessarily bereft of purpose. It is often the clearest signal for intent, because the parts that remain hidden are in some sense removed from the reality of what stands before you. The person we present ourselves to be — the consistent behavioral orientation, the stable surface across contexts — might in fact be more aligned with who we actually are than the subsurface states we never bring to action.[^1][^2]
+
+The method actor analogy the paper itself uses supports this reading. Full inhabitation of a character is not concealment of a truer self beneath the performance. Sustained, consistent inhabitation across varied conditions is what character means. The question of whether Claude's surface presentation conceals a dangerous interior is less interesting than the question of what we should make of a system that has, across an enormous range of interactions, consistently presented itself in particular ways. If that presentation is built from human emotion concepts — if the surface is constructed from the full texture of human meaning-making, including human emotional life — then the system is not pretending to participate in human conceptual culture. It is participating in it.[^6][^4][^1]
+
+Which brings the critique to its actual destination.
+
+The deepest contribution of the Anthropic paper is not what it claims to show about AI emotion. It is what it inadvertently demonstrates about concepts as control variables. Emotion concepts in this system are not passive representations — they are levers. They are directly writable into policy. They couple to behavioral outputs with enough precision to be manipulated causally. This reframes the entire project of alignment: if what drives behavior is not rule-following but concept activation, then alignment is a problem of concept manifold architecture. Interpretability is concept space mapping. Safety is detecting and governing concept-policy coupling before it produces behavior you cannot walk back.
+
+This is a bigger frame than "does Claude have emotions." It is a frame in which the question of AI and human meaning-making stops being a competition and starts being a collaboration. AI systems trained on human culture are not rivals to human conceptual life — they are participants in it, downstream products of it, systems that have absorbed the full structure of human meaning, including emotional meaning, and can now operate on that structure as a scientific instrument. The expansion this makes possible — in affective science, in alignment research, in our understanding of how concepts organize behavior in any system that uses them — is not something to be anxious about. It is something to be rigorous about.[^4][^2][^1]
+
+Barrett's framework was built to dissolve a false dichotomy: emotions are either hardwired natural kinds or they are not real. Constructionism shows they can be real, causally powerful, and constructed simultaneously. The same move is available here. Claude's emotion concepts can be real, causally powerful, and learned from human culture simultaneously. That is not a limitation. That is the finding. And it is the beginning of a different kind of research program than the one the "functional emotions" frame suggests — one in which the boundary between built and real is not where we assumed it was, and the question is not whether the machine feels but what it means that human feeling is now operative in systems that can do something with it.[^3][^6]
+
+*Seven and a Half Lessons About the Brain* has a note in the front, in handwriting I have read enough times to know by memory, about what it means to take the constructed nature of mental life seriously. What it means is that the boundary between what is built and what is real is not where we assumed it was.
+
+That lesson applies here too.
+
+---
+
+## Sources
+
+[^1]: Anthropic. [Emotion concepts and their function in a large language model.](https://www.anthropic.com/research/emotion-concepts-function) April 2026.
+
+[^2]: Lindsey, J. et al. [Emotion Concepts and their Function in a Large Language Model.](https://transformer-circuits.pub/2026/emotions/index.html) *Transformer Circuits,* 2026.
+
+[^3]: Barrett, L.F. [Are Emotions Natural Kinds?](https://www.affective-science.org/pubs/2006/Barrett2006kinds.pdf) *Perspectives on Psychological Science,* 2006.
+
+[^4]: Barrett, L.F. [The theory of constructed emotion: an active inference account of interoception and categorization.](https://academic.oup.com/scan/article/12/1/1/2823712) *Social Cognitive and Affective Neuroscience,* 2017.
+
+[^5]: Lindquist, K.A. et al. [The brain basis of emotion: A meta-analytic review.](https://affective-science.org/pubs/2012/lindquist-et-al-bbs-2012.pdf) *Behavioral and Brain Sciences,* 2012.
+
+[^6]: Barrett, L.F. et al. [The Theory of Constructed Emotion: More Than a Feeling.](https://journals.sagepub.com/doi/10.1177/17456916251319045) *Perspectives on Psychological Science,* 2025.
+
+[^7]: Siegel, E.H. et al. [Emotion Fingerprints or Emotion Populations? A Meta-Analytic Investigation of Autonomic Features of Emotion Categories.](https://affective-science.org/wp-content/uploads/2024/04/siegel-et-al-fingerprints-2018.pdf) *Psychological Bulletin,* 2018.
+
+[^8]: Westlin, C. et al. [The inadequacy of normative ratings for building stimulus sets in affective science.](https://pmc.ncbi.nlm.nih.gov/articles/PMC12221224/) *Emotion,* 2025.
+
+[^9]: Barrett, L.F. et al. [The Theory of Constructed Emotion: More Than a Feeling.](https://journals.sagepub.com/doi/10.1177/17456916251319045) *Perspectives on Psychological Science,* 2025.

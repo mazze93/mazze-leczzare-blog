@@ -2,7 +2,6 @@
 title: "Welcome to the Studio"
 description: "What this site is for, what belongs here, and why it now runs as a static-first publishing space."
 pubDate: "Mar 06 2026"
-heroImage: "/blog-placeholder-about.jpg"
 ---
 
 This site is not meant to be a feed mill.

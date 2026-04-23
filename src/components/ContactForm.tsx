@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -28,7 +28,7 @@ export default function ContactForm() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (submitState === 'submitting') {

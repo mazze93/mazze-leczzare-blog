@@ -3,14 +3,14 @@
   "description": "Build a personal website, blog, or portfolio with Astro.",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "4.3.0",
-    "@astrojs/react": "^4.4.2",
-    "@astrojs/rss": "4.0.17",
-    "@astrojs/sitemap": "3.4.1",
-    "astro": "5.18.1",
-"react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "typescript": "5.8.3"
+    "@astrojs/mdx": "5.0.3",
+    "@astrojs/react": "^5.0.3",
+    "@astrojs/rss": "4.0.18",
+    "@astrojs/sitemap": "3.7.2",
+    "astro": "6.1.8",
+"react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "typescript": "6.0.3"
   },
   "scripts": {
     "astro": "astro",
@@ -18,7 +18,7 @@
     "check": "astro build && tsc",
     "dev": "astro dev",
     "preview": "astro preview",
-    "docs:check": "bash scripts/ops/verify-docs-integrity.sh"
+    "docs:check": "bash scripts/ops/verify-docs-integrity.sh && bash scripts/ops/check-docs-drift.sh"
   },
   "type": "module",
   "engines": {
@@ -28,11 +28,12 @@
     "fast-xml-parser": "5.5.8"
   },
   "devDependencies": {
-    "@astrojs/tailwind": "^6.0.2",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/playfair-display": "^5.2.8",
-    "tailwindcss": "^3.4.19"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.2.2"
   }
 }

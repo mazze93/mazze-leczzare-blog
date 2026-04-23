@@ -1,0 +1,85 @@
+---
+/**
+ * PullQuote — Editorial pull quote component.
+ * Renders a highlighted excerpt with coral left border and gradient background.
+ *
+ * Usage in MDX:
+ *   import PullQuote from '@/components/blog/PullQuote.astro';
+ *   <PullQuote>"Your quote text here."</PullQuote>
+ *
+ * @prop accent — optional: 'coral' (default) | 'teal' | 'gold'
+ */
+interface Props {
+  accent?: 'coral' | 'teal' | 'gold';
+}
+
+const { accent = 'coral' } = Astro.props;
+---
+
+<blockquote class={`pull-quote pull-quote--${accent}`} role="presentation">
+  <slot />
+</blockquote>
+
+<style>
+  .pull-quote {
+    margin: 3.5rem -1rem;
+    padding: 2rem 2.5rem;
+    position: relative;
+    background: linear-gradient(135deg, #1a1208 0%, #0f1210 100%);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    font-style: italic;
+    color: #e0d8c0;
+    line-height: 1.6;
+  }
+
+  .pull-quote::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  /* Accent variants */
+  .pull-quote--coral {
+    border-left: 3px solid var(--color-coral, #e8705a);
+  }
+  .pull-quote--coral::before {
+    background: linear-gradient(90deg, var(--color-coral, #e8705a), transparent);
+  }
+
+  .pull-quote--teal {
+    border-left: 3px solid var(--color-teal, #3ab8a0);
+    background: linear-gradient(135deg, #0d1a18 0%, #0f1210 100%);
+  }
+  .pull-quote--teal::before {
+    background: linear-gradient(90deg, var(--color-teal, #3ab8a0), transparent);
+  }
+
+  .pull-quote--gold {
+    border-left: 3px solid var(--color-gold, #c8a060);
+    background: linear-gradient(135deg, #1a1408 0%, #0f1210 100%);
+  }
+  .pull-quote--gold::before {
+    background: linear-gradient(90deg, var(--color-gold, #c8a060), transparent);
+  }
+
+  /* Ensure nested <p> inherits quote styling */
+  .pull-quote :global(p) {
+    font-size: inherit;
+    font-weight: inherit;
+    font-style: inherit;
+    color: inherit;
+    line-height: inherit;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .pull-quote {
+      margin: 2.5rem 0;
+    }
+  }
+</style>

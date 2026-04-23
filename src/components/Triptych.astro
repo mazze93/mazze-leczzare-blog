@@ -1,0 +1,152 @@
+---
+// Triptych.astro — three-panel image grid
+// Usage in MDX:
+// <Triptych
+//   title="Orientation"
+//   subtitle="Mind · Navigation · Structure"
+//   panels={[
+//     { src: "/triptych/triptych-mind.png", label: "Mind", sublabel: "cognition · pattern recognition" },
+//     { src: "/triptych/triptych-structure.jpg", label: "Structure", sublabel: "reasoning · constraint · governance" },
+//     { src: "/triptych/triptych-instrument.png", label: "Instrument", sublabel: "navigation · inference · orientation" },
+//   ]}
+// />
+
+interface Panel {
+  src: string;
+  label: string;
+  sublabel?: string;
+  alt?: string;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  panels: Panel[];
+}
+
+const { title, subtitle, panels } = Astro.props;
+---
+
+<section class="triptych-section" aria-label={title ?? 'Triptych'}>
+  {(title || subtitle) && (
+    <div class="triptych-header">
+      {title && <h2 class="triptych-title">{title}</h2>}
+      {subtitle && <p class="triptych-subtitle">{subtitle}</p>}
+    </div>
+  )}
+  <div class="triptych-grid">
+    {panels.map((panel, i) => (
+      <div class="triptych-panel" data-index={i}>
+        <div class="triptych-accent" />
+        <img
+          src={panel.src}
+          alt={panel.alt ?? panel.label}
+          width={400}
+          height={250}
+          loading="lazy"
+          decoding="async"
+        />
+        <div class="triptych-caption">
+          <span class="triptych-label">{panel.label}</span>
+          {panel.sublabel && <span class="triptych-sublabel">{panel.sublabel}</span>}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .triptych-section {
+    margin: 4rem -1rem;
+    padding: 3rem 1rem;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .triptych-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .triptych-title {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin: 0 0 0.4rem;
+  }
+
+  .triptych-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-faint);
+    letter-spacing: 0.12em;
+    margin: 0;
+  }
+
+  .triptych-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .triptych-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .triptych-accent {
+    height: 2px;
+    margin-bottom: 0.75rem;
+    opacity: 0.7;
+    background: var(--text-faint);
+  }
+
+  .triptych-panel[data-index="0"] .triptych-accent { background: var(--gold); }
+  .triptych-panel[data-index="1"] .triptych-accent { background: var(--teal); }
+  .triptych-panel[data-index="2"] .triptych-accent { background: var(--text-faint); }
+
+  .triptych-panel img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border: 1px solid var(--rule);
+    display: block;
+    filter: brightness(0.9) contrast(1.05);
+    transition: filter 0.4s ease;
+  }
+
+  .triptych-panel:hover img {
+    filter: brightness(1) contrast(1.08);
+  }
+
+  .triptych-caption {
+    margin-top: 0.75rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .triptych-label {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .triptych-sublabel {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 640px) {
+    .triptych-grid { grid-template-columns: 1fr; }
+    .triptych-section { margin: 3rem 0; }
+  }
+</style>

@@ -127,20 +127,6 @@ function collectCommandsFromSnippet(snippet, offset, source) {
 
 const failures = [];
 
-function findMergeMarkerIssues(content, file) {
-  const markerRegex = /^(<{7}|={7}|>{7})(?: .+)?$/gm;
-  const issues = [];
-  for (const match of content.matchAll(markerRegex)) {
-    issues.push({
-      type: 'merge_marker',
-      file,
-      line: lineNumberFromIndex(content, match.index ?? 0),
-      marker: match[0],
-    });
-  }
-  return issues;
-}
-
 if (discoveredDocs.length === 0) {
   failures.push({
     type: 'coverage',
@@ -210,7 +196,7 @@ if (!deploymentTerminologyFiles.includes('README.md')) {
 }
 
 if (failures.length > 0) {
-  console.error('\n[docs-integrity] ❌ Validation failed.\n');
+  console.error('\n[docs-integrity] \u274c Validation failed.\n');
 
   for (const failure of failures) {
     if (failure.type === 'invalid_script') {
@@ -220,7 +206,7 @@ if (failures.length > 0) {
       console.error(`- File: ${failure.file}:${failure.line}\n  ${msg}\n  Source: ${failure.source}\n`);
       console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
     } else if (failure.type === 'forbidden_term') {
-      const msg = `Forbidden deployment term \"${failure.term}\". Use instead: ${failure.suggestion}`;
+      const msg = `Forbidden deployment term "${failure.term}". Use instead: ${failure.suggestion}`;
       console.error(`- File: ${failure.file}:${failure.line}\n  ${msg}\n`);
       console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
     } else if (failure.type === 'merge_marker') {
@@ -245,7 +231,7 @@ if (failures.length > 0) {
 
 const ignored = discoveredDocs.filter((file) => !scannedDocs.includes(file));
 if (ignored.length > 0) {
-  console.log('[docs-integrity] ℹ️ Ignored script-validation docs (historical artifacts):');
+  console.log('[docs-integrity] \u2139\ufe0f Ignored script-validation docs (historical artifacts):');
   for (const file of ignored) console.log(`  - ${file}`);
 }
 

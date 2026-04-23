@@ -1,0 +1,15 @@
+- generic [ref=e6]:
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - img [ref=e9]
+      - generic [ref=e12]: Secure Pride
+    - generic [ref=e13]: Audit Toolkit
+  - generic [ref=e14]:
+    - generic [ref=e15]: Security for communities that matter
+    - heading "Harden what you care about." [level=1] [ref=e16]:
+      - text: Harden what
+      - text: you care about.
+    - paragraph [ref=e17]:
+      - text: Privacy-respecting security audits—clear findings,
+      - text: practical fixes, zero surveillance.
+  - generic [ref=e19]: securepride.org

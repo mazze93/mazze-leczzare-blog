@@ -203,3 +203,11 @@ dist
 
 ### Local Agent Worktrees ###
 .claude/
+
+# local staging folder
+blog-post-package/
+# march working drafts folder
+march_claude_blog/
+
+# Local prototype staging — not repo content
+files/

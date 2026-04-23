@@ -1,0 +1,25 @@
+---
+// PullQuote.astro — editorial pull quote with coral left border
+// Usage in MDX: <PullQuote>The quoted text here.</PullQuote>
+---
+<blockquote class="pull-quote">
+  <slot />
+</blockquote>
+
+<style>
+  .pull-quote {
+    margin: 3.5rem 0;
+    padding: 1.75rem 2.25rem;
+    border-left: 3px solid var(--coral);
+    background: linear-gradient(135deg, rgba(26,18,8,0.6) 0%, transparent 100%);
+  }
+
+  .pull-quote :global(p) {
+    font-size: 1.3rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+  }
+</style>

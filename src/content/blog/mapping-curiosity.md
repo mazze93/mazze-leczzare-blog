@@ -2,7 +2,6 @@
 title: "Mapping Curiosity Across Disciplines"
 description: "Neuroscience, brand systems, cybersecurity, story: the connective tissue is curiosity that can survive translation."
 pubDate: "Mar 04 2026"
-heroImage: "/blog-placeholder-1.jpg"
 ---
 
 People like neat career narratives because they compress uncertainty.

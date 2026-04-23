@@ -1,6 +1,6 @@
 # mazze-leczzare-blog — Claude Context
 
-Personal blog and publishing space for Mazze Leczzare — a former neuroscientist turned
+Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
 storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 "static-first working studio" for essays, field notes, and public working documents.
 
@@ -8,9 +8,9 @@ storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Astro 5 (`output: "static"`, fully SSG) |
+| Framework | Astro 6 (`output: "static"`, fully SSG) |
 | UI islands | React 19 (`@astrojs/react`) — used only where interaction earns its keep |
-| Content | Markdown + MDX via Astro Content Collections |
+| Content | Markdown + MDX via Astro Content Collections (loader API) |
 | Edge functions | Cloudflare Pages Functions (`functions/api/`) |
 | Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded) |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
@@ -22,303 +22,176 @@ storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 ## Key Commands
 
 ```bash
-npm run dev       # Astro dev server (localhost:4321)
-npm run build     # Static build → dist/
-npm run preview   # Preview dist/ locally
-npm run check     # astro build && tsc (repo-standard validation)
+npm run dev        # Astro dev server (localhost:4321)
+npm run build      # Static build → dist/
+npm run preview    # Preview dist/ locally
+npm run check      # astro build && tsc (repo-standard validation)
+npm run docs:check # Validate doc command references and deployment terminology
 ```
 
 ## Site Identity (`src/consts.ts`)
 
-```text
-SITE_TITLE         = "Mazze Leczzare"
-SITE_DESCRIPTION   = "Essays, experiments, and field notes from a former neuroscientist..."
-SITE_URL           = "https://mazzeleczzare.com"
-SITE_AUTHOR        = "Mazze Leczzare"
-SITE_EMAIL         = "mailto:security@mazzeleczzare.com"
-SITE_GITHUB_URL    = "https://github.com/mazze93"
-SITE_REPO_URL      = "https://github.com/mazze93/mazze-leczzare-blog"
-SITE_RSS_URL       = "/rss.xml"
-SITE_DEFAULT_OG_IMAGE = "/blog-placeholder-about.jpg"
-```
-
 All constants are imported from `src/consts.ts` — never hardcode these inline.
+
+```text
+SITE_TITLE           = "Mazze Leczzare"
+SITE_DESCRIPTION     = "Essays, experiments, and field notes from a former neuroscientist..."
+SITE_URL             = "https://mazzeleczzare.com"
+SITE_AUTHOR          = "Mazze Leczzare"
+SITE_EMAIL           = "mailto:security@mazzeleczzare.com"
+SITE_GITHUB_URL      = "https://github.com/mazze93"
+SITE_TWITTER         = "@southerncunning"
+SITE_REPO_URL        = "https://github.com/mazze93/mazze-leczzare-blog"
+SITE_RSS_URL         = "/rss.xml"
+SITE_DEFAULT_OG_IMAGE = "/mazze-leczzare-social-preview.png"
+```
 
 ## Directory Structure
 
 ```text
 src/
-  components/       # Astro + React components (see below)
+  components/       # Astro + React components (see Components section below)
   content/blog/     # Markdown/MDX blog posts (Content Collection)
-  layouts/          # BlogPost.astro (only layout)
+  layouts/          # BlogPost.astro, HomepageLayout.astro
   pages/            # File-based routes
-  styles/global.css # Global CSS with CSS custom properties
+  styles/           # global.css, homepage.css, editorial.css
   consts.ts         # Site-wide constants
-  content.config.ts # Content collection schema
-  env.d.ts          # Astro env types
-  cloudflare-email.d.ts  # Type declaration for cloudflare:email binding
+  content.config.ts # Content collection schema (Astro loader API)
 
-functions/
-  api/
-    contact.ts      # Cloudflare Pages Function — contact form delivery
-    share-event.ts  # Cloudflare Pages Function — quote share telemetry
+functions/api/
+  contact.ts        # Cloudflare Pages Function — contact form delivery
+  share-event.ts    # Cloudflare Pages Function — quote share telemetry
+  login.ts          # Cloudflare Pages Function — admin login
+  logout.ts         # Cloudflare Pages Function — admin logout
 
 scripts/ops/        # Local operational scripts (not part of the site build)
 docs/operations/    # Agent operations protocol and memory files
-public/             # Static assets (fonts, images, favicon, hero SVG)
+public/             # Static assets (fonts, images, favicon, social preview)
 ```
 
 ## Routes
 
-| URL               | File                                | Notes                             |
-| ----------------- | ----------------------------------- | --------------------------------- |
-| `/`               | `src/pages/index.astro`             | HeroSection + last 6 posts grid   |
-| `/blog`           | `src/pages/blog/index.astro`        | All posts, sorted newest-first    |
-| `/blog/[slug]/`   | `src/pages/blog/[...slug].astro`    | Dynamic blog post route           |
-| `/contact`        | `src/pages/contact.astro`           | ContactForm island                |
-| `/about`          | `src/pages/about.md`                | Markdown page via BlogPost layout |
-| `/manifesto`      | `src/pages/manifesto.md`            | Markdown page via BlogPost layout |
-| `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout |
-| `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                 |
-| `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery         |
-| `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry       |
+| URL               | File                                | Notes                                    |
+| ----------------- | ----------------------------------- | ---------------------------------------- |
+| `/`               | `src/pages/index.astro`             | BreathingHero + last 6 posts list        |
+| `/blog`           | `src/pages/blog/index.astro`        | All posts, sorted newest-first           |
+| `/blog/[slug]/`   | `src/pages/blog/[...slug].astro`    | Dynamic blog post route                  |
+| `/contact`        | `src/pages/contact.astro`           | ContactForm island                       |
+| `/about`          | `src/pages/about.md`                | Markdown page via BlogPost layout        |
+| `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
+| `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
+| `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout        |
+| `/login`          | `src/pages/login.astro`             | Admin login page                         |
+| `/admin`          | `src/pages/admin/index.astro`       | Admin dashboard (auth-gated)             |
+| `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                        |
+| `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
+| `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
+| `/api/login`      | `functions/api/login.ts`            | POST only — admin auth                   |
+| `/api/logout`     | `functions/api/logout.ts`           | POST only — session clear                |
 
 ## Content Collection
 
 Defined in `src/content.config.ts`. Collection name: `blog`.
-Source: `src/content/blog/**/*.{md,mdx}`.
+Source: `src/content/blog/**/*.{md,mdx}`. Uses Astro's loader API (`glob` loader).
 
 **Frontmatter schema (Zod):**
 
 ```ts
 {
-  title: string           // required
-  description: string     // required
-  pubDate: Date           // required, coerced from string
-  updatedDate?: Date      // optional, coerced from string
-  heroImage?: string      // optional, path to image in public/
+  title: string             // required
+  description: string       // required
+  pubDate: Date             // required — coerced from YYYY-MM-DD string
+  updatedDate?: Date        // optional — coerced from string
+  heroImage?: string        // optional — path relative to public/
+  subtitle?: string         // optional — deck shown under title
+  category?: string         // optional — primary category (e.g. 'Essay')
+  tags?: string[]           // optional — topic tags
+  readingTime?: string      // optional — manual override (e.g. '~7 min')
+  heroImageOG?: string      // optional — Open Graph / social share image path
+  heroImageAlt?: string     // optional — alt text for hero image
+  featured?: boolean        // optional — pinned/curated flag
+  slug?: string             // optional — explicit URL slug override
+  draft?: boolean           // optional — true hides post from all listings
 }
 ```
 
-Blog posts are referenced as `post.id` (the file path without extension) for URL slugs.
-The index page shows the 6 most recent; the blog listing shows all.
+Draft filtering: `getCollection('blog', ({ data }) => !data.draft)` — draft posts are excluded
+from all listings. Blog posts are referenced as `post.id` for URL slugs. The index shows 6
+most recent; blog listing shows all.
 
-## Components
+## Components (brief)
 
-### Astro (server-only, zero JS by default)
+Read source for full detail — these are the non-obvious points:
 
-#### `BaseHead.astro`
+**Layout / page-level:**
+- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Respects `prefers-reduced-motion` with static gradient fallback. `SignalHero.astro` is the legacy predecessor — still present but not mounted anywhere.
+- **`BlogPost.astro`** (layout) — mounts `<AuthorCoda>` then `<PostQuoteShare client:load>` after `.prose`. All quote-share CSS lives here as scoped `:global()` rules.
+- **`HomepageLayout.astro`** — sets `data-layout="homepage"` on body; editorial deep-navy palette via `src/styles/homepage.css`.
+- **`AuthorCoda.astro`** — author byline + headshot + condensed bio rendered at the end of every post. Headshot path defaults to `/mazze-headshot.jpg`; hides gracefully if image is missing.
 
-Injected into every page `<head>`.
+**Interactive islands (React):**
+- **`PostQuoteShare.tsx`** — paragraph-level quote sharing. Imperative DOM; assigns `data-quote-share-id` to `.prose > p`, injects share buttons, telemetries to `/api/share-event` via `sendBeacon`.
+- **`ContactForm.tsx`** — honeypot field (`company`), timing check (`startedAt`), submits JSON to `POST /api/contact`.
+- **`ThemeToggle.tsx`** — reads/writes `localStorage['theme-preference']` and `document.documentElement.dataset.theme`.
 
-- Imports `global.css`
-- Full Open Graph + Twitter card meta tags
-- Canonical URL
-- Preloads Atkinson fonts (regular + bold WOFF)
-- Inline `<script is:inline>` that reads `localStorage['theme-preference']` and sets
-  `document.documentElement.dataset.theme` before paint (prevents flash)
-- Two JSON-LD structured data blocks: `WebSite` schema + `Person` schema on every page
+**MDX prose components** (`src/components/` top-level — import with relative path in MDX):
+- **`Verse.astro`** — styled poetry/verse block.
+- **`PullQuote.astro`** — pull-quote callout.
+- **`Triptych.astro`** — three-panel image layout.
+- **`Colophon.astro`** — end-of-document colophon block.
 
-#### `BlogPost.astro` (layout)
+**MDX prose components** (`src/components/blog/` — blog-specific variants):
+- **`blog/PullQuote.astro`** — blog-specific pull-quote variant.
+- **`blog/Triptych.astro`** — blog-specific triptych variant.
+- **`blog/MentorQuote.astro`** — attributed mentor/interview quote block.
+- **`blog/VerseBlock.astro`** — verse block variant used within blog posts.
 
-Wraps all blog posts and markdown pages.
+**Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `Header.astro`, `Footer.astro`, `HeaderLink.astro`, `FormattedDate.astro`.
 
-- Accepts `Props` that unifies blog collection entries *and* raw markdown frontmatter
-  (both paths resolve via `resolved = { ...frontmatter, ...props }` spread)
-- Injects Article JSON-LD with `headline`, `datePublished`, `dateModified`, `author`, `publisher`
-- All quote-share CSS lives here as scoped `:global()` rules targeting `.prose > p`
-- Mounts `<PostQuoteShare client:load title={title} path={Astro.url.pathname} />` on every post
-- Responsive: at ≤720px the share button moves below the paragraph (static, always visible)
+## Styles
 
-#### `Header.astro`
-
-Sticky, `backdrop-filter: blur(12px)` frosted glass.
-
-- Nav links: Home, Blog, Contact, About, Manifesto
-- Social links: GitHub, RSS, Contact
-- `ThemeToggle` React island (`client:load`)
-- Inline `<script>` adds `.scrolled` class after 10px scroll, cleaned up on `visibilitychange`
-
-#### `Footer.astro`
-
-3-column grid (brand tagline / nav links / social), collapses to 1-column on mobile.
-
-#### `FormattedDate.astro`
-
-Renders a `<time>` element from a `Date` prop.
-
-#### `HeaderLink.astro`
-
-Nav link that adds `.active` class when href matches current path.
-
-### React Islands (`client:load`)
-
-#### `HeroSection.tsx`
-
-Landing page hero.
-
-- Entrance animation driven by `useState(visible)` + 50ms `setTimeout` (respects
-  `prefers-reduced-motion` via `matchMedia` listener)
-- Two-column grid: text left / artwork card right
-- CTA: "Read the Blog" (gradient pill button) + secondary "Read the manifesto" link
-- Artwork: `/hero-signal-grid.svg` in a frosted-glass `<aside>` card
-
-#### `ThemeToggle.tsx`
-
-Light/dark toggle.
-
-- Reads from `localStorage['theme-preference']`, falls back to `prefers-color-scheme`
-- Writes to `document.documentElement.dataset.theme` and updates `meta[name="theme-color"]`
-- Dark = `#0f172a`, light = `#f7f4ed`
-
-#### `ContactForm.tsx`
-
-Controlled form with 3 visible fields + 1 honeypot.
-
-- State machine: `SubmitState = 'idle' | 'submitting' | 'success' | 'error'`
-- `startedAt` captured via `useMemo(() => Date.now(), [])` at mount time, sent as hidden field
-- Submits JSON to `POST /api/contact`
-- Response typed as `ContactApiResponse { ok?, error?, message? }`
-- `aria-live="polite"` status region for screen reader feedback
-- Honeypot: `company` field in a wrapper `div` with `aria-hidden="true"`; input has `tabIndex={-1}` and `autoComplete="off"`
-
-#### `PostQuoteShare.tsx`
-
-Paragraph-level quote sharing — the signature feature.
-
-Props: `{ title: string; path: string }` — post title and pathname (e.g. `/blog/slug/`).
-
-- Mounts via `useEffect` into `.prose` DOM; purely imperative DOM manipulation, renders `null`
-- Assigns `data-quote-share-id="quote-N"` to each non-empty direct `<p>` child of `.prose`;
-  also sets `id="quote-N"` only if the paragraph has no existing `id` (preserves authored anchors)
-- Injects a "Share" `<button>` into every paragraph
-- On click: tries `navigator.share()` first (native share sheet), falls back to
-  `navigator.clipboard.writeText()`, falls back to legacy `document.execCommand('copy')`
-- Share URL format: `https://mazzeleczzare.com/blog/slug/?quote=quote-N&via=quote-share`
-- Quote text truncated to 220 chars for the share sheet
-- On landing from a share URL: scrolls to `?quote=` paragraph, applies `.quote-share-highlight`
-  (accent background + box-shadow) for 4s, fires `quote_share_visited` event once per session
-  (guarded by `sessionStorage` key to prevent duplicate counting)
-- Telemetry: `navigator.sendBeacon` → `POST /api/share-event`; falls back to `fetch` with
-  `keepalive: true` if beacon returns false — fire-and-forget, must never block reading
-- Full cleanup on unmount: removes buttons, event listeners, class names, clears timeouts
+| File | Purpose |
+| ---- | ------- |
+| `global.css` | CSS custom properties, base resets, shared typography |
+| `homepage.css` | Deep-navy editorial palette for the homepage (`data-layout="homepage"`) |
+| `editorial.css` | Editorial/article-specific prose styles |
 
 ## Cloudflare Functions
 
-Both use the Cloudflare Pages Functions convention: `export async function onRequestPost(context)`.
+`contact.ts` — env vars: `CONTACT_EMAIL`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`, `CONTACT_WEBHOOK_URL`, `CONTACT_WEBHOOK_AUTH_HEADER`. Webhook takes priority over email binding. Validates honeypot, timing (≥1500ms), name (2–80), email, message (20–4000). Escapes all header and HTML values.
 
-### `functions/api/contact.ts`
+`share-event.ts` — env vars: `SHARE_EVENT_RATE_LIMITER`. Rate limit: 20 req/60s per fingerprint. CORS guard on Origin/Referer. Validates `event`, `path`, `quoteId`. Returns 204 on success.
 
-Delivers contact form submissions via **either** Cloudflare Email binding **or** webhook.
-
-**Environment bindings:**
-
-```text
-CONTACT_EMAIL               # Cloudflare Email binding (send method)
-CONTACT_TO_EMAIL            # Recipient address (required for email path)
-CONTACT_FROM_EMAIL          # Sender address (default: contact@mazzeleczzare.com)
-CONTACT_SUBJECT_PREFIX      # Email subject prefix (default: "Mazze Contact")
-CONTACT_WEBHOOK_URL         # Alternate delivery — POST to this URL
-CONTACT_WEBHOOK_AUTH_HEADER # Optional Bearer token for webhook
-```
-
-**Delivery logic:** Webhook takes priority over email binding when both are set.
-Returns 500 if neither is configured.
-
-**Validation pipeline (in order):**
-
-1. Parse body: JSON (`Content-Type: application/json`) or `FormData` (form POST fallback)
-2. Honeypot: if `company` is non-empty → silent 200 OK (bot trap)
-3. Timing: `startedAt` must be a finite positive number; `Date.now() - startedAt >= 1500ms`
-4. Name: 2–80 chars
-5. Email: matches `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`, max 120 chars, lowercased
-6. Message: 20–4000 chars
-
-**Security:** All values passed to email headers go through `escapeHeader()` (strips `\r\n`).
-All values in HTML body go through `escapeHtml()` (full entity escaping).
-
-**Response shape:** `{ ok: boolean, error?: string, message?: string }` + `Cache-Control: no-store`.
-
-### `functions/api/share-event.ts`
-
-Records paragraph quote share events for analytics.
-
-**Environment bindings:**
-
-```text
-SHARE_EVENT_RATE_LIMITER # Cloudflare Rate Limiting binding
-```
-
-**Rate limit:** 20 requests / 60 seconds per fingerprint (IP + User-Agent SHA-256, 32 hex chars).
-Returns 429 with `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Window` headers.
-
-**CORS guard:** `Origin` or `Referer` header must match the request's own origin.
-Rejects cross-origin POSTs with 403.
-
-**Event validation:**
-
-- `event`: must be `quote_share_clicked` or `quote_share_visited`
-- `path`: matches `/^\/[A-Za-z0-9/_-]*$/`, no `//` or `..`, max 180 chars
-- `quoteId`: matches `/^quote-\d{1,4}$/`, max 64 chars
-
-**Success response:** `204 No Content`. Events are logged via `console.log(JSON.stringify({...}))` —
-structured for Cloudflare log drains.
-
-## Theme System
-
-Toggled by `document.documentElement.dataset.theme = 'dark' | 'light'`.
-CSS custom properties in `global.css` switch on `[data-theme="dark"]`.
-Flash prevention: inline script in `BaseHead.astro` reads `localStorage` before first paint.
-
-## SEO & Structured Data
-
-Every page gets two JSON-LD blocks (WebSite + Person) from `BaseHead.astro`.
-Blog posts additionally get an Article JSON-LD block from `BlogPost.astro`.
-All pages have canonical URLs, OG tags, and Twitter card meta.
-`pubDate`/`updatedDate` map to `article:published_time` / `article:modified_time`.
+`login.ts` / `logout.ts` — admin session management for the `/admin` dashboard.
 
 ## Authoring Blog Posts
 
 1. Create `src/content/blog/your-slug.md` (or `.mdx`)
-
-2. Required frontmatter:
-
-   ```yaml
-   ---
-   title: "Post Title"
-   description: "One-sentence description for meta and listings."
-   pubDate: 2026-03-21
-   heroImage: "/your-image.jpg"   # optional, goes in public/
-   updatedDate: 2026-04-01        # optional
-   ---
-   ```
-
-3. Write body content — all `<p>` elements in `.prose` automatically get paragraph-level
-   share buttons via `PostQuoteShare`
-
-4. Post appears at `/blog/your-slug/` and surfaces on the homepage (if in top 6)
+2. Required frontmatter: `title`, `description`, `pubDate` (YYYY-MM-DD format).
+3. Optional frontmatter: `subtitle`, `heroImage`, `heroImageAlt`, `heroImageOG`, `updatedDate`, `tags`, `category`, `readingTime`, `featured`, `slug`. Set `draft: true` to hide from all listings.
+4. MDX posts can import components with relative paths: `import Verse from '../../components/Verse.astro'`
+5. All `<p>` in `.prose` automatically get share buttons via `PostQuoteShare`.
+6. All posts automatically get the `AuthorCoda` author block at the end.
+7. Post appears at `/blog/your-slug/` and surfaces on homepage if in top 6 by date.
 
 ## Ops Scripts (`scripts/ops/`)
 
-| Script                    | Purpose                                                                      |
-| ------------------------- | ---------------------------------------------------------------------------- |
-| `update-context-cache.sh` | Snapshots current git state to `docs/operations/memory/context-cache/`       |
-| `prune-context-cache.sh N`| Keeps N most recent snapshots, deletes older ones                            |
-| `session-handoff.sh`      | Updates `ACTIVE_CONTEXT.md` and `SESSION_LOG.md` with structured metadata    |
-| `setup-hooks.sh`          | Installs git hooks path + `git ctx` alias (one-time setup per clone)         |
-
-Git hook (`post-commit`): advisory only — prints reminder to run `git ctx` manually.
-Context cache files (`latest.md` and timestamped snapshots) are **not tracked** — excluded
-by `docs/operations/memory/context-cache/.gitignore`.
+| Script                    | Purpose                                                        |
+| ------------------------- | -------------------------------------------------------------- |
+| `update-context-cache.sh` | Snapshots current git state to `docs/operations/memory/context-cache/` |
+| `prune-context-cache.sh N`| Keeps N most recent snapshots                                  |
+| `session-handoff.sh`      | Updates `ACTIVE_CONTEXT.md` and `SESSION_LOG.md`               |
+| `setup-hooks.sh`          | Installs git hooks path + `git ctx` alias (one-time)           |
+| `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology           |
+| `verify-lockfile.sh`      | Checks `package-lock.json` is in sync                          |
+| `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
 
 ## Key Constraints
 
-- **Static output only** — `astro.config.mjs` sets `output: "static"`. No SSR,
-  no server endpoints in Astro itself. All dynamic behaviour goes through Cloudflare Functions.
-- **Astro islands discipline** — React is used for `HeroSection`, `ThemeToggle`,
-  `ContactForm`, `PostQuoteShare` only. All four have clear interactive reasons.
-  Do not add React for non-interactive rendering.
+- **Static output only** — `astro.config.mjs` sets `output: "static"`. No SSR. All dynamic behaviour goes through Cloudflare Functions.
+- **Astro islands discipline** — React is used for `ThemeToggle`, `ContactForm`, `PostQuoteShare` only. Do not add React for non-interactive rendering.
 - **No external analytics script** — telemetry is first-party only via `share-event.ts`.
-- **No published email address** — contact routes privately through the function;
-  the footer note says "Mailbox addresses are not published here."
+- **No published email address** — contact routes privately through the function.
 - **`src/consts.ts` is the single source of truth** for site identity — import from there.
+- **`npm run check` is the repo-standard validation** — run before committing any code change.
+- **Draft posts** — use `draft: true` in frontmatter, never delete in-progress posts.

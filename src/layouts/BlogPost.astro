@@ -1,9 +1,12 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import PostQuoteShare from '../components/PostQuoteShare';
+import AuthorCoda from '../components/AuthorCoda.astro';
 import {
   SITE_AUTHOR,
   SITE_DEFAULT_OG_IMAGE,
@@ -11,7 +14,8 @@ import {
   SITE_URL,
 } from '../consts';
 
-// Support both blog collection entries and markdown pages with frontmatter
+// Support both blog collection entries (heroImage: ImageMetadata)
+// and markdown pages via layout frontmatter (heroImage: string)
 type Props = {
   title: string;
   description: string;
@@ -19,7 +23,9 @@ type Props = {
   tags?: string[];
   pubDate?: Date | string;
   updatedDate?: Date | string;
-  heroImage?: string;
+  heroImage?: ImageMetadata | string;
+  heroImageOG?: string;
+  heroImageAlt?: string;
   frontmatter?: {
     title?: string;
     description?: string;
@@ -28,6 +34,8 @@ type Props = {
     pubDate?: Date | string;
     updatedDate?: Date | string;
     heroImage?: string;
+    heroImageOG?: string;
+    heroImageAlt?: string;
   };
 };
 
@@ -42,6 +50,12 @@ const description = resolved.description ?? '';
 const subtitle = resolved.subtitle;
 const tags = resolved.tags ?? [];
 const heroImage = resolved.heroImage;
+const heroImageAlt = resolved.heroImageAlt ?? title;
+
+// Resolve a string path for OG/social meta: prefer explicit OG override,
+// fall back to the built asset path (ImageMetadata) or the string path.
+const heroImageOG = resolved.heroImageOG
+  ?? (typeof heroImage === 'object' && heroImage !== null ? heroImage.src : heroImage);
 
 const rawPubDate = resolved.pubDate;
 const rawUpdatedDate = resolved.updatedDate;
@@ -59,7 +73,7 @@ const articleSchema = {
   '@type': 'Article',
   headline: title,
   description,
-  image: [new URL(heroImage ?? SITE_DEFAULT_OG_IMAGE, SITE_URL).toString()],
+  image: [new URL(heroImageOG ?? SITE_DEFAULT_OG_IMAGE, SITE_URL).toString()],
   datePublished: pubDate.toISOString(),
   dateModified: (updatedDate ?? pubDate).toISOString(),
   author: {
@@ -89,7 +103,7 @@ const articleSchema = {
   <BaseHead
     title={title}
     description={description}
-    image={heroImage}
+    image={heroImageOG}
     type="article"
     publishedTime={pubDate.toISOString()}
     modifiedTime={(updatedDate ?? pubDate).toISOString()}
@@ -213,6 +227,66 @@ const articleSchema = {
       color: var(--coral);
       border-bottom-color: rgba(232, 112, 90, 0.35);
     }
+
+    /* ── Quote share buttons ── */
+    .prose :global(.quote-share-paragraph) {
+      position: relative;
+    }
+
+    .prose :global(.quote-share-button) {
+      position: absolute;
+      right: -3.5rem;
+      top: 0.1em;
+      display: none;
+      padding: 0.2em 0.55em;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .prose :global(.quote-share-button:hover),
+    .prose :global(.quote-share-button[data-state="success"]) {
+      color: var(--teal);
+      border-color: var(--teal);
+      background: rgba(58, 184, 160, 0.06);
+    }
+
+    .prose :global(.quote-share-paragraph:hover .quote-share-button),
+    .prose :global(.quote-share-paragraph.quote-share-active .quote-share-button) {
+      display: inline-block;
+    }
+
+    .prose :global(.quote-share-highlight) {
+      background: rgba(58, 184, 160, 0.08);
+      box-shadow: 0 0 0 3px rgba(58, 184, 160, 0.15);
+      border-radius: var(--radius-sm);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    @media (max-width: 720px) {
+      .prose :global(.quote-share-button) {
+        position: static;
+        display: none;
+        margin-top: 0.5em;
+        width: max-content;
+      }
+
+      .prose :global(.quote-share-paragraph:hover .quote-share-button),
+      .prose :global(.quote-share-paragraph.quote-share-active .quote-share-button) {
+        display: block;
+      }
+    }
   </style>
 </head>
 
@@ -222,7 +296,11 @@ const articleSchema = {
     <article>
       {heroImage && (
         <div class="hero-wrap">
-          <img src={heroImage} alt={title} width={1440} height={480} loading="eager" decoding="async" />
+          {typeof heroImage === 'object' ? (
+            <Image src={heroImage} alt={heroImageAlt} width={1440} height={480} loading="eager" />
+          ) : (
+            <img src={heroImage} alt={heroImageAlt} width={1440} height={480} loading="eager" decoding="async" />
+          )}
           <div class="hero-scrim" aria-hidden="true"></div>
         </div>
       )}
@@ -246,6 +324,8 @@ const articleSchema = {
       <div class="prose">
         <slot />
       </div>
+      <AuthorCoda />
+      <PostQuoteShare client:load title={title} path={Astro.url.pathname} />
     </article>
   </main>
   <Footer />
