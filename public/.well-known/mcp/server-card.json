@@ -1,0 +1,36 @@
+{
+  "schema_version": "1",
+  "serverInfo": {
+    "name": "com.mazzeleczzare.blog",
+    "version": "1.0.0",
+    "description": "Mazze Leczzare — essays, experiments, and field notes from a former neuroscientist turned storyteller and cybersecurity explorer."
+  },
+  "transport": {
+    "type": "http",
+    "url": "https://mazzeleczzare.com/api"
+  },
+  "capabilities": {
+    "tools": [
+      {
+        "name": "contact",
+        "description": "Send a message to the author via the contact form."
+      },
+      {
+        "name": "share-event",
+        "description": "Record a quote-share event for a blog post paragraph."
+      }
+    ],
+    "resources": [
+      {
+        "uri": "https://mazzeleczzare.com/rss.xml",
+        "name": "RSS Feed",
+        "description": "Blog post feed in RSS 2.0 format.",
+        "mimeType": "application/rss+xml"
+      }
+    ]
+  },
+  "links": {
+    "api-catalog": "https://mazzeleczzare.com/.well-known/api-catalog",
+    "agent-skills": "https://mazzeleczzare.com/.well-known/agent-skills/index.json"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://mazzeleczzare.com/api/contact",
+      "service-doc": [
+        {
+          "href": "https://mazzeleczzare.com/.well-known/agent-skills/contact/SKILL.md",
+          "type": "text/markdown"
+        }
+      ]
+    },
+    {
+      "anchor": "https://mazzeleczzare.com/api/share-event",
+      "service-doc": [
+        {
+          "href": "https://mazzeleczzare.com/.well-known/agent-skills/share-event/SKILL.md",
+          "type": "text/markdown"
+        }
+      ]
+    },
+    {
+      "anchor": "https://mazzeleczzare.com/api/login",
+      "service-doc": [
+        {
+          "href": "https://mazzeleczzare.com/.well-known/oauth-authorization-server",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}

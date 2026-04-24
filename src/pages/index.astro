@@ -52,6 +52,63 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 
 </HomepageLayout>
 
+<script>
+// WebMCP: expose site tools to AI agents via the browser (navigator.modelContext)
+if ('modelContext' in navigator) {
+  (navigator.modelContext as { provideContext: (ctx: unknown) => void }).provideContext({
+    tools: [
+      {
+        name: 'list_posts',
+        description: 'List recent blog posts from Mazze Leczzare. Returns title, URL, publication date, and description for each post.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            limit: {
+              type: 'integer',
+              description: 'Maximum number of posts to return (1–50, default 10).',
+              minimum: 1,
+              maximum: 50,
+              default: 10,
+            },
+          },
+        },
+        execute: async (args: { limit?: number }) => {
+          const res = await fetch('/rss.xml');
+          const xml = await res.text();
+          const doc = new DOMParser().parseFromString(xml, 'text/xml');
+          return Array.from(doc.querySelectorAll('item'))
+            .slice(0, args.limit ?? 10)
+            .map((item) => ({
+              title: item.querySelector('title')?.textContent ?? '',
+              url: item.querySelector('link')?.textContent ?? '',
+              pubDate: item.querySelector('pubDate')?.textContent ?? '',
+              description: (item.querySelector('description')?.textContent ?? '')
+                .replace(/<[^>]+>/g, '')
+                .trim(),
+            }));
+        },
+      },
+      {
+        name: 'get_rss_feed',
+        description: 'Get the URL of the blog RSS feed for subscribing or bulk-reading all posts.',
+        inputSchema: { type: 'object', properties: {} },
+        execute: async () => ({ url: 'https://mazzeleczzare.com/rss.xml', type: 'application/rss+xml' }),
+      },
+      {
+        name: 'get_contact_info',
+        description: 'Get information on how to contact Mazze Leczzare, including the contact form URL and API endpoint.',
+        inputSchema: { type: 'object', properties: {} },
+        execute: async () => ({
+          contact_form: 'https://mazzeleczzare.com/contact/',
+          api_endpoint: 'https://mazzeleczzare.com/api/contact',
+          skill_doc: 'https://mazzeleczzare.com/.well-known/agent-skills/contact/SKILL.md',
+        }),
+      },
+    ],
+  });
+}
+</script>
+
 <style>
 /* ── Writing index ──────────────────────────────────────────────────── */
 .writing-index {
