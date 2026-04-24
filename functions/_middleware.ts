@@ -159,7 +159,8 @@ async function htmlToMarkdown(html: string): Promise<string> {
           break;
         case "a": {
           const href = el.getAttribute("href") ?? "";
-          if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
+          const isSafe = href.startsWith("https://") || href.startsWith("http://") || href.startsWith("/");
+          if (href && isSafe) {
             linkHrefs.push(href);
             el.onEndTag(() => {
               const h = linkHrefs.pop();
