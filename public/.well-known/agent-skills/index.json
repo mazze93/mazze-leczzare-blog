@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "contact",
+      "type": "skill-md",
+      "description": "Send a message to Mazze Leczzare via the contact form API (POST /api/contact).",
+      "url": "https://mazzeleczzare.com/.well-known/agent-skills/contact/SKILL.md",
+      "digest": "sha256:dd0b360b5db2cbfcb94f470d54d8834821442fc12ea12f662e04da871e45eca7"
+    },
+    {
+      "name": "share-event",
+      "type": "skill-md",
+      "description": "Record a quote-share telemetry event for a blog post paragraph (POST /api/share-event).",
+      "url": "https://mazzeleczzare.com/.well-known/agent-skills/share-event/SKILL.md",
+      "digest": "sha256:30fa21aa7539826856398504d778218f6a0d4ba14559ba87786596c760f2f761"
+    }
+  ]
+}
