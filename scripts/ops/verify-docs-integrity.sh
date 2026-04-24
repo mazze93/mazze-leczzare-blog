@@ -80,7 +80,9 @@ function collectCommandRefs(content) {
   const inlineRegex = /`([^`]+)`/g;
   for (const match of content.matchAll(inlineRegex)) {
     const snippet = match[1] || '';
-    refs.push(...collectCommandsFromSnippet(snippet, match.index ?? 0, 'inline code'));
+    if (isCommandSnippet(snippet)) {
+      refs.push(...collectCommandsFromSnippet(snippet, match.index ?? 0, 'inline code'));
+    }
   }
 
   // Fenced shell blocks.
@@ -94,12 +96,18 @@ function collectCommandRefs(content) {
   return refs;
 }
 
+function isCommandSnippet(snippet) {
+  const normalized = snippet.trim();
+  return /^(npm\s+run|npx\s+npm\s+run|pnpm\s+run|yarn(\s+run)?\s+)/.test(normalized);
+}
+
 function collectCommandsFromSnippet(snippet, offset, source) {
   const refs = [];
   const patterns = [
     { regex: /\bnpm\s+run\s+([A-Za-z0-9:._-]+)/g, kind: 'npm run' },
     { regex: /\bnpx\s+npm\s+run\s+([A-Za-z0-9:._-]+)/g, kind: 'npx npm run' },
-    { regex: /\bpnpm\s+([A-Za-z0-9:._-]+)/g, kind: 'pnpm' },
+    { regex: /\bpnpm\s+run\s+([A-Za-z0-9:._-]+)/g, kind: 'pnpm run' },
+    { regex: /\byarn\s+run\s+([A-Za-z0-9:._-]+)/g, kind: 'yarn run' },
     { regex: /\byarn\s+([A-Za-z0-9:._-]+)/g, kind: 'yarn' },
   ];
 
@@ -135,6 +143,7 @@ if (scannedDocs.length + (discoveredDocs.length - scannedDocs.length) !== discov
 
 for (const file of scannedDocs) {
   const content = fs.readFileSync(file, 'utf8');
+  failures.push(...findMergeMarkerIssues(content, file));
   const refs = collectCommandRefs(content);
 
   for (const ref of refs) {
@@ -150,6 +159,10 @@ for (const file of scannedDocs) {
     }
   }
 }
+
+const integrityScriptFile = 'scripts/ops/verify-docs-integrity.sh';
+const integrityScriptContent = fs.readFileSync(integrityScriptFile, 'utf8');
+failures.push(...findMergeMarkerIssues(integrityScriptContent, integrityScriptFile));
 
 for (const file of deploymentTerminologyFiles) {
   const content = fs.readFileSync(file, 'utf8');
@@ -194,6 +207,10 @@ if (failures.length > 0) {
       console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
     } else if (failure.type === 'forbidden_term') {
       const msg = `Forbidden deployment term "${failure.term}". Use instead: ${failure.suggestion}`;
+      console.error(`- File: ${failure.file}:${failure.line}\n  ${msg}\n`);
+      console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
+    } else if (failure.type === 'merge_marker') {
+      const msg = `Merge conflict marker \"${failure.marker}\" found. Resolve conflict markers before rerunning docs checks.`;
       console.error(`- File: ${failure.file}:${failure.line}\n  ${msg}\n`);
       console.error(`::error file=${failure.file},line=${failure.line}::${msg}`);
     } else {
