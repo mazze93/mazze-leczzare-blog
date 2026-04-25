@@ -13,7 +13,7 @@
       "type": "skill-md",
       "description": "Record a quote-share telemetry event for a blog post paragraph (POST /api/share-event).",
       "url": "https://mazzeleczzare.com/.well-known/agent-skills/share-event/SKILL.md",
-      "digest": "sha256:30fa21aa7539826856398504d778218f6a0d4ba14559ba87786596c760f2f761"
+      "digest": "sha256:fcd7c680021d0756d277316249211c2caf677ae9b428d576cdfbe6bb208721ec"
     }
   ]
 }
