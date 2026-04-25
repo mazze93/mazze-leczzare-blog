@@ -5,10 +5,6 @@
     "version": "1.0.0",
     "description": "Mazze Leczzare — essays, experiments, and field notes from a former neuroscientist turned storyteller and cybersecurity explorer."
   },
-  "transport": {
-    "type": "http",
-    "url": "https://mazzeleczzare.com/api"
-  },
   "capabilities": {
     "tools": [
       {
