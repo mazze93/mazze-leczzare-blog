@@ -7,7 +7,7 @@ export async function onRequestPost(_context: {
     headers: {
       "Content-Type": "application/json",
       "Set-Cookie":
-        "auth_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0",
+        "__Host-auth_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0",
     },
   });
 }

@@ -202,14 +202,22 @@ export async function onRequest(context: {
 
   // Protect /admin routes
   if (url.pathname.startsWith("/admin")) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", url.pathname);
+    const redirectToLogin = () => Response.redirect(loginUrl.toString(), 302);
+
+    // Fail closed: misconfigured or weak secret means no valid session is possible
+    if (!env.JWT_SECRET || env.JWT_SECRET.length < 32) {
+      console.error(JSON.stringify({ type: "middleware_weak_secret", receivedAt: new Date().toISOString() }));
+      return redirectToLogin();
+    }
+
     const cookie = request.headers.get("Cookie") ?? "";
-    const tokenMatch = cookie.match(/auth_token=([^;]+)/);
+    const tokenMatch = cookie.match(/__Host-auth_token=([^;]+)/);
     const token = tokenMatch?.[1];
 
     if (!token || !(await verifyJWT(token, env.JWT_SECRET))) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", url.pathname);
-      return Response.redirect(loginUrl.toString(), 302);
+      return redirectToLogin();
     }
 
     return next();

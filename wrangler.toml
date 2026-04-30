@@ -20,6 +20,29 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 #   CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
 #
 # ── Service bindings ──────────────────────────────────────────────────────────
-# SHARE_EVENT_RATE_LIMITER: add an [[unsafe.bindings]] entry with type = "ratelimit"
-# to enable rate limiting on /api/share-event (20 req / 60 s per fingerprint).
-# Without it the endpoint logs a warning and returns 503 for share events.
+# Both rate limiters require [[unsafe.bindings]] entries in this file AND a
+# matching binding created in the Cloudflare dashboard (Pages → Settings →
+# Functions → KV namespace / Rate limiting bindings).
+#
+# LOGIN_RATE_LIMITER — 5 req / 60 s per fingerprint on /api/login.
+#   Without it, login attempts are unlimited (brute-force risk). The endpoint
+#   logs a warning on every request when the binding is absent.
+#
+# [[unsafe.bindings]]
+# name       = "LOGIN_RATE_LIMITER"
+# type       = "ratelimit"
+# namespace_id = "<id-from-cloudflare-dashboard>"
+# [unsafe.bindings.simple]
+# limit  = 5
+# period = 60
+#
+# SHARE_EVENT_RATE_LIMITER — 20 req / 60 s per fingerprint on /api/share-event.
+#   Without it the endpoint logs a warning and returns 503 for share events.
+#
+# [[unsafe.bindings]]
+# name       = "SHARE_EVENT_RATE_LIMITER"
+# type       = "ratelimit"
+# namespace_id = "<id-from-cloudflare-dashboard>"
+# [unsafe.bindings.simple]
+# limit  = 20
+# period = 60
