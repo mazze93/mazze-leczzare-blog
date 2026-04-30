@@ -6,3 +6,20 @@ pages_build_output_dir = "dist"
 [vars]
 CONTACT_FROM_EMAIL = "contact@mazzeleczzare.com"
 CONTACT_SUBJECT_PREFIX = "Mazze Contact"
+
+# ── Required secrets ──────────────────────────────────────────────────────────
+# These must be set via `wrangler secret put <NAME>` or the Cloudflare dashboard.
+# They are never stored here. See .dev.vars.example for local dev setup.
+#
+#   ADMIN_PASSWORD          — plain-text password checked by /api/login
+#   JWT_SECRET              — signs/verifies admin session JWTs (≥32 random chars)
+#   CONTACT_TO_EMAIL        — recipient address for contact form submissions
+#
+# ── Optional secrets ──────────────────────────────────────────────────────────
+#   CONTACT_WEBHOOK_URL         — POST validated contact payloads here instead of email
+#   CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
+#
+# ── Service bindings ──────────────────────────────────────────────────────────
+# SHARE_EVENT_RATE_LIMITER: add an [[unsafe.bindings]] entry with type = "ratelimit"
+# to enable rate limiting on /api/share-event (20 req / 60 s per fingerprint).
+# Without it the endpoint logs a warning and returns 503 for share events.

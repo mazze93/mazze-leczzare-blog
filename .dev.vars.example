@@ -1,7 +1,18 @@
 CONTACT_FROM_EMAIL=contact@mazzeleczzare.com
 CONTACT_SUBJECT_PREFIX=Mazze Contact
-# Set these as Cloudflare secrets in real environments. Leave blank in this example file.
-# Optional: POST validated contact payloads to a webhook or Worker endpoint.
+
+# ── Required secrets (set via `wrangler secret put` or Cloudflare dashboard) ──
+# Plain-text admin password checked by /api/login.
+ADMIN_PASSWORD=
+# Secret used to sign and verify admin session JWTs (minimum 32 random chars).
+JWT_SECRET=
+
+# ── Optional secrets ──────────────────────────────────────────────────────────
+# POST validated contact payloads to a webhook or Worker endpoint.
 CONTACT_WEBHOOK_URL=
-# Optional: full Authorization header value expected by the webhook receiver.
+# Full Authorization header value expected by the webhook receiver.
 CONTACT_WEBHOOK_AUTH_HEADER=
+
+# ── Cloudflare service bindings (not secrets — configure in wrangler.toml) ────
+# SHARE_EVENT_RATE_LIMITER: Cloudflare rate-limiting binding for /api/share-event.
+# Declare under [[unsafe.bindings]] in wrangler.toml with type = "ratelimit".
