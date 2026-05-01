@@ -118,7 +118,7 @@ Source: `src/content/blog/**/*.{md,mdx}`. Uses Astro's loader API (`glob` loader
   description: string       // required
   pubDate: Date             // required — coerced from YYYY-MM-DD string
   updatedDate?: Date        // optional — coerced from string
-  heroImage?: string        // optional — path relative to public/
+  heroImage?: ImageMetadata // optional — relative path from post file to src/assets/images/blog/
   subtitle?: string         // optional — deck shown under title
   category?: string         // optional — primary category (e.g. 'Essay')
   author?: string           // optional — overrides default site author
@@ -264,7 +264,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 2. Required frontmatter: `title`, `description`, `pubDate` (YYYY-MM-DD format).
 3. Optional frontmatter: `subtitle`, `heroImage`, `heroImageAlt`, `heroImageOG`, `updatedDate`, `author`, `tags`, `category`, `readingTime`, `featured`, `slug`. Set `draft: true` to hide from all listings.
 4. MDX posts can import components with relative paths: `import Verse from '../../components/Verse.astro'`
-5. Blog images: place in `src/assets/images/blog/` (processed) or `public/images/blog/` (static/unprocessed). Reference processed images with relative imports in MDX; reference static images with `/images/blog/filename` in frontmatter.
+5. Blog images: place hero images in `src/assets/images/blog/` and reference them in frontmatter as a relative path from the post file (e.g. `heroImage: ../../assets/images/blog/hero.jpg`). Astro processes these through the image pipeline. OG override images (`heroImageOG`) remain URL strings pointing to `public/`.
 6. All `<p>` in `.prose` automatically get share buttons via `PostQuoteShare`.
 7. All posts automatically get the `AuthorCoda` author block at the end.
 8. Post appears at `/blog/your-slug/` and surfaces on homepage if in top 6 by date.

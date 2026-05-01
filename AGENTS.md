@@ -72,7 +72,7 @@ Runs on every request. Two responsibilities:
   description: string       // required
   pubDate: Date             // required — coerced from YYYY-MM-DD string
   updatedDate?: Date
-  heroImage?: string        // URL path relative to public/ (e.g. /images/blog/foo.jpg)
+  heroImage?: ImageMetadata // relative path from post file to src/assets/images/blog/ (processed by Astro)
   subtitle?: string
   category?: string
   author?: string
@@ -92,8 +92,8 @@ Two directories serve different purposes — do not mix them:
 
 | Directory | Purpose | How to reference |
 | --------- | ------- | ---------------- |
-| `src/assets/images/blog/` | Astro-processed images (optimized, WebP) | Relative import in MDX body |
-| `public/images/blog/` | Static images served as-is | URL path in frontmatter (`heroImage`, `heroImageOG`) |
+| `src/assets/images/blog/` | Astro-processed images — WebP/AVIF conversion, srcset, lazy loading | Relative path in frontmatter `heroImage` (e.g. `../../assets/images/blog/hero.jpg`), or relative import in MDX body |
+| `public/images/blog/` | Static images served as-is — OG/social only | URL string in `heroImageOG` (e.g. `/images/blog/og.jpg`) |
 
 ## Authoring Posts
 

@@ -233,6 +233,7 @@ DOCUMENTED_SCHEMA_FIELDS=(
   "heroImage"
   "subtitle"
   "category"
+  "author"
   "tags"
   "readingTime"
   "heroImageOG"
