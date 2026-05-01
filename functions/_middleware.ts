@@ -1,5 +1,10 @@
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+}
+
 interface Env {
   JWT_SECRET: string;
+  JWT_REVOCATION_LIST?: KVNamespace;
 }
 
 // Cloudflare Workers runtime globals (not in standard TS lib)
@@ -22,10 +27,10 @@ declare class HTMLRewriter {
   transform(response: Response): Response;
 }
 
-async function verifyJWT(token: string, secret: string): Promise<boolean> {
+async function verifyJWT(token: string, secret: string): Promise<Record<string, unknown> | null> {
   try {
     const parts = token.split(".");
-    if (parts.length !== 3) return false;
+    if (parts.length !== 3) return null;
 
     const [header, payload, sig] = parts;
     const data = `${header}.${payload}`;
@@ -54,15 +59,15 @@ async function verifyJWT(token: string, secret: string): Promise<boolean> {
       new TextEncoder().encode(data)
     );
 
-    if (!valid) return false;
+    if (!valid) return null;
 
-    const decoded = JSON.parse(b64decode(payload));
-    if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000))
-      return false;
+    const decoded = JSON.parse(b64decode(payload)) as Record<string, unknown>;
+    if (decoded.exp && (decoded.exp as number) < Math.floor(Date.now() / 1000))
+      return null;
 
-    return true;
+    return decoded;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -202,14 +207,30 @@ export async function onRequest(context: {
 
   // Protect /admin routes
   if (url.pathname.startsWith("/admin")) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", url.pathname);
+    const redirectToLogin = () => Response.redirect(loginUrl.toString(), 302);
+
+    // Fail closed: misconfigured or weak secret means no valid session is possible
+    if (!env.JWT_SECRET || env.JWT_SECRET.length < 32) {
+      console.error(JSON.stringify({ type: "middleware_weak_secret", receivedAt: new Date().toISOString() }));
+      return redirectToLogin();
+    }
+
     const cookie = request.headers.get("Cookie") ?? "";
-    const tokenMatch = cookie.match(/auth_token=([^;]+)/);
+    const tokenMatch = cookie.match(/__Host-auth_token=([^;]+)/);
     const token = tokenMatch?.[1];
 
-    if (!token || !(await verifyJWT(token, env.JWT_SECRET))) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", url.pathname);
-      return Response.redirect(loginUrl.toString(), 302);
+    const jwtPayload = token ? await verifyJWT(token, env.JWT_SECRET) : null;
+    if (!jwtPayload) {
+      return redirectToLogin();
+    }
+
+    if (env.JWT_REVOCATION_LIST && typeof jwtPayload.jti === "string") {
+      const revoked = await env.JWT_REVOCATION_LIST.get(`revoked:${jwtPayload.jti}`);
+      if (revoked !== null) {
+        return redirectToLogin();
+      }
     }
 
     return next();
@@ -226,14 +247,12 @@ export async function onRequest(context: {
       const markdown = await htmlToMarkdown(html);
       const tokenCount = Math.ceil(markdown.length / 4);
 
-      return new Response(markdown, {
-        status: response.status,
-        headers: {
-          "Content-Type": "text/markdown; charset=utf-8",
-          "Vary": "Accept",
-          "x-markdown-tokens": String(tokenCount),
-        },
-      });
+      const headers = new Headers(response.headers);
+      headers.set("Content-Type", "text/markdown; charset=utf-8");
+      headers.set("Vary", "Accept");
+      headers.set("x-markdown-tokens", String(tokenCount));
+
+      return new Response(markdown, { status: response.status, headers });
     }
 
     // Non-HTML: pass through but annotate Vary so caches handle it correctly

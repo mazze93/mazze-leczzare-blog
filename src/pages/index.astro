@@ -2,7 +2,7 @@
 import HomepageLayout from '../layouts/HomepageLayout.astro';
 import BreathingHero from '../components/BreathingHero.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_RSS_URL } from '../consts';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
@@ -52,10 +52,9 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 
 </HomepageLayout>
 
-<script>
-// WebMCP: expose site tools to AI agents via the browser (navigator.modelContext)
+<script define:vars={{ siteUrl: SITE_URL, siteRssUrl: SITE_RSS_URL }}>
 if ('modelContext' in navigator) {
-  (navigator.modelContext as { provideContext: (ctx: unknown) => void }).provideContext({
+  navigator.modelContext.provideContext({
     tools: [
       {
         name: 'list_posts',
@@ -72,8 +71,8 @@ if ('modelContext' in navigator) {
             },
           },
         },
-        execute: async (args: { limit?: number }) => {
-          const res = await fetch('/rss.xml');
+        execute: async (args) => {
+          const res = await fetch(siteRssUrl);
           const xml = await res.text();
           const doc = new DOMParser().parseFromString(xml, 'text/xml');
           return Array.from(doc.querySelectorAll('item'))
@@ -92,16 +91,16 @@ if ('modelContext' in navigator) {
         name: 'get_rss_feed',
         description: 'Get the URL of the blog RSS feed for subscribing or bulk-reading all posts.',
         inputSchema: { type: 'object', properties: {} },
-        execute: async () => ({ url: 'https://mazzeleczzare.com/rss.xml', type: 'application/rss+xml' }),
+        execute: async () => ({ url: siteUrl + siteRssUrl, type: 'application/rss+xml' }),
       },
       {
         name: 'get_contact_info',
         description: 'Get information on how to contact Mazze Leczzare, including the contact form URL and API endpoint.',
         inputSchema: { type: 'object', properties: {} },
         execute: async () => ({
-          contact_form: 'https://mazzeleczzare.com/contact/',
-          api_endpoint: 'https://mazzeleczzare.com/api/contact',
-          skill_doc: 'https://mazzeleczzare.com/.well-known/agent-skills/contact/SKILL.md',
+          contact_form: siteUrl + '/contact/',
+          api_endpoint: siteUrl + '/api/contact',
+          skill_doc: siteUrl + '/.well-known/agent-skills/contact/SKILL.md',
         }),
       },
     ],
