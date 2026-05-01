@@ -18,15 +18,16 @@ import { defineCollection, z } from "astro:content";
  */
 const blog = defineCollection({
   loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
-  schema: ({ image }) => z.object({
+  schema: z.object({
     title: z.string(),
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
-    heroImage: image().optional(),
+    heroImage: z.string().optional(),
     // — New fields —
     subtitle: z.string().optional(),
     category: z.string().optional(),
+    author: z.string().optional(),
     tags: z.array(z.string()).optional(),
     readingTime: z.string().optional(),
     heroImageOG: z.string().optional(),
