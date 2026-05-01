@@ -34,7 +34,7 @@ npm run docs:check # Validate doc command refs and deployment terminology
 - **No external analytics** — telemetry is first-party only via `functions/api/share-event.ts`.
 - **No published email** — contact goes through `functions/api/contact.ts`.
 - **JWT_SECRET must be ≥ 32 chars** — middleware and login fail closed if not met.
-- **Deployment platform is Cloudflare Pages** — do not use Workers adapter terminology or `wrangler dev` for local preview; use `npm run preview`.
+- **Deployment platform is Cloudflare Pages** — do not use Workers adapter terminology. Local preview uses `npm run preview`, not wrangler's local server command.
 
 ## Routes
 

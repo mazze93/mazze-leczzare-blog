@@ -29,7 +29,7 @@ DOCUMENTED_PAGES=(
   "src/pages/blog/index.astro"
   "src/pages/blog/[...slug].astro"
   "src/pages/contact.astro"
-  "src/pages/about.md"
+  "src/pages/about.mdx"
   "src/pages/work.astro"
   "src/pages/security.astro"
   "src/pages/roadmap.md"
