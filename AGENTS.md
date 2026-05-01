@@ -7,8 +7,11 @@ Personal blog for Mazze LeCzzare Frazer. Astro 6 static site deployed to **Cloud
 - **Framework**: Astro 6, `output: "static"` (fully SSG — no SSR)
 - **UI islands**: React 19 (`@astrojs/react`) — interactive components only
 - **Content**: Markdown + MDX via Astro Content Collections (`src/content/blog/`)
-- **Edge functions**: Cloudflare Pages Functions (`functions/api/`)
+- **Styles**: CSS custom properties (`src/styles/`) + Tailwind CSS 4 utility layer (`tailwind.config.mjs`; `preflight: false` — `global.css` owns the base reset)
+- **Edge functions**: Cloudflare Pages Functions (`functions/`)
+- **Middleware**: `functions/_middleware.ts` — JWT admin auth + Markdown-for-Agents content negotiation
 - **Deploy**: Cloudflare Pages (not Workers, not Vercel)
+- **Node**: 22.x
 
 ## Canonical Commands (from `package.json`)
 
@@ -26,45 +29,80 @@ npm run docs:check # Validate doc command refs and deployment terminology
 
 - **No SSR** — `output: "static"` is non-negotiable. All dynamic behaviour lives in `functions/api/`.
 - **Islands discipline** — React only for `ThemeToggle`, `ContactForm`, `PostQuoteShare`. No React for static rendering.
-- **No Tailwind** — removed for Astro 6 compatibility. CSS custom properties in `src/styles/global.css`.
+- **Tailwind utility layer only** — maps CSS vars to utility classes; do not enable preflight or let Tailwind own base styles.
 - **Single source of truth** — site identity in `src/consts.ts`. Never hardcode URLs, titles, emails.
 - **No external analytics** — telemetry is first-party only via `functions/api/share-event.ts`.
 - **No published email** — contact goes through `functions/api/contact.ts`.
+- **JWT_SECRET must be ≥ 32 chars** — middleware and login fail closed if not met.
+- **Deployment platform is Cloudflare Pages** — do not use Workers adapter terminology. Local preview uses `npm run preview`, not wrangler's local server command.
 
 ## Routes
 
-| URL            | File                             |
-| -------------- | -------------------------------- |
-| `/`            | `src/pages/index.astro`          |
-| `/blog`        | `src/pages/blog/index.astro`     |
-| `/blog/[slug]/`| `src/pages/blog/[...slug].astro` |
-| `/contact`     | `src/pages/contact.astro`        |
-| `/about`       | `src/pages/about.md`             |
-| `/work`        | `src/pages/work.astro`           |
-| `/security`    | `src/pages/security.astro`       |
-| `/roadmap`     | `src/pages/roadmap.md`           |
-| `/api/contact` | `functions/api/contact.ts`       |
-| `/api/share-event` | `functions/api/share-event.ts` |
+| URL                | File                                |
+| ------------------ | ----------------------------------- |
+| `/`                | `src/pages/index.astro`             |
+| `/blog`            | `src/pages/blog/index.astro`        |
+| `/blog/[slug]/`    | `src/pages/blog/[...slug].astro`    |
+| `/contact`         | `src/pages/contact.astro`           |
+| `/about`           | `src/pages/about.mdx`               |
+| `/work`            | `src/pages/work.astro`              |
+| `/security`        | `src/pages/security.astro`          |
+| `/roadmap`         | `src/pages/roadmap.md`              |
+| `/login`           | `src/pages/login.astro`             |
+| `/admin`           | `src/pages/admin/index.astro`       |
+| `/rss.xml`         | `src/pages/rss.xml.js`              |
+| `/api/contact`     | `functions/api/contact.ts`          |
+| `/api/share-event` | `functions/api/share-event.ts`      |
+| `/api/login`       | `functions/api/login.ts`            |
+| `/api/logout`      | `functions/api/logout.ts`           |
+
+## Middleware (`functions/_middleware.ts`)
+
+Runs on every request. Two responsibilities:
+
+1. **JWT auth** — protects all `/admin/*` routes. Reads `__Host-auth_token` cookie, verifies HS256 JWT against `JWT_SECRET`. Fails closed on missing or short secret.
+2. **Markdown-for-Agents** — when a request includes `Accept: text/markdown`, converts the HTML response to Markdown via `HTMLRewriter` and returns `Content-Type: text/markdown`.
 
 ## Content Collection Schema
 
 ```ts
 // src/content.config.ts — collection: "blog"
 {
-  title: string        // required
-  description: string  // required
-  pubDate: Date        // required
+  title: string             // required
+  description: string       // required
+  pubDate: Date             // required — coerced from YYYY-MM-DD string
   updatedDate?: Date
-  heroImage?: string   // path relative to public/
+  heroImage?: ImageMetadata // relative path from post file to src/assets/images/blog/ (processed by Astro)
+  subtitle?: string
+  category?: string
+  author?: string
+  tags?: string[]
+  readingTime?: string      // manual override e.g. '~7 min'
+  heroImageOG?: string      // Open Graph image path
+  heroImageAlt?: string     // alt text for hero image
+  featured?: boolean
+  slug?: string             // explicit URL slug override
+  draft?: boolean           // true = hidden from all listings
 }
 ```
 
+## Images
+
+Two directories serve different purposes — do not mix them:
+
+| Directory | Purpose | How to reference |
+| --------- | ------- | ---------------- |
+| `src/assets/images/blog/` | Astro-processed images — WebP/AVIF conversion, srcset, lazy loading | Relative path in frontmatter `heroImage` (e.g. `../../assets/images/blog/hero.jpg`), or relative import in MDX body |
+| `public/images/blog/` | Static images served as-is — OG/social only | URL string in `heroImageOG` (e.g. `/images/blog/og.jpg`) |
+
 ## Authoring Posts
 
-Create `src/content/blog/your-slug.md` with `title`, `description`, `pubDate`. Body prose auto-gets paragraph share buttons. Post appears at `/blog/your-slug/`.
+Create `src/content/blog/your-slug.md` with `title`, `description`, `pubDate` (YYYY-MM-DD).
+Body prose auto-gets paragraph share buttons. Post appears at `/blog/your-slug/`.
+Set `draft: true` to hide from all listings without deleting.
 
 ## Deployment
 
-Cloudflare Pages. Build command: `npm run build`. Output: `dist/`. Functions in `functions/api/` are deployed automatically alongside the static site.
-
-Do not use Workers adapter terminology or wrangler runtime commands — this is a Pages deployment with a static Astro site. Preview locally with `npm run preview`, not `wrangler` dev commands.
+Cloudflare Pages. Build command: `npm run build`. Output: `dist/`. Functions in `functions/`
+are deployed automatically. Secrets (`ADMIN_PASSWORD`, `JWT_SECRET`, `CONTACT_TO_EMAIL`)
+must be set via `wrangler secret put` or the Cloudflare dashboard — never in `wrangler.toml`.

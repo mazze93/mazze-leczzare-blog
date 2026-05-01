@@ -125,6 +125,20 @@ function collectCommandsFromSnippet(snippet, offset, source) {
   return refs;
 }
 
+function findMergeMarkerIssues(content, file) {
+  const issues = [];
+  const markers = ['<<<<<<<', '=======', '>>>>>>>'];
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    for (const marker of markers) {
+      if (lines[i].startsWith(marker)) {
+        issues.push({ type: 'merge_marker', file, line: i + 1, marker });
+      }
+    }
+  }
+  return issues;
+}
+
 const failures = [];
 
 if (discoveredDocs.length === 0) {
