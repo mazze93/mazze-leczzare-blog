@@ -141,8 +141,9 @@ export async function onRequestPost(context: {
   }
 
   const now = Math.floor(Date.now() / 1000);
+  const jti = crypto.randomUUID();
   const token = await signJWT(
-    { sub: "admin", iat: now, exp: now + 60 * 60 * 24 },
+    { sub: "admin", iat: now, exp: now + 60 * 60 * 24, jti },
     env.JWT_SECRET
   );
 

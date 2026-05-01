@@ -19,6 +19,16 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 #   CONTACT_WEBHOOK_URL         — POST validated contact payloads here instead of email
 #   CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
 #
+# ── KV namespaces ─────────────────────────────────────────────────────────────
+
+[[kv_namespaces]]
+binding  = "JWT_REVOCATION_LIST"
+id       = "23e6e64051784dcca764c94409fec2b4"
+
+[[kv_namespaces]]
+binding  = "SHARE_ANALYTICS"
+id       = "be4945b2396d4601ba12a645490b3efb"
+
 # ── Rate limiting bindings ────────────────────────────────────────────────────
 # namespace_id is self-assigned (any integer unique to your account).
 # No dashboard setup required — these activate on next deploy.
