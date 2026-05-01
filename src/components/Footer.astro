@@ -1,8 +1,10 @@
 ---
 import { SITE_EMAIL, SITE_GITHUB_URL, SITE_RSS_URL } from '../consts';
+import Colophon from './Colophon.astro';
 const year = new Date().getFullYear();
 ---
 
+<Colophon compact />
 <footer role="contentinfo">
   <div class="footer-inner">
     <div class="footer-col footer-brand">
