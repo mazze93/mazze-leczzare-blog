@@ -19,30 +19,17 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 #   CONTACT_WEBHOOK_URL         — POST validated contact payloads here instead of email
 #   CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
 #
-# ── Service bindings ──────────────────────────────────────────────────────────
-# Both rate limiters require [[unsafe.bindings]] entries in this file AND a
-# matching binding created in the Cloudflare dashboard (Pages → Settings →
-# Functions → KV namespace / Rate limiting bindings).
-#
-# LOGIN_RATE_LIMITER — 5 req / 60 s per fingerprint on /api/login.
-#   Without it, login attempts are unlimited (brute-force risk). The endpoint
-#   logs a warning on every request when the binding is absent.
-#
-# [[unsafe.bindings]]
-# name       = "LOGIN_RATE_LIMITER"
-# type       = "ratelimit"
-# namespace_id = "<id-from-cloudflare-dashboard>"
-# [unsafe.bindings.simple]
-# limit  = 5
-# period = 60
-#
-# SHARE_EVENT_RATE_LIMITER — 20 req / 60 s per fingerprint on /api/share-event.
-#   Without it the endpoint logs a warning and returns 503 for share events.
-#
-# [[unsafe.bindings]]
-# name       = "SHARE_EVENT_RATE_LIMITER"
-# type       = "ratelimit"
-# namespace_id = "<id-from-cloudflare-dashboard>"
-# [unsafe.bindings.simple]
-# limit  = 20
-# period = 60
+# ── Rate limiting bindings ────────────────────────────────────────────────────
+# namespace_id is self-assigned (any integer unique to your account).
+# No dashboard setup required — these activate on next deploy.
+# Period must be 10 or 60 seconds.
+
+[[ratelimits]]
+name       = "LOGIN_RATE_LIMITER"
+namespace_id = "1001"
+simple     = { limit = 5, period = 60 }
+
+[[ratelimits]]
+name       = "SHARE_EVENT_RATE_LIMITER"
+namespace_id = "1002"
+simple     = { limit = 20, period = 60 }
