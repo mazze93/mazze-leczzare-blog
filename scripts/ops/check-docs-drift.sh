@@ -35,7 +35,6 @@ DOCUMENTED_PAGES=(
   "src/pages/roadmap.md"
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
-  "src/pages/rss.xml.js"
 )
 for f in "${DOCUMENTED_PAGES[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then
@@ -167,7 +166,6 @@ DOCUMENTED_CONSTS=(
   "SITE_GITHUB_URL"
   "SITE_TWITTER"
   "SITE_REPO_URL"
-  "SITE_RSS_URL"
   "SITE_DEFAULT_OG_IMAGE"
 )
 CONSTS_FILE="$REPO_ROOT/src/consts.ts"

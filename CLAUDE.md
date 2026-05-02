@@ -15,7 +15,6 @@ storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 | Styles | CSS custom properties + Tailwind CSS 4 (utility layer; `preflight: false`) |
 | Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded); Cormorant Garamond, DM Mono, DM Sans, Playfair Display (via `@fontsource`) |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
-| RSS | `@astrojs/rss` |
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |
 | Type checking | TypeScript 6 strict mode + `tsc` via `npm run check` |
 | Deploy CLI | Wrangler 4 (`wrangler.toml` manages Pages/Functions config) |
@@ -46,7 +45,6 @@ SITE_EMAIL           = "mailto:security@mazzeleczzare.com"
 SITE_GITHUB_URL      = "https://github.com/mazze93"
 SITE_TWITTER         = "@southerncunning"
 SITE_REPO_URL        = "https://github.com/mazze93/mazze-leczzare-blog"
-SITE_RSS_URL         = "/rss.xml"
 SITE_DEFAULT_OG_IMAGE = "/mazze-leczzare-social-preview.png"
 ```
 
@@ -99,7 +97,6 @@ files/                # HTML prototypes and design notes (not deployed)
 | `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout        |
 | `/login`          | `src/pages/login.astro`             | Admin login page                         |
 | `/admin`          | `src/pages/admin/index.astro`       | Admin dashboard (JWT auth-gated)         |
-| `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                        |
 | `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
 | `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
 | `/api/login`      | `functions/api/login.ts`            | POST only — admin auth                   |
