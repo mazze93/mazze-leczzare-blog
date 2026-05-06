@@ -2,7 +2,7 @@
 import HomepageLayout from '../layouts/HomepageLayout.astro';
 import BreathingHero from '../components/BreathingHero.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_RSS_URL } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../consts';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
@@ -52,47 +52,10 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 
 </HomepageLayout>
 
-<script define:vars={{ siteUrl: SITE_URL, siteRssUrl: SITE_RSS_URL }}>
+<script define:vars={{ siteUrl: SITE_URL }}>
 if ('modelContext' in navigator) {
   navigator.modelContext.provideContext({
     tools: [
-      {
-        name: 'list_posts',
-        description: 'List recent blog posts from Mazze Leczzare. Returns title, URL, publication date, and description for each post.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            limit: {
-              type: 'integer',
-              description: 'Maximum number of posts to return (1–50, default 10).',
-              minimum: 1,
-              maximum: 50,
-              default: 10,
-            },
-          },
-        },
-        execute: async (args) => {
-          const res = await fetch(siteRssUrl);
-          const xml = await res.text();
-          const doc = new DOMParser().parseFromString(xml, 'text/xml');
-          return Array.from(doc.querySelectorAll('item'))
-            .slice(0, args.limit ?? 10)
-            .map((item) => ({
-              title: item.querySelector('title')?.textContent ?? '',
-              url: item.querySelector('link')?.textContent ?? '',
-              pubDate: item.querySelector('pubDate')?.textContent ?? '',
-              description: (item.querySelector('description')?.textContent ?? '')
-                .replace(/<[^>]+>/g, '')
-                .trim(),
-            }));
-        },
-      },
-      {
-        name: 'get_rss_feed',
-        description: 'Get the URL of the blog RSS feed for subscribing or bulk-reading all posts.',
-        inputSchema: { type: 'object', properties: {} },
-        execute: async () => ({ url: siteUrl + siteRssUrl, type: 'application/rss+xml' }),
-      },
       {
         name: 'get_contact_info',
         description: 'Get information on how to contact Mazze Leczzare, including the contact form URL and API endpoint.',

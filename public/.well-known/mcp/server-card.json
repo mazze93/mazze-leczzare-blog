@@ -15,14 +15,6 @@
         "name": "share-event",
         "description": "Record a quote-share event for a blog post paragraph."
       }
-    ],
-    "resources": [
-      {
-        "uri": "https://mazzeleczzare.com/rss.xml",
-        "name": "RSS Feed",
-        "description": "Blog post feed in RSS 2.0 format.",
-        "mimeType": "application/rss+xml"
-      }
     ]
   },
   "links": {
