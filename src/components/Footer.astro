@@ -1,5 +1,5 @@
 ---
-import { SITE_EMAIL, SITE_GITHUB_URL, SITE_RSS_URL } from '../consts';
+import { SITE_EMAIL, SITE_GITHUB_URL } from '../consts';
 import Colophon from './Colophon.astro';
 const year = new Date().getFullYear();
 ---
@@ -28,7 +28,6 @@ const year = new Date().getFullYear();
       <span class="col-label">Links</span>
       <nav aria-label="External links">
         <a href={SITE_GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href={SITE_RSS_URL}>RSS Feed</a>
         <a href={SITE_EMAIL}>Contact</a>
       </nav>
     </div>
