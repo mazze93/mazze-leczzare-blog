@@ -1,0 +1,7 @@
+{
+  "resource": "https://mazzeleczzare.com",
+  "authorization_servers": ["https://mazzeleczzare.com"],
+  "scopes_supported": ["admin"],
+  "resource_documentation": "https://mazzeleczzare.com/.well-known/agent-skills/index.json",
+  "resource_signing_alg_values_supported": ["HS256"]
+}

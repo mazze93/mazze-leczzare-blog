@@ -1,0 +1,7 @@
+{
+  "issuer": "https://mazzeleczzare.com",
+  "authorization_endpoint": "https://mazzeleczzare.com/login",
+  "token_endpoint": "https://mazzeleczzare.com/api/login",
+  "scopes_supported": ["admin"],
+  "service_documentation": "https://mazzeleczzare.com/.well-known/agent-skills/index.json"
+}

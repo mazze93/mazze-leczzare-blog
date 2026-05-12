@@ -2,7 +2,7 @@
 import HomepageLayout from '../layouts/HomepageLayout.astro';
 import BreathingHero from '../components/BreathingHero.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../consts';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
@@ -51,6 +51,25 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   )}
 
 </HomepageLayout>
+
+<script define:vars={{ siteUrl: SITE_URL }}>
+if ('modelContext' in navigator) {
+  navigator.modelContext.provideContext({
+    tools: [
+      {
+        name: 'get_contact_info',
+        description: 'Get information on how to contact Mazze Leczzare, including the contact form URL and API endpoint.',
+        inputSchema: { type: 'object', properties: {} },
+        execute: async () => ({
+          contact_form: siteUrl + '/contact/',
+          api_endpoint: siteUrl + '/api/contact',
+          skill_doc: siteUrl + '/.well-known/agent-skills/contact/SKILL.md',
+        }),
+      },
+    ],
+  });
+}
+</script>
 
 <style>
 /* ── Writing index ──────────────────────────────────────────────────── */

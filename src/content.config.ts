@@ -27,6 +27,7 @@ const blog = defineCollection({
     // — New fields —
     subtitle: z.string().optional(),
     category: z.string().optional(),
+    author: z.string().optional(),
     tags: z.array(z.string()).optional(),
     readingTime: z.string().optional(),
     heroImageOG: z.string().optional(),

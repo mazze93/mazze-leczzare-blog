@@ -14,8 +14,14 @@ type RateLimitBinding = {
   limit(options: { key: string }): Promise<RateLimitResult>;
 };
 
+type KVNamespace = {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+};
+
 type Env = {
   SHARE_EVENT_RATE_LIMITER?: RateLimitBinding;
+  SHARE_ANALYTICS?: KVNamespace;
 };
 
 const ALLOWED_EVENTS = new Set<ShareEventName>(['quote_share_clicked', 'quote_share_visited']);
@@ -173,6 +179,17 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       receivedAt: new Date().toISOString(),
     }),
   );
+
+  if (env.SHARE_ANALYTICS) {
+    try {
+      const key = `${event}:${pathValue}:${quoteId}`;
+      const existing = await env.SHARE_ANALYTICS.get(key);
+      const count = parseInt(existing ?? '0', 10);
+      await env.SHARE_ANALYTICS.put(key, String(isNaN(count) ? 1 : count + 1));
+    } catch {
+      // Analytics failure is non-fatal
+    }
+  }
 
   return new Response(null, {
     status: 204,

@@ -14,3 +14,5 @@ User-agent: GPTBot
 Disallow: /
 
 Sitemap: https://mazzeleczzare.com/sitemap-index.xml
+
+Content-Signal: ai-train=no, search=yes, ai-input=no
