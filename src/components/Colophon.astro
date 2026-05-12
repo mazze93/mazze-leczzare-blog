@@ -95,20 +95,14 @@ const built = new Date().getFullYear();
 <style>
   /* ── Shared ─────────────────────────────────────────────── */
   .colophon {
-    --teal:       #34C3B9;
-    --coral:      #E85A4A;
-    --fg-dim:     #5A6C7C;
-    --fg-sub:     #374856;
-    --border:     #1C4B48;
-
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--rule);
     padding-block-start: 2.5rem;
     margin-block-start: 4rem;
   }
 
   .colophon a {
     color: inherit;
-    text-decoration-color: var(--border);
+    text-decoration-color: var(--rule);
     text-underline-offset: 3px;
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
   }
@@ -151,7 +145,7 @@ const built = new Date().getFullYear();
   .colophon__subtitle {
     font-size: 0.8rem;
     letter-spacing: 0.06em;
-    color: var(--fg-dim);
+    color: var(--text-dim);
     font-style: italic;
     margin-block: 0 2rem;
   }
@@ -165,9 +159,8 @@ const built = new Date().getFullYear();
   .colophon__body p {
     font-size: 0.875rem;
     line-height: 1.75;
-    color: var(--fg-dim);
-    /* Preserve Playfair-style feel when loaded; degrades gracefully */
-    font-family: var(--font-serif, Georgia, serif);
+    color: var(--text-dim);
+    font-family: var(--font-display, Georgia, serif);
   }
 
   /* ── Compact variant ────────────────────────────────────── */
@@ -179,9 +172,9 @@ const built = new Date().getFullYear();
   .colophon--compact .colophon__statement {
     font-size: 0.8rem;
     line-height: 1.7;
-    color: var(--fg-dim);
+    color: var(--text-dim);
     font-style: italic;
-    font-family: var(--font-serif, Georgia, serif);
+    font-family: var(--font-display, Georgia, serif);
     max-width: 58ch;
     margin-block-end: 1rem;
   }
@@ -195,7 +188,7 @@ const built = new Date().getFullYear();
     margin-block-start: 2rem;
     font-size: 0.7rem;
     letter-spacing: 0.08em;
-    color: var(--fg-sub);
+    color: var(--text-faint);
     font-family: var(--font-mono, monospace);
   }
 
