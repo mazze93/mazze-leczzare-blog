@@ -203,6 +203,8 @@ dist
 
 ### Local Agent Worktrees ###
 .claude/
+.codex/
+.superpowers/
 
 # local staging folder
 blog-post-package/
