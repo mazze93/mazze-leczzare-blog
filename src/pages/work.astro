@@ -302,20 +302,21 @@ import { SITE_TITLE } from '../consts';
     padding: 2rem 2.2rem;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
     transition: border-color var(--transition-base), box-shadow var(--transition-base);
   }
   .work-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(58, 184, 160, 0.04);
+    background: rgba(var(--accent-rgb), 0.04);
     opacity: 0;
     transition: opacity var(--transition-base);
     pointer-events: none;
   }
   .work-card:hover {
-    border-color: rgba(58, 184, 160, 0.3);
-    box-shadow: 0 0 28px rgba(58, 184, 160, 0.12);
+    border-color: rgba(var(--accent-rgb), 0.3);
+    box-shadow: var(--shadow-md), 0 0 24px rgba(var(--accent-rgb), 0.08);
   }
   .work-card:hover::before { opacity: 1; }
 
@@ -457,8 +458,8 @@ import { SITE_TITLE } from '../consts';
     gap: 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    background: rgba(232, 112, 90, 0.06);
-    border: 1px solid rgba(232, 112, 90, 0.25);
+    background: rgba(var(--coral-rgb), 0.06);
+    border: 1px solid rgba(var(--coral-rgb), 0.25);
     color: var(--coral);
     padding: 0.35em 0.9em;
     border-radius: var(--radius-sm);

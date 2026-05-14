@@ -219,13 +219,13 @@ const articleSchema = {
 
     .prose :global(a) {
       color: var(--teal);
-      border-bottom: 1px solid rgba(58, 184, 160, 0.25);
+      border-bottom: 1px solid rgba(var(--accent-rgb), 0.25);
       transition: border-color var(--transition-fast), color var(--transition-fast);
     }
 
     .prose :global(a:hover) {
       color: var(--coral);
-      border-bottom-color: rgba(232, 112, 90, 0.35);
+      border-bottom-color: rgba(var(--coral-rgb), 0.35);
     }
 
     /* ── Quote share buttons ── */
@@ -259,7 +259,7 @@ const articleSchema = {
     .prose :global(.quote-share-button[data-state="success"]) {
       color: var(--teal);
       border-color: var(--teal);
-      background: rgba(58, 184, 160, 0.06);
+      background: rgba(var(--accent-rgb), 0.06);
     }
 
     .prose :global(.quote-share-paragraph:hover .quote-share-button),
@@ -268,8 +268,8 @@ const articleSchema = {
     }
 
     .prose :global(.quote-share-highlight) {
-      background: rgba(58, 184, 160, 0.08);
-      box-shadow: 0 0 0 3px rgba(58, 184, 160, 0.15);
+      background: rgba(var(--accent-rgb), 0.08);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
       border-radius: var(--radius-sm);
       transition: background 0.3s ease, box-shadow 0.3s ease;
     }

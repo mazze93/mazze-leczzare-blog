@@ -217,4 +217,67 @@ import { SITE_TITLE } from '../consts';
       justify-content: center;
     }
   }
+
+  /* ── Light mode ────────────────────────────────────────────── */
+
+  :global([data-theme="light"]) .contact-shell {
+    background:
+      radial-gradient(circle at top left, rgba(30, 112, 96, 0.07), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(176, 48, 32, 0.05), transparent 32%),
+      var(--bg);
+  }
+
+  :global([data-theme="light"]) .contact-card {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid var(--rule);
+    box-shadow: 0 8px 32px rgba(26, 36, 32, 0.08), 0 2px 8px rgba(26, 36, 32, 0.04);
+  }
+
+  :global([data-theme="light"]) .eyebrow {
+    color: var(--coral);
+  }
+
+  :global([data-theme="light"]) h1 {
+    color: var(--text);
+  }
+
+  :global([data-theme="light"]) .lede {
+    color: var(--text-dim);
+  }
+
+  :global([data-theme="light"] .field-group label) {
+    color: var(--text);
+  }
+
+  :global([data-theme="light"] .field-group input),
+  :global([data-theme="light"] .field-group textarea) {
+    background: var(--bg);
+    border-color: var(--rule);
+    color: var(--text);
+  }
+
+  :global([data-theme="light"] .field-group input:focus),
+  :global([data-theme="light"] .field-group textarea:focus) {
+    border-color: rgba(30, 112, 96, 0.7);
+    box-shadow: 0 0 0 3px rgba(30, 112, 96, 0.12);
+    background: var(--surface);
+  }
+
+  :global([data-theme="light"] .form-note) {
+    color: var(--text-dim);
+  }
+
+  :global([data-theme="light"] .form-status.success) {
+    background: rgba(30, 112, 96, 0.08);
+    color: var(--text);
+    border: 1px solid rgba(30, 112, 96, 0.28);
+  }
+
+  :global([data-theme="light"] .form-status.error) {
+    background: rgba(176, 48, 32, 0.07);
+    color: var(--text);
+    border: 1px solid rgba(176, 48, 32, 0.25);
+  }
 </style>

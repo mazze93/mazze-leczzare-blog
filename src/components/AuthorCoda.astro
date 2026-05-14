@@ -97,13 +97,13 @@ const { headshot = '/mazze-headshot.jpg' } = Astro.props;
 .coda-bio a {
   color: var(--teal);
   text-decoration: none;
-  border-bottom: 1px solid rgba(58, 184, 160, 0.25);
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.25);
   transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .coda-bio a:hover {
   color: var(--coral);
-  border-bottom-color: rgba(232, 112, 90, 0.35);
+  border-bottom-color: rgba(var(--coral-rgb), 0.35);
 }
 
 @media (max-width: 480px) {

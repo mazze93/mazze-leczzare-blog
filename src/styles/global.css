@@ -52,6 +52,8 @@
   /* Semantic aliases */
   --accent:     var(--teal);
   --accent-alt: var(--coral);
+  --accent-rgb: 58, 184, 160;    /* rgb triplet of --teal — for rgba() usage */
+  --coral-rgb:  232, 112, 90;    /* rgb triplet of --coral — for rgba() usage */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
@@ -73,6 +75,11 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
+
+  /* Elevation — dark mode uses surface+rule for depth, not shadows */
+  --shadow-sm:   none;
+  --shadow-md:   none;
+  --shadow-card: none;
 
   /* Z-index */
   --z-header: 100;
@@ -152,6 +159,13 @@ body[data-layout="homepage"] {
   --coral:      #b03020;
   --coral-dim:  #8c2418;
   --gold:       #8a6a3a;
+  --accent-rgb: 30, 112, 96;     /* rgb triplet of --teal in light mode */
+  --coral-rgb:  176, 48, 32;     /* rgb triplet of --coral in light mode */
+
+  /* Light mode uses shadows for depth — the inverse of dark mode's glow language */
+  --shadow-sm:   0 1px 4px rgba(26, 36, 32, 0.06), 0 1px 2px rgba(26, 36, 32, 0.04);
+  --shadow-md:   0 4px 16px rgba(26, 36, 32, 0.09), 0 2px 6px rgba(26, 36, 32, 0.05);
+  --shadow-card: 0 8px 32px rgba(26, 36, 32, 0.10), 0 2px 8px rgba(26, 36, 32, 0.04);
   --gold-bright: #b0865a;
   --gold-dim:   #d4a574;
   --obsidian:   #f4f1ea;
