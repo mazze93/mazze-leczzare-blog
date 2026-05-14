@@ -1,18 +1,26 @@
 # Context Cache Snapshot
 
-Generated: 2026-04-18 13:18:45Z
-Branch: fix/docs-author-coda
-Last Commit: 4a88d5b chore: ignore playwright-mcp session artifacts and og preview screenshots
+Generated: 2026-05-14 08:03:59Z
+Branch: main
+Last Commit: c3257ec fix: remove hero-signal-grid.svg; update gitignore
 
 ## Git Status (short)
- M docs/operations/memory/context-cache/latest.md
+
+M docs/operations/memory/context-cache/latest.md
+?? docs/superpowers/plans/2026-05-14-compass-subsystem-1.md
+?? docs/superpowers/specs/2026-05-13-constellation-architecture-design.md
+?? public/mazze_profile_ultra_400.jpg
+?? src/assets/images/blog/hero-decay-rot.png
+?? src/content/blog/the_breakthrough_artifact.html
 
 ## Ahead/Behind
-## fix/docs-author-coda
+
+## HEAD (no branch)
 
 ## Recent Commits
-4a88d5b chore: ignore playwright-mcp session artifacts and og preview screenshots
-6fdb2a2 docs: update CLAUDE.md to match actual site state, add drift check script
-98279e3 feat: fix goblin post frontmatter, fix about page heading, add author coda
-8f4b217 chore: slim docs, fix lighthouse, track MCP config
-9b96d0c feat: session work — essays, work portfolio, BreathingHero, PostQuoteShare
+
+c3257ec fix: remove hero-signal-grid.svg; update gitignore
+e7476d7 Fix/seo security hardening (#115)
+1f3aa78 chore(deps): bump actions/dependency-review-action (#117)
+49c57ef chore(deps): bump the npm_and_yarn group with 4 updates (#118)
+d646b1b Claude/add link headers tol80 (#116)

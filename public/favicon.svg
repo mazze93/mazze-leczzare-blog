@@ -1,3 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <path d="M64 224 L64 64 L128 163 L192 64 L192 224" fill="none" stroke="#00E5FF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    :root { color: #d4a574; }
+    @media (prefers-color-scheme: light) { :root { color: #8a6a3a; } }
+  </style>
+  <g stroke="currentColor" stroke-width="2">
+    <path d="M 32 4 A 28 28 0 1 1 16.5 55.8" fill="none" />
+    <path d="M 47.5 55.8 A 28 28 0 0 1 32 60" fill="none" />
+    <path d="M 32 12 A 20 20 0 1 1 24 50.7" fill="none" stroke-width="1.4" />
+    <path d="M 32 14 C 38 22, 38 42, 32 50 C 26 42, 26 22, 32 14 Z" fill="none" />
+    <line x1="32" y1="8"  x2="32" y2="20" />
+    <line x1="32" y1="44" x2="32" y2="56" />
+    <line x1="8"  y1="32" x2="20" y2="32" />
+    <line x1="44" y1="32" x2="56" y2="32" />
+  </g>
 </svg>

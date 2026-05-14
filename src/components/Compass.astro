@@ -1,0 +1,86 @@
+---
+/**
+ * Compass.astro — the brand mark.
+ *
+ * A hand-coded SVG of the constellation compass logo with five behavior states
+ * and five size buckets. Pure presentational. Use CompassLink.astro to make it
+ * interactive.
+ *
+ * Spec: docs/superpowers/specs/2026-05-13-constellation-architecture-design.md
+ */
+
+interface Props {
+  size?: number;
+  state?: 'idle' | 'hover' | 'focus' | 'engaged' | 'complete';
+  ariaLabel?: string;
+  class?: string;
+}
+
+const {
+  size = 32,
+  state = 'idle',
+  ariaLabel,
+  class: className = '',
+} = Astro.props;
+
+// Snap to nearest size bucket for stroke-width tuning.
+const buckets = [16, 32, 64, 128, 256];
+const sizeBucket = buckets.reduce((prev, curr) =>
+  Math.abs(curr - size) < Math.abs(prev - size) ? curr : prev
+);
+
+const role = ariaLabel ? 'img' : undefined;
+---
+
+<span
+  class={`compass ${className}`.trim()}
+  data-state={state}
+  data-size-bucket={sizeBucket}
+  style={`width: ${size}px; height: ${size}px;`}
+  role={role}
+  aria-label={ariaLabel}
+  aria-hidden={ariaLabel ? undefined : 'true'}
+>
+  <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <!-- Layer 1: outer broken ring — opens at the bottom (~225° to ~315°) -->
+    <g data-layer="ring-outer">
+      <path d="M 32 4 A 28 28 0 1 1 16.5 55.8" fill="none" />
+      <path d="M 47.5 55.8 A 28 28 0 0 1 32 60" fill="none" />
+    </g>
+
+    <!-- Layer 2: inner orbital arc — single break at bottom -->
+    <g data-layer="ring-inner">
+      <path d="M 32 12 A 20 20 0 1 1 24 50.7" fill="none" />
+    </g>
+
+    <!-- Layer 3: petal / true north — vertical pointed almond -->
+    <g data-layer="petal">
+      <path d="M 32 14 C 38 22, 38 42, 32 50 C 26 42, 26 22, 32 14 Z" fill="none" />
+    </g>
+
+    <!-- Layer 4: cardinal star — N S E W spikes -->
+    <g data-layer="star">
+      <line x1="32" y1="8"  x2="32" y2="20" />
+      <line x1="32" y1="44" x2="32" y2="56" />
+      <line x1="8"  y1="32" x2="20" y2="32" />
+      <line x1="44" y1="32" x2="56" y2="32" />
+    </g>
+
+    <!-- Layer 5: diagonal beam (upper-right → lower-left) -->
+    <g data-layer="beam">
+      <line x1="56" y1="12" x2="14" y2="50" />
+    </g>
+
+    <!-- Layer 6: sparkle at convergence (small 4-point burst) -->
+    <g data-layer="sparkle">
+      <path d="M 32 28 L 33 32 L 32 36 L 31 32 Z" />
+      <path d="M 28 32 L 32 31 L 36 32 L 32 33 Z" />
+    </g>
+
+    <!-- Layer 7: decay trail — continuation of beam beyond ring -->
+    <g data-layer="trail">
+      <line x1="14" y1="50" x2="4" y2="60" />
+      <line x1="56" y1="12" x2="62" y2="6" />
+    </g>
+  </svg>
+</span>
