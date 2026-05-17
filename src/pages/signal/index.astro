@@ -1,0 +1,259 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+import { getCollection } from 'astro:content';
+
+const transmissions = (
+  await getCollection('signal', ({ data }) => !data.draft)
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <BaseHead
+    title={`Signal — ${SITE_TITLE}`}
+    description="Transmissions from the field ledger. Verse, fragments, and dispatches at the edge of erasure."
+  />
+</head>
+<body>
+  <Header />
+  <main class="signal-main">
+
+    <!-- Bureau header block -->
+    <header class="signal-header">
+      <div class="signal-meta-block">
+        <div class="signal-meta-row">
+          <span class="signal-label">ORIGIN</span>
+          <span class="signal-value">FIELD LEDGER: MAZZE</span>
+        </div>
+        <div class="signal-meta-row">
+          <span class="signal-label">STATUS</span>
+          <span class="signal-value signal-value--active">ONGOING</span>
+        </div>
+        <div class="signal-meta-row">
+          <span class="signal-label">ENTRIES</span>
+          <span class="signal-value">{transmissions.length}</span>
+        </div>
+      </div>
+      <div class="signal-rule" aria-hidden="true"></div>
+      <h1 class="signal-title">Signal</h1>
+      <p class="signal-desc">
+        Transmissions from the field ledger. Verse, fragments, and dispatches
+        at the edge of erasure.
+      </p>
+      <div class="signal-rule" aria-hidden="true"></div>
+    </header>
+
+    <!-- Transmission log -->
+    {transmissions.length > 0 ? (
+      <ol class="transmission-log" role="list">
+        {transmissions.map((entry, i) => (
+          <li class="log-entry">
+            <a href={`/signal/${entry.id}/`} class="log-link">
+              <span class="log-index">{String(transmissions.length - i).padStart(3, '0')}</span>
+              <span class="log-body">
+                <span class="log-title">{entry.data.title}</span>
+                {entry.data.classification && (
+                  <span class="log-classification">{entry.data.classification}</span>
+                )}
+              </span>
+              <span class="log-right">
+                {entry.data.status && (
+                  <span class={`log-status log-status--${entry.data.status.toLowerCase()}`}>
+                    {entry.data.status}
+                  </span>
+                )}
+                <span class="log-date"><FormattedDate date={entry.data.pubDate} /></span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="log-empty">No transmissions on record.</p>
+    )}
+
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  .signal-main {
+    max-width: 900px;
+    width: calc(100% - 2rem);
+    margin: 0 auto;
+    padding: 0 1rem 5rem;
+  }
+
+  /* Bureau header block */
+  .signal-header {
+    padding: 4em 0 2.5em;
+  }
+
+  .signal-meta-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .signal-meta-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+  }
+
+  .signal-label {
+    color: var(--text-faint);
+    text-transform: uppercase;
+    min-width: 6em;
+    flex-shrink: 0;
+  }
+
+  .signal-value        { color: var(--text-dim); }
+  .signal-value--active { color: var(--teal); }
+
+  .signal-rule {
+    height: 1px;
+    background: linear-gradient(
+      to right, transparent, var(--teal) 15%, var(--rule) 55%, transparent
+    );
+    margin: var(--spacing-md) 0;
+    opacity: 0.55;
+  }
+
+  .signal-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text);
+    margin: 0 0 0.3em;
+    line-height: 1.0;
+    letter-spacing: 0.01em;
+  }
+
+  .signal-desc {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.75;
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* Transmission log */
+  .transmission-log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .log-entry {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .log-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5em;
+    padding: 1.1em 0;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+  }
+
+  .log-link:hover .log-title  { color: var(--teal); }
+  .log-link:hover .log-index  { color: var(--teal); }
+
+  .log-index {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    transition: color var(--transition-fast);
+  }
+
+  .log-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    min-width: 0;
+  }
+
+  .log-title {
+    font-family: var(--font-display);
+    font-size: 1.2em;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.2;
+    transition: color var(--transition-fast);
+  }
+
+  .log-classification {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .log-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3em;
+    flex-shrink: 0;
+  }
+
+  /* Status badges */
+  .log-status {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.12em 0.45em;
+    border-radius: var(--radius-sm);
+    border: 1px solid currentColor;
+  }
+  .log-status--unresolved { color: var(--coral);      border-color: rgba(var(--coral-rgb), 0.3); }
+  .log-status--closed     { color: var(--text-faint); border-color: var(--rule); }
+  .log-status--ongoing    { color: var(--teal);       border-color: rgba(var(--accent-rgb), 0.3); }
+  .log-status--open       { color: var(--gold);       border-color: rgba(212, 165, 116, 0.3); }
+
+  .log-date {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .log-empty {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    padding: 3em 0;
+    text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 640px) {
+    .log-link { flex-wrap: wrap; gap: 0.5em; }
+    .log-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+    .log-classification { display: none; }
+  }
+</style>
