@@ -3,18 +3,6 @@ import { defineCollection, z } from "astro:content";
 
 /**
  * Blog content collection schema.
- *
- * Extended from the original to support:
- *   - tags         — array of topic tags (e.g. ['Cybersecurity', 'TLS'])
- *   - category     — primary category string (e.g. 'Essay')
- *   - subtitle     — optional deck / subtitle shown under the title
- *   - readingTime  — optional manual override (e.g. '~7 min')
- *   - heroImageOG  — optional Open Graph / social share image path
- *   - heroImageAlt — optional accessible alt text for the hero image
- *   - featured     — optional flag for curated/pinned posts
- *   - slug         — optional explicit URL slug override
- *
- * All new fields are optional so existing posts remain valid without changes.
  */
 const blog = defineCollection({
   loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -24,7 +12,6 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     heroImage: image().optional(),
-    // — New fields —
     subtitle: z.string().optional(),
     category: z.string().optional(),
     author: z.string().optional(),
@@ -38,4 +25,35 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+/**
+ * Signal content collection schema.
+ *
+ * Transmissions, verse, and fragments from the field ledger.
+ * Distinct from blog: no heroImage required; adds transmission-
+ * specific metadata (cycle, classification, status, origin).
+ *
+ * All fields beyond title/description/pubDate are optional
+ * so sparse entries remain valid.
+ */
+const signal = defineCollection({
+  loader: glob({ base: "./src/content/signal", pattern: "**/*.{md,mdx}" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    // Transmission metadata — maps directly to TransmissionFeed props
+    transmissionId: z.string().optional(),   // e.g. "TRANSMISSION-0517-COPPER"
+    cycle: z.string().optional(),             // e.g. "7.441.88"
+    classification: z.string().optional(),    // e.g. "SIGNAL · ARCHITECTURE · UNRESOLVED"
+    status: z.string().optional(),            // e.g. "UNRESOLVED" | "CLOSED" | "ONGOING"
+    origin: z.string().optional(),            // e.g. "FIELD LEDGER: MAZZE / WEIGHT DELTA 7.441"
+    // Standard content fields
+    tags: z.array(z.string()).optional(),
+    featured: z.boolean().optional(),
+    draft: z.boolean().optional(),
+    slug: z.string().optional(),
+  }),
+});
+
+export const collections = { blog, signal };

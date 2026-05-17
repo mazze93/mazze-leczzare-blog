@@ -1,0 +1,129 @@
+---
+/**
+ * TransmissionLayout.astro
+ * Minimal full-bleed dark layout for /signal entries.
+ * No hero image. No sidebar. No related posts.
+ * The transmission is the only content.
+ */
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import TransmissionFeed from '../components/TransmissionFeed.astro';
+import {
+  SITE_AUTHOR,
+  SITE_DEFAULT_OG_IMAGE,
+  SITE_TITLE,
+  SITE_URL,
+} from '../consts';
+
+interface Props {
+  title:          string;
+  description:    string;
+  pubDate:        Date;
+  updatedDate?:   Date;
+  transmissionId?: string;
+  cycle?:          string;
+  classification?: string;
+  status?:         string;
+  origin?:         string;
+  tags?:           string[];
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  transmissionId,
+  cycle,
+  classification,
+  status,
+  origin,
+} = Astro.props;
+
+// Build transmission header props with sensible fallbacks
+const txId     = transmissionId ?? `TRANSMISSION-${pubDate.toISOString().slice(0,10).replace(/-/g,'')}`;
+const txCycle  = cycle ? `CYCLE ${cycle} · VERIFIED` : pubDate.toISOString().slice(0,10);
+const txClass  = classification ?? 'SIGNAL · UNCLASSIFIED';
+const txOrigin = origin ?? 'FIELD LEDGER: MAZZE';
+const txStatus = status ?? 'OPEN';
+
+const schemaLD = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: title,
+  description,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_URL },
+  isPartOf: { '@type': 'WebSite', name: SITE_TITLE, url: SITE_URL },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': Astro.url.toString() },
+};
+---
+
+<html lang="en">
+<head>
+  <BaseHead
+    title={`${title} — Signal`}
+    description={description}
+    type="article"
+    publishedTime={pubDate.toISOString()}
+    modifiedTime={(updatedDate ?? pubDate).toISOString()}
+  />
+  <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
+</head>
+
+<body data-layout="transmission">
+  <Header />
+  <main class="transmission-main">
+    <TransmissionFeed
+      id={txId}
+      classification={txClass}
+      origin={txOrigin}
+      timestamp={txCycle}
+      subject={title}
+      status={txStatus}
+    >
+      <slot />
+    </TransmissionFeed>
+
+    <nav class="transmission-nav" aria-label="Signal navigation">
+      <a href="/signal" class="tx-nav-link">← All transmissions</a>
+    </nav>
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  body[data-layout="transmission"] {
+    background: var(--bg);
+  }
+
+  .transmission-main {
+    width: calc(100% - 2rem);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1rem 5rem;
+  }
+
+  .transmission-nav {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--rule);
+  }
+
+  .tx-nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .tx-nav-link:hover {
+    color: var(--teal);
+  }
+</style>
