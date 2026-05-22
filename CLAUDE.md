@@ -1,4 +1,6 @@
-# Blog (mazze-leczzare-blog → mazzeleczzare.com) — Claude Context
+# Blog — Claude Context
+
+> Local: `/Users/daedalus/Code/blog` · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
 
 Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
 storyteller, marketer, and cybersecurity explorer. The site frames itself as a
