@@ -1,2 +1,16 @@
 {
+  "// praxis-mode": "Publishing \u2014 Blog",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#113a35",
+    "titleBar.inactiveBackground": "#113a35",
+    "titleBar.activeForeground": "#f5ede0",
+    "titleBar.inactiveForeground": "#f5ede0aa",
+    "titleBar.border": "#113a35",
+    "activityBar.background": "#113a35",
+    "activityBar.foreground": "#f5ede0",
+    "activityBar.inactiveForeground": "#f5ede0aa",
+    "activityBar.border": "#113a35",
+    "statusBar.background": "#113a35",
+    "statusBar.foreground": "#f5ede0"
+  }
 }
