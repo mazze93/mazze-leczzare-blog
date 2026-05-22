@@ -1,4 +1,4 @@
-# mazze-leczzare-blog — Claude Context
+# Blog (mazze-leczzare-blog → mazzeleczzare.com) — Claude Context
 
 Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
 storyteller, marketer, and cybersecurity explorer. The site frames itself as a
