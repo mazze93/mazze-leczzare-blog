@@ -1,13 +1,4 @@
 ---
-/**
- * TransmissionFeed.astro
- * Bureau-style classified transmission wrapper.
- * Inherits all tokens from global.css / compass.css.
- * Zero hard-coded colors — everything via :root vars.
- *
- * Used by TransmissionLayout (programmatic props from frontmatter)
- * and can also be used directly in MDX for standalone embeds.
- */
 interface Props {
   id:             string;
   classification: string;
@@ -20,7 +11,7 @@ interface Props {
 const { id, classification, origin, timestamp, subject, status } = Astro.props;
 ---
 
-<article class="transmission-feed" aria-label={`Transmission: ${subject}`}>
+<article class="transmission-feed" data-tx-feed aria-label={`Transmission: ${subject}`}>
 
   <header class="transmission-header">
     <div class="transmission-meta-row">
@@ -52,21 +43,49 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     <div class="transmission-rule" aria-hidden="true"></div>
   </header>
 
-  <div class="transmission-body">
+  <div class="transmission-body"
+       role="log"
+       aria-live="off"
+       aria-atomic="true"
+       id={`tx-body-${id}`}>
     <slot />
+    <span class="tx-cursor" aria-hidden="true" hidden></span>
   </div>
 
   <footer class="transmission-footer" aria-label="End of transmission">
     <div class="transmission-rule" aria-hidden="true"></div>
-    <span class="transmission-end-marker">— END TRANSMISSION —</span>
+    <div class="tx-footer-inner">
+      <span class="transmission-end-marker">— END TRANSMISSION —</span>
+      <div class="tx-controls">
+        <button class="tx-btn tx-skip"   type="button" aria-label="Skip decode animation" hidden>SKIP</button>
+        <button class="tx-btn tx-replay" type="button" aria-label="Replay transmission decode" hidden>REPLAY</button>
+      </div>
+    </div>
   </footer>
 
 </article>
 
 <style>
+  @keyframes flicker {
+    0%, 89%, 100% { opacity: 1; }
+    90%           { opacity: 0.86; }
+    93%           { opacity: 0.94; }
+    96%           { opacity: 0.88; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0; }
+  }
+
+  @keyframes sigil-pulse {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 0.8; }
+  }
+
   .transmission-feed {
-    --tx-border:  rgba(var(--accent-rgb), 0.18);
-    --tx-glow:    rgba(var(--accent-rgb), 0.06);
+    --tx-border: rgba(var(--accent-rgb), 0.22);
+    --tx-glow:   rgba(var(--accent-rgb), 0.08);
 
     position: relative;
     max-width: 680px;
@@ -77,14 +96,11 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     border-top: 2px solid var(--teal);
     border-radius: var(--radius-md);
     box-shadow:
-      0 0 0 1px var(--tx-glow),
-      inset 0 1px 0 rgba(var(--accent-rgb), 0.04);
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent, transparent 2px,
-      rgba(var(--accent-rgb), 0.012) 2px,
-      rgba(var(--accent-rgb), 0.012) 4px
-    );
+      0 0  40px rgba(var(--accent-rgb), 0.14),
+      0 0 100px rgba(var(--accent-rgb), 0.07),
+      inset 0 0 80px rgba(0, 0, 0, 0.55),
+      0 0 0 1px var(--tx-glow);
+    animation: flicker 11s ease-in-out infinite;
   }
 
   .transmission-feed::before {
@@ -123,7 +139,6 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
   .transmission-origin,
   .transmission-timestamp      { color: var(--text-dim); }
 
-  /* Status badge variants */
   .transmission-status {
     font-family: var(--font-mono);
     font-size: 0.65rem;
@@ -168,25 +183,26 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     opacity: 0.6;
   }
 
+  /* Body: monospace terminal feel with phosphor bloom */
   .transmission-body {
-    font-family: var(--font-display);
-    font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-    font-weight: 300;
-    line-height: 1.85;
+    font-family: var(--font-mono);
+    font-size: clamp(0.82rem, 2vw, 0.95rem);
+    line-height: 1.9;
     color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 6em;
+    text-shadow:
+      0 0  4px rgba(var(--accent-rgb), 0.80),
+      0 0 12px rgba(var(--accent-rgb), 0.40),
+      0 0 28px rgba(var(--accent-rgb), 0.18);
   }
 
-  .transmission-body :global(hr) {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: var(--spacing-lg) 0;
-    opacity: 0.5;
-  }
-
-  .transmission-body :global(p)      { margin-bottom: 0; }
+  /* Static / reduced-motion slot content styling */
+  .transmission-body :global(p)      { margin-bottom: 1.4em; }
+  .transmission-body :global(hr)     { border: none; border-top: 1px solid var(--rule); margin: var(--spacing-lg) 0; opacity: 0.5; }
   .transmission-body :global(em)     { color: var(--teal); font-style: italic; }
   .transmission-body :global(strong) { color: var(--coral); font-weight: 500; }
-
   .transmission-body :global(.transmission-sigil) {
     display: block;
     text-align: center;
@@ -197,7 +213,25 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     animation: sigil-pulse 4s ease-in-out infinite;
   }
 
-  .transmission-footer   { margin-top: var(--spacing-md); text-align: center; }
+  .tx-cursor {
+    display: inline-block;
+    width: 0.55em; height: 0.9em;
+    background: var(--teal);
+    box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.9);
+    vertical-align: text-bottom;
+    margin-left: 1px;
+    animation: blink 1.1s step-end infinite;
+  }
+
+  .transmission-footer { margin-top: var(--spacing-md); }
+
+  .tx-footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
 
   .transmission-end-marker {
     font-family: var(--font-mono);
@@ -207,12 +241,34 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     text-transform: uppercase;
   }
 
-  @keyframes sigil-pulse {
-    0%, 100% { opacity: 0.3; }
-    50%       { opacity: 0.8; }
+  .tx-controls { display: flex; gap: 0.5rem; }
+
+  .tx-btn {
+    background: transparent;
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    color: var(--teal);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    min-height: 44px; min-width: 44px;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
+  .tx-btn:hover {
+    border-color: var(--teal);
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.3);
+  }
+  .tx-btn:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+  }
+  .tx-btn:disabled { opacity: 0.35; cursor: default; }
 
   @media (prefers-reduced-motion: reduce) {
+    .transmission-feed { animation: none; }
+    .tx-cursor         { animation: none; opacity: 0; }
     .transmission-body :global(.transmission-sigil) { animation: none; opacity: 0.5; }
   }
 
@@ -223,3 +279,94 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     .transmission-subject-row { flex-direction: column; gap: 0.1em; }
   }
 </style>
+
+<script>
+  const NOISE_CHARS   = '█▓▒░│┤╡╢╕╣║╗╝╛┐└┴┬├─┼╚╔╦╠═╧╤╙╘╫╪';
+  const CHAR_DELAY_MS = 18;
+  const NOISE_FRAMES  = 4;
+  const FRAME_MS      = 38;
+
+  function clearChildren(el: HTMLElement, preserve?: HTMLElement | null) {
+    while (el.firstChild) {
+      if (preserve && el.firstChild === preserve) break;
+      el.removeChild(el.firstChild);
+    }
+  }
+
+  function initFeed(article: Element) {
+    const bodyEl    = article.querySelector('.transmission-body') as HTMLElement | null;
+    const cursorEl  = article.querySelector('.tx-cursor')  as HTMLElement | null;
+    const skipBtn   = article.querySelector('.tx-skip')    as HTMLButtonElement | null;
+    const replayBtn = article.querySelector('.tx-replay')  as HTMLButtonElement | null;
+    if (!bodyEl) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    // Capture plain text from server-rendered slot before wiping
+    const rawText = bodyEl.innerText.trim();
+
+    let timers: ReturnType<typeof setTimeout>[] = [];
+    const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
+    const noise    = () => NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)];
+
+    function resolveChar(span: HTMLElement, ch: string) {
+      if (ch === '\n' || ch === ' ') { span.textContent = ch; return; }
+      let frame = 0;
+      const tick = () => {
+        span.textContent = frame < NOISE_FRAMES ? noise() : ch;
+        if (frame++ < NOISE_FRAMES) timers.push(setTimeout(tick, FRAME_MS));
+      };
+      tick();
+    }
+
+    function finish() {
+      clearAll();
+      if (cursorEl) cursorEl.hidden = true;
+      if (skipBtn)  skipBtn.hidden  = true;
+      if (replayBtn) replayBtn.hidden = false;
+    }
+
+    function skip() {
+      clearAll();
+      clearChildren(bodyEl!, cursorEl);
+      if (cursorEl) cursorEl.hidden = true;
+      const pre = document.createElement('pre');
+      pre.style.cssText = 'white-space:pre-wrap;word-break:break-word;font:inherit;margin:0;';
+      pre.textContent = rawText;
+      bodyEl!.insertBefore(pre, cursorEl ?? null);
+      finish();
+    }
+
+    function run() {
+      clearAll();
+      clearChildren(bodyEl!, cursorEl);
+      if (cursorEl) { bodyEl!.appendChild(cursorEl); cursorEl.hidden = false; }
+      if (skipBtn)  { skipBtn.hidden  = false; skipBtn.disabled  = false; }
+      if (replayBtn) replayBtn.hidden = true;
+
+      const chars = [...rawText];
+      const spans = chars.map(() => {
+        const s = document.createElement('span');
+        s.textContent = ' ';
+        return s;
+      });
+      spans.forEach(s => bodyEl!.insertBefore(s, cursorEl ?? null));
+
+      chars.forEach((ch, i) => {
+        timers.push(setTimeout(() => {
+          resolveChar(spans[i], ch);
+          if (i === chars.length - 1) {
+            timers.push(setTimeout(finish, NOISE_FRAMES * FRAME_MS + 400));
+          }
+        }, i * CHAR_DELAY_MS + Math.random() * 8));
+      });
+    }
+
+    skipBtn?.addEventListener('click', skip);
+    replayBtn?.addEventListener('click', run);
+    run();
+  }
+
+  document.querySelectorAll('[data-tx-feed]').forEach(initFeed);
+</script>
