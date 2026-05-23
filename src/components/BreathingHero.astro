@@ -203,7 +203,6 @@
     breathSpeed: number;
     darknessRadius: number;
     color: 'teal' | 'magenta' | 'amber' | 'white';
-    colorRgb: string;
   }
 
   interface NodeConnection {
@@ -227,12 +226,35 @@
     // Skip animation for reduced-motion
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    interface Palette {
+      trailBg: string; trailA: number;
+      particle: string; shadow: string;
+      c2: string; c3: string;
+      nodes: { teal: string; magenta: string; amber: string; white: string };
+    }
+    const DARK: Palette = {
+      trailBg: '11, 13, 18',    trailA: 0.40,
+      particle: '242, 244, 248', shadow: '11, 13, 18',
+      c2: '43, 211, 198',        c3: '244, 162, 97',
+      nodes: { teal: '43, 211, 198', magenta: '192, 75, 183', amber: '244, 162, 97', white: '242, 244, 248' },
+    };
+    const LIGHT: Palette = {
+      trailBg: '216, 218, 210',  trailA: 0.30,
+      particle: '36, 44, 54',    shadow: '18, 24, 42',
+      c2: '14, 82, 72',          c3: '112, 66, 14',
+      nodes: { teal: '14, 82, 72', magenta: '92, 26, 82', amber: '118, 70, 14', white: '172, 162, 144' },
+    };
+    function getPalette(): Palette {
+      return document.documentElement.dataset.theme === 'light' ? LIGHT : DARK;
+    }
+
     let width = 0;
     let height = 0;
     let particles: NoiseParticle[] = [];
     let nodes: BreathingNode[] = [];
     let connections: NodeConnection[] = [];
     let mouse = { x: -999, y: -999 };
+    let palette = getPalette();
     let animId = 0;
 
     function resize() {
@@ -250,12 +272,6 @@
         const r = Math.random();
         color = r < 0.4 ? 'teal' : r < 0.7 ? 'amber' : 'white';
       }
-      const colorMap: Record<BreathingNode['color'], string> = {
-        teal: '43, 211, 198',
-        magenta: '192, 75, 183',
-        amber: '244, 162, 97',
-        white: '242, 244, 248',
-      };
       return {
         x, y, baseX: x, baseY: y, zone,
         size: isZone2 ? Math.random() * 2 + 1.5 : Math.random() * 2.5 + 2,
@@ -264,7 +280,6 @@
         breathSpeed: 0.0008 + Math.random() * 0.0004,
         darknessRadius: isZone2 ? 80 : 120,
         color,
-        colorRgb: colorMap[color],
       };
     }
 
@@ -368,7 +383,7 @@
     }
 
     function drawParticle(p: NoiseParticle) {
-      ctx!.fillStyle = `rgba(242, 244, 248, ${p.opacity})`;
+      ctx!.fillStyle = `rgba(${palette.particle}, ${p.opacity})`;
       ctx!.beginPath();
       ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx!.fill();
@@ -377,31 +392,42 @@
     function drawNode(n: BreathingNode) {
       const breathCycle = Math.sin(n.breathPhase);
       const darknessIntensity = (breathCycle + 1) / 2;
+      const rgb = palette.nodes[n.color];
+      const isLight = palette === LIGHT;
 
-      // Darkness breathing field
-      const darkGrad = ctx!.createRadialGradient(n.x, n.y, n.size, n.x, n.y, n.darknessRadius);
-      darkGrad.addColorStop(0,   `rgba(11, 13, 18, 0)`);
-      darkGrad.addColorStop(0.3, `rgba(11, 13, 18, ${darknessIntensity * 0.15})`);
-      darkGrad.addColorStop(0.6, `rgba(11, 13, 18, ${darknessIntensity * 0.25})`);
-      darkGrad.addColorStop(1,   `rgba(11, 13, 18, ${darknessIntensity * 0.1})`);
-      ctx!.fillStyle = darkGrad;
+      // Shadow/void field.
+      // Dark mode: shadow pools around the node (darkens local space).
+      // Light mode: shadow radiates outward — concentrates in the void *between* nodes.
+      const fieldGrad = ctx!.createRadialGradient(n.x, n.y, n.size, n.x, n.y, n.darknessRadius);
+      if (isLight) {
+        fieldGrad.addColorStop(0,    `rgba(${palette.shadow}, 0)`);
+        fieldGrad.addColorStop(0.42, `rgba(${palette.shadow}, ${darknessIntensity * 0.07})`);
+        fieldGrad.addColorStop(0.70, `rgba(${palette.shadow}, ${darknessIntensity * 0.14})`);
+        fieldGrad.addColorStop(1,    `rgba(${palette.shadow}, ${darknessIntensity * 0.21})`);
+      } else {
+        fieldGrad.addColorStop(0,   `rgba(${palette.shadow}, 0)`);
+        fieldGrad.addColorStop(0.3, `rgba(${palette.shadow}, ${darknessIntensity * 0.15})`);
+        fieldGrad.addColorStop(0.6, `rgba(${palette.shadow}, ${darknessIntensity * 0.25})`);
+        fieldGrad.addColorStop(1,   `rgba(${palette.shadow}, ${darknessIntensity * 0.10})`);
+      }
+      ctx!.fillStyle = fieldGrad;
       ctx!.beginPath();
       ctx!.arc(n.x, n.y, n.darknessRadius, 0, Math.PI * 2);
       ctx!.fill();
 
-      // Glow halo
-      const glowSize = n.size * 3;
-      const glowGrad = ctx!.createRadialGradient(n.x, n.y, 0, n.x, n.y, glowSize);
-      glowGrad.addColorStop(0, `rgba(${n.colorRgb}, ${n.baseOpacity * 0.4})`);
-      glowGrad.addColorStop(0.5, `rgba(${n.colorRgb}, ${n.baseOpacity * 0.15})`);
-      glowGrad.addColorStop(1, `rgba(${n.colorRgb}, 0)`);
+      // Color halo — larger radius in light mode, colors bleed into sky
+      const glowR = n.size * (isLight ? 4.5 : 3);
+      const glowGrad = ctx!.createRadialGradient(n.x, n.y, 0, n.x, n.y, glowR);
+      glowGrad.addColorStop(0,   `rgba(${rgb}, ${n.baseOpacity * (isLight ? 0.28 : 0.40)})`);
+      glowGrad.addColorStop(0.5, `rgba(${rgb}, ${n.baseOpacity * (isLight ? 0.10 : 0.15)})`);
+      glowGrad.addColorStop(1,   `rgba(${rgb}, 0)`);
       ctx!.fillStyle = glowGrad;
       ctx!.beginPath();
-      ctx!.arc(n.x, n.y, glowSize, 0, Math.PI * 2);
+      ctx!.arc(n.x, n.y, glowR, 0, Math.PI * 2);
       ctx!.fill();
 
       // Core dot
-      ctx!.fillStyle = `rgba(${n.colorRgb}, ${n.baseOpacity})`;
+      ctx!.fillStyle = `rgba(${rgb}, ${n.baseOpacity * (isLight ? 0.88 : 1.0)})`;
       ctx!.beginPath();
       ctx!.arc(n.x, n.y, n.size, 0, Math.PI * 2);
       ctx!.fill();

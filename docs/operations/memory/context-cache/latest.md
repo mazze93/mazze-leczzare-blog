@@ -1,26 +1,23 @@
 # Context Cache Snapshot
 
-Generated: 2026-05-14 08:03:59Z
+Generated: 2026-05-22 14:55:11Z
 Branch: main
-Last Commit: c3257ec fix: remove hero-signal-grid.svg; update gitignore
+Last Commit: ce2b39b refactor(praxis): atlas refinement — mode-tinted foreground identity
 
 ## Git Status (short)
-
-M docs/operations/memory/context-cache/latest.md
-?? docs/superpowers/plans/2026-05-14-compass-subsystem-1.md
-?? docs/superpowers/specs/2026-05-13-constellation-architecture-design.md
+ M docs/operations/memory/context-cache/latest.md
+ M src/components/BreathingHero.astro
+ M src/pages/roadmap.md
 ?? public/mazze_profile_ultra_400.jpg
 ?? src/assets/images/blog/hero-decay-rot.png
 ?? src/content/blog/the_breakthrough_artifact.html
 
 ## Ahead/Behind
-
-## HEAD (no branch)
+## main...origin/main [ahead 3, behind 4]
 
 ## Recent Commits
-
-c3257ec fix: remove hero-signal-grid.svg; update gitignore
-e7476d7 Fix/seo security hardening (#115)
-1f3aa78 chore(deps): bump actions/dependency-review-action (#117)
-49c57ef chore(deps): bump the npm_and_yarn group with 4 updates (#118)
-d646b1b Claude/add link headers tol80 (#116)
+ce2b39b refactor(praxis): atlas refinement — mode-tinted foreground identity
+89878f5 docs(CLAUDE.md): align with Praxis Workspace Atlas paths
+9658feb chore: align Praxis workspace visual identity across 3 operating modes
+5815559 [MZ] remove duplicate compact Colophon from footer
+a1e59cd [MZ] light mode — designed depth system, not just inverted dark
