@@ -88,7 +88,9 @@
   /* Mobile: degrade the overlay to a legible, tappable list pinned to the
      bottom of the hero — does not fight the vertically-centered headline. */
   @media (max-width: 768px) {
-    .constellation-nodes {
+    /* :not(:empty) so an unfilled container (fetch fail / no nodes) paints
+       nothing and leaves the hero CTAs as the tappable fallback. */
+    .constellation-nodes:not(:empty) {
       position: absolute;
       inset: auto 0 0 0;
       max-height: 42vh;
