@@ -29,7 +29,8 @@ export interface NodeRecord {
 export function titleize(slug: string): string {
   return slug
     .split("-")
-    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .filter(Boolean)
+    .map((w) => w[0].toUpperCase() + w.slice(1))
     .join(" ");
 }
 
@@ -49,6 +50,7 @@ export function aggregateNodes(entries: RawEntry[]): NodeRecord[] {
 
   const nodes: NodeRecord[] = [];
   for (const [slug, group] of groups) {
+    // Pieces are listed in publication order (pubDate); the node's lastTouched (below) uses updatedDate.
     const sorted = [...group].sort(
       (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
     );

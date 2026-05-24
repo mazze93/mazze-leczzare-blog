@@ -13,9 +13,27 @@ describe("titleize", () => {
   it("converts a slug to title case", () => {
     expect(titleize("merchants-of-war")).toBe("Merchants Of War");
   });
+
+  it("collapses consecutive and edge hyphens", () => {
+    expect(titleize("foo--bar")).toBe("Foo Bar");
+    expect(titleize("-lead-trail-")).toBe("Lead Trail");
+  });
 });
 
 describe("aggregateNodes", () => {
+  it("returns an empty array for empty input", () => {
+    expect(aggregateNodes([])).toEqual([]);
+  });
+
+  it("keeps both nodes when lastTouched ties", () => {
+    const nodes = aggregateNodes([
+      entry("a", "blog", { title: "A", project: "alpha", pubDate: new Date("2026-03-01") }),
+      entry("b", "blog", { title: "B", project: "beta", pubDate: new Date("2026-03-01") }),
+    ]);
+    expect(nodes).toHaveLength(2);
+    expect(nodes.map((n) => n.slug).sort()).toEqual(["alpha", "beta"]);
+  });
+
   it("ignores entries with no project", () => {
     const nodes = aggregateNodes([
       entry("a", "blog", { title: "A", pubDate: new Date("2026-01-01") }),

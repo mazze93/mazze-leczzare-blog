@@ -41,6 +41,12 @@ describe("computeZone", () => {
     expect(r.driftRatio).toBeCloseTo(0, 5);
   });
 
+  it("treats exactly ERASURE_DAYS as undefined", () => {
+    const r = computeZone(daysAgo(ERASURE_DAYS), false, NOW);
+    expect(r.zone).toBe("undefined");
+    expect(r.driftRatio).toBe(1);
+  });
+
   it("reports ageDays for downstream display", () => {
     const r = computeZone(daysAgo(42), false, NOW);
     expect(Math.round(r.ageDays)).toBe(42);

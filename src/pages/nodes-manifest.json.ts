@@ -12,8 +12,9 @@ export const GET: APIRoute = async () => {
   ];
 
   const nodes = aggregateNodes(entries);
+  const generatedAt = nodes.length > 0 ? nodes[0].lastTouched : null;
   const body = JSON.stringify({
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     nodes,
   });
 
