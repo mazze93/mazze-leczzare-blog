@@ -1,0 +1,75 @@
+export interface RawEntry {
+  id: string;
+  type: "blog" | "signal";
+  data: {
+    title: string;
+    project?: string;
+    committed?: boolean;
+    pubDate: Date;
+    updatedDate?: Date;
+  };
+}
+
+export interface PieceRef {
+  id: string;
+  title: string;
+  type: "blog" | "signal";
+  pubDate: string; // ISO
+}
+
+export interface NodeRecord {
+  slug: string;
+  title: string;       // titleized slug (display name)
+  lastTouched: string; // ISO — max(updatedDate ?? pubDate) across pieces
+  committed: boolean;  // true if any piece is committed
+  count: number;
+  pieces: PieceRef[];  // newest-first
+}
+
+export function titleize(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(" ");
+}
+
+function touchedAt(data: RawEntry["data"]): number {
+  return (data.updatedDate ?? data.pubDate).getTime();
+}
+
+export function aggregateNodes(entries: RawEntry[]): NodeRecord[] {
+  const groups = new Map<string, RawEntry[]>();
+  for (const e of entries) {
+    const slug = e.data.project;
+    if (!slug) continue;
+    const list = groups.get(slug);
+    if (list) list.push(e);
+    else groups.set(slug, [e]);
+  }
+
+  const nodes: NodeRecord[] = [];
+  for (const [slug, group] of groups) {
+    const sorted = [...group].sort(
+      (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+    );
+    const lastTouchedMs = Math.max(...group.map((e) => touchedAt(e.data)));
+    nodes.push({
+      slug,
+      title: titleize(slug),
+      lastTouched: new Date(lastTouchedMs).toISOString(),
+      committed: group.some((e) => e.data.committed === true),
+      count: group.length,
+      pieces: sorted.map((e) => ({
+        id: e.id,
+        title: e.data.title,
+        type: e.type,
+        pubDate: e.data.pubDate.toISOString(),
+      })),
+    });
+  }
+
+  nodes.sort(
+    (a, b) => new Date(b.lastTouched).getTime() - new Date(a.lastTouched).getTime(),
+  );
+  return nodes;
+}
