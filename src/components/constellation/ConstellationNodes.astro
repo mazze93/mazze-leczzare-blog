@@ -6,7 +6,9 @@
 ---
 <div class="constellation-nodes" data-constellation></div>
 
-<style>
+<!-- is:global — nodes are injected by the client script at runtime, so they
+     never receive Astro's scoped-style attribute. Scope by class namespace. -->
+<style is:global>
   .constellation-nodes {
     position: absolute;
     inset: 0;
