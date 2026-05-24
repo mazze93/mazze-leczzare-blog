@@ -22,6 +22,9 @@ const blog = defineCollection({
     featured: z.boolean().optional(),
     slug: z.string().optional(),
     draft: z.boolean().optional(),
+    // ── constellation fields ──
+    project: z.string().optional(),    // slug — joins/creates a node (singular for v1)
+    committed: z.boolean().optional(), // true → node pinned to signal, immune to decay
   }),
 });
 
@@ -53,6 +56,9 @@ const signal = defineCollection({
     featured: z.boolean().optional(),
     draft: z.boolean().optional(),
     slug: z.string().optional(),
+    // ── constellation fields ──
+    project: z.string().optional(),
+    committed: z.boolean().optional(),
   }),
 });
 
