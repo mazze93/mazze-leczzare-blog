@@ -14,7 +14,7 @@
  * Respects prefers-reduced-motion (static gradient fallback).
  * Pauses when tab is hidden.
  */
-import ConstellationNodes from "./constellation/ConstellationNodes.astro";
+import ConstellationNodes from "./constellation/ConstellationNodes";
 ---
 
 <section class="breathing-hero" aria-label="Site introduction">
@@ -31,7 +31,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes.astro";
       <a href="/work/" class="breathing-hero__cta breathing-hero__cta--secondary">Explore the work</a>
     </div>
   </div>
-  <ConstellationNodes />
+  <ConstellationNodes client:load />
 </section>
 
 <style>
