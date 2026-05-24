@@ -1,5 +1,6 @@
 import { glob } from "astro/loaders";
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "zod";
 
 /**
  * Blog content collection schema.
@@ -22,6 +23,9 @@ const blog = defineCollection({
     featured: z.boolean().optional(),
     slug: z.string().optional(),
     draft: z.boolean().optional(),
+    // ── constellation fields ──
+    project: z.string().optional(),    // slug — joins/creates a node (singular for v1)
+    committed: z.boolean().optional(), // true → node pinned to signal, immune to decay
   }),
 });
 
@@ -53,6 +57,9 @@ const signal = defineCollection({
     featured: z.boolean().optional(),
     draft: z.boolean().optional(),
     slug: z.string().optional(),
+    // ── constellation fields ──
+    project: z.string().optional(),
+    committed: z.boolean().optional(),
   }),
 });
 
