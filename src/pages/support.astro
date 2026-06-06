@@ -1,0 +1,361 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE, SITE_GITHUB_URL } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Support the work | ${SITE_TITLE}`}
+      description="Support independent writing, open-source security tools, and privacy-first infrastructure for LGBTQ+ communities."
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="support-shell">
+
+        <div class="support-intro">
+          <p class="eyebrow">Support</p>
+          <h1>Keep this work going</h1>
+          <p class="lede">
+            Everything here — the writing, the open-source tools, the security infrastructure for communities
+            that need it — is built independently, without institutional backing.
+            If any of it has been useful to you, direct support makes more of it possible.
+          </p>
+        </div>
+
+        <div class="support-grid">
+
+          <!-- GitHub Sponsors — primary -->
+          <a
+            href="https://github.com/sponsors/mazze93"
+            class="support-card support-card--primary"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Sponsor on GitHub"
+          >
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M12 1C5.373 1 0 6.373 0 13c0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 24 6.373 18.627 1 12 1z"/>
+              </svg>
+            </div>
+            <div class="card-body">
+              <p class="card-platform">GitHub Sponsors</p>
+              <p class="card-desc">Monthly or one-time support. Directly funds open-source security tools and independent research.</p>
+            </div>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+
+          <!-- Ko-fi -->
+          <a
+            href="https://ko-fi.com/mazzeleczzare"
+            class="support-card"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Support on Ko-fi"
+          >
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 2.964.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>
+              </svg>
+            </div>
+            <div class="card-body">
+              <p class="card-platform">Ko-fi</p>
+              <p class="card-desc">Buy a coffee. No account needed, no subscriptions — one-time support, however much feels right.</p>
+            </div>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+
+          <!-- PayPal -->
+          <a
+            href="https://paypal.me/mazzewhiteley"
+            class="support-card"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Send via PayPal"
+          >
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.291-.077.448-.75 3.86-3.37 5.393-7.044 5.393h-2.01a.88.88 0 0 0-.87.744l-.938 5.958a.64.64 0 0 1-.633.743H7.076zm6.13-11.89c1.9 0 3.35-.607 3.96-3.087.4-1.64-.041-2.475-.53-2.975-.673-.69-1.792-1.001-3.374-1.001H8.47L6.863 12.327h1.968c1.014 0 1.835-.688 1.986-1.697l.39-1.183zm7.396 0c1.9 0 3.35-.607 3.961-3.087.4-1.64-.042-2.475-.531-2.975-.673-.69-1.791-1.001-3.373-1.001h-4.788l-1.607 8.063h1.968c1.014 0 1.835-.688 1.986-1.697l.384-1.303z"/>
+              </svg>
+            </div>
+            <div class="card-body">
+              <p class="card-platform">PayPal</p>
+              <p class="card-desc">Direct transfer, instant. Works internationally with most bank accounts and cards.</p>
+            </div>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+
+          <!-- Venmo -->
+          <a
+            href="https://venmo.com/mazzewhiteley"
+            class="support-card"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Send via Venmo"
+          >
+            <div class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M17.379 0c.699 1.164 1.012 2.362 1.012 3.873 0 4.826-4.12 11.091-7.468 15.49H3.759L.85 1.123l7.479-.7 1.524 11.975c1.42-2.315 3.179-5.938 3.179-8.411 0-1.352-.234-2.27-.585-3.029z"/>
+              </svg>
+            </div>
+            <div class="card-body">
+              <p class="card-platform">Venmo</p>
+              <p class="card-desc">Quick and easy for US-based support. Peer-to-peer, no fees for bank transfers.</p>
+            </div>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+
+        </div>
+
+        <!-- What support enables -->
+        <div class="impact-block">
+          <p class="impact-label">What support enables</p>
+          <div class="impact-grid">
+            <div class="impact-item">
+              <span class="impact-dot"></span>
+              <p>Open-source security tools for LGBTQ+ organizations — built to withstand adversarial threat models, available to anyone who needs them.</p>
+            </div>
+            <div class="impact-item">
+              <span class="impact-dot"></span>
+              <p>Independent writing on AI governance, privacy infrastructure, and the ethics of building systems for vulnerable communities.</p>
+            </div>
+            <div class="impact-item">
+              <span class="impact-dot"></span>
+              <p>Research at the intersection of neuroscience and machine learning — the kind that doesn't fit neatly into institutional funding structures.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .support-shell {
+    min-height: calc(100vh - 68px);
+    padding: 4rem 1.25rem 5rem;
+    background:
+      radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.1), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(var(--accent-rgb), 0.06), transparent 36%),
+      linear-gradient(165deg, rgba(9, 12, 20, 0.98), rgba(10, 22, 28, 0.96));
+  }
+
+  .support-intro {
+    width: min(720px, 100%);
+    margin: 0 auto 3rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 1rem;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(3rem, 7vw, 5rem);
+    line-height: 0.95;
+    color: #f5f1e8;
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+
+  .lede {
+    max-width: 42rem;
+    margin: 0;
+    font-size: clamp(1.1rem, 2.3vw, 1.4rem);
+    line-height: 1.7;
+    color: rgba(245, 241, 232, 0.78);
+    font-family: var(--font-display);
+  }
+
+  /* support cards grid */
+  .support-grid {
+    width: min(720px, 100%);
+    margin: 0 auto 3.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .support-grid { grid-template-columns: 1fr; }
+  }
+
+  .support-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 22px;
+    border-radius: 16px;
+    border: 1px solid rgba(135, 148, 171, 0.14);
+    background: rgba(20, 30, 36, 0.72);
+    backdrop-filter: blur(12px);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+    position: relative;
+  }
+
+  .support-card:hover {
+    border-color: rgba(58, 184, 160, 0.4);
+    background: rgba(20, 30, 36, 0.9);
+    transform: translateY(-2px);
+  }
+
+  .support-card--primary {
+    grid-column: 1 / -1;
+    border-color: rgba(58, 184, 160, 0.28);
+    background: rgba(58, 184, 160, 0.06);
+  }
+
+  .support-card--primary:hover {
+    border-color: rgba(58, 184, 160, 0.55);
+    background: rgba(58, 184, 160, 0.1);
+  }
+
+  .card-icon {
+    flex-shrink: 0;
+    color: var(--teal);
+    opacity: 0.85;
+  }
+
+  .support-card--primary .card-icon {
+    opacity: 1;
+  }
+
+  .card-body {
+    flex: 1;
+  }
+
+  .card-platform {
+    margin: 0 0 4px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: #f5f1e8;
+    text-transform: uppercase;
+  }
+
+  .card-desc {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: rgba(245, 241, 232, 0.62);
+  }
+
+  .card-arrow {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: rgba(58, 184, 160, 0.5);
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .support-card:hover .card-arrow {
+    color: var(--teal);
+    transform: translateX(3px);
+  }
+
+  /* impact block */
+  .impact-block {
+    width: min(720px, 100%);
+    margin: 0 auto;
+    border-top: 1px solid rgba(244, 240, 232, 0.08);
+    padding-top: 2.5rem;
+  }
+
+  .impact-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(244, 240, 232, 0.35);
+    margin: 0 0 1.5rem;
+  }
+
+  .impact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 720px) {
+    .impact-grid { grid-template-columns: 1fr; gap: 1rem; }
+  }
+
+  .impact-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .impact-dot {
+    flex-shrink: 0;
+    margin-top: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--teal);
+    opacity: 0.6;
+  }
+
+  .impact-item p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: rgba(245, 241, 232, 0.55);
+  }
+
+  /* light mode */
+  :global([data-theme="light"]) .support-shell {
+    background:
+      radial-gradient(circle at top left, rgba(30, 112, 96, 0.06), transparent 28%),
+      var(--bg);
+  }
+
+  :global([data-theme="light"]) .support-card {
+    background: var(--surface);
+    border-color: var(--rule);
+    backdrop-filter: none;
+  }
+
+  :global([data-theme="light"]) .support-card--primary {
+    background: rgba(30, 112, 96, 0.04);
+    border-color: rgba(30, 112, 96, 0.22);
+  }
+
+  :global([data-theme="light"]) .card-desc,
+  :global([data-theme="light"]) .lede {
+    color: var(--text-dim);
+  }
+
+  :global([data-theme="light"]) .impact-item p {
+    color: var(--text-dim);
+  }
+
+  :global([data-theme="light"]) h1 {
+    color: var(--text);
+  }
+</style>
