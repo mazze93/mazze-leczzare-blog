@@ -115,7 +115,7 @@ function computeCorpusEntropy(published: Post[]): {
 const DAY_MS = 86_400_000;
 const NOW = Date.UTC(2026, 4, 23); // 2026-05-23
 
-function makePost(overrides: Partial<Post> & { data: Partial<PostData> }): Post {
+function makePost(overrides: { id?: string; body?: string; data?: Partial<PostData> } = {}): Post {
   return {
     id: "test-post",
     body: "",
