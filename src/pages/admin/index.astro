@@ -5,10 +5,66 @@ import Footer from '../../components/Footer.astro';
 import { SITE_TITLE } from '../../consts';
 import { getCollection } from 'astro:content';
 
-const posts = await getCollection('blog');
-const sorted = posts.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const allPosts = await getCollection('blog');
+const sorted = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const published = sorted.filter(p => !p.data.draft);
+const drafts    = sorted.filter(p =>  p.data.draft);
+
+// ── Writing cadence ──────────────────────────────────────────────────────────
+const daysSinceLast = published.length > 0
+  ? Math.floor((Date.now() - published[0].data.pubDate.valueOf()) / 86_400_000)
+  : null;
+
+// ── Tag taxonomy ─────────────────────────────────────────────────────────────
+const tagCounts: Record<string, number> = {};
+for (const post of published) {
+  for (const tag of post.data.tags ?? []) {
+    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+  }
+}
+const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+
+// ── Content health ───────────────────────────────────────────────────────────
+type Gap = 'tags' | 'hero' | 'category';
+const GAP_LABEL: Record<Gap, string> = {
+  tags:     'no tags',
+  hero:     'no hero image',
+  category: 'no category',
+};
+const needsAttention = published
+  .map(post => {
+    const gaps: Gap[] = [];
+    if (!post.data.tags || post.data.tags.length === 0) gaps.push('tags');
+    if (!post.data.heroImage) gaps.push('hero');
+    if (!post.data.category)  gaps.push('category');
+    return { post, gaps };
+  })
+  .filter(({ gaps }) => gaps.length > 0);
+
+// ── Corpus entropy ────────────────────────────────────────────────────────────
+// Shannon entropy H = −∑ p(w)·log₂p(w) over the word-unigram distribution.
+// Measures lexical diversity: how unpredictable your vocabulary is across the
+// whole published corpus. High entropy = rich, varied signal.
+const wordFreq: Record<string, number> = {};
+let totalWords = 0;
+for (const post of published) {
+  const body = ('body' in post ? post.body as string : '') ?? '';
+  const words = body.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+  for (const word of words) {
+    wordFreq[word] = (wordFreq[word] ?? 0) + 1;
+    totalWords++;
+  }
+}
+let entropy = 0;
+if (totalWords > 0) {
+  for (const count of Object.values(wordFreq)) {
+    const p = count / totalWords;
+    entropy -= p * Math.log2(p);
+  }
+}
+const entropyBits   = totalWords > 0 ? entropy.toFixed(2) : '—';
+const uniqueWordCount = Object.keys(wordFreq).length;
 ---
 
 <!doctype html>
@@ -32,14 +88,36 @@ const sorted = posts.sort(
         </div>
 
         <div class="admin-content">
+
+          <!-- Stats row -->
           <div class="stat-grid">
             <div class="stat-card">
-              <span class="stat-value">{posts.length}</span>
-              <span class="stat-label">Total posts</span>
+              <span class="stat-value">{published.length}</span>
+              <span class="stat-label">Published</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{drafts.length}</span>
+              <span class="stat-label">Drafts</span>
+            </div>
+            {daysSinceLast !== null && (
+              <div class="stat-card">
+                <span class="stat-value">{daysSinceLast}</span>
+                <span class="stat-label">{daysSinceLast === 1 ? 'day since last post' : 'days since last post'}</span>
+              </div>
+            )}
+            <div class="stat-card stat-card--entropy" title="Shannon entropy of word-unigram distribution across all published posts">
+              <span class="stat-value stat-value--entropy">
+                {entropyBits}{totalWords > 0 && <span class="entropy-unit">bits</span>}
+              </span>
+              <span class="stat-label">corpus entropy</span>
+              {uniqueWordCount > 0 && (
+                <span class="stat-sub">{uniqueWordCount.toLocaleString()} unique words</span>
+              )}
             </div>
           </div>
 
-          <div class="posts-section">
+          <!-- Posts -->
+          <div class="panel">
             <h2>Posts</h2>
             <ul class="posts-list">
               {sorted.map((post) => (
@@ -50,7 +128,7 @@ const sorted = posts.sort(
                     <a href={`/blog/${post.id}`} class="post-title">{post.data.title}</a>
                   )}
                   <div class="post-meta">
-                    {post.data.draft && <span class="draft-badge">Draft</span>}
+                    {post.data.draft && <span class="badge badge--draft">Draft</span>}
                     <span class="post-date">
                       {post.data.pubDate.toLocaleDateString('en-US', {
                         year: 'numeric',
@@ -63,6 +141,43 @@ const sorted = posts.sort(
               ))}
             </ul>
           </div>
+
+          <!-- Tag taxonomy -->
+          {tags.length > 0 && (
+            <div class="panel">
+              <h2>Tags</h2>
+              <div class="tag-cloud">
+                {tags.map(([tag, count]) => (
+                  <span class="tag-pill">
+                    {tag}<span class="tag-count">×{count}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Content health -->
+          {needsAttention.length > 0 && (
+            <div class="panel panel--health">
+              <h2>Content gaps</h2>
+              <p class="health-intro">
+                {needsAttention.length === 1
+                  ? '1 published post has missing metadata.'
+                  : `${needsAttention.length} published posts have missing metadata.`}
+              </p>
+              <ul class="health-list">
+                {needsAttention.map(({ post, gaps }) => (
+                  <li class="health-row">
+                    <a href={`/blog/${post.id}`} class="health-title">{post.data.title}</a>
+                    <span class="health-gaps">
+                      {gaps.map(g => GAP_LABEL[g]).join(' · ')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
         </div>
       </section>
     </main>
@@ -155,6 +270,8 @@ const sorted = posts.sort(
     cursor: wait;
   }
 
+  /* ── Stat grid ─────────────────────────────────────────────────────────── */
+
   .stat-grid {
     display: flex;
     gap: 1rem;
@@ -170,7 +287,12 @@ const sorted = posts.sort(
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    min-width: 10rem;
+    min-width: 9rem;
+  }
+
+  .stat-card--entropy {
+    border-color: rgba(94, 196, 210, 0.22);
+    background: rgba(30, 70, 82, 0.45);
   }
 
   .stat-value {
@@ -180,15 +302,39 @@ const sorted = posts.sort(
     line-height: 1;
   }
 
+  .stat-value--entropy {
+    font-family: 'DM Mono', 'Courier New', monospace;
+    color: #7dd3e8;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+  }
+
+  .entropy-unit {
+    font-size: 1rem;
+    font-weight: 400;
+    color: rgba(125, 211, 232, 0.6);
+    letter-spacing: 0.04em;
+  }
+
   .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: rgba(245, 241, 232, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 600;
   }
 
-  .posts-section {
+  .stat-sub {
+    font-size: 0.78rem;
+    color: rgba(125, 211, 232, 0.5);
+    margin-top: 0.1rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Shared panel ──────────────────────────────────────────────────────── */
+
+  .panel {
     padding: 1.75rem 2rem;
     border-radius: 24px;
     border: 1px solid rgba(135, 148, 171, 0.18);
@@ -196,19 +342,28 @@ const sorted = posts.sort(
     backdrop-filter: blur(12px);
   }
 
+  .panel--health {
+    border-color: rgba(251, 191, 36, 0.2);
+    background: rgba(80, 60, 20, 0.35);
+  }
+
   h2 {
     margin: 0 0 1.25rem;
     color: #f5f1e8;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
+
+  /* ── Posts list ────────────────────────────────────────────────────────── */
 
   .posts-list {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
   .post-row {
@@ -241,6 +396,11 @@ const sorted = posts.sort(
     color: #f79a6d;
   }
 
+  .post-title--draft {
+    opacity: 0.45;
+    cursor: default;
+  }
+
   .post-meta {
     display: flex;
     align-items: center;
@@ -254,30 +414,115 @@ const sorted = posts.sort(
     white-space: nowrap;
   }
 
-  .draft-badge {
+  .badge {
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
+  }
+
+  .badge--draft {
     background: rgba(247, 154, 109, 0.15);
     color: #f79a6d;
     border: 1px solid rgba(247, 154, 109, 0.3);
   }
 
-  .post-title--draft {
-    opacity: 0.5;
-    cursor: default;
+  /* ── Tag cloud ─────────────────────────────────────────────────────────── */
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
+
+  .tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(135, 148, 171, 0.25);
+    background: rgba(135, 148, 171, 0.1);
+    color: rgba(245, 241, 232, 0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .tag-count {
+    font-size: 0.75rem;
+    color: rgba(247, 154, 109, 0.75);
+    font-weight: 700;
+  }
+
+  /* ── Content health ────────────────────────────────────────────────────── */
+
+  .health-intro {
+    margin: -0.5rem 0 1rem;
+    font-size: 0.9rem;
+    color: rgba(251, 191, 36, 0.7);
+  }
+
+  .health-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .health-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    transition: background var(--transition-fast);
+  }
+
+  .health-row:hover {
+    background: rgba(251, 191, 36, 0.06);
+  }
+
+  .health-title {
+    color: #f5f1e8;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .health-title:hover {
+    color: #fbbf24;
+  }
+
+  .health-gaps {
+    font-size: 0.8rem;
+    color: rgba(251, 191, 36, 0.6);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Responsive ────────────────────────────────────────────────────────── */
 
   @media (max-width: 720px) {
     .admin-shell {
       padding: 2rem 1rem 4rem;
     }
 
-    .posts-section {
+    .panel {
       padding: 1.25rem 1rem;
+    }
+
+    .stat-card {
+      padding: 1.25rem 1.5rem;
     }
   }
 </style>
