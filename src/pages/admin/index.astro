@@ -44,16 +44,21 @@ const sorted = posts.sort(
             <ul class="posts-list">
               {sorted.map((post) => (
                 <li class="post-row">
-                  <a href={`/blog/${post.id}`} class="post-title">
-                    {post.data.title}
-                  </a>
-                  <span class="post-date">
-                    {post.data.pubDate.toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </span>
+                  {post.data.draft ? (
+                    <span class="post-title post-title--draft">{post.data.title}</span>
+                  ) : (
+                    <a href={`/blog/${post.id}`} class="post-title">{post.data.title}</a>
+                  )}
+                  <div class="post-meta">
+                    {post.data.draft && <span class="draft-badge">Draft</span>}
+                    <span class="post-date">
+                      {post.data.pubDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -236,11 +241,34 @@ const sorted = posts.sort(
     color: #f79a6d;
   }
 
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+  }
+
   .post-date {
     font-size: 0.85rem;
     color: rgba(245, 241, 232, 0.5);
     white-space: nowrap;
-    flex-shrink: 0;
+  }
+
+  .draft-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(247, 154, 109, 0.15);
+    color: #f79a6d;
+    border: 1px solid rgba(247, 154, 109, 0.3);
+  }
+
+  .post-title--draft {
+    opacity: 0.5;
+    cursor: default;
   }
 
   @media (max-width: 720px) {
