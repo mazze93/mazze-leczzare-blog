@@ -1,0 +1,9 @@
+# Ignore everything by default — the root .gitignore excludes .claude/ entirely.
+# List explicit exceptions here for files that should be tracked.
+*
+
+# Project-level Claude Code config (tracked)
+!.gitignore
+!settings.json
+!hooks/
+!hooks/*
