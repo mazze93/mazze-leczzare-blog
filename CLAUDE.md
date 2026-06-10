@@ -296,6 +296,11 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `docs-integrity.yml` | push / PR | Runs `npm run docs:check` |
 | `lighthouse.yml` | push / PR | Lighthouse CI performance/accessibility audit |
 
+## Astro / Frontend Notes
+
+- **Scoped styles don't reach runtime-injected nodes** — Astro scopes component styles to build-time DOM. Canvas elements or JS-created nodes won't receive scoped styles; use `is:global` or inline styles for those.
+- **Safari favicon** — SVG favicons may not render in Safari. Always pair with a `.ico` or `.png` fallback.
+
 ## Key Constraints
 
 - **Static output only** — `astro.config.mjs` sets `output: "static"`. No SSR. All dynamic behaviour goes through Cloudflare Functions.
