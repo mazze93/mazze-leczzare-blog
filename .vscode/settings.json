@@ -1,2 +1,17 @@
 {
+  "// praxis-mode": "Publishing \u2014 Blog",
+  "// fg-tint": "publishing",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#113a35",
+    "titleBar.inactiveBackground": "#113a35",
+    "titleBar.activeForeground": "#f0ead8",
+    "titleBar.inactiveForeground": "#f0ead8aa",
+    "titleBar.border": "#113a35",
+    "activityBar.background": "#113a35",
+    "activityBar.foreground": "#f0ead8",
+    "activityBar.inactiveForeground": "#f0ead8aa",
+    "activityBar.border": "#113a35",
+    "statusBar.background": "#113a35",
+    "statusBar.foreground": "#f0ead8"
+  }
 }

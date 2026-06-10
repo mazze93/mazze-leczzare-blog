@@ -1,0 +1,107 @@
+.constellationNodes {
+  position: absolute;
+  inset: 0;
+  z-index: 5; /* above the canvas (auto), below hero content (z-index 10) */
+  pointer-events: none; /* container is transparent to input; links re-enable */
+}
+
+.cnNode {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  opacity: var(--opacity, 1);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.4rem 0.5rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.cnDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--zone-color);
+  box-shadow: 0 0 12px 2px var(--zone-color);
+}
+
+.cnNode[data-zone="experiment"] { --zone-color: #2bd3c6; }
+.cnNode[data-zone="signal"]     { --zone-color: #f4a261; }
+.cnNode[data-zone="undefined"]  { --zone-color: rgba(242, 244, 248, 0.7); }
+
+.cnLabel {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: #f2f4f8;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.85);
+}
+
+.cnNode:hover .cnLabel,
+.cnNode:focus-visible .cnLabel {
+  opacity: 1;
+  transform: none;
+}
+
+.cnNode:focus-visible {
+  outline: 2px solid #f4d29a;
+  outline-offset: 3px;
+}
+
+/* Entry stagger — applied only when the container carries .animate
+   (set when motion is allowed). */
+.animate .cnNode {
+  animation: cnFadeIn 0.6s ease-out both;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes cnFadeIn {
+  from { opacity: 0; }
+  to   { opacity: var(--opacity, 1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate .cnNode { animation: none; }
+  .cnNode { transition: none; }
+}
+
+/* Mobile: degrade the overlay to a legible, tappable list pinned to the
+   bottom of the hero. :not(:empty) so an unfilled container (fetch fail /
+   no nodes) paints nothing and leaves the hero CTAs as the fallback. */
+@media (max-width: 768px) {
+  .constellationNodes:not(:empty) {
+    position: absolute;
+    inset: auto 0 0 0;
+    max-height: 42vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    z-index: 11;
+    pointer-events: auto;
+    background: linear-gradient(to top, rgba(11, 13, 18, 0.94), rgba(11, 13, 18, 0));
+  }
+  .constellationNodes:not(:empty) .cnNode {
+    position: static;
+    transform: none;
+    opacity: 1;
+    justify-content: flex-start;
+  }
+  .cnLabel { opacity: 1; transform: none; }
+  .cnNode[data-zone="signal"]     { order: 1; }
+  .cnNode[data-zone="experiment"] { order: 2; }
+  .cnNode[data-zone="undefined"]  { order: 3; }
+}

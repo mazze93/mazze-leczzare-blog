@@ -166,3 +166,23 @@ nav {
   .nav-links a { padding: 0.3em 0.5em; }
 }
 </style>
+
+<script>
+  // The constellation node layer dispatches `compass:state` as the reader
+  // hovers/focuses/clicks nodes; the brand compass refracts in response.
+  // compass.css already transitions the [data-state] visuals.
+  const compass = document.querySelector<HTMLElement>(".brand .compass");
+  if (compass) {
+    let resetTimer: ReturnType<typeof setTimeout> | undefined;
+    window.addEventListener("compass:state", (event) => {
+      const detail = (event as CustomEvent<{ state?: string }>).detail;
+      if (!detail?.state) return;
+      clearTimeout(resetTimer);
+      compass.dataset.state = detail.state;
+      // 'engaged' is a transient flash fired on click, just before navigation.
+      if (detail.state === "engaged") {
+        resetTimer = setTimeout(() => { compass.dataset.state = "idle"; }, 600);
+      }
+    });
+  }
+</script>

@@ -202,7 +202,6 @@ dist
 .astro/
 
 ### Local Agent Worktrees ###
-.claude/
 .codex/
 .superpowers/
 

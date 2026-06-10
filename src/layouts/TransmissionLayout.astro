@@ -1,0 +1,181 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import TransmissionFeed from '../components/TransmissionFeed.astro';
+import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from '../consts';
+
+interface Props {
+  title:           string;
+  description:     string;
+  pubDate:         Date;
+  updatedDate?:    Date;
+  transmissionId?: string;
+  cycle?:          string;
+  classification?: string;
+  status?:         string;
+  origin?:         string;
+  tags?:           string[];
+}
+
+const {
+  title, description, pubDate, updatedDate,
+  transmissionId, cycle, classification, status, origin,
+} = Astro.props;
+
+const txId     = transmissionId ?? `TRANSMISSION-${pubDate.toISOString().slice(0,10).replace(/-/g,'')}`;
+const txCycle  = cycle ? `CYCLE ${cycle} · VERIFIED` : pubDate.toISOString().slice(0,10);
+const txClass  = classification ?? 'SIGNAL · UNCLASSIFIED';
+const txOrigin = origin ?? 'FIELD LEDGER: MAZZE';
+const txStatus = status ?? 'OPEN';
+
+const schemaLD = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: title,
+  description,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_URL },
+  isPartOf: { '@type': 'WebSite', name: SITE_TITLE, url: SITE_URL },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': Astro.url.toString() },
+};
+---
+
+<html lang="en">
+<head>
+  <!-- Force dark before paint — bureau aesthetic requires black regardless of site pref -->
+  <script is:inline>document.documentElement.dataset.theme = 'dark';</script>
+  <BaseHead
+    title={`${title} — Signal`}
+    description={description}
+    type="article"
+    publishedTime={pubDate.toISOString()}
+    modifiedTime={(updatedDate ?? pubDate).toISOString()}
+  />
+  <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
+</head>
+
+<body data-layout="transmission">
+  <!--
+    Z-INDEX STACK (transmission pages only):
+      1   page content (main, header, footer)
+     10   grain canvas  } fullscreen decorative overlays
+     11   scanlines     } pointer-events:none — input passes through
+     12   vignette      }
+  -->
+  <canvas id="tx-grain" aria-hidden="true"></canvas>
+  <div class="tx-scanlines" aria-hidden="true"></div>
+  <div class="tx-vignette"  aria-hidden="true"></div>
+
+  <Header />
+  <main class="transmission-main">
+    <TransmissionFeed
+      id={txId}
+      classification={txClass}
+      origin={txOrigin}
+      timestamp={txCycle}
+      subject={title}
+      status={txStatus}
+    >
+      <slot />
+    </TransmissionFeed>
+
+    <nav class="transmission-nav" aria-label="Signal navigation">
+      <a href="/signal/" class="tx-nav-link">← All transmissions</a>
+    </nav>
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  body[data-layout="transmission"] {
+    background: var(--bg);
+  }
+
+  #tx-grain {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 10;
+    opacity: 0.08;
+  }
+
+  .tx-scanlines {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 11;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,      transparent     2px,
+      rgba(0,0,0,0.20) 2px,
+      rgba(0,0,0,0.20) 4px
+    );
+  }
+
+  .tx-vignette {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 12;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 38%,
+      rgba(0,0,0,0.92) 100%
+    );
+  }
+
+  .transmission-main {
+    width: calc(100% - 2rem);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1rem 5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .transmission-nav {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--rule);
+  }
+
+  .tx-nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .tx-nav-link:hover { color: var(--teal); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tx-grain, .tx-vignette { display: none; }
+  }
+</style>
+
+<script>
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const canvas = document.getElementById('tx-grain') as HTMLCanvasElement | null;
+    if (canvas) {
+      const ctx = canvas.getContext('2d')!;
+      const resize = () => {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+      const paint = () => {
+        const img = ctx.createImageData(canvas.width, canvas.height);
+        const buf = img.data;
+        for (let i = 0; i < buf.length; i += 4) {
+          const v = (Math.random() * 255) | 0;
+          buf[i] = buf[i + 1] = buf[i + 2] = v;
+          buf[i + 3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+        setTimeout(() => requestAnimationFrame(paint), 80);
+      };
+      requestAnimationFrame(paint);
+    }
+  }
+</script>

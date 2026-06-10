@@ -1,6 +1,12 @@
 # Constellation Architecture — Design
 
-**Status:** Approved for Subsystem 1 build
+> **⚠ Subsystems 2–4 superseded (2026-05-23)** by `2026-05-23-constellation-decay-design.md`.
+> The post-node / authored-zone / static-grid model below was replaced by an emergent
+> project-node / recency-decay / navigable-canvas model. **Subsystem 1 (the Compass) STANDS** —
+> it is built and load-bearing. Read this doc only for Subsystem 1 and the color system; the
+> field/pane/shatter sections are historical.
+
+**Status:** Subsystem 1 shipped. Subsystems 2–4 superseded — see note above.
 **Author:** Mazze Leczzare (with Claude)
 **Date:** 2026-05-13 (refined 2026-05-14)
 **Scope:** mazzeleczzare.com — full site re-architecture from chronological blog to navigable constellation
