@@ -215,7 +215,10 @@ Uses constant-time comparison for password check. Rate limit: 5 req/60s.
 
 ### `functions/api/logout.ts`
 
-Clears the `__Host-auth_token` cookie (Max-Age=0).
+Reads the `__Host-auth_token` cookie, verifies and decodes the JWT, then writes
+`revoked:{jti}` to the `JWT_REVOCATION_LIST` KV namespace with a TTL equal to the
+token's remaining lifetime. Clears the cookie (Max-Age=0) regardless of whether
+revocation succeeded — the cookie is always cleared even if KV is unavailable.
 
 ## Environment Variables and Secrets
 
