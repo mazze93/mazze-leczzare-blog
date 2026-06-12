@@ -31,12 +31,26 @@ Blog CSS is the production implementation of the design system.
 | `--cg-coral-dim: #A04030` | `--coral-dim: #a04030` ✓ synced 2026-06-12 |
 | `--font-mono: JetBrains Mono` | `--font-mono: DM Mono` — blog self-hosts DM Mono |
 
+## Assets
+
+| Design project | Blog source | Notes |
+|---|---|---|
+| `assets/compass-mark.svg` | `public/favicon.svg` | Canonical vector — authored SVG, gold stroke |
+| `assets/compass-mark.png` | *(no PNG in blog)* | Raster render in project; update manually if sigil changes |
+| `assets/mazze-headshot.jpg` | `public/mazze-headshot.jpg` | 563KB |
+| `assets/mazze-leczzare-social-preview.png` | `public/mazze-leczzare-social-preview.png` | OG image |
+
 ## Maintaining the connection
 
 When blog CSS changes, update the reference copies in the design project:
 - `uploads/global.css` ← `src/styles/global.css`
 - `uploads/editorial.css` ← `src/styles/editorial.css`
 - `uploads/homepage.css` ← `src/styles/homepage.css`
+
+When blog assets change, update the design project:
+- `assets/compass-mark.svg` ← `public/favicon.svg`
+- `assets/mazze-headshot.jpg` ← `public/mazze-headshot.jpg`
+- `assets/mazze-leczzare-social-preview.png` ← `public/mazze-leczzare-social-preview.png`
 
 When design project tokens change, update the blog's `global.css` to match.
 
