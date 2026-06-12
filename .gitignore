@@ -214,3 +214,5 @@ march_claude_blog/
 
 # Local prototype staging — not repo content
 files/
+.design-sync/.cache/
+.design-sync/learnings/

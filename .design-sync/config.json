@@ -1,0 +1,6 @@
+{
+  "projectId": "019e1ccb-00cb-7782-8451-738a76f22b4e",
+  "shape": "reference",
+  "pkg": "mazze-leczzare-blog",
+  "note": "Hand-crafted Cipher Gothic Design System project — NOT a design-sync component library output. This project is the upstream source of truth for brand tokens. Connection is maintained by keeping uploads/global.css, uploads/editorial.css, uploads/homepage.css current with the blog's CSS."
+}
