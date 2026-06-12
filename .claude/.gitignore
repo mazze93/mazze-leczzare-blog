@@ -7,3 +7,7 @@
 !settings.json
 !hooks/
 !hooks/*
+
+# Project skills (tracked)
+!skills/
+!skills/**
