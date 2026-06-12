@@ -1,0 +1,72 @@
+---
+/**
+ * CompassLink.astro — interactive compass wrapped in an anchor.
+ *
+ * Pure CSS state machine: hover and focus transitions are driven via
+ * :hover and :focus-visible pseudo-classes on the anchor, which cascade
+ * into the inner Compass span via CSS custom property inheritance.
+ *
+ * No JavaScript. No client directives. Server-rendered.
+ */
+
+import Compass from './Compass.astro';
+
+interface Props {
+  href: string;
+  label: string;
+  size?: number;
+  class?: string;
+}
+
+const { href, label, size = 32, class: className = '' } = Astro.props;
+---
+
+<a
+  href={href}
+  class={`compass-link ${className}`.trim()}
+  aria-label={label}
+>
+  <Compass size={size} state="idle" ariaLabel={undefined} />
+</a>
+
+<style>
+  .compass-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    line-height: 0;
+    text-decoration: none;
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* CSS cannot mutate data-attributes, so we override the relevant
+   * custom properties directly. The Compass still has data-state="idle"
+   * in the DOM, but visually presents as hover/focus state. */
+  .compass-link:hover :global(.compass),
+  .compass-link:focus-visible :global(.compass) {
+    --compass-beam-opacity: 0.4;
+    color: var(--gold-bright);
+  }
+
+  .compass-link:active :global(.compass) {
+    --compass-beam-opacity: 1;
+    --compass-sparkle-opacity: 1;
+    --compass-trail-opacity: 0.4;
+    color: var(--gold-bright);
+    filter: drop-shadow(0 0 12px rgba(244, 210, 154, 0.6));
+  }
+
+  .compass-link:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .compass-link,
+    .compass-link :global(.compass),
+    .compass-link :global(.compass [data-layer]) {
+      transition: none;
+    }
+  }
+</style>

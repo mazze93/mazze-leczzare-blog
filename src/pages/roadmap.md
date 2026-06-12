@@ -43,10 +43,10 @@ Welcome to the public development tracker for mazzeleczzare.com. Here you can se
 
 ### Phase 1: Core Features
 - [x ] Add contact form
-- [ ] Implement dark/light mode toggle
+- [x ] Implement dark/light mode toggle
 - [x ] Create projects showcase page
 - [x ] Add RSS feed support
-- [ ] Optimize SEO metadata
+- [x ] Optimize SEO metadata
 
 ### Phase 2: Enhanced Features
 - [ ] Add search functionality

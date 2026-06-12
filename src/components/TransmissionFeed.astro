@@ -1,0 +1,447 @@
+---
+/**
+ * TransmissionFeed.astro
+ * Bureau-style classified transmission wrapper.
+ * Inherits all tokens from global.css / compass.css.
+ * Zero hard-coded colors — everything via :root vars.
+ *
+ * Usage:
+ *   <TransmissionFeed
+ *     id="TRANSMISSION-XXXX-SLUG"
+ *     classification="SIGNAL · TYPE · STATUS"
+ *     origin="FIELD LEDGER: ORIGIN"
+ *     timestamp="CYCLE X.XXX.XX · VERIFIED"
+ *     subject="Title String"
+ *   >
+ *     {slot content — paragraphs, stanzas, verse}
+ *   </TransmissionFeed>
+ */
+
+interface Props {
+  id:             string;
+  classification: string;
+  origin:         string;
+  timestamp:      string;
+  subject:        string;
+  status?:        string;
+}
+
+const { id, classification, origin, timestamp, subject, status } = Astro.props;
+---
+
+<article class="transmission-feed" data-tx-feed aria-label={`Transmission: ${subject}`}>
+
+  <header class="transmission-header">
+    <div class="transmission-meta-row">
+      <span class="transmission-label">TRANSMISSION</span>
+      <span class="transmission-id">{id}</span>
+    </div>
+    <div class="transmission-meta-row">
+      <span class="transmission-label">CLASSIFICATION</span>
+      <span class="transmission-classification">{classification}</span>
+    </div>
+    <div class="transmission-meta-row">
+      <span class="transmission-label">ORIGIN</span>
+      <span class="transmission-origin">{origin}</span>
+    </div>
+    <div class="transmission-meta-row">
+      <span class="transmission-label">TIMESTAMP</span>
+      <span class="transmission-timestamp">{timestamp}</span>
+    </div>
+    {status && (
+      <div class="transmission-meta-row">
+        <span class="transmission-label">STATUS</span>
+        <span class={`transmission-status transmission-status--${status.toLowerCase()}`}>{status}</span>
+      </div>
+    )}
+    <div class="transmission-subject-row">
+      <span class="transmission-label">SUBJECT</span>
+      <h1 class="transmission-subject">{subject}</h1>
+    </div>
+    <div class="transmission-rule" aria-hidden="true"></div>
+  </header>
+
+  <div
+    class="transmission-body"
+    role="log"
+    aria-live="off"
+    aria-atomic="true"
+    id={`tx-body-${id}`}
+  >
+    <slot />
+    <span class="tx-cursor" aria-hidden="true" hidden></span>
+  </div>
+
+  <footer class="transmission-footer" aria-label="End of transmission">
+    <div class="transmission-rule" aria-hidden="true"></div>
+    <div class="tx-footer-inner">
+      <span class="transmission-end-marker">— END TRANSMISSION —</span>
+      <div class="tx-controls">
+        <button
+          class="tx-btn tx-skip"
+          type="button"
+          aria-label="Skip decode animation"
+          hidden
+        >
+          SKIP
+        </button>
+        <button
+          class="tx-btn tx-replay"
+          type="button"
+          aria-label="Replay transmission decode"
+          hidden
+        >
+          REPLAY
+        </button>
+      </div>
+    </div>
+  </footer>
+
+</article>
+
+<style>
+  @keyframes flicker {
+    0%, 89%, 100% { opacity: 1; }
+    90%           { opacity: 0.86; }
+    93%           { opacity: 0.94; }
+    96%           { opacity: 0.88; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0; }
+  }
+
+  @keyframes sigil-pulse {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 0.8; }
+  }
+
+  .transmission-feed {
+    --tx-border: rgba(var(--accent-rgb), 0.22);
+    --tx-glow:   rgba(var(--accent-rgb), 0.08);
+
+    position: relative;
+    max-width: 680px;
+    margin: var(--spacing-xl) auto;
+    padding: var(--spacing-lg);
+    background: var(--surface);
+    border: 1px solid var(--tx-border);
+    border-top: 2px solid var(--teal);
+    border-radius: var(--radius-md);
+    box-shadow:
+      0 0  40px rgba(var(--accent-rgb), 0.14),
+      0 0 100px rgba(var(--accent-rgb), 0.07),
+      inset 0 0 80px rgba(0, 0, 0, 0.55),
+      0 0 0 1px var(--tx-glow);
+    animation: flicker 11s ease-in-out infinite;
+  }
+
+  .transmission-feed::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 20%;
+    bottom: 20%;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--teal) 30%,
+      var(--coral) 70%,
+      transparent
+    );
+    opacity: 0.4;
+    border-radius: 2px;
+  }
+
+  .transmission-header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .transmission-meta-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    margin-bottom: 0.3em;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .transmission-label {
+    color: var(--text-faint);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    min-width: 9em;
+  }
+
+  .transmission-id             { color: var(--teal); }
+  .transmission-classification { color: var(--coral); }
+  .transmission-origin,
+  .transmission-timestamp      { color: var(--text-dim); }
+
+  .transmission-status {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.15em 0.5em;
+    border-radius: var(--radius-sm);
+    border: 1px solid currentColor;
+  }
+
+  .transmission-status--unresolved { color: var(--coral);      border-color: rgba(var(--coral-rgb), 0.3); }
+  .transmission-status--closed     { color: var(--text-faint); border-color: var(--rule); }
+  .transmission-status--ongoing    { color: var(--teal);       border-color: rgba(var(--accent-rgb), 0.3); }
+  .transmission-status--open       { color: var(--gold);       border-color: rgba(212, 165, 116, 0.3); }
+
+  .transmission-subject-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .transmission-subject {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
+  }
+
+  .transmission-rule {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--teal) 20%,
+      var(--rule) 60%,
+      transparent
+    );
+    margin: var(--spacing-md) 0;
+    opacity: 0.6;
+  }
+
+  .transmission-body {
+    font-family: var(--font-mono);
+    font-size: clamp(0.82rem, 2vw, 0.95rem);
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 6em;
+    text-shadow:
+      0 0  4px rgba(var(--accent-rgb), 0.80),
+      0 0 12px rgba(var(--accent-rgb), 0.40),
+      0 0 28px rgba(var(--accent-rgb), 0.18);
+  }
+
+  .transmission-body :global(p)      { margin-bottom: 1.4em; }
+  .transmission-body :global(hr)     {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: var(--spacing-lg) 0;
+    opacity: 0.5;
+  }
+  .transmission-body :global(em)     { color: var(--teal);  font-style: italic; }
+  .transmission-body :global(strong) { color: var(--coral); font-weight: 500; }
+
+  .transmission-body :global(.transmission-sigil) {
+    display: block;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--text-faint);
+    margin-top: var(--spacing-lg);
+    letter-spacing: 0.4em;
+    animation: sigil-pulse 4s ease-in-out infinite;
+  }
+
+  .tx-cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.9em;
+    background: var(--teal);
+    box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.9);
+    vertical-align: text-bottom;
+    margin-left: 1px;
+    animation: blink 1.1s step-end infinite;
+  }
+
+  .transmission-footer {
+    margin-top: var(--spacing-md);
+  }
+
+  .tx-footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .transmission-end-marker {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  .tx-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .tx-btn {
+    background: transparent;
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    color: var(--teal);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    min-height: 44px;
+    min-width: 44px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .tx-btn:hover {
+    border-color: var(--teal);
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.3);
+  }
+
+  .tx-btn:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+  }
+
+  .tx-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .transmission-feed { animation: none; }
+    .tx-cursor         { animation: none; opacity: 0; }
+    .transmission-body :global(.transmission-sigil) {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .transmission-feed {
+      padding: var(--spacing-md);
+      margin: var(--spacing-lg) 0;
+    }
+    .transmission-label {
+      min-width: 7em;
+    }
+    .transmission-meta-row,
+    .transmission-subject-row {
+      flex-direction: column;
+      gap: 0.1em;
+    }
+  }
+</style>
+
+<script>
+  const NOISE_CHARS   = '█▓▒░│┤╡╢╕╣║╗╝╛┐└┴┬├─┼╚╔╦╠═╧╤╙╘╫╪';
+  const CHAR_DELAY_MS = 18;
+  const NOISE_FRAMES  = 4;
+  const FRAME_MS      = 38;
+
+  function clearChildren(el, preserve) {
+    while (el.firstChild) {
+      if (preserve && el.firstChild === preserve) break;
+      el.removeChild(el.firstChild);
+    }
+  }
+
+  function initFeed(article) {
+    const bodyEl    = article.querySelector('.transmission-body');
+    const cursorEl  = article.querySelector('.tx-cursor');
+    const skipBtn   = article.querySelector('.tx-skip');
+    const replayBtn = article.querySelector('.tx-replay');
+    if (!bodyEl) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    const rawText = bodyEl.innerText.trim();
+
+    let timers = [];
+    const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
+    const noise    = () => NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)];
+
+    function resolveChar(span, ch) {
+      if (ch === '\n' || ch === ' ') { span.textContent = ch; return; }
+      let frame = 0;
+      const tick = () => {
+        span.textContent = frame < NOISE_FRAMES ? noise() : ch;
+        if (frame++ < NOISE_FRAMES) timers.push(setTimeout(tick, FRAME_MS));
+      };
+      tick();
+    }
+
+    function finish() {
+      clearAll();
+      if (cursorEl) cursorEl.hidden = true;
+      if (skipBtn)  skipBtn.hidden  = true;
+      if (replayBtn) replayBtn.hidden = false;
+    }
+
+    function skip() {
+      clearAll();
+      clearChildren(bodyEl, cursorEl);
+      if (cursorEl) cursorEl.hidden = true;
+      const pre = document.createElement('pre');
+      pre.style.cssText = 'white-space:pre-wrap;word-break:break-word;font:inherit;margin:0;';
+      pre.textContent = rawText;
+      bodyEl.insertBefore(pre, cursorEl ?? null);
+      finish();
+    }
+
+    function run() {
+      clearAll();
+      clearChildren(bodyEl, cursorEl);
+      if (cursorEl) { bodyEl.appendChild(cursorEl); cursorEl.hidden = false; }
+      if (skipBtn)  { skipBtn.hidden  = false; skipBtn.disabled  = false; }
+      if (replayBtn) replayBtn.hidden = true;
+
+      const chars = [...rawText];
+      const spans = chars.map(() => {
+        const s = document.createElement('span');
+        s.textContent = ' ';
+        return s;
+      });
+      spans.forEach(s => bodyEl.insertBefore(s, cursorEl ?? null));
+
+      chars.forEach((ch, i) => {
+        timers.push(setTimeout(() => {
+          resolveChar(spans[i], ch);
+          if (i === chars.length - 1) {
+            timers.push(setTimeout(finish, NOISE_FRAMES * FRAME_MS + 400));
+          }
+        }, i * CHAR_DELAY_MS + Math.random() * 8));
+      });
+    }
+
+    if (skipBtn)  skipBtn.addEventListener('click', skip);
+    if (replayBtn) replayBtn.addEventListener('click', run);
+    run();
+  }
+
+  document.querySelectorAll('[data-tx-feed]').forEach(initFeed);
+</script>

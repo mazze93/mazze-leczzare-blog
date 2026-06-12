@@ -1,4 +1,6 @@
-# mazze-leczzare-blog — Claude Context
+# Blog — Claude Context
+
+> Local: `/Users/daedalus/Code/blog` · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
 
 Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
 storyteller, marketer, and cybersecurity explorer. The site frames itself as a
@@ -213,7 +215,10 @@ Uses constant-time comparison for password check. Rate limit: 5 req/60s.
 
 ### `functions/api/logout.ts`
 
-Clears the `__Host-auth_token` cookie (Max-Age=0).
+Reads the `__Host-auth_token` cookie, verifies and decodes the JWT, then writes
+`revoked:{jti}` to the `JWT_REVOCATION_LIST` KV namespace with a TTL equal to the
+token's remaining lifetime. Clears the cookie (Max-Age=0) regardless of whether
+revocation succeeded — the cookie is always cleared even if KV is unavailable.
 
 ## Environment Variables and Secrets
 
@@ -290,6 +295,11 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `dependency-review.yml` | PR | Flags new vulnerable dependencies |
 | `docs-integrity.yml` | push / PR | Runs `npm run docs:check` |
 | `lighthouse.yml` | push / PR | Lighthouse CI performance/accessibility audit |
+
+## Astro / Frontend Notes
+
+- **Scoped styles don't reach runtime-injected nodes** — Astro scopes component styles to build-time DOM. Canvas elements or JS-created nodes won't receive scoped styles; use `is:global` or inline styles for those.
+- **Safari favicon** — SVG favicons may not render in Safari. Always pair with a `.ico` or `.png` fallback.
 
 ## Key Constraints
 

@@ -8,3 +8,4 @@ export const SITE_GITHUB_URL = "https://github.com/mazze93";
 export const SITE_TWITTER = "@southerncunning";
 export const SITE_REPO_URL = "https://github.com/mazze93/mazze-leczzare-blog";
 export const SITE_DEFAULT_OG_IMAGE = "/mazze-leczzare-social-preview.png";
+export const COMPASS_LABEL = "Mazze Leczzare — home";

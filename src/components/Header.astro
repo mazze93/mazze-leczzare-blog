@@ -1,11 +1,15 @@
 ---
-import { SITE_TITLE } from '../consts';
+import { SITE_TITLE, COMPASS_LABEL } from '../consts';
 import ThemeToggle from './ThemeToggle';
+import CompassLink from './CompassLink.astro';
 ---
 
 <header role="banner">
   <nav aria-label="Main navigation">
-    <a href="/" class="wordmark" aria-label={`${SITE_TITLE} — home`}>{SITE_TITLE}</a>
+    <div class="brand">
+      <CompassLink href="/" label={COMPASS_LABEL} size={32} />
+      <a href="/" class="wordmark" aria-label={`${SITE_TITLE} — home`}>{SITE_TITLE}</a>
+    </div>
     <div class="nav-links">
       <a href="/blog/">Writing</a>
       <a href="/about/">About</a>
@@ -44,6 +48,13 @@ nav {
   min-height: 56px;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  flex-shrink: 0;
+}
+
 .wordmark {
   font-family: var(--font-display);
   font-size: 1.1em;
@@ -51,7 +62,6 @@ nav {
   color: var(--text);
   text-decoration: none;
   letter-spacing: 0.02em;
-  flex-shrink: 0;
   transition: color var(--transition-fast);
 }
 
@@ -156,3 +166,23 @@ nav {
   .nav-links a { padding: 0.3em 0.5em; }
 }
 </style>
+
+<script>
+  // The constellation node layer dispatches `compass:state` as the reader
+  // hovers/focuses/clicks nodes; the brand compass refracts in response.
+  // compass.css already transitions the [data-state] visuals.
+  const compass = document.querySelector<HTMLElement>(".brand .compass");
+  if (compass) {
+    let resetTimer: ReturnType<typeof setTimeout> | undefined;
+    window.addEventListener("compass:state", (event) => {
+      const detail = (event as CustomEvent<{ state?: string }>).detail;
+      if (!detail?.state) return;
+      clearTimeout(resetTimer);
+      compass.dataset.state = detail.state;
+      // 'engaged' is a transient flash fired on click, just before navigation.
+      if (detail.state === "engaged") {
+        resetTimer = setTimeout(() => { compass.dataset.state = "idle"; }, 600);
+      }
+    });
+  }
+</script>

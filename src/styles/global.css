@@ -24,6 +24,7 @@
 @import '@fontsource/dm-mono/latin-400-italic.css';
 @import '@fontsource/dm-mono/latin-500.css';
 @import '@fontsource/dm-mono/latin-500-italic.css';
+@import './compass.css';
 
 /* ===========================
    CSS Custom Properties
@@ -36,7 +37,7 @@
   --teal-dim:   #2a8a78;
   --coral:      #e8705a;
   --coral-dim:  #c45544;
-  --gold:       #c8a060;
+  --gold:       #d4a574;
 
   /* Dark mode tokens (default) */
   --charcoal:   #0f1210;
@@ -51,6 +52,8 @@
   /* Semantic aliases */
   --accent:     var(--teal);
   --accent-alt: var(--coral);
+  --accent-rgb: 58, 184, 160;    /* rgb triplet of --teal — for rgba() usage */
+  --coral-rgb:  232, 112, 90;    /* rgb triplet of --coral — for rgba() usage */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
@@ -73,12 +76,34 @@
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
 
+  /* Elevation — dark mode uses surface+rule for depth, not shadows */
+  --shadow-sm:   none;
+  --shadow-md:   none;
+  --shadow-card: none;
+
   /* Z-index */
   --z-header: 100;
 
   /* Theme-color values (used by JS to update <meta name="theme-color">) */
   --theme-color-dark:  #0f1210;
   --theme-color-light: #f5f0e8;
+
+  /* ---- Brand palette (Constellation architecture, 2026-05) ------------- */
+  /* Dark mode is the default. Light mode overrides in [data-theme="light"]. */
+  --obsidian:           #050406;
+  --deep-navy:          #0b0d12;
+  --gold-bright:        #f4d29a;
+  --gold-dim:           #8a6a3a;
+  --indigo-deep:        #323c5a;
+  --wine-burnt:         #502838;
+  --ash-amber:          #8c6450;
+  --moss-black:         #3c4632;
+  --magenta-transient:  192, 75, 183;   /* rgb triplet — use with rgba() at ≤0.18 alpha */
+
+  /* BreathingHero zone tokens — locked, do not modify */
+  --zone-undefined:     242, 244, 248;  /* rgb triplet */
+  --zone-experiment:    #2bd3c6;
+  --zone-signal:        #f4a261;
 
   /* ---- Homepage design tokens ----------------------------------------- */
   /* Typography — Playfair Display (Freight analog) + DM Sans (Suisse analog) */
@@ -133,7 +158,28 @@ body[data-layout="homepage"] {
   --teal-dim:   #155248;
   --coral:      #b03020;
   --coral-dim:  #8c2418;
-  --gold:       #8a5a10;
+  --gold:       #8a6a3a;
+  --accent-rgb: 30, 112, 96;     /* rgb triplet of --teal in light mode */
+  --coral-rgb:  176, 48, 32;     /* rgb triplet of --coral in light mode */
+
+  /* Light mode uses shadows for depth — the inverse of dark mode's glow language */
+  --shadow-sm:   0 1px 4px rgba(26, 36, 32, 0.06), 0 1px 2px rgba(26, 36, 32, 0.04);
+  --shadow-md:   0 4px 16px rgba(26, 36, 32, 0.09), 0 2px 6px rgba(26, 36, 32, 0.05);
+  --shadow-card: 0 8px 32px rgba(26, 36, 32, 0.10), 0 2px 8px rgba(26, 36, 32, 0.04);
+  --gold-bright: #b0865a;
+  --gold-dim:   #d4a574;
+  --obsidian:   #f4f1ea;
+  --deep-navy:  #f0ede5;
+  --indigo-deep: #6b7a9a;
+  --wine-burnt: #8a5a6a;
+  --ash-amber:  #b08570;
+  --moss-black: #6a7460;
+  --magenta-transient: 128, 64, 119;    /* rgb triplet — light-mode tint */
+
+  /* BreathingHero zone tokens — zone-undefined inverts; others are theme-stable */
+  --zone-undefined:    22, 20, 16;
+  --zone-experiment:   #2bd3c6;
+  --zone-signal:       #f4a261;
 }
 
 /* ===========================

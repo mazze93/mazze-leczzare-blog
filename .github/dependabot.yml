@@ -5,11 +5,20 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     groups:
-      npm_and_yarn:
+      groups:
+      app_deps:
+        dependency-type: "production"
         patterns:
           - "*"
+      tooling_deps:
+        dependency-type: "development"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"

@@ -202,7 +202,8 @@ dist
 .astro/
 
 ### Local Agent Worktrees ###
-.claude/
+.claude/settings.local.json
+.claude/launch.json
 .codex/
 .superpowers/
 
