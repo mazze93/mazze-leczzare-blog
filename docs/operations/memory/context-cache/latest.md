@@ -1,21 +1,19 @@
 # Context Cache Snapshot
 
-Generated: 2026-05-23 21:14:50Z
+Generated: 2026-06-16 03:24:54Z
 Branch: 
-Last Commit: d7cc5a2 [MZ] feat: light-mode palette system for BreathingHero canvas
+Last Commit: 849c53d security: remove bot-created .github/copilot-instructions.md
 
 ## Git Status (short)
  M docs/operations/memory/context-cache/latest.md
-?? public/mazze_profile_ultra_400.jpg
 ?? src/assets/images/blog/hero-decay-rot.png
-?? src/content/blog/the_breakthrough_artifact.html
 
 ## Ahead/Behind
 ## HEAD (no branch)
 
 ## Recent Commits
-d7cc5a2 [MZ] feat: light-mode palette system for BreathingHero canvas
-45c8799 refactor(praxis): atlas refinement — mode-tinted foreground identity
-52b155c docs(CLAUDE.md): align with Praxis Workspace Atlas paths
-0c34451 chore: align Praxis workspace visual identity across 3 operating modes
-7589a1f Update Dependabot configuration for npm and GitHub Actions
+849c53d security: remove bot-created .github/copilot-instructions.md
+2232a0c design: document asset mapping in design-sync NOTES
+15d4bc3 design: sync teal/coral tokens with Cipher Gothic Design System
+cfe4138 feat(footer): add Lab link to external links nav
+1015457 content: publish tree post; add project/committed fields to constellation nodes
