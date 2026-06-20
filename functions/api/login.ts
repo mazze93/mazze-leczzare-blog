@@ -1,16 +1,8 @@
-type RateLimitResult = { success: boolean };
-type RateLimitBinding = {
-  limit(options: { key: string }): Promise<RateLimitResult>;
-};
-
 interface Env {
   ADMIN_PASSWORD: string;
   JWT_SECRET: string;
-  LOGIN_RATE_LIMITER?: RateLimitBinding;
 }
 
-const LOGIN_RATE_LIMIT_MAX = 5;
-const LOGIN_RATE_LIMIT_WINDOW = 60;
 const JWT_SECRET_MIN_LENGTH = 32;
 
 // ── Constant-time comparison ─────────────────────────────────────────────────
@@ -22,7 +14,7 @@ async function timingSafeEqual(a: string, b: string): Promise<boolean> {
   const key = await crypto.subtle.generateKey(
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign", "verify"]
+    ["sign", "verify"],
   );
   const sig = await crypto.subtle.sign("HMAC", key, enc.encode(a));
   return crypto.subtle.verify("HMAC", key, sig, enc.encode(b));
@@ -47,13 +39,13 @@ async function signJWT(payload: object, secret: string): Promise<string> {
     new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const signature = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(data)
+    new TextEncoder().encode(data),
   );
 
   const sig = btoa(String.fromCharCode(...new Uint8Array(signature)))
@@ -62,22 +54,6 @@ async function signJWT(payload: object, secret: string): Promise<string> {
     .replace(/\//g, "_");
 
   return `${data}.${sig}`;
-}
-
-// ── Rate limiting ────────────────────────────────────────────────────────────
-
-async function buildRateLimitKey(request: Request): Promise<string> {
-  const ip = request.headers.get("cf-connecting-ip") ?? "unknown-ip";
-  const ua = (request.headers.get("user-agent") ?? "unknown-ua").slice(0, 160);
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(ip + ":" + ua)
-  );
-  return Array.from(new Uint8Array(digest), (b) =>
-    b.toString(16).padStart(2, "0")
-  )
-    .join("")
-    .slice(0, 32);
 }
 
 function json(body: unknown, status = 200): Response {
@@ -100,29 +76,27 @@ export async function onRequestPost(context: {
 
   // Fail closed: secrets must be configured
   if (!env.ADMIN_PASSWORD || !env.JWT_SECRET) {
-    console.error(JSON.stringify({ type: "login_misconfigured", receivedAt: new Date().toISOString() }));
+    console.error(
+      JSON.stringify({
+        type: "login_misconfigured",
+        receivedAt: new Date().toISOString(),
+      }),
+    );
     return json({ error: "Service unavailable." }, 503);
   }
 
   if (env.JWT_SECRET.length < JWT_SECRET_MIN_LENGTH) {
-    console.error(JSON.stringify({ type: "login_weak_secret", receivedAt: new Date().toISOString() }));
+    console.error(
+      JSON.stringify({
+        type: "login_weak_secret",
+        receivedAt: new Date().toISOString(),
+      }),
+    );
     return json({ error: "Service unavailable." }, 503);
   }
 
-  // Rate limiting
-  if (env.LOGIN_RATE_LIMITER && typeof env.LOGIN_RATE_LIMITER.limit === "function") {
-    const key = await buildRateLimitKey(request);
-    const result = await env.LOGIN_RATE_LIMITER.limit({ key });
-    if (!result.success) {
-      console.warn(JSON.stringify({ type: "login_rate_limited", receivedAt: new Date().toISOString() }));
-      return json(
-        { error: "Too many login attempts. Please wait and try again." },
-        429,
-      );
-    }
-  } else {
-    console.warn(JSON.stringify({ type: "login_rate_limiter_unavailable", receivedAt: new Date().toISOString() }));
-  }
+  // Route-level rate limiting for Pages should be enforced in Cloudflare
+  // dashboard rules rather than function bindings in `wrangler.toml`.
 
   // Parse credential
   let password: string | undefined;
@@ -144,7 +118,7 @@ export async function onRequestPost(context: {
   const jti = crypto.randomUUID();
   const token = await signJWT(
     { sub: "admin", iat: now, exp: now + 60 * 60 * 24, jti },
-    env.JWT_SECRET
+    env.JWT_SECRET,
   );
 
   return new Response(JSON.stringify({ success: true }), {

@@ -104,5 +104,7 @@ Set `draft: true` to hide from all listings without deleting.
 ## Deployment
 
 Cloudflare Pages. Build command: `npm run build`. Output: `dist/`. Functions in `functions/`
-are deployed automatically. Secrets (`ADMIN_PASSWORD`, `JWT_SECRET`, `CONTACT_TO_EMAIL`)
-must be set via `wrangler secret put` or the Cloudflare dashboard — never in `wrangler.toml`.
+are deployed automatically. Secrets (`ADMIN_PASSWORD`, `JWT_SECRET`, `CONTACT_WEBHOOK_URL`,
+optional `CONTACT_WEBHOOK_AUTH_HEADER`) must be set via `wrangler secret put` or the
+Cloudflare dashboard — never in `wrangler.toml`. Route-level rate limiting should be
+managed in the Cloudflare dashboard for this Pages project.
