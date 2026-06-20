@@ -531,4 +531,133 @@ describe("computeCorpusEntropy", () => {
     expect(result.wordFreq["hello"]).toBe(1);
     expect(result.wordFreq["world"]).toBe(1);
   });
+
+  it("returns em-dash and zero totals when body is only non-letter characters", () => {
+    // All characters are stripped by /[^a-z\s]/g → nothing survives filter(Boolean)
+    const post = makePost({ body: "123 !!! 456 @#$" });
+    const result = computeCorpusEntropy([post]);
+    expect(result.totalWords).toBe(0);
+    expect(result.uniqueWordCount).toBe(0);
+    expect(result.entropy).toBe(0);
+    expect(result.entropyBits).toBe("—");
+  });
+
+  it("handles a mix of posts where some have empty bodies", () => {
+    const posts = [
+      makePost({ id: "empty", body: "" }),
+      makePost({ id: "content", body: "fox fox" }),
+    ];
+    const result = computeCorpusEntropy(posts);
+    expect(result.totalWords).toBe(2);
+    expect(result.wordFreq["fox"]).toBe(2);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Additional edge-case tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("splitPosts – sorted array integrity", () => {
+  it("sorted array contains ALL posts (both published and drafts)", () => {
+    const posts = [
+      makePost({ id: "pub1", draft: false, pubDate: new Date("2025-01-01") }),
+      makePost({ id: "pub2", draft: false, pubDate: new Date("2024-06-01") }),
+      makePost({ id: "draft1", draft: true, pubDate: new Date("2025-03-01") }),
+    ];
+    const { sorted } = splitPosts(posts);
+    expect(sorted).toHaveLength(3);
+    expect(sorted.map((p) => p.id)).toContain("pub1");
+    expect(sorted.map((p) => p.id)).toContain("draft1");
+  });
+
+  it("sorted array interleaves drafts and published by date", () => {
+    const posts = [
+      makePost({ id: "old-pub", draft: false, pubDate: new Date("2023-01-01") }),
+      makePost({ id: "new-draft", draft: true, pubDate: new Date("2025-12-01") }),
+    ];
+    const { sorted } = splitPosts(posts);
+    expect(sorted[0].id).toBe("new-draft");
+    expect(sorted[1].id).toBe("old-pub");
+  });
+
+  it("does not mutate the original input array", () => {
+    const posts = [
+      makePost({ id: "a", pubDate: new Date("2024-01-01") }),
+      makePost({ id: "b", pubDate: new Date("2025-01-01") }),
+    ];
+    const originalOrder = posts.map((p) => p.id);
+    splitPosts(posts);
+    expect(posts.map((p) => p.id)).toEqual(originalOrder);
+  });
+});
+
+describe("daysSinceLast – boundary cases", () => {
+  it("returns 0 for a post published exactly 0.5 days ago (floor, not round)", () => {
+    const now = Date.now();
+    const post = makePost({ pubDate: new Date(now - 0.5 * DAY_MS) });
+    expect(daysSinceLast([post], now)).toBe(0);
+  });
+
+  it("handles a future pubDate by returning a negative number", () => {
+    const now = Date.now();
+    // Post scheduled one day in the future
+    const post = makePost({ pubDate: new Date(now + DAY_MS) });
+    const result = daysSinceLast([post], now);
+    // Math.floor of a negative fraction → -1
+    expect(result).toBe(-1);
+  });
+});
+
+describe("computeNeedsAttention – falsy string fields", () => {
+  it("flags empty string heroImage as missing (empty string is falsy)", () => {
+    const post = makePost({ tags: ["t"], heroImage: "", category: "c" });
+    const result = computeNeedsAttention([post]);
+    expect(result).toHaveLength(1);
+    expect(result[0].gaps).toContain("hero");
+  });
+
+  it("flags empty string category as missing (empty string is falsy)", () => {
+    const post = makePost({ tags: ["t"], heroImage: "/img.jpg", category: "" });
+    const result = computeNeedsAttention([post]);
+    expect(result).toHaveLength(1);
+    expect(result[0].gaps).toContain("category");
+  });
+
+  it("gaps array preserves order: tags → hero → category", () => {
+    const post = makePost({ id: "order-check" });
+    // makePost with no tags/heroImage/category
+    const result = computeNeedsAttention([
+      makePost({ id: "bare", tags: undefined, heroImage: undefined, category: undefined }),
+    ]);
+    expect(result[0].gaps[0]).toBe("tags");
+    expect(result[0].gaps[1]).toBe("hero");
+    expect(result[0].gaps[2]).toBe("category");
+  });
+});
+
+describe("computeTagCounts – pipeline with sortTagsByCount", () => {
+  it("round-trip: computeTagCounts → sortTagsByCount produces correct ranked pairs", () => {
+    const posts = [
+      makePost({ id: "a", tags: ["js", "ts", "astro"] }),
+      makePost({ id: "b", tags: ["ts", "astro"] }),
+      makePost({ id: "c", tags: ["astro"] }),
+    ];
+    const counts = computeTagCounts(posts);
+    const sorted = sortTagsByCount(counts);
+    expect(sorted[0]).toEqual(["astro", 3]);
+    expect(sorted[1]).toEqual(["ts", 2]);
+    expect(sorted[2]).toEqual(["js", 1]);
+  });
+
+  it("tags with count 1 all appear after higher-count tags", () => {
+    const posts = [
+      makePost({ id: "a", tags: ["popular", "rare1", "rare2"] }),
+      makePost({ id: "b", tags: ["popular", "rare3"] }),
+    ];
+    const counts = computeTagCounts(posts);
+    const sorted = sortTagsByCount(counts);
+    expect(sorted[0]).toEqual(["popular", 2]);
+    // rare1, rare2, rare3 all have count 1 and should follow
+    expect(sorted.slice(1).every(([, c]) => c === 1)).toBe(true);
+  });
 });
