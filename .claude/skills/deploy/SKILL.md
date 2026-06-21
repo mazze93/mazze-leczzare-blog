@@ -40,7 +40,7 @@ Get or rotate tokens at: Cloudflare dashboard → My Profile → API Tokens.
 ## Pre-deploy checklist (run before `/deploy`)
 
 - [ ] Is this a content change or a code change? Code changes must pass `npm run check` first.
-- [ ] Are any secrets missing from the Cloudflare dashboard (ADMIN_PASSWORD, JWT_SECRET, CONTACT_TO_EMAIL)?
+- [ ] Are any required secrets missing from the Cloudflare dashboard (ADMIN_PASSWORD, JWT_SECRET, CONTACT_WEBHOOK_URL)?
 - [ ] Is the token scoped to the correct account?
 
 ## On failure

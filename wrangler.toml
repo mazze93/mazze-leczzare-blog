@@ -1,4 +1,3 @@
-$schema = "./node_modules/wrangler/config-schema.json"
 name = "mazze-leczzare-blog"
 compatibility_date = "2026-03-07"
 pages_build_output_dir = "dist"
@@ -13,10 +12,9 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 #
 #   ADMIN_PASSWORD          — plain-text password checked by /api/login
 #   JWT_SECRET              — signs/verifies admin session JWTs (≥32 random chars)
-#   CONTACT_TO_EMAIL        — recipient address for contact form submissions
+#   CONTACT_WEBHOOK_URL     — POST validated contact payloads to your webhook receiver
 #
 # ── Optional secrets ──────────────────────────────────────────────────────────
-#   CONTACT_WEBHOOK_URL         — POST validated contact payloads here instead of email
 #   CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
 #
 # ── KV namespaces ─────────────────────────────────────────────────────────────
@@ -29,17 +27,7 @@ id       = "23e6e64051784dcca764c94409fec2b4"
 binding  = "SHARE_ANALYTICS"
 id       = "be4945b2396d4601ba12a645490b3efb"
 
-# ── Rate limiting bindings ────────────────────────────────────────────────────
-# namespace_id is self-assigned (any integer unique to your account).
-# No dashboard setup required — these activate on next deploy.
-# Period must be 10 or 60 seconds.
-
-[[ratelimits]]
-name       = "LOGIN_RATE_LIMITER"
-namespace_id = "1001"
-simple     = { limit = 5, period = 60 }
-
-[[ratelimits]]
-name       = "SHARE_EVENT_RATE_LIMITER"
-namespace_id = "1002"
-simple     = { limit = 20, period = 60 }
+# ── Rate limiting ─────────────────────────────────────────────────────────────
+# Cloudflare Pages does not currently support top-level `[[ratelimits]]`
+# configuration here the same way Workers do. Manage route-level rate limiting
+# for `/api/login` and `/api/share-event` in the Cloudflare dashboard instead.

@@ -197,21 +197,21 @@ Runs on every request before any function. Two responsibilities:
 
 ### `functions/api/contact.ts`
 
-Env vars: `CONTACT_EMAIL`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`,
-`CONTACT_WEBHOOK_URL`, `CONTACT_WEBHOOK_AUTH_HEADER`. Webhook takes priority over email
-binding. Validates honeypot, timing (≥1500ms), name (2–80), email, message (20–4000).
-Escapes all header and HTML values.
+Env vars: `CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`, `CONTACT_WEBHOOK_URL`,
+`CONTACT_WEBHOOK_AUTH_HEADER`. Requires same-origin browser submissions and a configured
+webhook URL. Validates honeypot, timing (≥1500ms), name (2–80), email, message (20–4000).
+Escapes header values and forwards a structured JSON payload to the webhook receiver.
 
 ### `functions/api/share-event.ts`
 
-Env vars: `SHARE_EVENT_RATE_LIMITER`. Rate limit: 20 req/60s per fingerprint. CORS guard
-on Origin/Referer. Validates `event`, `path`, `quoteId`. Returns 204 on success.
+Env vars: `SHARE_ANALYTICS`. Same-origin guarded endpoint for quote-share telemetry.
+Validates `event`, `path`, `quoteId`, stores counters in KV when available, and returns 204 on success.
 
 ### `functions/api/login.ts`
 
-Env vars: `ADMIN_PASSWORD`, `JWT_SECRET`, `LOGIN_RATE_LIMITER`. Signs a 24h HS256 JWT
+Env vars: `ADMIN_PASSWORD`, `JWT_SECRET`. Signs a 24h HS256 JWT
 with a random `jti` and sets it as `__Host-auth_token` (HttpOnly, Secure, SameSite=Strict).
-Uses constant-time comparison for password check. Rate limit: 5 req/60s.
+Uses constant-time comparison for password check. Route-level rate limiting should be enforced in the Cloudflare dashboard.
 
 ### `functions/api/logout.ts`
 
@@ -228,20 +228,17 @@ Copy `.dev.vars.example` to `.dev.vars` for local development.
 | -------- | -------- | ----- |
 | `ADMIN_PASSWORD` | Yes | Plain-text password for `/api/login` |
 | `JWT_SECRET` | Yes | HMAC signing key — minimum 32 random chars |
-| `CONTACT_TO_EMAIL` | Yes (email path) | Recipient for contact form |
-| `CONTACT_FROM_EMAIL` | No (wrangler.toml default) | Sender address |
-| `CONTACT_SUBJECT_PREFIX` | No (wrangler.toml default) | Email subject prefix |
-| `CONTACT_WEBHOOK_URL` | No | POST contact payloads here instead of email |
-| `CONTACT_WEBHOOK_AUTH_HEADER` | No | Authorization header for the webhook |
+| `CONTACT_FROM_EMAIL` | No (wrangler.toml default) | Reserved site metadata; not used by the current webhook-only contact flow |
+| `CONTACT_SUBJECT_PREFIX` | No (wrangler.toml default) | Prefix used when building the webhook payload subject |
+| `CONTACT_WEBHOOK_URL` | Yes | POST validated contact payloads to this webhook |
+| `CONTACT_WEBHOOK_AUTH_HEADER` | No | Authorization header value sent to the webhook |
 
-Cloudflare bindings (configure in `wrangler.toml` + dashboard):
+Cloudflare bindings (configure KV in `wrangler.toml`; manage route rate limiting in the dashboard):
 
 | Binding | Type | Purpose |
 | ------- | ---- | ------- |
 | `JWT_REVOCATION_LIST` | KV Namespace | Stores revoked JWT JTI values |
 | `SHARE_ANALYTICS` | KV Namespace | Share event storage |
-| `LOGIN_RATE_LIMITER` | Rate Limit | 5 req/60s on `/api/login` |
-| `SHARE_EVENT_RATE_LIMITER` | Rate Limit | 20 req/60s on `/api/share-event` |
 
 ## Agent Discoverability
 
