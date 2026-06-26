@@ -27,7 +27,7 @@
   },
   "type": "module",
   "engines": {
-    "node": "22.x"
+    "node": ">=22"
   },
   "devDependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",
