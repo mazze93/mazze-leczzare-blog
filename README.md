@@ -40,12 +40,12 @@ Build settings:
 
 ### Contact form
 
-The `/contact` form (`functions/api/contact.ts`) supports two delivery paths:
+The `/contact` form (`functions/api/contact.ts`) uses a webhook delivery path:
 
-1. **Webhook** — set `CONTACT_WEBHOOK_URL` as a Cloudflare secret. Optional: `CONTACT_WEBHOOK_AUTH_HEADER`.
-2. **Email binding** — `CONTACT_EMAIL` Cloudflare Email binding as fallback.
+1. **Webhook** — set `CONTACT_WEBHOOK_URL` as a Cloudflare secret.
+2. Optional: `CONTACT_WEBHOOK_AUTH_HEADER` for an Authorization header expected by the receiver.
 
-Webhook takes priority when both are configured. Non-secret vars (`CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`) live in `wrangler.toml` under `[vars]`.
+Non-secret vars (`CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`) live in `wrangler.toml` under `[vars]`. Route-level rate limiting for Pages Functions should be managed in the Cloudflare dashboard rather than `wrangler.toml`.
 
 ```bash
 npx wrangler secret put CONTACT_WEBHOOK_URL

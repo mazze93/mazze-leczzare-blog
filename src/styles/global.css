@@ -32,11 +32,11 @@
 :root {
   color-scheme: dark;
 
-  /* Fixed palette */
-  --teal:       #3ab8a0;
-  --teal-dim:   #2a8a78;
-  --coral:      #e8705a;
-  --coral-dim:  #c45544;
+  /* Fixed palette — synced with Cipher Gothic Design System */
+  --teal:       #34c3b9;
+  --teal-dim:   #1c6964;
+  --coral:      #e85a4a;
+  --coral-dim:  #a04030;
   --gold:       #d4a574;
 
   /* Dark mode tokens (default) */
@@ -52,8 +52,8 @@
   /* Semantic aliases */
   --accent:     var(--teal);
   --accent-alt: var(--coral);
-  --accent-rgb: 58, 184, 160;    /* rgb triplet of --teal — for rgba() usage */
-  --coral-rgb:  232, 112, 90;    /* rgb triplet of --coral — for rgba() usage */
+  --accent-rgb: 52, 195, 185;    /* rgb triplet of --teal — for rgba() usage */
+  --coral-rgb:  232, 90, 74;    /* rgb triplet of --coral — for rgba() usage */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
@@ -154,9 +154,9 @@ body[data-layout="homepage"] {
   --rule:       #d4ccc0;
   --surface:    #ede8de;
   --header-bg:  rgba(245, 240, 232, 0.92);
-  --teal:       #1e7060;
-  --teal-dim:   #155248;
-  --coral:      #b03020;
+  --teal:       #186058;
+  --teal-dim:   #0f4240;
+  --coral:      #b02818;
   --coral-dim:  #8c2418;
   --gold:       #8a6a3a;
   --accent-rgb: 30, 112, 96;     /* rgb triplet of --teal in light mode */

@@ -1,4 +1,22 @@
 ---
+/**
+ * TransmissionFeed.astro
+ * Bureau-style classified transmission wrapper.
+ * Inherits all tokens from global.css / compass.css.
+ * Zero hard-coded colors — everything via :root vars.
+ *
+ * Usage:
+ *   <TransmissionFeed
+ *     id="TRANSMISSION-XXXX-SLUG"
+ *     classification="SIGNAL · TYPE · STATUS"
+ *     origin="FIELD LEDGER: ORIGIN"
+ *     timestamp="CYCLE X.XXX.XX · VERIFIED"
+ *     subject="Title String"
+ *   >
+ *     {slot content — paragraphs, stanzas, verse}
+ *   </TransmissionFeed>
+ */
+
 interface Props {
   id:             string;
   classification: string;
@@ -43,11 +61,13 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     <div class="transmission-rule" aria-hidden="true"></div>
   </header>
 
-  <div class="transmission-body"
-       role="log"
-       aria-live="off"
-       aria-atomic="true"
-       id={`tx-body-${id}`}>
+  <div
+    class="transmission-body"
+    role="log"
+    aria-live="off"
+    aria-atomic="true"
+    id={`tx-body-${id}`}
+  >
     <slot />
     <span class="tx-cursor" aria-hidden="true" hidden></span>
   </div>
@@ -57,8 +77,22 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     <div class="tx-footer-inner">
       <span class="transmission-end-marker">— END TRANSMISSION —</span>
       <div class="tx-controls">
-        <button class="tx-btn tx-skip"   type="button" aria-label="Skip decode animation" hidden>SKIP</button>
-        <button class="tx-btn tx-replay" type="button" aria-label="Replay transmission decode" hidden>REPLAY</button>
+        <button
+          class="tx-btn tx-skip"
+          type="button"
+          aria-label="Skip decode animation"
+          hidden
+        >
+          SKIP
+        </button>
+        <button
+          class="tx-btn tx-replay"
+          type="button"
+          aria-label="Replay transmission decode"
+          hidden
+        >
+          REPLAY
+        </button>
       </div>
     </div>
   </footer>
@@ -106,16 +140,24 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
   .transmission-feed::before {
     content: '';
     position: absolute;
-    left: -1px; top: 20%; bottom: 20%;
+    left: -1px;
+    top: 20%;
+    bottom: 20%;
     width: 2px;
     background: linear-gradient(
-      to bottom, transparent, var(--teal) 30%, var(--coral) 70%, transparent
+      to bottom,
+      transparent,
+      var(--teal) 30%,
+      var(--coral) 70%,
+      transparent
     );
     opacity: 0.4;
     border-radius: 2px;
   }
 
-  .transmission-header { margin-bottom: var(--spacing-lg); }
+  .transmission-header {
+    margin-bottom: var(--spacing-lg);
+  }
 
   .transmission-meta-row {
     display: flex;
@@ -148,6 +190,7 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     border-radius: var(--radius-sm);
     border: 1px solid currentColor;
   }
+
   .transmission-status--unresolved { color: var(--coral);      border-color: rgba(var(--coral-rgb), 0.3); }
   .transmission-status--closed     { color: var(--text-faint); border-color: var(--rule); }
   .transmission-status--ongoing    { color: var(--teal);       border-color: rgba(var(--accent-rgb), 0.3); }
@@ -171,19 +214,23 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     color: var(--text);
     letter-spacing: 0.02em;
     line-height: 1.1;
-    margin: 0; padding: 0;
+    margin: 0;
+    padding: 0;
   }
 
   .transmission-rule {
     height: 1px;
     background: linear-gradient(
-      to right, transparent, var(--teal) 20%, var(--rule) 60%, transparent
+      to right,
+      transparent,
+      var(--teal) 20%,
+      var(--rule) 60%,
+      transparent
     );
     margin: var(--spacing-md) 0;
     opacity: 0.6;
   }
 
-  /* Body: monospace terminal feel with phosphor bloom */
   .transmission-body {
     font-family: var(--font-mono);
     font-size: clamp(0.82rem, 2vw, 0.95rem);
@@ -198,11 +245,16 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
       0 0 28px rgba(var(--accent-rgb), 0.18);
   }
 
-  /* Static / reduced-motion slot content styling */
   .transmission-body :global(p)      { margin-bottom: 1.4em; }
-  .transmission-body :global(hr)     { border: none; border-top: 1px solid var(--rule); margin: var(--spacing-lg) 0; opacity: 0.5; }
-  .transmission-body :global(em)     { color: var(--teal); font-style: italic; }
+  .transmission-body :global(hr)     {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: var(--spacing-lg) 0;
+    opacity: 0.5;
+  }
+  .transmission-body :global(em)     { color: var(--teal);  font-style: italic; }
   .transmission-body :global(strong) { color: var(--coral); font-weight: 500; }
+
   .transmission-body :global(.transmission-sigil) {
     display: block;
     text-align: center;
@@ -215,7 +267,8 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
 
   .tx-cursor {
     display: inline-block;
-    width: 0.55em; height: 0.9em;
+    width: 0.55em;
+    height: 0.9em;
     background: var(--teal);
     box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.9);
     vertical-align: text-bottom;
@@ -223,7 +276,9 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     animation: blink 1.1s step-end infinite;
   }
 
-  .transmission-footer { margin-top: var(--spacing-md); }
+  .transmission-footer {
+    margin-top: var(--spacing-md);
+  }
 
   .tx-footer-inner {
     display: flex;
@@ -241,7 +296,10 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     text-transform: uppercase;
   }
 
-  .tx-controls { display: flex; gap: 0.5rem; }
+  .tx-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
 
   .tx-btn {
     background: transparent;
@@ -253,30 +311,48 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
     padding: 0.4rem 0.8rem;
     cursor: pointer;
     text-transform: uppercase;
-    min-height: 44px; min-width: 44px;
+    min-height: 44px;
+    min-width: 44px;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
+
   .tx-btn:hover {
     border-color: var(--teal);
     box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.3);
   }
+
   .tx-btn:focus-visible {
     outline: 2px solid var(--teal);
     outline-offset: 3px;
   }
-  .tx-btn:disabled { opacity: 0.35; cursor: default; }
+
+  .tx-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .transmission-feed { animation: none; }
     .tx-cursor         { animation: none; opacity: 0; }
-    .transmission-body :global(.transmission-sigil) { animation: none; opacity: 0.5; }
+    .transmission-body :global(.transmission-sigil) {
+      animation: none;
+      opacity: 0.5;
+    }
   }
 
   @media (max-width: 600px) {
-    .transmission-feed { padding: var(--spacing-md); margin: var(--spacing-lg) 0; }
-    .transmission-label { min-width: 7em; }
+    .transmission-feed {
+      padding: var(--spacing-md);
+      margin: var(--spacing-lg) 0;
+    }
+    .transmission-label {
+      min-width: 7em;
+    }
     .transmission-meta-row,
-    .transmission-subject-row { flex-direction: column; gap: 0.1em; }
+    .transmission-subject-row {
+      flex-direction: column;
+      gap: 0.1em;
+    }
   }
 </style>
 
@@ -286,31 +362,30 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
   const NOISE_FRAMES  = 4;
   const FRAME_MS      = 38;
 
-  function clearChildren(el: HTMLElement, preserve?: HTMLElement | null) {
+  function clearChildren(el, preserve) {
     while (el.firstChild) {
       if (preserve && el.firstChild === preserve) break;
       el.removeChild(el.firstChild);
     }
   }
 
-  function initFeed(article: Element) {
-    const bodyEl    = article.querySelector('.transmission-body') as HTMLElement | null;
-    const cursorEl  = article.querySelector('.tx-cursor')  as HTMLElement | null;
-    const skipBtn   = article.querySelector('.tx-skip')    as HTMLButtonElement | null;
-    const replayBtn = article.querySelector('.tx-replay')  as HTMLButtonElement | null;
+  function initFeed(article) {
+    const bodyEl    = article.querySelector('.transmission-body');
+    const cursorEl  = article.querySelector('.tx-cursor');
+    const skipBtn   = article.querySelector('.tx-skip');
+    const replayBtn = article.querySelector('.tx-replay');
     if (!bodyEl) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) return;
 
-    // Capture plain text from server-rendered slot before wiping
     const rawText = bodyEl.innerText.trim();
 
-    let timers: ReturnType<typeof setTimeout>[] = [];
+    let timers = [];
     const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
     const noise    = () => NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)];
 
-    function resolveChar(span: HTMLElement, ch: string) {
+    function resolveChar(span, ch) {
       if (ch === '\n' || ch === ' ') { span.textContent = ch; return; }
       let frame = 0;
       const tick = () => {
@@ -329,19 +404,19 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
 
     function skip() {
       clearAll();
-      clearChildren(bodyEl!, cursorEl);
+      clearChildren(bodyEl, cursorEl);
       if (cursorEl) cursorEl.hidden = true;
       const pre = document.createElement('pre');
       pre.style.cssText = 'white-space:pre-wrap;word-break:break-word;font:inherit;margin:0;';
       pre.textContent = rawText;
-      bodyEl!.insertBefore(pre, cursorEl ?? null);
+      bodyEl.insertBefore(pre, cursorEl ?? null);
       finish();
     }
 
     function run() {
       clearAll();
-      clearChildren(bodyEl!, cursorEl);
-      if (cursorEl) { bodyEl!.appendChild(cursorEl); cursorEl.hidden = false; }
+      clearChildren(bodyEl, cursorEl);
+      if (cursorEl) { bodyEl.appendChild(cursorEl); cursorEl.hidden = false; }
       if (skipBtn)  { skipBtn.hidden  = false; skipBtn.disabled  = false; }
       if (replayBtn) replayBtn.hidden = true;
 
@@ -351,7 +426,7 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
         s.textContent = ' ';
         return s;
       });
-      spans.forEach(s => bodyEl!.insertBefore(s, cursorEl ?? null));
+      spans.forEach(s => bodyEl.insertBefore(s, cursorEl ?? null));
 
       chars.forEach((ch, i) => {
         timers.push(setTimeout(() => {
@@ -363,8 +438,8 @@ const { id, classification, origin, timestamp, subject, status } = Astro.props;
       });
     }
 
-    skipBtn?.addEventListener('click', skip);
-    replayBtn?.addEventListener('click', run);
+    if (skipBtn)  skipBtn.addEventListener('click', skip);
+    if (replayBtn) replayBtn.addEventListener('click', run);
     run();
   }
 
