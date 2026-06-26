@@ -496,4 +496,90 @@ describe("computeCorpusEntropy", () => {
     const rSkewed = computeCorpusEntropy([skewed]);
     expect(rUniform.entropy).toBeGreaterThan(rSkewed.entropy);
   });
+
+  it("returns em-dash and zero totals when body contains only non-letter characters", () => {
+    const post = makePost({ body: "!!! 123 @@@", data: {} });
+    const r = computeCorpusEntropy([post]);
+    expect(r.totalWords).toBe(0);
+    expect(r.entropyBits).toBe("—");
+    expect(r.uniqueWordCount).toBe(0);
+  });
+});
+
+// ─── additional edge-case tests ──────────────────────────────────────────────
+
+describe("filterPosts – mutation safety", () => {
+  it("does not mutate the original input array order", () => {
+    const posts = [
+      makePost({ id: "early", data: { pubDate: new Date(NOW - 100 * DAY_MS), draft: false } }),
+      makePost({ id: "late", data: { pubDate: new Date(NOW - 1 * DAY_MS), draft: false } }),
+    ];
+    const originalIds = posts.map((p) => p.id);
+    filterPosts(posts);
+    expect(posts.map((p) => p.id)).toEqual(originalIds);
+  });
+});
+
+describe("computeDaysSinceLast – boundary and negative cases", () => {
+  it("returns 0 when last post was published exactly half a day ago", () => {
+    const post = makePost({ data: { pubDate: new Date(NOW - 0.5 * DAY_MS) } });
+    expect(computeDaysSinceLast([post], NOW)).toBe(0);
+  });
+
+  it("returns a negative number for a post with a future pubDate", () => {
+    const post = makePost({ data: { pubDate: new Date(NOW + DAY_MS) } });
+    // Math.floor(-1.0) = -1
+    expect(computeDaysSinceLast([post], NOW)).toBe(-1);
+  });
+});
+
+describe("buildNeedsAttention – falsy field detection", () => {
+  it("flags empty string heroImage as a missing hero", () => {
+    const post = makePost({ data: { heroImage: "" } });
+    const result = buildNeedsAttention([post]);
+    expect(result[0].gaps).toContain("hero");
+  });
+
+  it("flags empty string category as a missing category", () => {
+    const post = makePost({ data: { category: "" } });
+    const result = buildNeedsAttention([post]);
+    expect(result[0].gaps).toContain("category");
+  });
+
+  it("gaps are always in the canonical order tags → hero → category", () => {
+    const post = makePost({
+      data: { title: "Order test", pubDate: new Date(NOW), draft: false },
+    });
+    delete (post.data as Partial<PostData>).tags;
+    delete (post.data as Partial<PostData>).heroImage;
+    delete (post.data as Partial<PostData>).category;
+    const result = buildNeedsAttention([post]);
+    expect(result[0].gaps).toEqual(["tags", "hero", "category"]);
+  });
+});
+
+describe("buildTagCounts – round-trip with frequency ranking", () => {
+  it("the first element is always the tag with the highest count", () => {
+    const posts = [
+      makePost({ id: "a", data: { tags: ["top", "mid", "low"] } }),
+      makePost({ id: "b", data: { tags: ["top", "mid"] } }),
+      makePost({ id: "c", data: { tags: ["top"] } }),
+    ];
+    const result = buildTagCounts(posts);
+    expect(result[0][0]).toBe("top");
+    expect(result[0][1]).toBe(3);
+  });
+
+  it("tags with equal frequency appear after those with higher frequency", () => {
+    const posts = [
+      makePost({ id: "a", data: { tags: ["x", "y", "z"] } }),
+      makePost({ id: "b", data: { tags: ["x"] } }),
+    ];
+    const result = buildTagCounts(posts);
+    // x has count 2; y and z have count 1
+    expect(result[0][0]).toBe("x");
+    expect(result[0][1]).toBe(2);
+    const rest = result.slice(1);
+    expect(rest.every(([, c]) => c === 1)).toBe(true);
+  });
 });
