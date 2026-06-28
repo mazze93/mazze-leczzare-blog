@@ -2,9 +2,7 @@
 
 > Local: `/Users/daedalus/Code/blog` · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
 
-Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
-storyteller, marketer, and cybersecurity explorer. The site frames itself as a
-"static-first working studio" for essays, field notes, and public working documents.
+Security engineering, technical writing, and essays at the intersection of infrastructure and story. The site is a "static-first working studio" for public-facing work, field notes, and the Cipher Gothic design system.
 
 ## Stack
 
