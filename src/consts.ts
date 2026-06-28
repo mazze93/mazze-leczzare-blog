@@ -1,6 +1,6 @@
 export const SITE_TITLE = "Mazze LeCzzare";
 export const SITE_DESCRIPTION =
-  "Essays, experiments, and field notes from a former neuroscientist turned storyteller, marketer, and cybersecurity explorer.";
+  "Security engineer, content strategist, and founder of Secure Pride. Essays and infrastructure for systems with real human stakes.";
 export const SITE_URL = "https://mazzeleczzare.com";
 export const SITE_AUTHOR = "Mazze LeCzzare";
 export const SITE_EMAIL = "mailto:security@mazzeleczzare.com";
