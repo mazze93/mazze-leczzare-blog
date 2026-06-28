@@ -5,6 +5,7 @@
   "dependencies": {
     "@astrojs/mdx": "6.0.3",
     "@astrojs/react": "^5.0.7",
+    "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "3.7.3",
     "@fontsource-variable/space-grotesk": "^5.2.10",
     "@fontsource/crimson-pro": "^5.2.8",
