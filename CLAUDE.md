@@ -142,7 +142,7 @@ most recent; blog listing shows all.
 Read source for full detail — these are the non-obvious points:
 
 **Layout / page-level:**
-- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Respects `prefers-reduced-motion` with static gradient fallback. `SignalHero.astro` is the legacy predecessor — still present but not mounted anywhere.
+- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Includes a `.breathing-hero__sub` bridge paragraph linking to `/about/` for persona continuity. Respects `prefers-reduced-motion` with static gradient fallback. `SignalHero.astro` is the legacy predecessor — still present but not mounted anywhere.
 - **`BlogPost.astro`** (layout) — mounts `<AuthorCoda>` then `<PostQuoteShare client:load>` after `.prose`. All quote-share CSS lives here as scoped `:global()` rules.
 - **`HomepageLayout.astro`** — sets `data-layout="homepage"` on body; editorial deep-navy palette via `src/styles/homepage.css`.
 - **`AuthorCoda.astro`** — author byline + headshot + condensed bio rendered at the end of every post. Headshot path defaults to `/mazze-headshot.jpg`; hides gracefully if image is missing.
