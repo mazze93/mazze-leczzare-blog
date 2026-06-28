@@ -61,6 +61,9 @@ src/
   content/blog/     # Markdown/MDX posts (Content Collection)
   layouts/          # BlogPost.astro, HomepageLayout.astro
   pages/            # File-based routes
+    about.astro     # Full custom page — hero, work cards, engagement types
+    cipher-gothic.astro  # Cipher Gothic design system documentation
+    rss.xml.js      # RSS feed (was missing; now live)
   styles/           # global.css + homepage.css
   consts.ts         # Site-wide constants (single source of truth)
 
@@ -68,7 +71,10 @@ functions/api/
   contact.ts        # Contact form delivery
   share-event.ts    # Paragraph quote share telemetry
 
-public/             # Static assets (fonts, images, favicon)
+public/
+  apple-touch-icon.png  # iOS home screen icon (180×180)
+  favicon-32.png        # PNG favicon fallback (32×32)
+  bimi-logo.svg         # BIMI email brand mark
 scripts/ops/        # Local operational scripts
 docs/operations/    # Agent protocol and session memory
 ```
