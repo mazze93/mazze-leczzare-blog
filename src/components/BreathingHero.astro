@@ -26,6 +26,10 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     <p class="breathing-hero__tagline">
       Technology, systems thinking, and the architecture of meaning.
     </p>
+    <p class="breathing-hero__sub">
+      Security engineering, infrastructure, and writing for systems
+      with real human stakes. Based in Durham, NC. <a href="/about/">About the work →</a>
+    </p>
     <div class="breathing-hero__actions">
       <a href="/blog/" class="breathing-hero__cta">Read the writing</a>
       <a href="/work/" class="breathing-hero__cta breathing-hero__cta--secondary">Explore the work</a>
@@ -95,6 +99,23 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     line-height: 1.6;
     margin: 0 0 2.5rem;
   }
+
+  .breathing-hero__sub {
+    font-family: var(--font-mono, monospace);
+    font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+    color: rgba(242, 244, 248, 0.45);
+    line-height: 1.6;
+    margin: -1.5rem 0 2.5rem;
+  }
+
+  .breathing-hero__sub a {
+    color: #2bd3c6;
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+
+  .breathing-hero__sub a:hover { opacity: 1; }
 
   .breathing-hero__actions {
     display: flex;

@@ -2,9 +2,7 @@
 
 > Local: `/Users/daedalus/Code/blog` · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
 
-Personal blog and publishing space for Mazze LeCzzare Frazer — a former neuroscientist turned
-storyteller, marketer, and cybersecurity explorer. The site frames itself as a
-"static-first working studio" for essays, field notes, and public working documents.
+Security engineering, technical writing, and essays at the intersection of infrastructure and story. The site is a "static-first working studio" for public-facing work, field notes, and the Cipher Gothic design system.
 
 ## Stack
 
@@ -15,7 +13,8 @@ storyteller, marketer, and cybersecurity explorer. The site frames itself as a
 | Content | Markdown + MDX via Astro Content Collections (loader API) |
 | Edge functions | Cloudflare Pages Functions (`functions/`) |
 | Styles | CSS custom properties + Tailwind CSS 4 (utility layer; `preflight: false`) |
-| Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded); Cormorant Garamond, DM Mono, DM Sans, Playfair Display (via `@fontsource`) |
+| Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded); Cormorant Garamond, DM Mono, DM Sans, Playfair Display (via `@fontsource`); Space Grotesk Variable + Crimson Pro (via `@fontsource-variable`/`@fontsource` — used on `/about/` and `/cipher-gothic/`) |
+| RSS | `@astrojs/rss` — feed at `/rss.xml`, auto-generated from blog content collection |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |
 | Type checking | TypeScript 6 strict mode + `tsc` via `npm run check` |
@@ -39,10 +38,10 @@ npm run docs:check # Validate doc command references and deployment terminology
 All constants are imported from `src/consts.ts` — never hardcode these inline.
 
 ```text
-SITE_TITLE           = "Mazze Leczzare"
-SITE_DESCRIPTION     = "Essays, experiments, and field notes from a former neuroscientist..."
+SITE_TITLE           = "Mazze LeCzzare"
+SITE_DESCRIPTION     = "Security engineer, content strategist, and founder of Secure Pride. Essays and infrastructure for systems with real human stakes."
 SITE_URL             = "https://mazzeleczzare.com"
-SITE_AUTHOR          = "Mazze Leczzare"
+SITE_AUTHOR          = "Mazze LeCzzare"
 SITE_EMAIL           = "mailto:security@mazzeleczzare.com"
 SITE_GITHUB_URL      = "https://github.com/mazze93"
 SITE_TWITTER         = "@southerncunning"
@@ -93,7 +92,8 @@ files/                # HTML prototypes and design notes (not deployed)
 | `/blog`           | `src/pages/blog/index.astro`        | All posts, sorted newest-first           |
 | `/blog/[slug]/`   | `src/pages/blog/[...slug].astro`    | Dynamic blog post route                  |
 | `/contact`        | `src/pages/contact.astro`           | ContactForm island                       |
-| `/about`          | `src/pages/about.mdx`               | MDX page via BlogPost layout             |
+| `/about`          | `src/pages/about.astro`             | Full custom page — hero, work cards, engagement grid, contact |
+| `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |
 | `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
 | `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
 | `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout        |
@@ -141,7 +141,7 @@ most recent; blog listing shows all.
 Read source for full detail — these are the non-obvious points:
 
 **Layout / page-level:**
-- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Respects `prefers-reduced-motion` with static gradient fallback. `SignalHero.astro` is the legacy predecessor — still present but not mounted anywhere.
+- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Includes a `.breathing-hero__sub` bridge paragraph linking to `/about/` for persona continuity. Respects `prefers-reduced-motion` with static gradient fallback. `SignalHero.astro` is the legacy predecessor — still present but not mounted anywhere.
 - **`BlogPost.astro`** (layout) — mounts `<AuthorCoda>` then `<PostQuoteShare client:load>` after `.prose`. All quote-share CSS lives here as scoped `:global()` rules.
 - **`HomepageLayout.astro`** — sets `data-layout="homepage"` on body; editorial deep-navy palette via `src/styles/homepage.css`.
 - **`AuthorCoda.astro`** — author byline + headshot + condensed bio rendered at the end of every post. Headshot path defaults to `/mazze-headshot.jpg`; hides gracefully if image is missing.

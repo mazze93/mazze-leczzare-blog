@@ -52,8 +52,29 @@ const personSchema = {
   name: SITE_AUTHOR,
   url: SITE_URL,
   email: SITE_EMAIL.replace('mailto:', ''),
-  sameAs: [SITE_URL, SITE_GITHUB_URL],
-  knowsAbout: ['storytelling', 'marketing', 'cybersecurity', 'neuroscience'],
+  sameAs: [
+    SITE_URL,
+    SITE_GITHUB_URL,
+    'https://securepride.org',
+    'https://linkedin.com/in/mazze-leczzare',
+  ],
+  jobTitle: 'Security engineer and content strategist',
+  worksFor: { '@type': 'Organization', name: 'Secure Pride' },
+  knowsAbout: [
+    'Cybersecurity',
+    'LGBTQ+ security',
+    'AI safety and privacy',
+    'Infrastructure systems',
+    'Technical writing',
+    'Cognitive neuroscience',
+    'Developer tools',
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Durham',
+    addressRegion: 'NC',
+    addressCountry: 'US',
+  },
 };
 ---
 
@@ -61,7 +82,9 @@ const personSchema = {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="mask-icon" href="/favicon.svg" color="#d4a574" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="mask-icon" href="/favicon.svg" color="#5CCFCF" />
 <meta name="generator" content={Astro.generator} />
 
 <!-- Theme color (default: dark; updated immediately by inline script below) -->
@@ -73,6 +96,7 @@ const personSchema = {
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
+<link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>

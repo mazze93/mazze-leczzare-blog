@@ -11,7 +11,7 @@
 
 /
   Link: </.well-known/api-catalog>; rel="api-catalog"
-  Link: </rss.xml>; rel="alternate"; type="application/rss+xml"; title="Mazze Leczzare"
+  Link: </rss.xml>; rel="alternate"; type="application/rss+xml"; title="Mazze LeCzzare"
   Link: </.well-known/agent-skills/index.json>; rel="service-doc"
   Link: </.well-known/mcp/server-card.json>; rel="service-desc"
 

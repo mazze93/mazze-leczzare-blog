@@ -5,7 +5,7 @@
 ![Content](https://img.shields.io/badge/Content-Markdown%20%2B%20MDX-success)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
-Personal editorial platform for Mazze LeCzzare Frazer — essays, field notes, and public working documents at the intersection of narrative, cognition, and security-forward design.
+Security engineering, technical writing, and essays from Mazze LeCzzare — founder of Secure Pride. Infrastructure and story for systems with real human stakes.
 
 ## Stack
 
@@ -15,7 +15,8 @@ Personal editorial platform for Mazze LeCzzare Frazer — essays, field notes, a
 | UI islands | React 19 — interactive components only |
 | Content | Markdown + MDX via Astro Content Collections |
 | Edge functions | Cloudflare Pages Functions (`functions/api/`) |
-| Fonts | Atkinson Hyperlegible (self-hosted) |
+| Fonts | Atkinson Hyperlegible (self-hosted); Space Grotesk Variable, Crimson Pro (via `@fontsource`) |
+| RSS | `@astrojs/rss` — `/rss.xml` |
 | Deploy | Cloudflare Pages |
 
 ## Commands
@@ -60,6 +61,9 @@ src/
   content/blog/     # Markdown/MDX posts (Content Collection)
   layouts/          # BlogPost.astro, HomepageLayout.astro
   pages/            # File-based routes
+    about.astro     # Full custom page — hero, work cards, engagement types
+    cipher-gothic.astro  # Cipher Gothic design system documentation
+    rss.xml.js      # RSS feed (was missing; now live)
   styles/           # global.css + homepage.css
   consts.ts         # Site-wide constants (single source of truth)
 
@@ -67,7 +71,10 @@ functions/api/
   contact.ts        # Contact form delivery
   share-event.ts    # Paragraph quote share telemetry
 
-public/             # Static assets (fonts, images, favicon)
+public/
+  apple-touch-icon.png  # iOS home screen icon (180×180)
+  favicon-32.png        # PNG favicon fallback (32×32)
+  bimi-logo.svg         # BIMI email brand mark
 scripts/ops/        # Local operational scripts
 docs/operations/    # Agent protocol and session memory
 ```

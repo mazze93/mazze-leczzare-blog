@@ -1,0 +1,411 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '@fontsource-variable/space-grotesk/index.css';
+import '@fontsource/crimson-pro/400.css';
+import '@fontsource/crimson-pro/400-italic.css';
+import '@fontsource/crimson-pro/600.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title="Cipher Gothic — Mazze LeCzzare"
+      description="A design language for systems made intimate. The visual and typographic framework behind mazzeleczzare.com."
+    />
+  </head>
+  <body>
+    <Header />
+
+    <div class="cg-page">
+      <div class="cg-shell">
+        <main class="cg-main">
+
+          <nav class="cg-back" aria-label="Back navigation">
+            <a href="/about/">← About the work</a>
+          </nav>
+
+          <header class="cg-header">
+            <div class="cg-header__eyebrow">Visual language</div>
+            <h1 class="cg-header__title">Cipher Gothic</h1>
+            <p class="cg-header__subtitle">The language of systems made intimate</p>
+          </header>
+
+          <section class="cg-section">
+            <div class="cg-prose">
+              <p>
+                There is a particular tension in work that lives inside locked doors and open poems — the knowledge that infrastructure is a kind of literature, that security protocols are a form of care. Cipher Gothic holds that tension: the schematic precision of a network diagram and the soft breath of handwritten marginalia, occupying the same dark page.
+              </p>
+              <p>
+                This site refuses to separate technical writing from literary work. Infrastructure and story are the same problem told in different grammars, and the job is to make both legible to the people who depend on them. Cipher Gothic is the design language that enforces that refusal.
+              </p>
+            </div>
+          </section>
+
+          <section class="cg-section" aria-labelledby="cg-tokens-title">
+            <h2 id="cg-tokens-title" class="cg-section__title">Design tokens</h2>
+            <div class="cg-grid">
+              <div class="cg-token-card">
+                <div class="cg-token-card__label">Background</div>
+                <div class="cg-swatch" style="background:#0b0d12; border:1px solid rgba(255,255,255,0.08);"></div>
+                <code class="cg-token-card__value">#0b0d12</code>
+                <p class="cg-token-card__note">Obsidian ground — deep enough to hold everything else without collapsing.</p>
+              </div>
+              <div class="cg-token-card">
+                <div class="cg-token-card__label">Teal</div>
+                <div class="cg-swatch" style="background:#5CCFCF;"></div>
+                <code class="cg-token-card__value">#5CCFCF</code>
+                <p class="cg-token-card__note">Signal color. Used for active states, accents, and anything that needs to say: this matters.</p>
+              </div>
+              <div class="cg-token-card">
+                <div class="cg-token-card__label">Coral</div>
+                <div class="cg-swatch" style="background:#F07178;"></div>
+                <code class="cg-token-card__value">#F07178</code>
+                <p class="cg-token-card__note">Secondary accent — warmth without softness. Used for friction points and secondary highlight.</p>
+              </div>
+              <div class="cg-token-card">
+                <div class="cg-token-card__label">Ink</div>
+                <div class="cg-swatch" style="background:#f4f5f7;"></div>
+                <code class="cg-token-card__value">#f4f5f7</code>
+                <p class="cg-token-card__note">Primary text. Near-white with just enough warmth to breathe against the background.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="cg-section" aria-labelledby="cg-type-title">
+            <h2 id="cg-type-title" class="cg-section__title">Typography</h2>
+            <div class="cg-type-stack">
+              <div class="cg-type-row">
+                <div class="cg-type-row__meta">
+                  <span class="cg-type-row__role">Display / Headings</span>
+                  <code class="cg-type-row__name">Playfair Display, Cormorant Garamond</code>
+                </div>
+                <div class="cg-type-row__specimen cg-type-row__specimen--serif">
+                  The architecture of meaning
+                </div>
+              </div>
+              <div class="cg-type-row">
+                <div class="cg-type-row__meta">
+                  <span class="cg-type-row__role">Body / Long-form</span>
+                  <code class="cg-type-row__name">Crimson Pro</code>
+                </div>
+                <div class="cg-type-row__specimen cg-type-row__specimen--prose">
+                  Infrastructure is a kind of literature. Security protocols are a form of care.
+                </div>
+              </div>
+              <div class="cg-type-row">
+                <div class="cg-type-row__meta">
+                  <span class="cg-type-row__role">UI / Sans</span>
+                  <code class="cg-type-row__name">Space Grotesk Variable</code>
+                </div>
+                <div class="cg-type-row__specimen cg-type-row__specimen--sans">
+                  Signal / Threat model / Access control
+                </div>
+              </div>
+              <div class="cg-type-row">
+                <div class="cg-type-row__meta">
+                  <span class="cg-type-row__role">Code / Mono</span>
+                  <code class="cg-type-row__name">Martian Mono, DM Mono</code>
+                </div>
+                <div class="cg-type-row__specimen cg-type-row__specimen--mono">
+                  const cipher = 'gothic'; // locked doors, open poems
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="cg-section" aria-labelledby="cg-principle-title">
+            <h2 id="cg-principle-title" class="cg-section__title">Principles</h2>
+            <div class="cg-prose cg-prose--wide">
+              <p>
+                <strong>Legibility is a form of care.</strong> Every design decision that makes content harder to read is a failure of the system's relationship to the people it serves. WCAG 2.1 AA is a floor, not a ceiling.
+              </p>
+              <p>
+                <strong>Dark ground, precise signal.</strong> The obsidian background is not an aesthetic choice alone — it reduces eye fatigue for people doing technical reading at depth. Teal is reserved for things that actually need your attention.
+              </p>
+              <p>
+                <strong>All colors via CSS variables, never hardcoded.</strong> The system must be overridable by the person using it. Hardcoded hex values are a control problem as much as a maintenance problem.
+              </p>
+              <p>
+                <strong>Infrastructure and story share grammar.</strong> A well-structured incident report and a well-structured poem have the same bones: a clear frame, a sequence of events, and an honest accounting of consequence.
+              </p>
+            </div>
+          </section>
+
+          <div class="cg-viz" aria-hidden="true">
+            <div class="cg-viz__grid"></div>
+            <span class="cg-viz__label cg-viz__label--lock">LOCKED DOORS</span>
+            <span class="cg-viz__label cg-viz__label--poem">open poems</span>
+          </div>
+
+        </main>
+      </div>
+    </div>
+
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  .cg-page {
+    --cg-bg: #050608;
+    --cg-bg-elevated: #0b0f14;
+    --cg-surface: #0f141b;
+    --cg-border: rgba(255, 255, 255, 0.04);
+    --cg-accent: #5CCFCF;
+    --cg-coral: #F07178;
+    --cg-ink: #f4f5f7;
+    --cg-ink-muted: #a0a4b3;
+    --cg-sans: "Space Grotesk Variable", "Space Grotesk", system-ui, sans-serif;
+    --cg-serif: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+    --cg-max: 840px;
+    background:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.06), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.04), transparent 55%),
+      var(--cg-bg);
+    color: var(--cg-ink);
+    font-family: var(--cg-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 60vh;
+  }
+
+  .cg-shell {
+    width: 100%;
+    max-width: var(--cg-max);
+    margin: 0 auto;
+    padding: 24px 24px 80px;
+  }
+
+  .cg-main {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .cg-back a {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--cg-ink-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .cg-back a:hover { color: var(--cg-accent); }
+
+  .cg-header__eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--cg-ink-muted);
+    margin-bottom: 8px;
+  }
+
+  .cg-header__title {
+    font-family: var(--cg-sans);
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin: 0 0 10px;
+    color: var(--cg-ink);
+  }
+
+  .cg-header__subtitle {
+    font-family: var(--cg-serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--cg-ink-muted);
+    margin: 0;
+  }
+
+  .cg-section {
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    padding-top: 24px;
+  }
+
+  .cg-section__title {
+    font-family: var(--cg-sans);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--cg-ink-muted);
+    margin: 0 0 20px;
+  }
+
+  .cg-prose {
+    max-width: 600px;
+    font-family: var(--cg-serif);
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--cg-ink-muted);
+  }
+
+  .cg-prose--wide { max-width: 100%; }
+
+  .cg-prose p { margin: 0 0 16px; }
+  .cg-prose p:last-child { margin-bottom: 0; }
+  .cg-prose strong { color: var(--cg-ink); font-weight: 600; }
+
+  .cg-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cg-token-card {
+    background: var(--cg-surface);
+    border: 1px solid var(--cg-border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .cg-token-card__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--cg-ink-muted);
+    margin-bottom: 10px;
+  }
+
+  .cg-swatch {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cg-token-card__value {
+    display: block;
+    font-size: 11px;
+    color: var(--cg-accent);
+    margin-bottom: 8px;
+  }
+
+  .cg-token-card__note {
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--cg-ink-muted);
+    margin: 0;
+  }
+
+  .cg-type-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cg-type-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+    gap: 24px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  }
+
+  .cg-type-row__role {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--cg-ink-muted);
+    margin-bottom: 4px;
+  }
+
+  .cg-type-row__name {
+    font-size: 11px;
+    color: var(--cg-accent);
+    opacity: 0.8;
+  }
+
+  .cg-type-row__specimen { color: var(--cg-ink); }
+
+  .cg-type-row__specimen--serif {
+    font-family: var(--cg-serif);
+    font-size: 22px;
+    font-style: italic;
+  }
+
+  .cg-type-row__specimen--prose {
+    font-family: var(--cg-serif);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--cg-ink-muted);
+  }
+
+  .cg-type-row__specimen--sans {
+    font-family: var(--cg-sans);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .cg-type-row__specimen--mono {
+    font-family: "Martian Mono", "DM Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--cg-ink-muted);
+  }
+
+  .cg-viz {
+    position: relative;
+    height: 140px;
+    border-radius: 18px;
+    border: 1px dashed rgba(148, 163, 184, 0.3);
+    background:
+      radial-gradient(circle at 20% 50%, rgba(92, 207, 207, 0.35), transparent 55%),
+      radial-gradient(circle at 80% 50%, rgba(240, 113, 120, 0.25), transparent 55%),
+      rgba(15, 23, 42, 0.4);
+    overflow: hidden;
+  }
+
+  .cg-viz__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(148, 163, 184, 0.12) 0.5px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 0.5px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .cg-viz__label {
+    position: absolute;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(8px);
+  }
+
+  .cg-viz__label--lock {
+    top: 50%;
+    left: 24px;
+    transform: translateY(-50%);
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.9);
+  }
+
+  .cg-viz__label--poem {
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    font-family: var(--cg-serif);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    color: rgba(226, 232, 240, 0.9);
+  }
+
+  @media (max-width: 700px) {
+    .cg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cg-type-row { grid-template-columns: minmax(0, 1fr); }
+    .cg-type-row__specimen { margin-top: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .cg-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
