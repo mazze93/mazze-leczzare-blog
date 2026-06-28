@@ -93,7 +93,8 @@ files/                # HTML prototypes and design notes (not deployed)
 | `/blog`           | `src/pages/blog/index.astro`        | All posts, sorted newest-first           |
 | `/blog/[slug]/`   | `src/pages/blog/[...slug].astro`    | Dynamic blog post route                  |
 | `/contact`        | `src/pages/contact.astro`           | ContactForm island                       |
-| `/about`          | `src/pages/about.mdx`               | MDX page via BlogPost layout             |
+| `/about`          | `src/pages/about.astro`             | Full custom page — hero, work cards, engagement grid, contact |
+| `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |
 | `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
 | `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
 | `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout        |
