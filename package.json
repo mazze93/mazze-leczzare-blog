@@ -6,6 +6,8 @@
     "@astrojs/mdx": "6.0.3",
     "@astrojs/react": "^5.0.7",
     "@astrojs/sitemap": "3.7.3",
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/crimson-pro": "^5.2.8",
     "astro": "6.4.8",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -13,7 +15,7 @@
     "zod": "^4.4.3"
   },
   "overrides": {
-    "esbuild": ">=0.25.0"
+    "esbuild": ">=0.28.1"
   },
   "scripts": {
     "astro": "astro",
@@ -28,9 +30,6 @@
   "type": "module",
   "engines": {
     "node": ">=22"
-  },
-  "overrides": {
-    "esbuild": ">=0.28.1"
   },
   "devDependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",
