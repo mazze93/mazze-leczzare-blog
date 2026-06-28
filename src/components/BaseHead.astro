@@ -52,8 +52,29 @@ const personSchema = {
   name: SITE_AUTHOR,
   url: SITE_URL,
   email: SITE_EMAIL.replace('mailto:', ''),
-  sameAs: [SITE_URL, SITE_GITHUB_URL],
-  knowsAbout: ['storytelling', 'marketing', 'cybersecurity', 'neuroscience'],
+  sameAs: [
+    SITE_URL,
+    SITE_GITHUB_URL,
+    'https://securepride.org',
+    'https://linkedin.com/in/mazze-leczzare',
+  ],
+  jobTitle: 'Security engineer and content strategist',
+  worksFor: { '@type': 'Organization', name: 'Secure Pride' },
+  knowsAbout: [
+    'Cybersecurity',
+    'LGBTQ+ security',
+    'AI safety and privacy',
+    'Infrastructure systems',
+    'Technical writing',
+    'Cognitive neuroscience',
+    'Developer tools',
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Durham',
+    addressRegion: 'NC',
+    addressCountry: 'US',
+  },
 };
 ---
 
