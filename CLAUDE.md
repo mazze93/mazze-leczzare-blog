@@ -39,10 +39,10 @@ npm run docs:check # Validate doc command references and deployment terminology
 All constants are imported from `src/consts.ts` — never hardcode these inline.
 
 ```text
-SITE_TITLE           = "Mazze Leczzare"
-SITE_DESCRIPTION     = "Essays, experiments, and field notes from a former neuroscientist..."
+SITE_TITLE           = "Mazze LeCzzare"
+SITE_DESCRIPTION     = "Security engineer, content strategist, and founder of Secure Pride. Essays and infrastructure for systems with real human stakes."
 SITE_URL             = "https://mazzeleczzare.com"
-SITE_AUTHOR          = "Mazze Leczzare"
+SITE_AUTHOR          = "Mazze LeCzzare"
 SITE_EMAIL           = "mailto:security@mazzeleczzare.com"
 SITE_GITHUB_URL      = "https://github.com/mazze93"
 SITE_TWITTER         = "@southerncunning"
