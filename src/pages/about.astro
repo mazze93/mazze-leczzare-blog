@@ -1,0 +1,892 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title="About — Mazze LeCzzare"
+      description="Security engineer, content strategist, and founder of Secure Pride. Infrastructure and story for systems with real human stakes."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Mazze LeCzzare",
+        "description": "Security engineer, content strategist, and founder of Secure Pride, building infrastructure and narrative for high-stakes systems.",
+        "url": "https://mazzeleczzare.com",
+        "sameAs": [
+          "https://github.com/mazze93",
+          "https://securepride.org",
+          "https://linkedin.com/in/mazze-leczzare"
+        ],
+        "jobTitle": "Security engineer and content strategist",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Secure Pride"
+        },
+        "knowsAbout": [
+          "Cybersecurity",
+          "LGBTQ+ organizations",
+          "AI safety and privacy",
+          "Developer tools",
+          "Technical writing"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Durham",
+          "addressRegion": "NC",
+          "addressCountry": "US"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <Header />
+
+    <div class="about-page">
+      <div class="about-shell">
+        <main class="about-main">
+
+          <!-- HERO -->
+          <section class="about-hero" aria-labelledby="about-hero-title">
+            <div class="about-hero__left">
+              <h1 id="about-hero-title" class="about-hero__title">
+                Security, infrastructure, and story for high-stakes systems.
+              </h1>
+              <p class="about-hero__subtitle">
+                I'm a security engineer, content strategist, and founder of <strong>Secure Pride</strong> — a privacy-first cybersecurity nonprofit for LGBTQ+ organizations and clinics working with data that can't afford to leak.
+              </p>
+              <p class="about-hero__tagline">
+                I design and document infrastructure for people the default assumptions forgot. Cognitive neuroscience trained me to care about signal and attention; security work keeps me honest about who pays when a system fails.
+              </p>
+              <div class="about-hero__tags" aria-label="Disciplines">
+                <span class="ab-tag-pill">
+                  <span class="ab-tag-pill__dot" aria-hidden="true"></span>
+                  Security engineering
+                </span>
+                <span class="ab-tag-pill">
+                  <span class="ab-tag-pill__dot" aria-hidden="true"></span>
+                  Infrastructure systems
+                </span>
+                <span class="ab-tag-pill">
+                  <span class="ab-tag-pill__dot" aria-hidden="true"></span>
+                  Content &amp; narrative
+                </span>
+              </div>
+            </div>
+            <aside class="about-hero__meta">
+              <div class="about-hero__meta-top">
+                <div class="ab-meta-label">Location</div>
+                <div class="ab-meta-value">Durham, North Carolina</div>
+                <div class="about-hero__meta-tags">
+                  <span class="ab-tag-pill">
+                    <span class="ab-tag-pill__dot" aria-hidden="true"></span>
+                    Available for consulting
+                  </span>
+                  <span class="ab-tag-pill">
+                    <span class="ab-tag-pill__dot" aria-hidden="true"></span>
+                    Remote &amp; hybrid
+                  </span>
+                </div>
+              </div>
+              <div class="about-hero__cta-group">
+                <a class="ab-button-primary" href="mailto:hello@mazzeleczzare.com">
+                  <span class="ab-dot"></span>
+                  Work together
+                </a>
+                <a class="ab-button-ghost" href="/work/">
+                  <span class="ab-dot"></span>
+                  View projects
+                </a>
+              </div>
+            </aside>
+          </section>
+
+          <!-- WHAT I'M WORKING ON -->
+          <section class="about-section" aria-labelledby="section-work-title">
+            <div class="about-section__header">
+              <div>
+                <div class="about-section__eyebrow">Current work</div>
+                <h2 id="section-work-title" class="about-section__title">What I'm working on</h2>
+              </div>
+              <p class="about-section__hint">Security, infra, and narrative work with explicit human stakes.</p>
+            </div>
+
+            <div class="about-grid">
+              <article class="ab-work-card">
+                <div class="ab-work-card__title-row">
+                  <h3 class="ab-work-card__title">Secure Pride</h3>
+                  <span class="ab-work-card__badge ab-work-card__badge--accent">Active — nonprofit</span>
+                </div>
+                <p class="ab-work-card__body">
+                  Secure Pride exists because LGBTQ+ nonprofits, clinics, and mutual aid orgs handle data with real consequences — identity disclosures, health records, the coordinates of people living in hostile conditions — and almost none of them have adequate protection.
+                </p>
+                <ul class="ab-work-card__list">
+                  <li>Designing certificate-based network authentication and device access paths sized for teams without dedicated IT.</li>
+                  <li>Hardening workstations and cloud services that handle sensitive health and identity data.</li>
+                  <li>Writing security playbooks and plain-language documentation that non-technical staff can actually follow.</li>
+                </ul>
+                <p class="ab-work-card__cta">
+                  Learn more at <a href="https://securepride.org" target="_blank" rel="noreferrer">securepride.org</a>
+                </p>
+              </article>
+
+              <div class="about-grid__side">
+                <article class="ab-work-card ab-work-card--secondary">
+                  <div class="ab-work-card__title-row">
+                    <h3 class="ab-work-card__title">Context Synapse</h3>
+                    <span class="ab-work-card__badge">Research — Swift</span>
+                  </div>
+                  <p class="ab-work-card__body">
+                    Context Synapse is a local-first context orchestration framework in Swift — a Bayesian system for managing what a model knows about you across time, without that data ever leaving your device. Research project and values statement, simultaneously.
+                  </p>
+                  <ul class="ab-work-card__list">
+                    <li>Local-only state and context graphs to avoid cloud exfiltration of personal history.</li>
+                    <li>Probabilistic modeling of long-term preferences and memory without centralizing raw data.</li>
+                    <li>Interfaces for interrogating and correcting what the system thinks it knows about you.</li>
+                  </ul>
+                </article>
+
+                <article class="ab-work-card ab-work-card--secondary" aria-label="Client work">
+                  <div class="ab-work-card__title-row">
+                    <h3 class="ab-work-card__title">Client work</h3>
+                    <span class="ab-work-card__badge">Select engagements</span>
+                  </div>
+                  <p class="ab-work-card__body">
+                    Client work sits at the intersection of infrastructure and story. I partner with developer platforms, security-forward products, and mission-driven orgs whose systems touch sensitive data or communities poorly served by default frameworks.
+                  </p>
+                  <ul class="ab-work-card__list">
+                    <li>Security architecture and advisory for small teams aiming for enterprise-grade without enterprise budgets.</li>
+                    <li>Positioning and narrative for infra and security products that need to speak clearly without oversimplifying.</li>
+                    <li>Technical content and documentation that line up with how the system actually behaves in production.</li>
+                  </ul>
+                  <p class="ab-work-card__cta">
+                    For availability, email <a href="mailto:hello@mazzeleczzare.com">hello@mazzeleczzare.com</a>
+                  </p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <!-- HOW I THINK -->
+          <section class="about-section" aria-labelledby="section-thinking-title">
+            <div class="about-section__header">
+              <div>
+                <div class="about-section__eyebrow">How I think</div>
+                <h2 id="section-thinking-title" class="about-section__title">From lab notes to infrastructure</h2>
+              </div>
+            </div>
+            <div class="about-grid">
+              <div>
+                <div class="ab-narrative-block">
+                  <p>
+                    I left a neuroscience lab after years of measuring cognitive decline in aged macaques — running behavioral tests, recording scores, eventually preparing their brains for post-mortem analysis. The work produced clean numbers. The numbers became figures in papers. At some point, the distance between the data and the animals stopped being something I could live with.
+                  </p>
+                  <p>
+                    Everything since has been an attempt to work where the stakes are explicit and the humans are not an afterthought. Secure Pride, Context Synapse, and the systems I write about all start from the same questions: who is this for, what can it see, and what happens when it fails them?
+                  </p>
+                </div>
+              </div>
+              <aside>
+                <div class="ab-narrative-block ab-narrative-block--serif">
+                  <p>
+                    This site refuses to separate technical writing from literary work. Infrastructure and story are the same problem told in different grammars, and the job is to make both legible to the people who depend on them.
+                  </p>
+                </div>
+              </aside>
+            </div>
+          </section>
+
+          <!-- BACKGROUND -->
+          <section class="about-section" aria-labelledby="section-background-title">
+            <div class="about-section__header">
+              <div>
+                <div class="about-section__eyebrow">Background</div>
+                <h2 id="section-background-title" class="about-section__title">Where I've worked and learned</h2>
+              </div>
+            </div>
+            <div class="about-grid">
+              <div class="ab-background-list">
+                <p>
+                  Cognitive neuroscience and quantitative psychology at UC Davis — EEG/ERP, eye tracking, and representational similarity analysis in the Luck Lab. That work didn't pull me toward writing; it sharpened how I think about noisy systems, experimental design, and the gap between statistically significant and actually meaningful.
+                </p>
+                <p>
+                  Before Secure Pride: content lead at mudstack, over fifty episodes of <em>Clear as Mud</em> with guests from Epic, Riot, Sony, and Meta VR, and growth work at Tennis 919. Alongside that, a long-running habit of building lab infrastructure and open-source tools for my own work.
+                </p>
+              </div>
+              <aside class="ab-background-list">
+                <p>
+                  I make music — Ableton, Logic, a Universal Audio Volt 2, and a Martin acoustic-electric named Joni. I write speculative fiction. I'm based in Durham, NC, working across time zones with teams who treat security and narrative as first-class concerns.
+                </p>
+              </aside>
+            </div>
+          </section>
+
+          <!-- CIPHER GOTHIC STRIP -->
+          <section class="about-section" aria-labelledby="section-cipher-title">
+            <div class="about-section__header">
+              <div>
+                <div class="about-section__eyebrow">Visual language</div>
+                <h2 id="section-cipher-title" class="about-section__title">Cipher Gothic</h2>
+              </div>
+              <p class="about-section__hint">The design system this site runs on.</p>
+            </div>
+            <div class="ab-cipher-strip">
+              <div>
+                <div class="ab-cipher-strip__label">Cipher Gothic</div>
+                <div class="ab-cipher-strip__title">The language of systems made intimate</div>
+                <p class="ab-cipher-strip__text">
+                  There is a particular tension in work that lives inside locked doors and open poems — the knowledge that infrastructure is a kind of literature, that security protocols are a form of care. Cipher Gothic holds that tension: the schematic precision of a network diagram and the soft breath of handwritten marginalia, occupying the same dark page.
+                </p>
+              </div>
+              <div>
+                <div class="ab-cipher-strip__viz" aria-hidden="true">
+                  <div class="ab-cipher-strip__viz-grid"></div>
+                  <div class="ab-cipher-strip__viz-lock">LOCKED DOORS</div>
+                  <div class="ab-cipher-strip__viz-script">open poems</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CONTACT -->
+          <section class="about-section" aria-labelledby="section-contact-title">
+            <div class="about-section__header">
+              <div>
+                <div class="about-section__eyebrow">Work with me</div>
+                <h2 id="section-contact-title" class="about-section__title">How we might collaborate</h2>
+              </div>
+            </div>
+            <div class="ab-cta-panel">
+              <div class="ab-cta-panel__headline">Currently open to</div>
+              <p class="ab-cta-panel__body">
+                Security and infrastructure consulting for small teams, narrative and content strategy for developer tools, and collaborations with organizations whose systems touch vulnerable communities or sensitive data.
+              </p>
+              <div class="ab-cta-panel__channels">
+                <a class="ab-cta-pill" href="mailto:hello@mazzeleczzare.com">
+                  <span class="ab-cta-pill__dot" aria-hidden="true"></span>
+                  Email — hello@mazzeleczzare.com
+                </a>
+                <a class="ab-cta-pill" href="mailto:security@mazzeleczzare.com">
+                  <span class="ab-cta-pill__dot" aria-hidden="true"></span>
+                  Security inquiries
+                </a>
+                <a class="ab-cta-pill" href="https://github.com/mazze93" target="_blank" rel="noreferrer">
+                  <span class="ab-cta-pill__dot" aria-hidden="true"></span>
+                  GitHub
+                </a>
+                <a class="ab-cta-pill" href="https://linkedin.com/in/mazze-leczzare" target="_blank" rel="noreferrer">
+                  <span class="ab-cta-pill__dot" aria-hidden="true"></span>
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  /* ── About page tokens ── */
+  .about-page {
+    --ab-bg: #050608;
+    --ab-bg-elevated: #0b0f14;
+    --ab-surface-soft: #0f141b;
+    --ab-border-subtle: rgba(255, 255, 255, 0.04);
+    --ab-accent: #5CCFCF;
+    --ab-accent-soft: rgba(92, 207, 207, 0.12);
+    --ab-ink: #f4f5f7;
+    --ab-ink-muted: #a0a4b3;
+    --ab-coral: #F07178;
+    --ab-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+    --ab-radius-sm: 6px;
+    --ab-radius-md: 12px;
+    --ab-radius-pill: 999px;
+    --ab-sans: "Space Grotesk", system-ui, -apple-system, sans-serif;
+    --ab-serif: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+    --ab-max-width: 1040px;
+    --ab-gutter: 24px;
+  }
+
+  [data-theme="light"] .about-page,
+  @media (prefers-color-scheme: light) {
+    .about-page {
+      --ab-bg: #f8fafc;
+      --ab-bg-elevated: #ffffff;
+      --ab-surface-soft: #f1f5f9;
+      --ab-border-subtle: rgba(15, 23, 42, 0.06);
+      --ab-ink: #0b1120;
+      --ab-ink-muted: #6b7280;
+      --ab-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+    }
+  }
+
+  /* ── Shell ── */
+  .about-page {
+    background:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.07), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.05), transparent 55%),
+      var(--ab-bg);
+    color: var(--ab-ink);
+    font-family: var(--ab-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 60vh;
+  }
+
+  .about-shell {
+    width: 100%;
+    max-width: var(--ab-max-width);
+    margin: 0 auto;
+    padding: 24px var(--ab-gutter) 64px;
+  }
+
+  .about-main {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* ── Hero ── */
+  .about-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 28px;
+    align-items: flex-start;
+    padding: 24px 20px;
+    border-radius: 24px;
+    background:
+      linear-gradient(145deg, rgba(10, 16, 24, 0.9), rgba(5, 8, 13, 0.98)),
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.22), transparent 55%);
+    border: 1px solid rgba(92, 207, 207, 0.12);
+    box-shadow: var(--ab-shadow);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .about-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.13), transparent 55%),
+      linear-gradient(120deg, rgba(255, 255, 255, 0.04) 0, transparent 40%),
+      repeating-linear-gradient(
+        to right,
+        rgba(148, 163, 184, 0.2),
+        rgba(148, 163, 184, 0.2) 0.5px,
+        transparent 1px,
+        transparent 9px
+      );
+    mask-image: radial-gradient(circle at 10% 0, rgba(0, 0, 0, 0.6), transparent 70%);
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .about-hero__title {
+    font-family: var(--ab-sans);
+    font-size: clamp(26px, 3vw, 32px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+    color: var(--ab-ink);
+  }
+
+  .about-hero__subtitle {
+    max-width: 34rem;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ab-ink-muted);
+    margin-bottom: 16px;
+  }
+
+  .about-hero__subtitle strong { color: var(--ab-ink); }
+
+  .about-hero__tagline {
+    font-family: var(--ab-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ab-ink-muted);
+    line-height: 1.9;
+    max-width: 30rem;
+  }
+
+  .about-hero__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .about-hero__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .about-hero__meta-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .about-hero__meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .about-hero__cta-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .ab-meta-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--ab-ink-muted);
+  }
+
+  .ab-meta-value {
+    font-size: 13px;
+    color: var(--ab-ink);
+  }
+
+  /* ── Tag pills ── */
+  .ab-tag-pill {
+    border-radius: var(--ab-radius-pill);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    padding: 4px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--ab-ink-muted);
+    background: rgba(15, 23, 42, 0.8);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ab-tag-pill__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ab-accent);
+    opacity: 0.9;
+    flex-shrink: 0;
+  }
+
+  /* ── Buttons ── */
+  .ab-button-primary,
+  .ab-button-ghost {
+    font-family: var(--ab-sans);
+    font-size: 13px;
+    border-radius: var(--ab-radius-pill);
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ab-ink);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: opacity 0.15s ease;
+  }
+
+  .ab-button-primary:hover,
+  .ab-button-ghost:hover { opacity: 0.85; }
+
+  .ab-button-primary {
+    background: linear-gradient(135deg, rgba(92, 207, 207, 0.18), rgba(92, 207, 207, 0.58));
+    border-color: rgba(92, 207, 207, 0.9);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.7), 0 14px 40px rgba(15, 23, 42, 0.7);
+  }
+
+  .ab-button-ghost {
+    border-color: rgba(148, 163, 184, 0.5);
+    color: var(--ab-ink-muted);
+    background: rgba(15, 23, 42, 0.8);
+  }
+
+  .ab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ── Sections ── */
+  .about-section {
+    padding: 16px 4px 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    margin-top: 12px;
+  }
+
+  .about-section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .about-section__eyebrow {
+    font-family: var(--ab-sans);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ab-ink-muted);
+    margin-bottom: 4px;
+  }
+
+  .about-section__title {
+    font-family: var(--ab-sans);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ab-ink);
+    margin: 0;
+  }
+
+  .about-section__hint {
+    font-size: 12px;
+    color: var(--ab-ink-muted);
+    margin: 0;
+  }
+
+  /* ── Grid ── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 24px;
+  }
+
+  .about-grid__side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── Work cards ── */
+  .ab-work-card {
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.18), transparent 55%),
+      var(--ab-bg-elevated);
+    border: 1px solid var(--ab-border-subtle);
+    padding: 18px 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ab-work-card--secondary {
+    background: var(--ab-surface-soft);
+    background-image: none;
+  }
+
+  .ab-work-card__title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ab-work-card__title {
+    font-family: var(--ab-sans);
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ab-ink);
+    margin: 0;
+  }
+
+  .ab-work-card__badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: var(--ab-radius-pill);
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ab-ink-muted);
+    white-space: nowrap;
+  }
+
+  .ab-work-card__badge--accent {
+    border-color: rgba(92, 207, 207, 0.8);
+    color: var(--ab-accent);
+    background: rgba(92, 207, 207, 0.1);
+  }
+
+  .ab-work-card__body {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--ab-ink-muted);
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+
+  .ab-work-card__list {
+    margin: 0 0 10px;
+    padding-left: 16px;
+    font-size: 12px;
+    color: var(--ab-ink-muted);
+    line-height: 1.7;
+  }
+
+  .ab-work-card__list li + li { margin-top: 4px; }
+
+  .ab-work-card__cta {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--ab-ink-muted);
+  }
+
+  .ab-work-card__cta a {
+    color: var(--ab-accent);
+    text-decoration: none;
+  }
+
+  .ab-work-card__cta a:hover { text-decoration: underline; }
+
+  /* ── Narrative blocks ── */
+  .ab-narrative-block {
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    border: 1px solid var(--ab-border-subtle);
+    background:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.1), transparent 55%),
+      var(--ab-bg-elevated);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--ab-ink-muted);
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .ab-narrative-block p { margin: 0 0 10px; }
+  .ab-narrative-block p:last-child { margin-bottom: 0; }
+
+  .ab-narrative-block--serif {
+    font-family: var(--ab-serif);
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  /* ── Background list ── */
+  .ab-background-list {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ab-ink-muted);
+  }
+
+  .ab-background-list p { margin: 0 0 8px; }
+  .ab-background-list em { color: var(--ab-ink); }
+
+  /* ── Cipher Gothic strip ── */
+  .ab-cipher-strip {
+    border-radius: 18px;
+    padding: 20px 20px 18px;
+    background:
+      linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.94)),
+      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.2), transparent 60%);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    display: grid;
+    grid-template-columns: minmax(0, 2.3fr) minmax(0, 2fr);
+    gap: 20px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ab-cipher-strip__label {
+    font-family: var(--ab-sans);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ab-ink-muted);
+    margin-bottom: 4px;
+  }
+
+  .ab-cipher-strip__title {
+    font-family: var(--ab-sans);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ab-ink);
+    margin-bottom: 8px;
+  }
+
+  .ab-cipher-strip__text {
+    font-family: var(--ab-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ab-ink-muted);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  .ab-cipher-strip__viz {
+    position: relative;
+    min-height: 100px;
+    border-radius: 14px;
+    border: 1px dashed rgba(148, 163, 184, 0.4);
+    background:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.5), transparent 60%),
+      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.35), transparent 55%),
+      radial-gradient(circle at 35% 70%, rgba(15, 23, 42, 0.9), transparent 60%);
+    overflow: hidden;
+  }
+
+  .ab-cipher-strip__viz-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 0 0, rgba(148, 163, 184, 0.3), transparent 55%),
+      linear-gradient(to right, rgba(148, 163, 184, 0.15) 0.5px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.1) 0.5px, transparent 1px);
+    background-size: 100% 100%, 20px 20px, 20px 20px;
+    opacity: 0.65;
+    mix-blend-mode: screen;
+  }
+
+  .ab-cipher-strip__viz-lock,
+  .ab-cipher-strip__viz-script {
+    position: absolute;
+    border-radius: var(--ab-radius-pill);
+    border: 1px solid rgba(15, 23, 42, 0.9);
+    background: rgba(15, 23, 42, 0.9);
+    padding: 4px 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(226, 232, 240, 0.9);
+    backdrop-filter: blur(10px);
+  }
+
+  .ab-cipher-strip__viz-lock { top: 12px; left: 14px; }
+
+  .ab-cipher-strip__viz-script {
+    bottom: 12px;
+    right: 12px;
+    font-family: var(--ab-serif);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── CTA panel ── */
+  .ab-cta-panel {
+    border-radius: 18px;
+    padding: 18px 20px 16px;
+    border: 1px solid var(--ab-border-subtle);
+    background:
+      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.09), transparent 60%),
+      var(--ab-bg-elevated);
+    font-size: 13px;
+    color: var(--ab-ink-muted);
+  }
+
+  .ab-cta-panel__headline {
+    font-family: var(--ab-sans);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ab-ink-muted);
+    margin-bottom: 6px;
+  }
+
+  .ab-cta-panel__body {
+    margin: 0 0 12px;
+    line-height: 1.7;
+  }
+
+  .ab-cta-panel__channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .ab-cta-pill {
+    font-family: var(--ab-sans);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: var(--ab-radius-pill);
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    color: var(--ab-ink);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.8);
+    transition: border-color 0.15s ease;
+  }
+
+  .ab-cta-pill:hover { border-color: rgba(92, 207, 207, 0.7); }
+
+  .ab-cta-pill__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ab-accent);
+    flex-shrink: 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .about-hero {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 18px 16px;
+    }
+
+    .about-hero__meta { align-items: flex-start; }
+    .about-hero__meta-tags { justify-content: flex-start; }
+
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ab-cipher-strip {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about-shell {
+      padding-inline: 18px;
+    }
+  }
+</style>
