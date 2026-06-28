@@ -100,6 +100,23 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     margin: 0 0 2.5rem;
   }
 
+  .breathing-hero__sub {
+    font-family: var(--font-mono, monospace);
+    font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+    color: rgba(242, 244, 248, 0.45);
+    line-height: 1.6;
+    margin: -1.5rem 0 2.5rem;
+  }
+
+  .breathing-hero__sub a {
+    color: #2bd3c6;
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+
+  .breathing-hero__sub a:hover { opacity: 1; }
+
   .breathing-hero__actions {
     display: flex;
     gap: 1rem;
