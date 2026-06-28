@@ -867,6 +867,65 @@ import '@fontsource/crimson-pro/600.css';
     flex-shrink: 0;
   }
 
+  /* ── Engagement grid ── */
+  .ab-engagement-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0 20px;
+  }
+
+  .ab-engagement-card {
+    border-radius: var(--ab-radius-md);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: var(--ab-surface-soft);
+    padding: 14px 14px 12px;
+  }
+
+  .ab-engagement-card__label {
+    font-family: var(--ab-sans);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ab-accent);
+    margin-bottom: 8px;
+  }
+
+  .ab-engagement-card__detail {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ab-ink-muted);
+    margin: 0;
+  }
+
+  /* ── Client note ── */
+  .client-note {
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--ab-ink-muted);
+    border-left: 2px solid rgba(92, 207, 207, 0.4);
+    padding-left: 10px;
+    margin: 10px 0 10px;
+    font-style: italic;
+  }
+
+  /* ── About footer note ── */
+  .about-footer-note {
+    font-size: 11px;
+    color: var(--ab-ink-muted);
+    text-align: center;
+    padding: 16px 0 8px;
+    opacity: 0.7;
+  }
+
+  .about-footer-note a {
+    color: var(--ab-accent);
+    text-decoration: none;
+  }
+
+  .about-footer-note a:hover { text-decoration: underline; }
+
   /* ── Responsive ── */
   @media (max-width: 768px) {
     .about-hero {
@@ -877,11 +936,15 @@ import '@fontsource/crimson-pro/600.css';
     .about-hero__meta { align-items: flex-start; }
     .about-hero__meta-tags { justify-content: flex-start; }
 
+    .about-hero__tagline {
+      font-size: 1rem;
+    }
+
     .about-grid {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .ab-cipher-strip {
+    .ab-engagement-grid {
       grid-template-columns: minmax(0, 1fr);
     }
 
