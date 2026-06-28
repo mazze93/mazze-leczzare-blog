@@ -15,7 +15,8 @@ Security engineering, technical writing, and essays from Mazze LeCzzare — foun
 | UI islands | React 19 — interactive components only |
 | Content | Markdown + MDX via Astro Content Collections |
 | Edge functions | Cloudflare Pages Functions (`functions/api/`) |
-| Fonts | Atkinson Hyperlegible (self-hosted) |
+| Fonts | Atkinson Hyperlegible (self-hosted); Space Grotesk Variable, Crimson Pro (via `@fontsource`) |
+| RSS | `@astrojs/rss` — `/rss.xml` |
 | Deploy | Cloudflare Pages |
 
 ## Commands
