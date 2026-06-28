@@ -5,7 +5,7 @@
 ![Content](https://img.shields.io/badge/Content-Markdown%20%2B%20MDX-success)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
-Personal editorial platform for Mazze LeCzzare Frazer — essays, field notes, and public working documents at the intersection of narrative, cognition, and security-forward design.
+Security engineering, technical writing, and essays from Mazze LeCzzare — founder of Secure Pride. Infrastructure and story for systems with real human stakes.
 
 ## Stack
 
