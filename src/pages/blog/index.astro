@@ -4,7 +4,7 @@ import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import { SITE_TITLE } from '../../consts';
 import { getCollection } from 'astro:content';
 
 const allPosts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
@@ -12,6 +12,8 @@ const allPosts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 );
 
 const [featured, ...rest] = allPosts;
+
+const primaryConcepts = ['decision-telemetry', 'context-synapse', 'secure-pride', 'cipher-gothic'];
 ---
 
 <!doctype html>
@@ -24,56 +26,96 @@ const [featured, ...rest] = allPosts;
   <main>
     <div class="blog-header">
       <p class="section-label">Writing</p>
-      <h1 class="page-title">Field Notes</h1>
-      <p class="page-desc">Essays, architecture notes, and public working documents from the studio.</p>
+      <h1 class="page-title">Field Notes &amp; Artifacts</h1>
+      <p class="writing-subtitle">
+        <a href="/blog/field-notes/">Essays</a>
+        <span class="subtitle-sep">·</span>
+        <a href="/blog/dispatches/">Architecture Notes</a>
+        <span class="subtitle-sep">·</span>
+        <a href="/blog/artifacts/">Working Artifacts</a>
+      </p>
     </div>
 
     <!-- Featured post -->
     {featured && (
       <section class="featured-section" aria-label="Featured post">
         <span class="featured-label">Latest</span>
-        <a href={`/blog/${featured.id}/`} class="featured-link">
-          {featured.data.heroImage && (
-            <div class="featured-image">
-              {typeof featured.data.heroImage === 'object' ? (
-                <Image
-                  src={featured.data.heroImage}
-                  alt={(featured.data as any).heroImageAlt || featured.data.title}
-                  width={960}
-                  height={400}
-                  loading="eager"
-                />
-              ) : (
-                <img
-                  src={featured.data.heroImage}
-                  alt={featured.data.title}
-                  width={960}
-                  height={400}
-                  loading="eager"
-                  decoding="async"
-                />
-              )}
-            </div>
-          )}
-          <div class="featured-body">
-            <p class="featured-date"><FormattedDate date={featured.data.pubDate} /></p>
-            <h2 class="featured-title">{featured.data.title}</h2>
-            {(featured.data as any).subtitle && (
-              <p class="featured-subtitle">{(featured.data as any).subtitle}</p>
-            )}
-            {featured.data.description && (
-              <p class="featured-desc">{featured.data.description}</p>
-            )}
-            {(featured.data as any).tags && (featured.data as any).tags.length > 0 && (
-              <div class="featured-tags">
-                {(featured.data as any).tags.map((tag: string) => (
-                  <span class="tag">{tag}</span>
-                ))}
+        <div class:list={[
+          'featured-card',
+          featured.data.contentType === 'dispatch' && 'featured-card--dispatch',
+        ]}>
+          <a href={`/blog/${featured.id}/`} class="featured-link">
+            {featured.data.heroImage && (
+              <div class="featured-image">
+                {typeof featured.data.heroImage === 'object' ? (
+                  <Image
+                    src={featured.data.heroImage}
+                    alt={(featured.data as any).heroImageAlt || featured.data.title}
+                    width={960}
+                    height={400}
+                    loading="eager"
+                  />
+                ) : (
+                  <img
+                    src={featured.data.heroImage}
+                    alt={featured.data.title}
+                    width={960}
+                    height={400}
+                    loading="eager"
+                    decoding="async"
+                  />
+                )}
               </div>
             )}
-            <span class="read-more">Read essay →</span>
-          </div>
-        </a>
+            <div class="featured-body">
+              <p class="featured-date"><FormattedDate date={featured.data.pubDate} /></p>
+              <h2 class="featured-title">{featured.data.title}</h2>
+              {(featured.data as any).subtitle && (
+                <p class="featured-subtitle">{(featured.data as any).subtitle}</p>
+              )}
+              {featured.data.description && (
+                <p class="featured-desc">{featured.data.description}</p>
+              )}
+              {featured.data.contentType === 'artifact' && (
+                <div class="artifact-band">
+                  <span class="artifact-label">↳ ARTIFACT</span>
+                  {featured.data.artifactNote && (
+                    <span class="artifact-note">{featured.data.artifactNote}</span>
+                  )}
+                  {featured.data.repoUrl && (
+                    <a
+                      href={featured.data.repoUrl}
+                      class="artifact-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onclick="event.stopPropagation()"
+                    >
+                      VIEW REPO →
+                    </a>
+                  )}
+                </div>
+              )}
+              {(featured.data as any).tags && (featured.data as any).tags.length > 0 && (
+                <div class="featured-tags">
+                  {(featured.data as any).tags.map((tag: string) => {
+                    const isPrimary = primaryConcepts.includes(tag.toLowerCase());
+                    return (
+                      <span class:list={['tag', isPrimary && 'tag--primary']}>
+                        {isPrimary && <span class="tag-dot" aria-hidden="true">●&nbsp;</span>}
+                        {tag}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+              <span class="read-more">
+                {featured.data.contentType === 'artifact' && 'READ ARTIFACT →'}
+                {featured.data.contentType === 'dispatch' && 'READ DISPATCH →'}
+                {featured.data.contentType === 'field-note' && 'Read essay →'}
+              </span>
+            </div>
+          </a>
+        </div>
       </section>
     )}
 
@@ -89,8 +131,19 @@ const [featured, ...rest] = allPosts;
             <li class="post-item">
               <a href={`/blog/${post.id}/`} class="post-link">
                 <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
+                {post.data.contentType === 'artifact' && (
+                  <span class="type-badge type-badge--artifact">ARTIFACT</span>
+                )}
+                {post.data.contentType === 'dispatch' && (
+                  <span class="type-badge type-badge--dispatch">DISPATCH</span>
+                )}
                 <span class="post-body">
-                  <span class="post-title">{post.data.title}</span>
+                  <span class="post-title">
+                    {post.data.title}
+                    {post.data.contentType === 'artifact' && post.data.repoUrl && (
+                      <span class="repo-icon" aria-label="Has repository">↗</span>
+                    )}
+                  </span>
                   {post.data.description && (
                     <span class="post-desc">{post.data.description}</span>
                   )}
@@ -142,13 +195,30 @@ main {
   line-height: 1.05;
 }
 
-.page-desc {
+.writing-subtitle {
   font-family: var(--font-mono);
   font-size: 0.82em;
   color: var(--text-dim);
   margin: 0;
-  max-width: 52ch;
   line-height: 1.7;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  flex-wrap: wrap;
+}
+
+.writing-subtitle a {
+  color: var(--teal);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.writing-subtitle a:hover {
+  color: var(--coral);
+}
+
+.subtitle-sep {
+  color: var(--text-faint);
 }
 
 /* Featured section */
@@ -166,17 +236,24 @@ main {
   margin-bottom: 1.25em;
 }
 
-.featured-link {
-  display: block;
-  text-decoration: none;
+.featured-card {
   border: 1px solid var(--rule);
   border-radius: var(--radius-md);
   overflow: hidden;
   transition: border-color var(--transition-base);
 }
 
-.featured-link:hover {
+.featured-card:hover {
   border-color: rgba(var(--accent-rgb), 0.3);
+}
+
+.featured-card--dispatch {
+  border-left: 3px solid rgba(var(--accent-rgb), 0.35);
+}
+
+.featured-link {
+  display: block;
+  text-decoration: none;
 }
 
 .featured-image {
@@ -195,7 +272,7 @@ main {
   transition: filter var(--transition-slow), transform var(--transition-slow);
 }
 
-.featured-link:hover .featured-image img {
+.featured-card:hover .featured-image img {
   filter: brightness(0.8);
   transform: scale(1.02);
 }
@@ -224,7 +301,7 @@ main {
   transition: color var(--transition-fast);
 }
 
-.featured-link:hover .featured-title { color: var(--teal); }
+.featured-card:hover .featured-title { color: var(--teal); }
 
 .featured-subtitle {
   font-family: var(--font-display);
@@ -244,11 +321,66 @@ main {
   max-width: 60ch;
 }
 
+/* Artifact band */
+.artifact-band {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  padding: 0.65em 0.9em;
+  margin-bottom: 1.25em;
+  background: rgba(var(--accent-rgb), 0.05);
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+}
+
+.artifact-label {
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.artifact-note {
+  color: var(--text-dim);
+  line-height: 1.5;
+  flex: 1;
+  min-width: 0;
+}
+
+.artifact-link {
+  color: var(--teal);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.25);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.artifact-link:hover {
+  color: var(--coral);
+  border-bottom-color: rgba(var(--coral-rgb), 0.35);
+}
+
 .featured-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4em;
   margin-bottom: 1.5em;
+}
+
+.tag--primary {
+  border-color: rgba(var(--accent-rgb), 0.4);
+  color: var(--teal);
+}
+
+.tag-dot {
+  font-size: 0.65em;
+  vertical-align: middle;
 }
 
 .read-more {
@@ -293,7 +425,7 @@ main {
 .post-link {
   display: flex;
   align-items: baseline;
-  gap: 1.25em;
+  gap: 0.75em;
   padding: 1.1em 0;
   text-decoration: none;
 }
@@ -311,6 +443,31 @@ main {
   transition: color var(--transition-fast);
 }
 
+/* Type badges */
+.type-badge {
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2em 0.55em;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 1;
+}
+
+.type-badge--artifact {
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--teal);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+}
+
+.type-badge--dispatch {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--rule);
+}
+
 .post-body {
   flex: 1;
   display: flex;
@@ -326,6 +483,14 @@ main {
   color: var(--text);
   line-height: 1.25;
   transition: color var(--transition-fast);
+}
+
+.repo-icon {
+  font-size: 0.75em;
+  color: var(--teal);
+  margin-left: 0.3em;
+  vertical-align: middle;
+  opacity: 0.7;
 }
 
 .post-desc {
@@ -352,5 +517,6 @@ main {
   .post-link { flex-wrap: wrap; gap: 0.5em; }
   .post-date { width: 100%; }
   .post-desc { display: none; }
+  .artifact-band { flex-direction: column; gap: 0.4em; }
 }
 </style>
