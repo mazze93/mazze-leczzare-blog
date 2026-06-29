@@ -1,0 +1,207 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) =>
+  !data.draft && data.contentType === 'dispatch'
+)).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <BaseHead
+    title={`Architecture Notes — ${SITE_TITLE}`}
+    description="Dispatches: adversarial arguments, position pieces, and architecture critiques."
+  />
+</head>
+<body>
+  <Header />
+  <main>
+    <div class="blog-header">
+      <p class="section-label"><a href="/blog/">Writing</a> / Dispatches</p>
+      <h1 class="page-title">Architecture Notes</h1>
+      <p class="page-desc">Dispatches are adversarial arguments — read them as a position, not a survey.</p>
+    </div>
+
+    {posts.length > 0 ? (
+      <section class="posts-section" aria-label="Dispatch posts">
+        <ul class="posts-list" role="list">
+          {posts.map((post, i) => (
+            <li class="post-item">
+              <a href={`/blog/${post.id}/`} class="post-link">
+                <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="type-badge type-badge--dispatch">DISPATCH</span>
+                <span class="post-body">
+                  <span class="post-title">{post.data.title}</span>
+                  {post.data.description && (
+                    <span class="post-desc">{post.data.description}</span>
+                  )}
+                </span>
+                <span class="post-date">
+                  <FormattedDate date={post.data.pubDate} />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ) : (
+      <p class="empty">No dispatches yet.</p>
+    )}
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+main {
+  max-width: 960px;
+  width: calc(100% - 2rem);
+  margin: 0 auto;
+  padding: 0 1rem 5rem;
+}
+
+.blog-header {
+  padding: 4em 0 3em;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 3em;
+}
+
+.section-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.75em;
+}
+
+.section-label a {
+  color: var(--teal);
+  text-decoration: none;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 300;
+  color: var(--text);
+  margin: 0 0 0.5em;
+  line-height: 1.05;
+}
+
+.page-desc {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--text-dim);
+  margin: 0;
+  max-width: 52ch;
+  line-height: 1.7;
+}
+
+.posts-section { padding-top: 1em; }
+
+.posts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-item {
+  border-bottom: 1px solid var(--rule);
+}
+
+.post-link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75em;
+  padding: 1.1em 0;
+  text-decoration: none;
+}
+
+.post-link:hover .post-title { color: var(--teal); }
+.post-link:hover .post-num { color: var(--teal); }
+
+.post-num {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  width: 2em;
+  transition: color var(--transition-fast);
+}
+
+.type-badge {
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2em 0.55em;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 1;
+}
+
+.type-badge--dispatch {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--rule);
+}
+
+.post-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.post-title {
+  font-family: var(--font-display);
+  font-size: 1.2em;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.25;
+  transition: color var(--transition-fast);
+}
+
+.post-desc {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  color: var(--text-faint);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-date {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.empty {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--text-faint);
+  padding: 2em 0;
+}
+
+@media (max-width: 640px) {
+  .post-link { flex-wrap: wrap; gap: 0.5em; }
+  .post-date { width: 100%; }
+  .post-desc { display: none; }
+}
+</style>
