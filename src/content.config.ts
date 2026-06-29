@@ -23,6 +23,11 @@ const blog = defineCollection({
     featured: z.boolean().optional(),
     slug: z.string().optional(),
     draft: z.boolean().optional(),
+    // ── content type classification ──
+    contentType: z.enum(['artifact', 'dispatch', 'field-note']).default('field-note'),
+    repoUrl: z.string().url().optional(),
+    artifactNote: z.string().optional(),
+    sessionTranscript: z.string().optional(),
     // ── constellation fields ──
     project: z.string().optional(),    // slug — joins/creates a node (singular for v1)
     committed: z.boolean().optional(), // true → node pinned to signal, immune to decay
