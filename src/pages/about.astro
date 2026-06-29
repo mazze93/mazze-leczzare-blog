@@ -502,6 +502,12 @@ import '@fontsource/crimson-pro/600.css';
   .ab-button-primary:hover,
   .ab-button-ghost:hover { opacity: 0.85; }
 
+  .ab-button-primary:focus-visible,
+  .ab-button-ghost:focus-visible {
+    outline: 2px solid var(--ab-accent);
+    outline-offset: 3px;
+  }
+
   .ab-button-primary {
     background: linear-gradient(135deg, rgba(92, 207, 207, 0.18), rgba(92, 207, 207, 0.58));
     border-color: rgba(92, 207, 207, 0.9);
