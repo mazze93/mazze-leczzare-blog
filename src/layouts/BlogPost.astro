@@ -55,6 +55,8 @@ const subtitle = resolved.subtitle;
 const tags = resolved.tags ?? [];
 const heroImage = resolved.heroImage;
 const heroImageAlt = resolved.heroImageAlt ?? title;
+const contentType = resolved.contentType ?? 'field-note';
+const repoUrl = resolved.repoUrl;
 
 // Resolve a string path for OG/social meta: prefer explicit OG override,
 // fall back to the built asset path (ImageMetadata) or the string path.
