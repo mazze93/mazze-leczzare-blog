@@ -3,9 +3,15 @@ import { SITE_AUTHOR } from '../consts';
 
 interface Props {
   headshot?: string;
+  contentType?: 'artifact' | 'dispatch' | 'field-note';
+  repoUrl?: string;
 }
 
-const { headshot = '/mazze-headshot.jpg' } = Astro.props;
+const {
+  headshot = '/mazze-headshot.jpg',
+  contentType = 'field-note',
+  repoUrl,
+} = Astro.props;
 ---
 
 <aside class="author-coda" aria-label="About the author">
@@ -25,12 +31,35 @@ const { headshot = '/mazze-headshot.jpg' } = Astro.props;
     </div>
     <div class="coda-text">
       <span class="coda-byline">Written by {SITE_AUTHOR}</span>
-      <p class="coda-bio">
-        Content strategist, security researcher, and founder of
-        <a href="https://securepride.org">Secure Pride</a> — a privacy-first cybersecurity
-        nonprofit built for LGBTQ+ organizations. Former neuroscientist. Essays on memory,
-        infrastructure, and the cost of not naming things.
-      </p>
+      {contentType === 'artifact' && (
+        <p class="coda-bio">
+          Content strategist, security researcher, and founder of
+          <a href="https://securepride.org">Secure Pride</a> — a privacy-first cybersecurity
+          nonprofit built for LGBTQ+ organizations. Former neuroscientist. Essays on memory,
+          infrastructure, and the cost of not naming things.
+        </p>
+      )}
+      {contentType === 'artifact' && repoUrl && (
+        <p class="coda-artifact-note">
+          Artifacts and session materials for this post live in
+          <a href={repoUrl} target="_blank" rel="noopener noreferrer">the repository</a>.
+        </p>
+      )}
+      {contentType === 'dispatch' && (
+        <p class="coda-bio">
+          Written by {SITE_AUTHOR}. Dispatches are adversarial arguments —
+          read them as a position, not a survey.
+          Founder of <a href="https://securepride.org">Secure Pride</a>.
+        </p>
+      )}
+      {contentType === 'field-note' && (
+        <p class="coda-bio">
+          Content strategist, security researcher, and founder of
+          <a href="https://securepride.org">Secure Pride</a> — a privacy-first cybersecurity
+          nonprofit built for LGBTQ+ organizations. Former neuroscientist. Essays on memory,
+          infrastructure, and the cost of not naming things.
+        </p>
+      )}
     </div>
   </div>
 </aside>
@@ -94,14 +123,24 @@ const { headshot = '/mazze-headshot.jpg' } = Astro.props;
   margin: 0;
 }
 
-.coda-bio a {
+.coda-artifact-note {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.coda-bio a,
+.coda-artifact-note a {
   color: var(--teal);
   text-decoration: none;
   border-bottom: 1px solid rgba(var(--accent-rgb), 0.25);
   transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.coda-bio a:hover {
+.coda-bio a:hover,
+.coda-artifact-note a:hover {
   color: var(--coral);
   border-bottom-color: rgba(var(--coral-rgb), 0.35);
 }
