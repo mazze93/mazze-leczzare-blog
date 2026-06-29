@@ -330,7 +330,7 @@ const articleSchema = {
       <div class="prose">
         <slot />
       </div>
-      <AuthorCoda />
+      <AuthorCoda contentType={contentType} repoUrl={repoUrl} />
       <PostQuoteShare client:load title={title} path={Astro.url.pathname} />
     </article>
   </main>
