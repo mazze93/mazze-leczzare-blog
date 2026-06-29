@@ -26,6 +26,8 @@ type Props = {
   heroImage?: ImageMetadata | string;
   heroImageOG?: string;
   heroImageAlt?: string;
+  contentType?: 'artifact' | 'dispatch' | 'field-note';
+  repoUrl?: string;
   frontmatter?: {
     title?: string;
     description?: string;
@@ -36,6 +38,8 @@ type Props = {
     heroImage?: string;
     heroImageOG?: string;
     heroImageAlt?: string;
+    contentType?: 'artifact' | 'dispatch' | 'field-note';
+    repoUrl?: string;
   };
 };
 
