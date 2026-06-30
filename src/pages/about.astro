@@ -314,28 +314,6 @@ import '@fontsource/crimson-pro/600.css';
     --ab-gutter: 24px;
   }
 
-  [data-theme="light"] .about-page {
-    --ab-bg: #f8fafc;
-    --ab-bg-elevated: #ffffff;
-    --ab-surface-soft: #f1f5f9;
-    --ab-border-subtle: rgba(15, 23, 42, 0.06);
-    --ab-ink: #0b1120;
-    --ab-ink-muted: #6b7280;
-    --ab-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
-  }
-
-  @media (prefers-color-scheme: light) {
-    .about-page {
-      --ab-bg: #f8fafc;
-      --ab-bg-elevated: #ffffff;
-      --ab-surface-soft: #f1f5f9;
-      --ab-border-subtle: rgba(15, 23, 42, 0.06);
-      --ab-ink: #0b1120;
-      --ab-ink-muted: #6b7280;
-      --ab-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
-    }
-  }
-
   /* ── Shell ── */
   .about-page {
     background:
@@ -524,6 +502,12 @@ import '@fontsource/crimson-pro/600.css';
   .ab-button-primary:hover,
   .ab-button-ghost:hover { opacity: 0.85; }
 
+  .ab-button-primary:focus-visible,
+  .ab-button-ghost:focus-visible {
+    outline: 2px solid var(--ab-accent);
+    outline-offset: 3px;
+  }
+
   .ab-button-primary {
     background: linear-gradient(135deg, rgba(92, 207, 207, 0.18), rgba(92, 207, 207, 0.58));
     border-color: rgba(92, 207, 207, 0.9);
@@ -682,6 +666,12 @@ import '@fontsource/crimson-pro/600.css';
 
   .ab-work-card__cta a:hover { text-decoration: underline; }
 
+  .ab-work-card__cta a:focus-visible {
+    outline: 2px solid var(--ab-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
   /* ── Narrative blocks ── */
   .ab-narrative-block {
     border-radius: 18px;
@@ -715,99 +705,6 @@ import '@fontsource/crimson-pro/600.css';
 
   .ab-background-list p { margin: 0 0 8px; }
   .ab-background-list em { color: var(--ab-ink); }
-
-  /* ── Cipher Gothic strip ── */
-  .ab-cipher-strip {
-    border-radius: 18px;
-    padding: 20px 20px 18px;
-    background:
-      linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.94)),
-      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.2), transparent 60%);
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    display: grid;
-    grid-template-columns: minmax(0, 2.3fr) minmax(0, 2fr);
-    gap: 20px;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ab-cipher-strip__label {
-    font-family: var(--ab-sans);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ab-ink-muted);
-    margin-bottom: 4px;
-  }
-
-  .ab-cipher-strip__title {
-    font-family: var(--ab-sans);
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ab-ink);
-    margin-bottom: 8px;
-  }
-
-  .ab-cipher-strip__text {
-    font-family: var(--ab-serif);
-    font-style: italic;
-    font-size: 13px;
-    color: var(--ab-ink-muted);
-    line-height: 1.8;
-    margin: 0;
-  }
-
-  .ab-cipher-strip__viz {
-    position: relative;
-    min-height: 100px;
-    border-radius: 14px;
-    border: 1px dashed rgba(148, 163, 184, 0.4);
-    background:
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.5), transparent 60%),
-      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.35), transparent 55%),
-      radial-gradient(circle at 35% 70%, rgba(15, 23, 42, 0.9), transparent 60%);
-    overflow: hidden;
-  }
-
-  .ab-cipher-strip__viz-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(circle at 0 0, rgba(148, 163, 184, 0.3), transparent 55%),
-      linear-gradient(to right, rgba(148, 163, 184, 0.15) 0.5px, transparent 1px),
-      linear-gradient(to bottom, rgba(148, 163, 184, 0.1) 0.5px, transparent 1px);
-    background-size: 100% 100%, 20px 20px, 20px 20px;
-    opacity: 0.65;
-    mix-blend-mode: screen;
-  }
-
-  .ab-cipher-strip__viz-lock,
-  .ab-cipher-strip__viz-script {
-    position: absolute;
-    border-radius: var(--ab-radius-pill);
-    border: 1px solid rgba(15, 23, 42, 0.9);
-    background: rgba(15, 23, 42, 0.9);
-    padding: 4px 10px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: rgba(226, 232, 240, 0.9);
-    backdrop-filter: blur(10px);
-  }
-
-  .ab-cipher-strip__viz-lock { top: 12px; left: 14px; }
-
-  .ab-cipher-strip__viz-script {
-    bottom: 12px;
-    right: 12px;
-    font-family: var(--ab-serif);
-    font-style: italic;
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
 
   /* ── CTA panel ── */
   .ab-cta-panel {
@@ -858,6 +755,11 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .ab-cta-pill:hover { border-color: rgba(92, 207, 207, 0.7); }
+
+  .ab-cta-pill:focus-visible {
+    outline: 2px solid var(--ab-accent);
+    outline-offset: 2px;
+  }
 
   .ab-cta-pill__dot {
     width: 6px;
@@ -925,6 +827,12 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .about-footer-note a:hover { text-decoration: underline; }
+
+  .about-footer-note a:focus-visible {
+    outline: 2px solid var(--ab-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
