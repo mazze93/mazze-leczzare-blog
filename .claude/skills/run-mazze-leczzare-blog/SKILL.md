@@ -5,115 +5,117 @@ description: Run, build, screenshot, or smoke-test mazze-leczzare-blog. Use when
 
 # run-mazze-leczzare-blog
 
-Astro 6 static blog driven by a Playwright CJS driver (`driver.cjs` next to this file). The driver starts against a running dev server, navigates all major routes, toggles the theme, and screenshots each page.
+Astro 6 static blog. The driver (`driver.cjs` next to this file) is a Node HTTP smoke test — no browser binaries required. It starts against a running dev server and verifies every major route returns HTTP 200 with expected content. For visual inspection, use the `mcp__claude-in-chrome__*` MCP tools after starting the dev server.
 
-Node is managed by **mise** — always prefix commands:
+Node is managed by **mise**. In most Claude Code sessions, `node` is already in PATH. If not:
 ```bash
-export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"
+export PATH="/Users/mazze/.local/share/mise/installs/node/lts/bin:$PATH"
 ```
+
+Project root: `/Users/mazze/Code/publishing/mazze-leczzare-blog`
 
 ## Prerequisites
 
-No extra packages needed. Playwright installs itself on first driver run (`npm install --save-dev playwright`). The engine warning about Node 22.x vs 24.x is harmless.
+No extra packages. `driver.cjs` uses only Node built-ins (`http`). No Playwright, no browser downloads.
 
 ## Build
 
 ```bash
-export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"
-cd /Users/mazze/code/mazze-leczzare-blog
+cd /Users/mazze/Code/publishing/mazze-leczzare-blog
 npm ci
 npm run check       # astro build + tsc — must pass before any commit
 ```
 
-## Run — agent path (driver)
+## Run — agent path (smoke driver)
 
-Start the dev server, then run the driver against it:
+Start the dev server, then run the driver:
 
 ```bash
-export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"
-cd /Users/mazze/code/mazze-leczzare-blog
+cd /Users/mazze/Code/publishing/mazze-leczzare-blog
 
 # Start dev server in background
 npm run dev -- --port 4399 &>/tmp/astro-dev.log &
 DEV_PID=$!
 
-# Run driver (waits for server automatically, PORT OUTDIR optional)
-node .claude/skills/run-mazze-leczzare-blog/driver.cjs 4399 /tmp/blog-screenshots
+# Run driver — waits for server, checks all routes, exits 0 on pass / 1 on fail
+node .claude/skills/run-mazze-leczzare-blog/driver.cjs 4399
 
 # Stop server when done
 kill $DEV_PID
 ```
 
-The driver covers: `/` (dark + light), `/blog/`, first post, `/about/`, `/contact/` (form filled, not submitted), `/work/`.
+The driver checks: `/`, `/blog/`, a discovered blog post, `/about/`, `/contact/`, `/work/`, `/signal/`, `/security/`, `/cipher-gothic/`, `/roadmap/`.
 
-Screenshots land in the `OUTDIR` you pass (default `/tmp/mazze-blog-screenshots`). Read them with the `Read` tool.
-
-### Quick single-page screenshot
-
-```bash
-export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"
-npx playwright screenshot --browser chromium http://localhost:4399/ /tmp/screenshot.png
+**Example output (passing):**
+```
+  ✓  /                       HTTP 200  "Homepage"
+  ✓  /blog/                  HTTP 200  "Blog listing"
+  ✓  /signal/                HTTP 200  "Signal page"
+  ...
+SMOKE PASSED
 ```
 
-`npx playwright screenshot` works without any prior setup and is the fastest way to grab one page.
+## Visual inspection — agent path
+
+After starting the dev server:
+
+1. Load the browser tools: use ToolSearch with `select:mcp__claude-in-chrome__tabs_context_mcp,mcp__claude-in-chrome__navigate,mcp__claude-in-chrome__computer,mcp__claude-in-chrome__read_page,mcp__claude-in-chrome__tabs_create_mcp`
+2. Create a new tab and navigate to `http://localhost:4399/`
+3. Use `mcp__claude-in-chrome__computer` to take screenshots
 
 ## Run — human path
 
 ```bash
-export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"
-cd /Users/mazze/code/mazze-leczzare-blog
+cd /Users/mazze/Code/publishing/mazze-leczzare-blog
 npm run dev
-# → http://localhost:4321/ opens in browser
+# → http://localhost:4321/
 ```
 
-Human default is port 4321; driver examples use 4399 to avoid collision with an existing `npm run dev` session.
+Human default is port 4321. Use 4399 for the driver to avoid collision with an existing dev session.
 
 ## Test
 
 ```bash
-export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"
-npm run test        # vitest run
 npm run check       # astro build + tsc (repo-standard — run before committing)
 ```
 
-## Route map (verified)
+There is no separate vitest suite. `npm run check` is the full validation.
+
+## Route map (verified 2026-06-29)
 
 Routes require trailing slashes in dev mode. Without them: 404.
 
-| Route | Title | Notes |
-|---|---|---|
-| `/` | Mazze Leczzare | BreathingHero canvas |
-| `/blog/` | Writing — Mazze Leczzare | All posts |
-| `/blog/<slug>/` | Post title | `src/content/blog/*.{md,mdx}` |
-| `/about/` | About | MDX page |
-| `/contact/` | Contact \| Mazze Leczzare | CF Function POST — 404 in dev |
-| `/work/` | Work — Mazze Leczzare | |
-| `/security/` | (security page) | |
-| `/login/` | (login page) | |
-| `/admin/` | (admin, JWT-gated) | |
-| `/rss.xml` | — | **404 in dev** — Vite doesn't serve `.xml` endpoints; works in `npm run build && npm run preview` |
-| `/api/*` | — | **404 in dev** — Cloudflare Pages Functions only run on CF or `wrangler pages dev` |
+| Route | Notes |
+|---|---|
+| `/` | BreathingHero canvas |
+| `/blog/` | All posts, newest first |
+| `/blog/<slug>/` | `src/content/blog/*.{md,mdx}` |
+| `/about/` | Hero, work cards, engagement grid |
+| `/contact/` | CF Function POST — UI renders; POST is 404 in dev |
+| `/work/` | Work/portfolio page |
+| `/signal/` | Field ledger — verse, fragments, dispatches |
+| `/security/` | Security disclosure policy |
+| `/cipher-gothic/` | Design system documentation |
+| `/roadmap/` | Markdown page via BlogPost layout |
+| `/login/` | Admin login |
+| `/admin/` | JWT-gated admin dashboard |
+| `/rss.xml` | **404 in dev** — works in `npm run build && npm run preview` |
+| `/api/*` | **404 in dev** — Cloudflare Pages Functions only |
 
 ## Gotchas
 
-**`/rss.xml` returns 404 in dev.** Astro's Vite dev server doesn't serve `.js`-backed `.xml` routes. Verify RSS with `npm run build && npm run preview` instead, or deploy.
+**`/rss.xml` returns 404 in dev.** Astro's Vite dev server doesn't serve `.js`-backed `.xml` routes. Verify with `npm run build && npm run preview`.
 
-**`/api/*` routes are always 404 in `npm run dev`.** The contact form, login, logout, and share-event endpoints are Cloudflare Pages Functions. They only run under `wrangler pages dev` or when deployed. The contact form UI renders correctly; only the POST fails.
+**`/api/*` routes are always 404 in `npm run dev`.** Contact form, login, logout, and share-event are Cloudflare Pages Functions. The contact form UI renders; only the POST fails.
 
-**Routes without trailing slashes return 404.** `/blog` → 404, `/blog/` → 200. This is Astro dev mode behaviour only; the built/deployed site handles both.
+**Routes without trailing slashes return 404 in dev.** `/blog` → 404, `/blog/` → 200. Built/deployed site handles both.
 
-**Node is managed by mise, not Homebrew.** `npm` and `node` are not on the default shell PATH in Claude Code. Always prefix with `export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"` or commands fail silently with `env: node: No such file or directory`.
+**Node is managed by mise, not Homebrew.** In a remote or fresh session, `node` may not be in PATH. Fix: `export PATH="/Users/mazze/.local/share/mise/installs/node/lts/bin:$PATH"`. The `lts` symlink always points to the current active version (`24.16.0` as of 2026-06-29).
 
-**Theme toggle selector.** The ThemeToggle button is `button[aria-label^="Activate"]` (e.g., "Activate light mode" / "Activate dark mode"). Text content is `"Light"` / `"Dark"` (title case), not `"LIGHT"` / `"DARK"`.
-
-**playwright engine warning.** `npm warn EBADENGINE` about Node 22.x vs 24.x appears on playwright install — harmless, driver runs fine on Node 24.
+**Playwright was removed.** Do not attempt to `npm install playwright` or run `npx playwright install`. The driver uses Node built-in `http` only.
 
 ## Troubleshooting
 
-**`env: node: No such file or directory`** — mise node not in PATH. Fix: `export PATH="/Users/mazze/.local/share/mise/installs/node/24.16.0/bin:$PATH"`.
+**`env: node: No such file or directory`** — mise node not in PATH. Fix: `export PATH="/Users/mazze/.local/share/mise/installs/node/lts/bin:$PATH"`.
 
-**`Error: Cannot find package 'playwright'`** — driver auto-installs playwright on first run; if it fails, run `npm install --save-dev playwright` manually from project root.
-
-**`Error: connect ECONNREFUSED`** — dev server isn't running. Start it first; driver polls for up to 30s but won't start the server itself.
-
-**`npm run check` fails after `npm install --save-dev playwright`** — playwright adds its browser binaries, which can trigger Astro type checks. Run `npm run check` to confirm; if it fails, revert playwright with `npm uninstall playwright`.
+**`Error: connect ECONNREFUSED`** — dev server isn't running. Start it first; the driver polls for up to 30s but won't start the server itself.
