@@ -19,6 +19,7 @@
     "esbuild": ">=0.28.1"
   },
   "scripts": {
+    "prepare": "cp hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push",
     "astro": "astro",
     "build": "astro build",
     "check": "astro build && tsc",
