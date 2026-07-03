@@ -1,0 +1,10 @@
+#!/bin/sh
+# Block pushes when public/ has untracked files that would be missing on deploy.
+untracked=$(git ls-files --others --exclude-standard public/)
+if [ -n "$untracked" ]; then
+  echo "ERROR: untracked files in public/ will not be deployed:"
+  echo "$untracked" | sed 's/^/  /'
+  echo ""
+  echo "Stage them first:  git add public/ && git commit"
+  exit 1
+fi
