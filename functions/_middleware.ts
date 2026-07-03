@@ -195,6 +195,32 @@ async function htmlToMarkdown(html: string): Promise<string> {
     .trim();
 }
 
+// ── Security headers ─────────────────────────────────────────────────────────
+
+const BASE_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "base-uri 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const DEFAULT_CSP = `${BASE_CSP}; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'`;
+const ARTIFACT_CSP = `${BASE_CSP}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'`;
+
+function withSecurityHeaders(response: Response, isArtifact: boolean): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", isArtifact ? ARTIFACT_CSP : DEFAULT_CSP);
+  headers.set("X-Frame-Options", isArtifact ? "SAMEORIGIN" : "DENY");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 // ── Main middleware ──────────────────────────────────────────────────────────
 
 export async function onRequest(context: {
@@ -204,8 +230,9 @@ export async function onRequest(context: {
 }): Promise<Response> {
   const { request, next, env } = context;
   const url = new URL(request.url);
+  const isArtifact = url.pathname.startsWith("/artifacts/");
 
-  // Protect /admin routes
+  // Protect /admin routes (redirect — CSP not needed on redirects)
   if (url.pathname.startsWith("/admin")) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", url.pathname);
@@ -233,7 +260,7 @@ export async function onRequest(context: {
       }
     }
 
-    return next();
+    return withSecurityHeaders(await next(), false);
   }
 
   // Markdown for Agents: serve text/markdown when the client prefers it
@@ -251,15 +278,17 @@ export async function onRequest(context: {
       headers.set("Content-Type", "text/markdown; charset=utf-8");
       headers.set("Vary", "Accept");
       headers.set("x-markdown-tokens", String(tokenCount));
+      headers.set("Content-Security-Policy", isArtifact ? ARTIFACT_CSP : DEFAULT_CSP);
+      headers.set("X-Frame-Options", isArtifact ? "SAMEORIGIN" : "DENY");
 
       return new Response(markdown, { status: response.status, headers });
     }
 
-    // Non-HTML: pass through but annotate Vary so caches handle it correctly
-    const headers = new Headers(response.headers);
-    headers.set("Vary", "Accept");
-    return new Response(response.body, { status: response.status, headers });
+    return withSecurityHeaders(
+      new Response(response.body, { status: response.status, headers: new Headers(response.headers) }),
+      isArtifact
+    );
   }
 
-  return next();
+  return withSecurityHeaders(await next(), isArtifact);
 }
