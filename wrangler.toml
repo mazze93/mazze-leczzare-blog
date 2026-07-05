@@ -13,6 +13,11 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 #   ADMIN_PASSWORD          — plain-text password checked by /api/login
 #   JWT_SECRET              — signs/verifies admin session JWTs (≥32 random chars)
 #   CONTACT_WEBHOOK_URL     — POST validated contact payloads to your webhook receiver
+#   INGEST_SECRET           — Bearer token checked by /api/ingest (≥32 random chars)
+#   GITHUB_INGEST_TOKEN     — fine-grained GitHub PAT, Contents:read+write on
+#                             mazze93/mazze-leczzare-blog ONLY — no other scopes,
+#                             no other repos. Used by /api/ingest to commit new
+#                             content files directly to main.
 #
 # ── Optional secrets ──────────────────────────────────────────────────────────
 #   CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
@@ -30,4 +35,6 @@ id       = "be4945b2396d4601ba12a645490b3efb"
 # ── Rate limiting ─────────────────────────────────────────────────────────────
 # Cloudflare Pages does not currently support top-level `[[ratelimits]]`
 # configuration here the same way Workers do. Manage route-level rate limiting
-# for `/api/login` and `/api/share-event` in the Cloudflare dashboard instead.
+# for `/api/login`, `/api/share-event`, and `/api/ingest` in the Cloudflare
+# dashboard instead. `/api/ingest` writes to the repo — give it a stricter
+# limit than the read-only/analytics routes.

@@ -68,4 +68,29 @@ const signal = defineCollection({
   }),
 });
 
-export const collections = { blog, signal };
+/**
+ * Tesserae content collection schema.
+ *
+ * Small modular fragments — mosaic tiles rather than essays (blog) or
+ * transmissions (signal). Deliberately minimal: no heroImage, no
+ * transmission metadata. Shares only the constellation linkage
+ * (project/committed) common to the other two collections.
+ */
+const tesserae = defineCollection({
+  loader: glob({ base: "./src/content/tesserae", pattern: "**/*.{md,mdx}" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).optional(),
+    featured: z.boolean().optional(),
+    draft: z.boolean().optional(),
+    slug: z.string().optional(),
+    // ── constellation fields ──
+    project: z.string().optional(),
+    committed: z.boolean().optional(),
+  }),
+});
+
+export const collections = { blog, signal, tesserae };

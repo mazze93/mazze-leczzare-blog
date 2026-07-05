@@ -15,5 +15,6 @@ CONTACT_WEBHOOK_AUTH_HEADER=
 
 # ── Cloudflare service bindings (not secrets — configure in Cloudflare) ──────
 # KV bindings are configured in `wrangler.toml`.
-# Route-level rate limiting for `/api/login` and `/api/share-event` should be
-# managed in the Cloudflare dashboard for this Pages project.
+# Route-level rate limiting for `/api/login`, `/api/share-event`, and
+# `/api/ingest` should be managed in the Cloudflare dashboard for this Pages
+# project. `/api/ingest` writes to the repo — give it a stricter limit.
