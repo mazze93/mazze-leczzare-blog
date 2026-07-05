@@ -1,0 +1,44 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { collectAllNodes } from "../utils/collectNodes";
+import { computeZone, decayStatus } from "../utils/decay";
+import "../styles/constellation-pages.css";
+
+const nodes = await collectAllNodes(); // already sorted by lastTouched desc
+const rows = nodes.map((node) => {
+  const state = computeZone(new Date(node.lastTouched).getTime(), node.committed, Date.now());
+  return { node, zone: state.zone, status: decayStatus(state, node.committed) };
+});
+
+const fmt = (iso: string) => new Date(iso).toISOString().slice(0, 10);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title="Studio — the bench"
+      description="Every project, sorted by activity, with its proximity to decay."
+    />
+  </head>
+  <body>
+    <Header />
+    <main class="cn-page">
+      <p class="cn-page__label">Studio</p>
+      <h1 class="cn-page__title">The bench</h1>
+      <ul class="cn-pieces" role="list">
+        {rows.map(({ node, zone, status }) => (
+          <li class="cn-piece">
+            <a href={`/project/${node.slug}/`}>
+              <span class="cn-zone-badge" data-zone={zone}>{zone}</span>
+              <span class="cn-piece__title">{node.title}</span>
+              <span class="cn-piece__type">{node.count} · {fmt(node.lastTouched)} · {status}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+    <Footer />
+  </body>
+</html>

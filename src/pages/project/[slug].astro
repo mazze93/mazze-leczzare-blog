@@ -1,0 +1,47 @@
+---
+import type { GetStaticPaths } from "astro";
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { collectAllNodes } from "../../utils/collectNodes";
+import { computeZone, decayStatus } from "../../utils/decay";
+import "../../styles/constellation-pages.css";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const nodes = await collectAllNodes();
+  return nodes.map((node) => ({ params: { slug: node.slug }, props: { node } }));
+};
+
+const { node } = Astro.props;
+const state = computeZone(new Date(node.lastTouched).getTime(), node.committed, Date.now());
+const status = decayStatus(state, node.committed);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`${node.title} — Project`}
+      description={`Pieces in the ${node.title} project.`}
+    />
+  </head>
+  <body>
+    <Header />
+    <main class="cn-page" data-zone={state.zone}>
+      <p class="cn-page__label">
+        Project · <span class="cn-zone-badge" data-zone={state.zone}>{state.zone}</span> · {status}
+      </p>
+      <h1 class="cn-page__title">{node.title}</h1>
+      <ul class="cn-pieces" role="list">
+        {node.pieces.map((p) => (
+          <li class="cn-piece">
+            <a href={`/${p.type}/${p.id}/`}>
+              <span class="cn-piece__type">{p.type}</span>
+              <span class="cn-piece__title">{p.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+    <Footer />
+  </body>
+</html>

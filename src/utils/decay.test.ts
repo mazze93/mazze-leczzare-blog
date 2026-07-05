@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeZone, DRIFT_START_DAYS, ERASURE_DAYS, DAY_MS } from "./decay";
+import { computeZone, decayStatus, DRIFT_START_DAYS, ERASURE_DAYS, DAY_MS } from "./decay";
 
 const NOW = Date.UTC(2026, 4, 23); // 2026-05-23
 
@@ -46,9 +46,26 @@ describe("computeZone", () => {
     expect(r.zone).toBe("undefined");
     expect(r.driftRatio).toBe(1);
   });
+});
 
-  it("reports ageDays for downstream display", () => {
-    const r = computeZone(daysAgo(42), false, NOW);
-    expect(Math.round(r.ageDays)).toBe(42);
+describe("decayStatus", () => {
+  const NOW2 = Date.UTC(2026, 4, 23);
+  const at = (days: number) => computeZone(NOW2 - days * DAY_MS, false, NOW2);
+
+  it("reports sealed for committed projects", () => {
+    const state = computeZone(NOW2 - 9999 * DAY_MS, true, NOW2);
+    expect(decayStatus(state, true)).toBe("sealed");
+  });
+
+  it("counts down days until drift while fresh", () => {
+    expect(decayStatus(at(10), false)).toBe("20 days until drift");
+  });
+
+  it("reports days into drift within the band", () => {
+    expect(decayStatus(at(60), false)).toBe("30 days into drift");
+  });
+
+  it("reports erasure once fully aged", () => {
+    expect(decayStatus(at(ERASURE_DAYS + 5), false)).toBe("in erasure");
   });
 });
