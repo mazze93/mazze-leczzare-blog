@@ -1,0 +1,135 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+
+export async function getStaticPaths() {
+  const tesserae = await getCollection('tesserae', ({ data }) => !data.draft);
+  return tesserae.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <BaseHead title={`${entry.data.title} — Tesserae`} description={entry.data.description} />
+</head>
+<body>
+  <Header />
+  <main class="tess-piece">
+    <p class="tess-piece__eyebrow">
+      <a href="/tesserae/">Tesserae</a>
+      <span aria-hidden="true">·</span>
+      <FormattedDate date={entry.data.pubDate} />
+    </p>
+    <h1 class="tess-piece__title">{entry.data.title}</h1>
+    {entry.data.description && (
+      <p class="tess-piece__desc">{entry.data.description}</p>
+    )}
+    <div class="tess-piece__rule" aria-hidden="true"></div>
+    <article class="tess-piece__body">
+      <Content />
+    </article>
+    {entry.data.tags && entry.data.tags.length > 0 && (
+      <ul class="tess-piece__tags" role="list">
+        {entry.data.tags.map((tag) => <li>{tag}</li>)}
+      </ul>
+    )}
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  .tess-piece {
+    max-width: 680px;
+    width: calc(100% - 2rem);
+    margin: 0 auto;
+    padding: 4em 1rem 5em;
+  }
+
+  .tess-piece__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: flex;
+    gap: 0.6em;
+    align-items: baseline;
+    margin: 0 0 1.2em;
+  }
+  .tess-piece__eyebrow a {
+    color: var(--text-faint);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+  .tess-piece__eyebrow a:hover { color: var(--teal); }
+
+  .tess-piece__title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.05;
+    margin: 0 0 0.35em;
+  }
+
+  .tess-piece__desc {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .tess-piece__rule {
+    height: 1px;
+    background: linear-gradient(to right, var(--teal), var(--rule) 45%, transparent);
+    opacity: 0.5;
+    margin: 2em 0;
+  }
+
+  .tess-piece__body {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .tess-piece__body :global(p) { margin: 0 0 1.2em; }
+  .tess-piece__body :global(a) { color: var(--teal); }
+  .tess-piece__body :global(h2),
+  .tess-piece__body :global(h3) {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--text);
+    margin: 1.6em 0 0.5em;
+  }
+
+  .tess-piece__tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    padding: 0;
+    margin: 3em 0 0;
+  }
+  .tess-piece__tags li {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 0.2em 0.6em;
+  }
+</style>
