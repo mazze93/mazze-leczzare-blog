@@ -1,10 +1,8 @@
 ---
 title: "Static-First Is a Discipline"
 description: "Why I still prefer static publishing for personal infrastructure, even when modern frameworks make dynamic everything easy."
-pubDate: "Mar 05 2026"
+pubDate: 2026-03-05
 heroImage: "../../assets/images/blog/hero-signal-grid.svg"
-project: static-first
-committed: true
 ---
 
 Static-first is not nostalgia.
