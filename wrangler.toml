@@ -38,3 +38,6 @@ id       = "be4945b2396d4601ba12a645490b3efb"
 # for `/api/login`, `/api/share-event`, and `/api/ingest` in the Cloudflare
 # dashboard instead. `/api/ingest` writes to the repo — give it a stricter
 # limit than the read-only/analytics routes.
+
+[assets]
+directory = "./dist"
