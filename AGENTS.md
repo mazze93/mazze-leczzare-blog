@@ -44,7 +44,7 @@ npm run docs:check # Validate doc command refs and deployment terminology
 | `/blog`            | `src/pages/blog/index.astro`        |
 | `/blog/[slug]/`    | `src/pages/blog/[...slug].astro`    |
 | `/contact`         | `src/pages/contact.astro`           |
-| `/about`           | `src/pages/about.mdx`               |
+| `/about`           | `src/pages/about.astro`               |
 | `/work`            | `src/pages/work.astro`              |
 | `/security`        | `src/pages/security.astro`          |
 | `/roadmap`         | `src/pages/roadmap.md`              |
