@@ -29,12 +29,15 @@ DOCUMENTED_PAGES=(
   "src/pages/blog/index.astro"
   "src/pages/blog/[...slug].astro"
   "src/pages/contact.astro"
-  "src/pages/about.mdx"
+  "src/pages/about.astro"
   "src/pages/work.astro"
   "src/pages/security.astro"
   "src/pages/roadmap.md"
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
+  "src/pages/writing/index.astro"
+  "public/writing/what-i-can-stand-by/index.html"
+  "public/artifacts/tessera-claude-anchor.html"
 )
 for f in "${DOCUMENTED_PAGES[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then

@@ -1,11 +1,15 @@
 # Mazze LeCzzare — Personal Blog
 
-![Framework](https://img.shields.io/badge/Framework-Astro%206-orange)
-![Hosting](https://img.shields.io/badge/Hosting-Cloudflare%20Pages-blue)
-![Content](https://img.shields.io/badge/Content-Markdown%20%2B%20MDX-success)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+[![CI](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/ci.yml/badge.svg)](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/codeql.yml/badge.svg)](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/codeql.yml)
+[![Lighthouse](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/lighthouse.yml)
+![Framework](https://img.shields.io/badge/Astro%206-BC52EE?logo=astro&logoColor=white)
 
 Security engineering, technical writing, and essays from Mazze LeCzzare — founder of Secure Pride. Infrastructure and story for systems with real human stakes.
+
+**Live at [mazzeleczzare.com](https://mazzeleczzare.com).** Built privacy-first: no trackers, no analytics scripts, static delivery on Cloudflare Pages.
+
+[![mazzeleczzare.com homepage — From Erasure to Signal](docs/site-home.png)](https://mazzeleczzare.com)
 
 ## Stack
 
@@ -63,7 +67,7 @@ src/
   pages/            # File-based routes
     about.astro     # Full custom page — hero, work cards, engagement types
     cipher-gothic.astro  # Cipher Gothic design system documentation
-    rss.xml.js      # RSS feed (was missing; now live)
+    rss.xml.js      # RSS feed
   styles/           # global.css + homepage.css
   consts.ts         # Site-wide constants (single source of truth)
 
@@ -94,6 +98,6 @@ heroImage: "/your-image.jpg"   # optional
 
 Post appears at `/blog/your-slug/` and surfaces on the homepage if in the 6 most recent.
 
-## GitHub social preview
+## License
 
-Upload `.github/social-preview.png` in `Settings → General → Social preview`.
+Code is [MIT](LICENSE). Prose and images © Mazze LeCzzare, all rights reserved.

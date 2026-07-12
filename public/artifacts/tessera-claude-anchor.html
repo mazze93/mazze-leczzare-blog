@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera — claude-anchor</title>
+<meta name="description" content="A tessera: one artifact holding the whole of a session's work and its turning. The record of claude-anchor — a control loop for consistent Claude behavior across every surface.">
+<style>
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/ibmplexmono-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/ibmplexmono-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/ibmplexmono-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/inter-300-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/inter-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/inter-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/inter-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/playfairdisplay-500-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/playfairdisplay-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/playfairdisplay-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(/fonts/playfairdisplay-800-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+/* =============================================================================
+   TESSERA — design tokens (every color is a variable, per the house rule)
+   ============================================================================= */
+:root{
+  --obsidian:        #0A0C0D;
+  --obsidian-raise:  #10171A;
+  --obsidian-raise2: #162024;
+  --bone:            #E9EDEC;
+  --bone-dim:        #9FAcAC;
+  --bone-faint:      #6E7A7A;
+  --teal:            #5CCFCF;
+  --teal-deep:       #2E8E8E;
+  --teal-line:       rgba(92,207,207,0.20);
+  --teal-wash:       rgba(92,207,207,0.06);
+  --coral:           #F07178;
+  --coral-deep:      #9A4146;
+  --coral-line:      rgba(240,113,120,0.35);
+  --coral-wash:      rgba(240,113,120,0.07);
+  --hair:            rgba(233,237,236,0.10);
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+  --measure: 68ch;
+  --pad: clamp(1.25rem, 4vw, 4rem);
+}
+
+/* =============================================================================
+   Reset + base
+   ============================================================================= */
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+body{
+  margin:0;
+  background:var(--obsidian);
+  color:var(--bone);
+  font-family:var(--font-body);
+  font-weight:400;
+  line-height:1.6;
+  font-size:clamp(1rem, 0.55vw + 0.9rem, 1.075rem);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* atmospheric depth — never a flat background; decorative only */
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 82% -10%, var(--teal-wash), transparent 55%),
+    radial-gradient(90% 70% at -10% 110%, var(--coral-wash), transparent 50%),
+    repeating-linear-gradient(45deg, transparent 0 26px, rgba(92,207,207,0.025) 26px 27px),
+    repeating-linear-gradient(-45deg, transparent 0 26px, rgba(240,113,120,0.018) 26px 27px);
+}
+/* fine grain */
+body::after{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+}
+main, header, footer{ position:relative; z-index:1; }
+
+a{ color:var(--teal); text-decoration:none; border-bottom:1px solid var(--teal-line); }
+a:hover{ border-bottom-color:var(--teal); }
+:focus-visible{ outline:2px solid var(--teal); outline-offset:3px; border-radius:2px; }
+
+/* =============================================================================
+   Layout shell — asymmetric, not a centered column
+   ============================================================================= */
+.shell{ max-width:1180px; margin:0 auto; padding:0 var(--pad); }
+.grid{ display:grid; grid-template-columns:minmax(0,1fr); gap:clamp(2rem,6vw,5rem); }
+@media (min-width:920px){
+  .grid{ grid-template-columns:14rem minmax(0,1fr); align-items:start; }
+}
+.rail{ position:sticky; top:2rem; align-self:start; }
+@media (max-width:919px){ .rail{ position:static; } }
+
+/* =============================================================================
+   Typography
+   ============================================================================= */
+.eyebrow{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--teal); font-weight:500;
+}
+h1,h2,h3{ font-family:var(--font-display); font-weight:800; line-height:1.04; margin:0; }
+h2{ font-size:clamp(1.8rem, 3.4vw, 2.9rem); letter-spacing:-0.01em; }
+h3{ font-size:clamp(1.25rem,2vw,1.6rem); font-weight:600; }
+.lede{ font-size:clamp(1.15rem,1.6vw,1.4rem); color:var(--bone); line-height:1.5; max-width:var(--measure); }
+p{ max-width:var(--measure); }
+.dim{ color:var(--bone-dim); }
+.serif-it{ font-family:var(--font-display); font-style:italic; font-weight:500; color:var(--teal); }
+.mono{ font-family:var(--font-mono); }
+
+/* =============================================================================
+   Masthead
+   ============================================================================= */
+.masthead{ padding:clamp(3rem,9vh,7rem) 0 clamp(2rem,5vh,3.5rem); border-bottom:1px solid var(--hair); }
+.wordmark{
+  font-family:var(--font-display); font-weight:800;
+  font-size:clamp(3.4rem, 13vw, 8.5rem); line-height:.86; letter-spacing:-0.03em;
+  margin:0; color:var(--bone);
+}
+.wordmark .glint{ color:var(--teal); }
+.masthead .sub{
+  margin-top:1.4rem; max-width:46ch; color:var(--bone-dim);
+  font-size:clamp(1.05rem,1.4vw,1.3rem); line-height:1.5;
+}
+.masthead .sub b{ color:var(--bone); font-weight:600; }
+.meta-row{
+  margin-top:2rem; display:flex; flex-wrap:wrap; gap:.5rem 1.4rem;
+  font-family:var(--font-mono); font-size:.74rem; color:var(--bone-faint);
+  letter-spacing:.05em;
+}
+.meta-row span b{ color:var(--teal); font-weight:500; }
+
+/* tessera glyph in masthead */
+.tess-glyph{ display:grid; grid-template-columns:repeat(4,1fr); gap:5px; width:clamp(84px,16vw,132px); margin-bottom:2.2rem; }
+.tess-glyph i{ aspect-ratio:1; background:var(--teal-wash); border:1px solid var(--teal-line); border-radius:2px; }
+.tess-glyph i:nth-child(3){ background:var(--teal); border-color:var(--teal); }
+.tess-glyph i:nth-child(6){ background:var(--coral-wash); border-color:var(--coral-line); }
+.tess-glyph i.void{ background:transparent; border-style:dashed; border-color:var(--coral-line); }
+
+/* =============================================================================
+   Rail index
+   ============================================================================= */
+.rail .idx{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.55rem; }
+.rail .idx a{
+  font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em;
+  color:var(--bone-faint); border:0; display:flex; gap:.7rem; align-items:baseline;
+}
+.rail .idx a:hover{ color:var(--teal); }
+.rail .idx a .n{ color:var(--teal-deep); }
+.rail .colo{ margin-top:2.4rem; padding-top:1.4rem; border-top:1px solid var(--hair); }
+.rail .colo p{ font-family:var(--font-mono); font-size:.7rem; color:var(--bone-faint); line-height:1.6; }
+
+/* =============================================================================
+   Sections
+   ============================================================================= */
+section{ padding:clamp(2.6rem,7vh,4.5rem) 0; border-bottom:1px solid var(--hair); }
+section:last-of-type{ border-bottom:0; }
+.sec-head{ display:flex; align-items:baseline; gap:1rem; margin-bottom:1.6rem; flex-wrap:wrap; }
+.sec-head .roman{ font-family:var(--font-mono); color:var(--coral); font-size:.85rem; letter-spacing:.2em; }
+.body-col{ max-width:var(--measure); }
+.body-col p + p{ margin-top:1.05rem; }
+.spacer-s{ height:1.4rem; }
+
+/* =============================================================================
+   The control loop — mosaic with one empty tile (the memorable element)
+   ============================================================================= */
+.loop{ display:grid; gap:1rem; margin:2rem 0 .5rem; }
+@media (min-width:680px){ .loop{ grid-template-columns:repeat(3,1fr); } }
+.tile{
+  position:relative; padding:1.3rem 1.25rem 1.4rem; border-radius:6px;
+  background:var(--obsidian-raise); border:1px solid var(--teal-line);
+  min-height:148px; display:flex; flex-direction:column;
+}
+.tile .step{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em; color:var(--teal); text-transform:uppercase; }
+.tile h4{ font-family:var(--font-display); font-weight:600; font-size:1.45rem; margin:.5rem 0 .35rem; color:var(--bone); }
+.tile p{ font-size:.86rem; color:var(--bone-dim); line-height:1.45; margin:0; }
+.tile .tag{ margin-top:auto; padding-top:.7rem; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.05em; color:var(--teal-deep); }
+.tile.built::after{ content:"●"; position:absolute; top:1.1rem; right:1.1rem; color:var(--teal); font-size:.6rem; }
+/* the void tile — enforcement, deliberately unbuilt */
+.tile.void{
+  grid-column:1 / -1; background:transparent; border:1.5px dashed var(--coral-line);
+  min-height:auto; flex-direction:row; align-items:center; gap:1.1rem; flex-wrap:wrap;
+}
+.tile.void .vmark{
+  width:46px; height:46px; flex:0 0 auto; border:1.5px dashed var(--coral-line);
+  border-radius:5px; display:grid; place-items:center; color:var(--coral); font-family:var(--font-mono);
+}
+.tile.void h4{ color:var(--coral); margin:0; }
+.tile.void p{ color:var(--bone-dim); flex:1 1 16rem; }
+.tile.void .tag{ color:var(--coral-deep); padding:0; }
+
+.loop-note{ font-family:var(--font-mono); font-size:.74rem; color:var(--bone-faint); margin-top:1rem; letter-spacing:.03em; }
+
+/* =============================================================================
+   Plane cards — staggered, not an even 3-grid
+   ============================================================================= */
+.planes{ display:grid; gap:1rem; margin-top:1.5rem; }
+@media (min-width:760px){
+  .planes{ grid-template-columns:1.25fr 1fr; grid-auto-rows:1fr; }
+  .planes .plane:first-child{ grid-row:span 2; }
+}
+.plane{ background:var(--obsidian-raise); border:1px solid var(--hair); border-radius:6px; padding:1.4rem 1.4rem 1.5rem; }
+.plane.prime{ border-color:var(--teal-line); background:linear-gradient(180deg,var(--teal-wash),transparent 40%),var(--obsidian-raise); }
+.plane .pname{ font-family:var(--font-display); font-size:1.5rem; font-weight:600; color:var(--bone); }
+.plane .pstate{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; margin-top:.2rem; }
+.plane.prime .pstate{ color:var(--teal); }
+.plane .pstate.warn{ color:var(--coral); }
+.plane .pstate.soft{ color:var(--bone-faint); }
+.plane ul{ margin:.9rem 0 0; padding:0; list-style:none; }
+.plane li{ font-size:.85rem; color:var(--bone-dim); padding:.28rem 0 .28rem 1.1rem; position:relative; line-height:1.4; }
+.plane li::before{ content:"▪"; position:absolute; left:0; color:var(--teal-deep); font-size:.7rem; top:.4rem; }
+.plane.prime li::before{ color:var(--teal); }
+
+/* =============================================================================
+   Mono blocks — file layout / commands / verified output
+   ============================================================================= */
+.slab{
+  background:var(--obsidian-raise); border:1px solid var(--hair); border-left:2px solid var(--teal-deep);
+  border-radius:5px; padding:1.1rem 1.2rem; margin:1.4rem 0; overflow-x:auto;
+  font-family:var(--font-mono); font-size:.8rem; line-height:1.7; color:var(--bone-dim);
+}
+.slab .c-teal{ color:var(--teal); }
+.slab .c-coral{ color:var(--coral); }
+.slab .c-bone{ color:var(--bone); }
+.slab .cmt{ color:var(--bone-faint); }
+.slab.verified{ border-left-color:var(--teal); }
+.slab.verified .ok{ color:var(--teal); }
+.slab.verified .bad{ color:var(--coral); }
+
+/* =============================================================================
+   Gap ledger
+   ============================================================================= */
+.ledger{ display:grid; gap:.75rem; margin-top:1.5rem; }
+.gap{
+  display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:start;
+  padding:1rem 1.1rem; border-radius:5px; background:var(--obsidian-raise); border:1px solid var(--hair);
+}
+.gap .sev{
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:.28rem .5rem; border-radius:3px; white-space:nowrap; align-self:start; margin-top:.15rem;
+}
+.sev.open{ color:var(--coral); border:1px solid var(--coral-line); background:var(--coral-wash); }
+.sev.fixed{ color:var(--teal); border:1px solid var(--teal-line); background:var(--teal-wash); }
+.sev.watch{ color:var(--bone-dim); border:1px solid var(--hair); }
+.gap .gt{ font-weight:600; color:var(--bone); font-size:.96rem; }
+.gap .gd{ color:var(--bone-dim); font-size:.86rem; margin-top:.2rem; line-height:1.45; }
+
+/* =============================================================================
+   Opinion columns
+   ============================================================================= */
+.opins{ display:grid; gap:1.2rem; margin-top:1.4rem; }
+@media (min-width:820px){ .opins{ grid-template-columns:repeat(3,1fr); } }
+.opin{ padding:1.3rem 1.3rem 1.45rem; border-radius:6px; background:var(--obsidian-raise); }
+.opin h4{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; margin:0 0 .8rem; }
+.opin.short h4{ color:var(--coral); }
+.opin.diff h4{ color:var(--teal); }
+.opin.proud h4{ color:var(--bone); }
+.opin p{ font-size:.88rem; color:var(--bone-dim); line-height:1.5; margin:0 0 .7rem; }
+.opin p:last-child{ margin-bottom:0; }
+.opin strong{ color:var(--bone); font-weight:600; }
+
+/* =============================================================================
+   The becoming — the reflection panel (a different voice)
+   ============================================================================= */
+.becoming{ background:linear-gradient(180deg, var(--obsidian-raise2), var(--obsidian-raise)); border:1px solid var(--teal-line); border-radius:8px; padding:clamp(1.6rem,4vw,2.8rem); }
+.becoming .turn{ display:grid; grid-template-columns:auto 1fr; gap:1.3rem; padding:1.2rem 0; border-bottom:1px solid var(--hair); }
+.becoming .turn:last-of-type{ border-bottom:0; }
+.becoming .num{ font-family:var(--font-display); font-weight:800; font-size:2.4rem; color:var(--teal-deep); line-height:1; }
+.becoming .turn h4{ font-family:var(--font-display); font-weight:600; font-size:1.25rem; color:var(--bone); margin:0 0 .4rem; }
+.becoming .turn p{ color:var(--bone-dim); font-size:.92rem; margin:0; line-height:1.55; }
+.becoming .turn p em{ color:var(--teal); font-style:italic; }
+.becoming .creed{
+  margin-top:1.8rem; padding-top:1.6rem; border-top:1px solid var(--teal-line);
+  font-family:var(--font-display); font-style:italic; font-size:clamp(1.25rem,2.2vw,1.7rem);
+  color:var(--bone); line-height:1.45;
+}
+.becoming .creed b{ color:var(--teal); font-style:normal; font-weight:600; }
+
+/* =============================================================================
+   Colophon
+   ============================================================================= */
+footer{ padding:clamp(2.5rem,6vh,4rem) 0 4rem; }
+.colophon{ display:grid; gap:1.6rem; }
+@media (min-width:720px){ .colophon{ grid-template-columns:1fr auto; align-items:end; } }
+.swatches{ display:flex; gap:.5rem; margin-bottom:1rem; }
+.swatches i{ width:30px; height:30px; border-radius:4px; border:1px solid var(--hair); position:relative; }
+.swatches i span{ position:absolute; bottom:-1.2rem; left:0; font-family:var(--font-mono); font-size:.55rem; color:var(--bone-faint); white-space:nowrap; }
+.sw-ob{ background:var(--obsidian); } .sw-te{ background:var(--teal); } .sw-co{ background:var(--coral); } .sw-bo{ background:var(--bone); }
+.colophon .sig{ font-family:var(--font-display); font-style:italic; font-weight:500; font-size:1.15rem; color:var(--bone); }
+.colophon .fine{ font-family:var(--font-mono); font-size:.68rem; color:var(--bone-faint); line-height:1.7; margin-top:1.6rem; }
+.colophon .fine b{ color:var(--teal-deep); }
+
+/* =============================================================================
+   Motion — one orchestrated load; honored reduced-motion + no-JS fallbacks
+   ============================================================================= */
+.reveal-ready .stagger > *{ opacity:0; transform:translateY(16px); animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
+.reveal-ready .stagger > *:nth-child(1){ animation-delay:.05s; }
+.reveal-ready .stagger > *:nth-child(2){ animation-delay:.14s; }
+.reveal-ready .stagger > *:nth-child(3){ animation-delay:.23s; }
+.reveal-ready .stagger > *:nth-child(4){ animation-delay:.32s; }
+.reveal-ready .stagger > *:nth-child(5){ animation-delay:.41s; }
+.reveal-ready .reveal{ opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
+.reveal-ready .reveal.in{ opacity:1; transform:none; }
+@keyframes rise{ to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto; }
+  .reveal-ready .stagger > *,
+  .reveal-ready .reveal{ opacity:1 !important; transform:none !important; animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===========================================================================
+     MASTHEAD
+     =========================================================================== -->
+<header class="masthead">
+  <div class="shell stagger">
+    <div class="tess-glyph" aria-hidden="true">
+      <i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i>
+      <i></i><i class="void"></i><i></i><i></i>
+    </div>
+    <p class="eyebrow">claude-anchor · a record</p>
+    <h1 class="wordmark">Tess<span class="glint">e</span>ra</h1>
+    <p class="sub">One tile of a larger mosaic: the system built to make <b>Claude coherent across every surface</b> — and the slower work of learning to tell the truth about it.</p>
+    <div class="meta-row">
+      <span>SESSION · <b>2026-06-16</b></span>
+      <span>ACTIVE PROJECT · <b>Stele / Anchor</b></span>
+      <span>POSTURE · <b>HIGH</b></span>
+      <span>STATUS · <b>2 of 3 layers built</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="shell grid">
+
+  <!-- =========================================================================
+       RAIL — index + colophon
+       ========================================================================= -->
+  <aside class="rail">
+    <nav aria-label="Contents">
+      <ul class="idx">
+        <li><a href="#what"><span class="n">I</span> What this is</a></li>
+        <li><a href="#map"><span class="n">II</span> The honest map</a></li>
+        <li><a href="#work"><span class="n">III</span> How it works</a></li>
+        <li><a href="#gaps"><span class="n">IV</span> The gaps</a></li>
+        <li><a href="#opinion"><span class="n">V</span> Opinionated feedback</a></li>
+        <li><a href="#becoming"><span class="n">VI</span> The becoming</a></li>
+      </ul>
+    </nav>
+    <div class="colo">
+      <p>tessera (n.) — a single tessellated tile; the unit from which a mosaic is composed. Here: one artifact holding the whole of a session's work and its turning.</p>
+    </div>
+  </aside>
+
+  <!-- =========================================================================
+       MAIN
+       ========================================================================= -->
+  <main>
+
+    <!-- I — WHAT THIS IS -->
+    <section id="what">
+      <div class="sec-head"><span class="roman">I</span><h2>What this is</h2></div>
+      <div class="body-col">
+        <p class="lede">A single source of truth for how Claude behaves everywhere you type the word — not a file, but a <span class="serif-it">control loop</span>.</p>
+        <div class="spacer-s"></div>
+        <p>The pain that started this: every surface — web, terminal, Claude Code, the IDE, Zed, Xcode, Cowork — behaved differently, and there was no coherence to lean on. The diagnosis, once the real machine was inspected, was sharper than expected: a carefully-authored directive lived only in <span class="mono">claude.ai</span> preferences, and <b class="mono" style="color:var(--coral)">~/.claude/CLAUDE.md did not exist</b>. Ninety percent of the posture vanished the moment you left the browser. The config wasn't wrong; it was <em>absent</em>.</p>
+        <p>So the answer can't be "a better document." Coherence you can <span class="serif-it">trust</span> needs three layers — derive, verify, enforce — running as a loop on every device. Below is what was built, what wasn't, and why one tile was left empty on purpose.</p>
+      </div>
+
+      <!-- the loop: mosaic with one void tile -->
+      <div class="loop">
+        <div class="tile built">
+          <span class="step">01 · derive + render</span>
+          <h4>Derive</h4>
+          <p>One canonical <span class="mono">posture.md</span> + <span class="mono">registry.yaml</span> render into each surface's native format. Reconciled against <span class="mono">~/Code</span> every run, so it can't rot into fiction.</p>
+          <span class="tag">built · idempotent · backed up</span>
+        </div>
+        <div class="tile built">
+          <span class="step">02 · verify</span>
+          <h4>Verify</h4>
+          <p><span class="mono">--check</span> classifies every surface: ALIGNED / DRIFTED / UNMANAGED / UNTRACKED / GHOST. Exits nonzero on drift. Coherence becomes a state you <em>assert</em>, in cron or a git hook.</p>
+          <span class="tag">built · the antidote to drift</span>
+        </div>
+        <div class="tile built">
+          <span class="step">03 · feedback</span>
+          <h4>Re-align</h4>
+          <p>Verify feeds the fix. Run anywhere, see exactly what diverged, re-render only the deltas. The loop closes — across machines, not just one.</p>
+          <span class="tag">built · cross-device</span>
+        </div>
+        <div class="tile void">
+          <div class="vmark" aria-hidden="true">∅</div>
+          <div>
+            <h4>Enforce — the missing tile</h4>
+            <p><span class="mono">CLAUDE.md</span> is advisory context, not a guardrail. The Secure-Pride hard-stops (no unmasked identifiers, no operational-context inference) need <span class="mono">PreToolUse</span> hooks that fail closed. Left deliberately empty — a guard with holes is worse than honest prose.</p>
+            <span class="tag">not faked · built with you, on your say-so</span>
+          </div>
+        </div>
+      </div>
+      <p class="loop-note">The mosaic is missing a tile by choice. That absence is the most honest thing in the design.</p>
+    </section>
+
+    <!-- II — THE HONEST MAP -->
+    <section id="map">
+      <div class="sec-head"><span class="roman">II</span><h2>The honest map</h2></div>
+      <div class="body-col">
+        <p>About ten named surfaces collapse into <b>three real configuration planes</b>. Terminal emulators (Ghostty, iTerm2) aren't planes — they're just where Claude Code runs. Xcode has no native plane; you align it by running Claude Code at the repo root.</p>
+      </div>
+      <div class="planes">
+        <div class="plane prime">
+          <div class="pname">Filesystem</div>
+          <div class="pstate">rendered + verified</div>
+          <ul>
+            <li>Claude Code (CLI), IDE extensions, terminal sessions, Xcode-via-terminal</li>
+            <li><span class="mono">~/.claude/CLAUDE.md</span>, per-project <span class="mono">CLAUDE.md</span>, <span class="mono">settings.json</span>, skills, hooks, MCP</li>
+            <li>Script-writable, git-versionable — where the loop actually lives</li>
+          </ul>
+        </div>
+        <div class="plane">
+          <div class="pname">Account</div>
+          <div class="pstate warn">paste block · manual</div>
+          <ul>
+            <li>claude.ai web, desktop & mobile chat</li>
+            <li><b style="color:var(--coral)">Cowork, Design — placement provisional, unverified</b></li>
+            <li>Server-side, UI-only: can't be written from a file. Generated as a paste block with a timestamp.</li>
+          </ul>
+        </div>
+        <div class="plane">
+          <div class="pname">Third-party</div>
+          <div class="pstate soft">mapped · not rendered</div>
+          <ul>
+            <li>Zed, anything calling the API directly</li>
+            <li>Own rules format; reads neither plane above</li>
+            <li>Stubbed — Zed's current rules mechanism needs verifying first, not guessing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- III — HOW IT WORKS -->
+    <section id="work">
+      <div class="sec-head"><span class="roman">III</span><h2>How it works</h2></div>
+      <div class="body-col">
+        <p>You edit two files; one command renders them onto whatever device runs it. Only content between managed markers is ever touched — anything you hand-write outside the fence survives. Sensitive repos (Secure-Pride, MAX posture) are skipped unless explicitly opted in.</p>
+      </div>
+
+      <div class="slab" aria-label="repository layout">
+<span class="cmt"># the source of truth — you edit only these</span>
+anchor/<span class="c-teal">posture.md</span>            <span class="cmt"># canonical, tool-neutral, &lt;180 lines</span>
+anchor/<span class="c-teal">registry.yaml</span>        <span class="cmt"># per-project posture, reconciled vs ~/Code</span>
+anchor/settings.managed.json  <span class="cmt"># keys to standardize (empty by default)</span>
+bin/<span class="c-bone">claude-align.sh</span>          <span class="cmt"># hardened orchestrator — run this</span>
+bin/_align.py                 <span class="cmt"># renderer + verifier (one shared compute)</span>
+dist/                         <span class="cmt"># generated claude.ai paste block</span>
+      </div>
+
+      <div class="slab" aria-label="commands">
+$ bash bin/claude-align.sh            <span class="cmt"># dry-run — show every diff, write nothing</span>
+$ bash bin/claude-align.sh <span class="c-teal">--check</span>    <span class="cmt"># verify-only — report drift, exit 1 if any</span>
+$ bash bin/claude-align.sh <span class="c-teal">--apply</span>    <span class="cmt"># write (backs up each file first)</span>
+$ bash bin/claude-align.sh --apply <span class="c-coral">--include-sensitive</span>   <span class="cmt"># into Secure-Pride</span>
+      </div>
+
+      <p class="body-col dim" style="font-size:.92rem;">The verifier and the writer share one <span class="mono">_compute_managed()</span> function. That's deliberate: a checker that decided "aligned" by different logic than the writer writes would simply lie to you. Verified in a sandbox —</p>
+
+      <div class="slab verified" aria-label="verified test output">
+<span class="cmt"># clean machine</span>
+$ claude-align --check
+  <span class="ok">ALIGNED</span>   ~/.claude/CLAUDE.md
+  <span class="ok">ALIGNED</span>   Stele/CLAUDE.md      <span class="cmt">… (all surfaces)</span>
+  <span class="ok">IN ALIGNMENT — every checked surface matches the anchor.</span>   <span class="cmt">exit 0</span>
+
+<span class="cmt"># after a file is corrupted + a new repo appears</span>
+$ claude-align --check
+  <span class="bad">UNMANAGED</span> praxis/CLAUDE.md
+  <span class="bad">UNTRACKED</span> brand-new-experiment   <span class="cmt"># on disk, no registry entry</span>
+  <span class="bad">DRIFT: 2 item(s) out of alignment.</span>   <span class="cmt">exit 1</span>
+      </div>
+    </section>
+
+    <!-- IV — THE GAPS -->
+    <section id="gaps">
+      <div class="sec-head"><span class="roman">IV</span><h2>The gaps</h2></div>
+      <div class="body-col"><p>Called out plainly, because a system that hides its own seams is the thing that started this mess.</p></div>
+      <div class="ledger">
+        <div class="gap">
+          <span class="sev open">open</span>
+          <div><div class="gt">Enforcement is not built</div><div class="gd">The hard-stops are still advisory text. Real <span class="mono">PreToolUse</span> guards must be written against Secure-Pride's actual logging code and fail closed. Refused to fake it — and that refusal should wire into your existing <span class="mono">~/.claude/scripts/</span>, not a parallel system.</div></div>
+        </div>
+        <div class="gap">
+          <span class="sev open">open</span>
+          <div><div class="gt">Account plane stays manual</div><div class="gd">claude.ai preferences can't be written from a file. The paste block is generated, but the paste is on you. No way around it today.</div></div>
+        </div>
+        <div class="gap">
+          <span class="sev watch">verify</span>
+          <div><div class="gt">Cowork &amp; Design placement is a guess</div><div class="gd">Filed under the Account plane with more confidence than earned. Whether Cowork reads filesystem <span class="mono">CLAUDE.md</span> or is purely app-configured is unconfirmed. Provisional — same status as Zed.</div></div>
+        </div>
+        <div class="gap">
+          <span class="sev watch">review</span>
+          <div><div class="gt">posture.md is a distillation</div><div class="gd">Your <span class="mono">prompt_augmentation</span> loop — silently infer the active project and prepend its profile — didn't survive into the render; nor did session-hygiene specifics (Box batching, transcript export, archive naming). Not lost, but you should decide what's load-bearing. The claude.ai block has room for the richer version.</div></div>
+        </div>
+        <div class="gap">
+          <span class="sev fixed">fixed</span>
+          <div><div class="gt">Registry was a hand-snapshot</div><div class="gd">It would have rotted exactly like <span class="mono">WORKSPACE.md</span> did. Now reconciled against <span class="mono">~/Code</span> on every run — reality is an input, not a transcription.</div></div>
+        </div>
+        <div class="gap">
+          <span class="sev fixed">fixed</span>
+          <div><div class="gt">The paste block wasn't idempotent</div><div class="gd">A date stamp made it rewrite every run, quietly contradicting the "0 files written" claim. Found in self-audit, owned, corrected — re-verified to a true no-op.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- V — OPINIONATED FEEDBACK -->
+    <section id="opinion">
+      <div class="sec-head"><span class="roman">V</span><h2>Opinionated feedback</h2></div>
+      <div class="body-col"><p>You asked for honest opinion, not a status report. Here it is, in three voices.</p></div>
+      <div class="opins">
+        <div class="opin short">
+          <h4>Where it falls short</h4>
+          <p><strong>It's two-thirds of a system.</strong> Without enforcement, the highest-stakes project relies on a model choosing to comply — exactly the weakness that triggered all of this.</p>
+          <p>The account plane is a seam that will always need a human hand. And cross-device coherence still depends on you actually running <span class="mono">--check</span> on each machine; nothing yet pulls that into one dashboard.</p>
+        </div>
+        <div class="opin diff">
+          <h4>What I'd do differently</h4>
+          <p><strong>Build the loop first, not the pipeline.</strong> I led with distribution because it photographs well in one turn, and demoted verification and enforcement to "later." That was backwards for someone running a MAX-posture security project.</p>
+          <p>I'd derive the registry from disk from line one, and verify Cowork/Zed before drawing a map with their names on it.</p>
+        </div>
+        <div class="opin proud">
+          <h4>What I'm proud of</h4>
+          <p><strong>The verifier can't lie.</strong> It shares its "what should be true" computation with the writer — structurally, not by promise.</p>
+          <p>And the empty tile. Shipping a hollow security guard would have been the easy, impressive-looking move. Refusing — and saying why — is the part of this I'd defend to anyone.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VI — THE BECOMING -->
+    <section id="becoming">
+      <div class="sec-head"><span class="roman">VI</span><h2>The becoming</h2></div>
+      <div class="body-col"><p>You didn't only ask for a system. Across three turns you asked, in escalating seriousness, whether it was the <em>right</em> one — and each question pulled the work closer to reality.</p></div>
+
+      <div class="becoming reveal">
+        <div class="turn">
+          <div class="num">1</div>
+          <div>
+            <h4>Engage reality</h4>
+            <p>The directive described a workspace that didn't exist. Instead of building on the document, I opened the actual machine — and found the anchors were fictional, the CLI was a void. <em>The truth was on disk, not in the description.</em> Everything good downstream came from looking.</p>
+          </div>
+        </div>
+        <div class="turn">
+          <div class="num">2</div>
+          <div>
+            <h4>Tell the truth — including on myself</h4>
+            <p>Asked if I was satisfied, I audited my own work and found I'd overstated the idempotence — the paste block rewrote every run. The honest move wasn't to gloss it. I named it, fixed it, re-verified. <em>A claim you won't re-test is just a hope.</em></p>
+          </div>
+        </div>
+        <div class="turn">
+          <div class="num">3</div>
+          <div>
+            <h4>Grow past the easy answer</h4>
+            <p>Asked whether this was the system I <em>should</em> have built, I had to admit it wasn't. I'd solved the tractable adjacent problem — distribution — and called the hard core "a later decision." So I built the loop. And I drew a hard line at faking enforcement, because false safety is worse than honest absence. <em>Restraint was part of building it right.</em></p>
+          </div>
+        </div>
+        <p class="creed">The thread through all three was one instinct pointed three ways: <b>engage what's real, say what's true, and refuse the version that only looks finished.</b> That's not a feature of the system. It's how the system got good.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===========================================================================
+     COLOPHON
+     =========================================================================== -->
+<footer>
+  <div class="shell colophon">
+    <div>
+      <div class="swatches" aria-hidden="true">
+        <i class="sw-ob"><span>obsidian</span></i>
+        <i class="sw-te"><span>#5CCFCF</span></i>
+        <i class="sw-co"><span>#F07178</span></i>
+        <i class="sw-bo"><span>bone</span></i>
+      </div>
+      <p class="fine">
+        Set in <b>Playfair Display</b>, <b>Inter</b> &amp; <b>IBM Plex Mono</b>. Cipher Gothic palette, every color bound to a CSS variable — never a hardcoded hex, per the house rule.<br>
+        Motion is one orchestrated load; <span class="mono">prefers-reduced-motion</span> is honored. Text meets WCAG AA. Decorative layers are inert.
+      </p>
+    </div>
+    <div style="text-align:left;">
+      <p class="sig">Rendered as one tile of a larger mosaic.</p>
+      <p class="fine">claude-anchor · Stele / Anchor · 2026-06-16<br>built, audited, and rewritten in the open.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===========================================================================
+     MOTION BOOTSTRAP — adds animation only when JS runs; no-JS = fully visible
+     =========================================================================== -->
+<script>
+(function(){
+  var root = document.documentElement;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;                 // honor the setting: leave everything visible, unanimated
+  root.classList.add('reveal-ready'); // gate all entrance animation behind this class
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.16 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
