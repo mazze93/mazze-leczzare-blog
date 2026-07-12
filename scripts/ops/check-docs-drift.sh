@@ -35,6 +35,7 @@ DOCUMENTED_PAGES=(
   "src/pages/roadmap.md"
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
+  "src/pages/writing/index.astro"
   "public/writing/what-i-can-stand-by/index.html"
   "public/artifacts/tessera-claude-anchor.html"
 )
