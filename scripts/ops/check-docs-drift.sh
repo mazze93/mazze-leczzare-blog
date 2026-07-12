@@ -36,6 +36,7 @@ DOCUMENTED_PAGES=(
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
   "public/writing/what-i-can-stand-by/index.html"
+  "public/artifacts/tessera-claude-anchor.html"
 )
 for f in "${DOCUMENTED_PAGES[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then

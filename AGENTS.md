@@ -51,6 +51,7 @@ npm run docs:check # Validate doc command refs and deployment terminology
 | `/login`           | `src/pages/login.astro`             |
 | `/admin`           | `src/pages/admin/index.astro`       |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` (standalone) |
+| `/artifacts/tessera-claude-anchor.html` | `public/artifacts/tessera-claude-anchor.html` (standalone) |
 | `/rss.xml`         | `src/pages/rss.xml.js`              |
 | `/api/contact`     | `functions/api/contact.ts`          |
 | `/api/share-event` | `functions/api/share-event.ts`      |
