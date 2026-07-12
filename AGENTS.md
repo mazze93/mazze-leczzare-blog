@@ -50,6 +50,7 @@ npm run docs:check # Validate doc command refs and deployment terminology
 | `/roadmap`         | `src/pages/roadmap.md`              |
 | `/login`           | `src/pages/login.astro`             |
 | `/admin`           | `src/pages/admin/index.astro`       |
+| `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` (standalone) |
 | `/rss.xml`         | `src/pages/rss.xml.js`              |
 | `/api/contact`     | `functions/api/contact.ts`          |
 | `/api/share-event` | `functions/api/share-event.ts`      |
