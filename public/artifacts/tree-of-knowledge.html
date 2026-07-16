@@ -173,6 +173,71 @@ body.descended .intro strong { color: var(--co); }
 
 #fn { border-top: 1px solid var(--bd); padding: 9px 15px; flex-shrink: 0; background: var(--bg-p); font-size: 7.5px; line-height: 1.6; color: var(--tx-d); letter-spacing: .04em; transition: border-color .9s, background .9s; }
 #fn b { color: var(--gd); font-weight: 500; }
+
+/* ══════════════════════════════════════════════════════════════
+   READABILITY FLOOR — the original pixel scale (6.5–10px) was
+   built for a desktop canvas and is sub-legible everywhere. Raise
+   the floor on ALL viewports; hierarchy is preserved, just larger.
+   ══════════════════════════════════════════════════════════════ */
+#ht        { font-size: 17px; }
+#hs        { font-size: 10px; }
+#mode-lbl  { font-size: 10px; }
+#descend   { font-size: 11px; padding: 7px 15px; }
+#legend    { font-size: 10.5px; gap: 10px 16px; }
+.lg-dot    { width: 9px; height: 9px; }
+#nn        { font-size: 17px; }
+#nn-q      { font-size: 13px; }
+#nf        { font-size: 11px; }
+.face-ttl  { font-size: 11px; }
+.etag      { font-size: 10px; padding: 2px 7px; }
+.face-body { font-size: 15px; line-height: 1.75; }
+.quote     { font-size: 13px; line-height: 1.65; }
+.conf-lbl  { font-size: 10px; }
+.conf-val  { font-size: 10px; }
+.intro     { font-size: 15px; line-height: 1.8; }
+.void-txt  { font-size: 15px; max-width: 320px; }
+#fn        { font-size: 11px; line-height: 1.7; }
+
+/* Lift small-label contrast to AA in both faces.
+   life:  #6a8a9a→#88a6b6 on #0F1923 ≈ 6.9:1
+   abyss: #4a525a→#7f8994 on #07090d ≈ 5.3:1 (was ~2.4:1, failing) */
+:root           { --tx-d: #88a6b6; }
+body.descended  { --tx-d: #7f8994; }
+
+/* ══ REDUCED MOTION — none of the loops were gated before ══ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+  #grain { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NARROW / MOBILE — the two-column desktop dashboard cannot fit a
+   phone. Stack it, unlock scrolling, and give each half full width
+   so the SVG tree and the reading text both become legible.
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 800px) {
+  html, body { height: auto; overflow: auto; }
+  #app       { height: auto; min-height: 100vh; }
+
+  #hd  { height: auto; min-height: 46px; padding: 9px 14px; flex-wrap: wrap; }
+  #hs  { display: none; }
+
+  #mn  { flex-direction: column; overflow: visible; }
+  #lp  { width: 100%; height: 68vh; border-right: none;
+         border-bottom: 1px solid var(--bd); }
+  #rp  { width: 100%; height: auto; overflow: visible; }
+  #rs  { overflow: visible; padding: 16px 16px 6px; }
+
+  #descend   { padding: 9px 16px; font-size: 12px; }
+  #nn        { font-size: 18px; }
+  #nf        { font-size: 12px; }
+  .face-body { font-size: 16px; }
+  .intro     { font-size: 16px; }
+  .void-txt  { font-size: 16px; }
+}
 </style>
 </head>
 <body>
