@@ -51,6 +51,7 @@ npm run docs:check # Validate doc command refs and deployment terminology
 | `/login`           | `src/pages/login.astro`             |
 | `/admin`           | `src/pages/admin/index.astro`       |
 | `/writing/`        | `src/pages/writing/index.astro` (publication catalogue) |
+| `/intentional-fragility/` | `public/intentional-fragility/index.html` (standalone spine page) |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` (standalone) |
 | `/artifacts/tessera-claude-anchor.html` | `public/artifacts/tessera-claude-anchor.html` (standalone) |
 | `/rss.xml`         | `src/pages/rss.xml.js`              |

@@ -36,6 +36,7 @@ DOCUMENTED_PAGES=(
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
   "src/pages/writing/index.astro"
+  "public/intentional-fragility/index.html"
   "public/writing/what-i-can-stand-by/index.html"
   "public/artifacts/tessera-claude-anchor.html"
 )
