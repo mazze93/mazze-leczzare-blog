@@ -491,6 +491,16 @@ const nnq = document.getElementById('nn-q');
 const nf = document.getElementById('nf');
 let currentNodeId = null;
 
+/* When stacked (narrow), the reading panel sits below the tree — off
+   the fold. A tap must scroll it into view or nothing visibly happens. */
+const mqStack  = window.matchMedia('(max-width: 800px)');
+const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+function revealPanel() {
+  if (!mqStack.matches) return;
+  const rp = document.getElementById('rp');
+  if (rp) rp.scrollIntoView({ behavior: mqReduce.matches ? 'auto' : 'smooth', block: 'start' });
+}
+
 function clearSel() {
   if (currentNodeId !== null) clearConfGlow(currentNodeId);
   Object.values(nodeEls).forEach(n => n.classList.remove('sel'));
