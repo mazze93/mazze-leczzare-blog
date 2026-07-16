@@ -91,6 +91,16 @@ const {
   color: var(--coral);
 }
 
+@media (max-width: 800px) {
+  /* Stacked, the artifact is taller than the desktop frame and needs to
+     scroll internally. Grow the frame and let the iframe scroll; the
+     "Open full screen" link remains the escape hatch for the full view. */
+  .artifact-frame-wrap {
+    height: min(82vh, 640px);
+    min-height: 560px;
+  }
+}
+
 @media (max-width: 640px) {
   .artifact-caption {
     flex-direction: column;
