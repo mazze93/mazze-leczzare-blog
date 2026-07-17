@@ -1,6 +1,7 @@
 ---
 import HomepageLayout from '../layouts/HomepageLayout.astro';
 import BreathingHero from '../components/BreathingHero.astro';
+import AirlockStrip from '../components/constellation/AirlockStrip.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../consts';
 import { getCollection } from 'astro:content';
@@ -11,6 +12,9 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 ---
 
 <HomepageLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+
+  <!-- Airlock — the ten-second professional path, before the world -->
+  <AirlockStrip />
 
   <!-- Hero — environmental breathing canvas -->
   <BreathingHero />
