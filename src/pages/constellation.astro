@@ -1,0 +1,373 @@
+---
+// ── /constellation — the sky, standalone (burst b) ───────────────────────────
+// The landing-page candidate: every node is a project, laid on the
+// erasure → signal axis. Position, size, and brightness are all derived —
+// nothing curated. Gold = the gravity well: max(mass × liveness) among
+// committed, unresolved nodes. Resolved work sits in the fixed archive
+// array at the outer edge; abandoned work fades to traces beside it.
+// Build-time SVG, no hydration. The shadow index below the sky is the
+// legible fallback (same manifest, second view).
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE } from "../consts";
+import { collectAllNodes } from "../utils/collectNodes";
+import { computeZone } from "../utils/decay";
+
+export interface PlacedNode {
+  slug: string;
+  title: string;
+  zone: string;
+  status: string;
+  count: number;
+  x: number;
+  y: number;
+  r: number;
+  opacity: number;
+  gold: boolean;
+  resolved: boolean;
+  lastTouched: string;
+}
+
+const W = 1200;
+const H = 640;
+const now = Date.now();
+
+// Deterministic 0..1 from a string — same build, same sky.
+function hash01(s: string, salt = 0): number {
+  let h = 2166136261 ^ salt;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 10_000) / 10_000;
+}
+
+const nodes = await collectAllNodes();
+
+// ── placement ────────────────────────────────────────────────────────────────
+// x-axis: erasure (0) → signal (1). Zones own bands; drift slides within.
+const placedAll: PlacedNode[] = nodes.map((n) => {
+  const state = computeZone(new Date(n.lastTouched).getTime(), n.committed, now, n.resolved);
+  const jx = hash01(n.slug, 7); // deterministic jitter
+  const jy = hash01(n.slug, 13);
+
+  let x01: number;
+  let opacity: number;
+  if (state.zone === "resolved") {
+    // fixed archive array: a tidy column in outer space, full dignity
+    x01 = 0.08 + jx * 0.05;
+    opacity = 0.9;
+  } else if (state.zone === "signal") {
+    x01 = 0.78 + jx * 0.16;
+    opacity = 1;
+  } else if (state.zone === "experiment") {
+    // emergence belt; drift pulls leftward as work cools
+    x01 = 0.62 - state.driftRatio * 0.28 + (jx - 0.5) * 0.08;
+    opacity = 1 - state.driftRatio * 0.55;
+  } else {
+    // erasure: faint traces at the edge of nothing
+    x01 = 0.14 + jx * 0.12;
+    opacity = 0.16;
+  }
+
+  return {
+    slug: n.slug,
+    title: n.title,
+    zone: state.zone,
+    status:
+      state.zone === "resolved" ? "resolved — archival"
+      : state.zone === "signal" ? "signal — sealed"
+      : state.zone === "undefined" ? "in erasure"
+      : state.driftRatio > 0 ? `drifting (${Math.round(state.driftRatio * 100)}%)`
+      : "active mass",
+    count: n.count,
+    x: Math.round(x01 * W),
+    y: Math.round((0.16 + jy * 0.68) * H),
+    r: Math.min(4 + n.count * 2.5, 16),
+    opacity,
+    gold: false,
+    resolved: state.zone === "resolved",
+    lastTouched: n.lastTouched.slice(0, 10),
+  };
+});
+
+// Gravity well: heaviest live committed node; recency breaks ties.
+const liveSignal = placedAll
+  .filter((p) => p.zone === "signal")
+  .sort((a, b) => b.count - a.count || b.lastTouched.localeCompare(a.lastTouched));
+if (liveSignal.length > 0) liveSignal[0].gold = true;
+const well = liveSignal[0];
+
+// Asterism lines: committed nodes joined to the well — connection drawn,
+// not asserted (v1: liveness is the shared property; true edges later).
+const asterism = well
+  ? liveSignal.slice(1).map((p) => ({ x1: well.x, y1: well.y, x2: p.x, y2: p.y }))
+  : [];
+
+// Deterministic background starfield (pure texture, non-interactive).
+const dust = Array.from({ length: 130 }, (_, i) => ({
+  x: Math.round(hash01(`dust-${i}`, 3) * W),
+  y: Math.round(hash01(`dust-${i}`, 5) * H),
+  r: 0.6 + hash01(`dust-${i}`, 9) * 1.1,
+  o: 0.1 + hash01(`dust-${i}`, 11) * 0.22,
+}));
+
+// Lensing isolines around the well — the survey grid bends near gravity.
+const isolines = well ? [46, 84, 130, 184] : [];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Constellation — ${SITE_TITLE}`}
+      description="Every point is a piece of work. Brightness is completion, gravity is connection. Start at the gold signal."
+    />
+  </head>
+  <body data-layout="constellation">
+    <Header />
+    <main class="sky-wrap">
+      <p class="orientation">
+        Every point is a piece of work. Brightness is completion, gravity is
+        connection — start at the <span class="gold-word">gold signal</span>.
+        Prefer a list? <a href="/writing/">The index</a> is the same sky, flattened.
+      </p>
+
+      <svg
+        class="sky"
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label="Constellation map of all projects, arranged from erasure on the left to signal on the right. An equivalent text index follows."
+      >
+        <defs>
+          <radialGradient id="well-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="var(--c-gold)" stop-opacity="0.55" />
+            <stop offset="45%" stop-color="var(--c-gold)" stop-opacity="0.12" />
+            <stop offset="100%" stop-color="var(--c-gold)" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="field" cx="82%" cy="42%" r="90%">
+            <stop offset="0%" stop-color="#101726" />
+            <stop offset="55%" stop-color="#0a0f1b" />
+            <stop offset="100%" stop-color="#06080f" />
+          </radialGradient>
+          {/* zonal atmosphere: void deepens left, emergence breathes faint cyan */}
+          <linearGradient id="zones" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#02030a" stop-opacity="0.55" />
+            <stop offset="22%" stop-color="#02030a" stop-opacity="0.25" />
+            <stop offset="46%" stop-color="#0e2b2e" stop-opacity="0.14" />
+            <stop offset="62%" stop-color="#0e2b2e" stop-opacity="0.08" />
+            <stop offset="100%" stop-color="#2a2410" stop-opacity="0.16" />
+          </linearGradient>
+        </defs>
+
+        <rect width={W} height={H} fill="url(#field)" />
+        <rect width={W} height={H} fill="url(#zones)" aria-hidden="true" />
+
+        {/* dust — pure texture */}
+        <g class="dust" aria-hidden="true">
+          {dust.map((d) => <circle cx={d.x} cy={d.y} r={d.r} fill="#8fa3c8" opacity={d.o} />)}
+        </g>
+
+        {/* zone captions — the plain-language shadow of the metaphor */}
+        <g class="captions" aria-hidden="true">
+          <text x={W * 0.11} y={H - 22} text-anchor="middle">ARCHIVE · resolved</text>
+          <text x={W * 0.24} y={38} text-anchor="middle">ERASURE</text>
+          <text x={W * 0.5} y={38} text-anchor="middle">EMERGENCE</text>
+          <text x={W * 0.86} y={38} text-anchor="middle">SIGNAL</text>
+        </g>
+
+        {/* archive band — the fixed array, framed with dignity */}
+        <line class="archive-rule" x1={W * 0.175} y1={H * 0.08} x2={W * 0.175} y2={H * 0.9} aria-hidden="true" />
+
+        {/* gravitational lensing: isolines bending around the well */}
+        {well && (
+          <g class="isolines" aria-hidden="true">
+            {isolines.map((r) => (
+              <circle cx={well.x} cy={well.y} r={r} />
+            ))}
+            <circle cx={well.x} cy={well.y} r="120" fill="url(#well-glow)" class="well-halo" />
+          </g>
+        )}
+
+        {/* asterism lines into the well */}
+        <g class="asterism" aria-hidden="true">
+          {asterism.map((l) => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
+        </g>
+
+        {/* the nodes — each a real link with a plain-text shadow */}
+        {placedAll.map((p, i) => (
+          <a href={`/project/${p.slug}/`} class="node-link" aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}>
+            <g
+              class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved }]}
+              style={`--i:${i}; --o:${p.opacity}`}
+            >
+              {p.resolved ? (
+                <rect
+                  x={p.x - p.r * 0.9} y={p.y - p.r * 0.9}
+                  width={p.r * 1.8} height={p.r * 1.8}
+                  transform={`rotate(45 ${p.x} ${p.y})`}
+                />
+              ) : (
+                <circle cx={p.x} cy={p.y} r={p.r} />
+              )}
+              <text class="node-label" x={p.x} y={p.y - p.r - 24} text-anchor="middle">
+                {p.title}
+                <tspan class="node-meta" x={p.x} dy="13">{p.status} · {p.count}</tspan>
+              </text>
+            </g>
+          </a>
+        ))}
+      </svg>
+
+      {/* the shadow index — same manifest, guaranteed legible */}
+      <section class="shadow-index" aria-label="Project index (text equivalent of the constellation)">
+        <h2>The sky, flattened</h2>
+        <ol>
+          {placedAll
+            .slice()
+            .sort((a, b) => (a.gold ? -1 : b.gold ? 1 : b.lastTouched.localeCompare(a.lastTouched)))
+            .map((p) => (
+              <li class:list={[{ gold: p.gold }]}>
+                <a href={`/project/${p.slug}/`}>{p.title}</a>
+                <span class="idx-meta">{p.status} · {p.count} {p.count === 1 ? "piece" : "pieces"} · {p.lastTouched}</span>
+              </li>
+            ))}
+        </ol>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  :root {
+    --c-void: #06080f;
+    --c-ink: #c7d2e6;
+    --c-dim: #5d6b85;
+    --c-gold: #e8b64c;
+    --c-emerge: #7fd4d0;
+    --c-trace: #46536d;
+  }
+
+  body[data-layout="constellation"] {
+    background: var(--c-void);
+    color: var(--c-ink);
+  }
+
+  .sky-wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 1.5rem clamp(0.75rem, 3vw, 2rem) 4rem;
+  }
+
+  .orientation {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+    font-style: italic;
+    color: var(--c-ink);
+    max-width: 46rem;
+    margin: 0 0 1.25rem;
+    line-height: 1.5;
+  }
+  .orientation a { color: var(--c-emerge); }
+  .gold-word { color: var(--c-gold); font-style: normal; }
+
+  .sky {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #1a2336;
+    border-radius: 6px;
+  }
+
+  .captions text,
+  .node-label {
+    font-family: "DM Mono", ui-monospace, monospace;
+  }
+  .captions text {
+    fill: var(--c-dim);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+  }
+
+  .archive-rule { stroke: var(--c-trace); stroke-dasharray: 2 6; stroke-width: 1; }
+
+  .isolines circle {
+    fill: none;
+    stroke: var(--c-gold);
+    stroke-opacity: 0.14;
+    stroke-width: 1;
+  }
+  .well-halo { animation: breathe 7s ease-in-out infinite; transform-origin: center; }
+
+  .asterism line { stroke: var(--c-gold); stroke-opacity: 0.18; stroke-width: 1; }
+
+  .node { opacity: 0; animation: arrive 240ms ease-out forwards; animation-delay: calc(var(--i) * 60ms); }
+  .node circle, .node rect { transition: r 150ms ease, filter 150ms ease; }
+  .node.signal circle { fill: #f3ead2; }
+  .node.gold circle { fill: var(--c-gold); filter: drop-shadow(0 0 14px rgba(232, 182, 76, 0.75)); }
+  .node.experiment circle { fill: var(--c-emerge); }
+  .node.undefined circle { fill: var(--c-trace); }
+  .node.resolved rect { fill: none; stroke: var(--c-ink); stroke-width: 1.5; }
+
+  .node-label {
+    fill: var(--c-ink);
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .node-meta { fill: var(--c-dim); font-size: 10px; letter-spacing: 0.08em; }
+  .node-link:hover .node-label,
+  .node-link:focus .node-label { opacity: 1; }
+  .node-link:focus { outline: none; }
+  .node-link:focus .node circle,
+  .node-link:focus .node rect { stroke: var(--c-emerge); stroke-width: 2; }
+
+  /* node opacity carries zone fading */
+  .node { --o: 1; }
+  .node circle, .node rect { opacity: var(--o); }
+
+  @keyframes arrive { to { opacity: 1; } }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.06); opacity: 0.85; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .node { animation: none; opacity: 1; }
+    .well-halo { animation: none; }
+  }
+
+  .shadow-index {
+    margin-top: 2.5rem;
+    font-family: "DM Mono", ui-monospace, monospace;
+  }
+  .shadow-index h2 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--c-dim);
+    margin-bottom: 0.75rem;
+  }
+  .shadow-index ol { list-style: none; padding: 0; margin: 0; }
+  .shadow-index li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #131b2c;
+    font-size: 0.85rem;
+  }
+  .shadow-index li.gold a { color: var(--c-gold); }
+  .shadow-index a { color: var(--c-ink); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  .shadow-index a:hover, .shadow-index a:focus { color: var(--c-emerge); text-decoration: underline; }
+  .idx-meta { color: var(--c-dim); font-size: 0.75rem; letter-spacing: 0.06em; }
+</style>
