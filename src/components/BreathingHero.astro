@@ -66,6 +66,12 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     margin-right: 0;
     width: 100%;
     animation: heroFadeIn 1.2s ease-out both;
+    /* Let the pointer reach the canvas nodes underneath; links opt back in. */
+    pointer-events: none;
+  }
+
+  .breathing-hero__content a {
+    pointer-events: auto;
   }
 
   .breathing-hero__headline {
