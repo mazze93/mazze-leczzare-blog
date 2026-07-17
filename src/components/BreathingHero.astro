@@ -70,12 +70,12 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
   .breathing-hero__headline {
     font-family: var(--font-display, Georgia, serif);
-    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(2.75rem, 7.5vw, 8.5rem);
     font-weight: 300;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
     color: #f2f4f8;
     margin: 0 0 1rem;
-    line-height: 1.05;
+    line-height: 0.95;
   }
 
   .breathing-hero__arrow {
@@ -274,6 +274,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     let width = 0;
     let height = 0;
     let particles: NoiseParticle[] = [];
+    let graticule: { ox: number; oy: number }[][] = [];
     let nodes: BreathingNode[] = [];
     let connections: NodeConnection[] = [];
     let mouse = { x: -999, y: -999 };
@@ -310,6 +311,22 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       particles = [];
       nodes = [];
       connections = [];
+
+      // Survey graticule — the rigid grid gravity gets to bend (approved
+      // spec pull). Atmosphere may warp; truth nodes keep their own physics.
+      graticule = [];
+      const step = Math.max(120, width / 14);
+      const sample = 48;
+      for (let x = step; x < width; x += step) {
+        const line: { ox: number; oy: number }[] = [];
+        for (let y = 0; y <= height; y += sample) line.push({ ox: x, oy: y });
+        graticule.push(line);
+      }
+      for (let y = step; y < height; y += step) {
+        const line: { ox: number; oy: number }[] = [];
+        for (let x = 0; x <= width; x += sample) line.push({ ox: x, oy: y });
+        graticule.push(line);
+      }
 
       // Zone 1: noise particles (left third)
       for (let i = 0; i < 60; i++) {
@@ -483,10 +500,37 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       ctx!.fillStyle = 'rgba(11, 13, 18, 0.4)';
       ctx!.fillRect(0, 0, width, height);
 
+      drawGraticule();
       particles.forEach(p => { updateParticle(p); drawParticle(p); });
       nodes.forEach(n => updateNode(n));
       connections.forEach(c => { updateConnection(c); drawConnection(c); });
       nodes.forEach(n => drawNode(n));
+    }
+
+    // Bend each graticule vertex toward the cursor — gravitational lensing
+    // as interaction. Pull field matches the node physics (300px reach).
+    function drawGraticule() {
+      ctx!.strokeStyle = `rgba(${palette.particle}, 0.045)`;
+      ctx!.lineWidth = 1;
+      for (const line of graticule) {
+        ctx!.beginPath();
+        for (let i = 0; i < line.length; i++) {
+          const v = line[i];
+          let x = v.ox;
+          let y = v.oy;
+          const dx = mouse.x - v.ox;
+          const dy = mouse.y - v.oy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 300 && dist > 0.001) {
+            const pull = (1 - dist / 300) * 26;
+            x += (dx / dist) * pull;
+            y += (dy / dist) * pull;
+          }
+          if (i === 0) ctx!.moveTo(x, y);
+          else ctx!.lineTo(x, y);
+        }
+        ctx!.stroke();
+      }
     }
 
     function handleVisibility() {
