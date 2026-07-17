@@ -19,6 +19,11 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
 <section class="breathing-hero" aria-label="Site introduction">
   <canvas class="breathing-hero__canvas" aria-hidden="true"></canvas>
+  <p class="breathing-hero__orientation">
+    Every point is a piece of work. Brightness is completion, gravity is
+    connection — start at the <span class="breathing-hero__gold-word">gold signal</span>.
+    Prefer a list? <a href="/writing/">The index</a> is the same sky, flattened.
+  </p>
   <div class="breathing-hero__content">
     <h1 class="breathing-hero__headline">
       From Erasure <span class="breathing-hero__arrow" aria-label="to">&rarr;</span> Signal
@@ -72,6 +77,32 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
   .breathing-hero__content a {
     pointer-events: auto;
+  }
+
+  /* The plate's orientation line, adapted: one sky, same welcome. */
+  .breathing-hero__orientation {
+    position: absolute;
+    z-index: 10;
+    top: clamp(1rem, 4vh, 3rem);
+    left: clamp(1.25rem, 5vw, 4.5rem);
+    font-family: var(--font-display, Georgia, serif);
+    font-style: italic;
+    font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+    line-height: 1.5;
+    max-width: 34ch;
+    color: rgba(242, 244, 248, 0.8);
+    margin: 0;
+    pointer-events: none;
+    text-shadow: 0 1px 18px rgba(11, 13, 18, 0.9);
+    animation: heroFadeIn 1.2s ease-out both;
+  }
+  .breathing-hero__orientation a {
+    color: #2bd3c6;
+    pointer-events: auto;
+  }
+  .breathing-hero__gold-word {
+    color: #e8b64c;
+    font-style: normal;
   }
 
   .breathing-hero__headline {
@@ -183,6 +214,9 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     .breathing-hero__content {
       animation: none;
     }
+    .breathing-hero__orientation {
+      animation: none;
+    }
     .breathing-hero__arrow {
       transition: none;
     }
@@ -192,6 +226,10 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   }
 
   @media (max-width: 768px) {
+    /* the mobile node list replaces the sky; nothing to orient against */
+    .breathing-hero__orientation {
+      display: none;
+    }
     .breathing-hero__content {
       text-align: center;
       padding: 2rem;
@@ -346,9 +384,10 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
         });
       }
 
-      // Zone 2: emergence nodes (middle third)
+      // Zone 2: emergence nodes (middle third) — ambient counts kept below
+      // the truth-node layer's presence: atmosphere, not subject
       const zone2Nodes: BreathingNode[] = [];
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 24; i++) {
         const n = makeNode(
           width / 3 + Math.random() * (width / 3),
           Math.random() * height,
@@ -366,7 +405,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
       // Zone 3: signal nodes (right third)
       const zone3Nodes: BreathingNode[] = [];
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < 32; i++) {
         const n = makeNode(
           (width / 3) * 2 + Math.random() * (width / 3),
           Math.random() * height,
@@ -387,7 +426,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       return {
         node1, node2, zone,
         opacity: 0,
-        targetOpacity: zone === 2 ? Math.random() * 0.2 + 0.1 : Math.random() * 0.35 + 0.2,
+        targetOpacity: zone === 2 ? Math.random() * 0.12 + 0.06 : Math.random() * 0.2 + 0.12,
         formed: false,
         formationDelay: Math.random() * 4000,
         mouseInfluence: 0,
