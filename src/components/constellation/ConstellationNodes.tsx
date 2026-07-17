@@ -23,6 +23,7 @@ interface RenderNode {
   opacity: number;
   scale: number;
   delay: number | null;
+  gold: boolean;
 }
 
 /** Decoupled bridge to the brand compass (Header listens for this). */
@@ -66,8 +67,15 @@ export default function ConstellationNodes() {
             opacity,
             scale,
             delay: prefersReduced ? null : Math.random() * 600,
+            gold: false,
           };
         });
+        // The gravity well: heaviest live signal node (recency breaks ties).
+        // Derived, never curated — same rule as the /constellation plate.
+        const live = rendered
+          .filter((r) => r.zone === "signal")
+          .sort((a, b) => b.count - a.count || b.slug.localeCompare(a.slug));
+        if (live.length > 0) live[0].gold = true;
         setNodes(rendered);
       } catch {
         /* network failure → hero CTAs remain the fallback */
@@ -106,8 +114,9 @@ export default function ConstellationNodes() {
             className={styles.cnNode}
             href={`/project/${n.slug}/`}
             data-zone={n.zone}
+            data-gold={n.gold || undefined}
             style={style}
-            aria-label={`${n.title} — ${n.zone} zone, ${n.count} ${pieceWord}`}
+            aria-label={`${n.title} — ${n.gold ? "the gravity well, " : ""}${n.zone} zone, ${n.count} ${pieceWord}`}
             onMouseEnter={() => setCompassState("focus")}
             onMouseLeave={() => setCompassState("idle")}
             onFocus={() => setCompassState("focus")}
