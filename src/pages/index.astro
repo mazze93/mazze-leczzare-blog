@@ -11,7 +11,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .slice(0, 6);
 ---
 
-<HomepageLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+<HomepageLayout title={SITE_TITLE} description={SITE_DESCRIPTION} minimalHeader>
 
   <!-- Airlock — the ten-second professional path, before the world -->
   <AirlockStrip />

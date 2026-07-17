@@ -2,6 +2,17 @@
 import { SITE_TITLE, COMPASS_LABEL } from '../consts';
 import ThemeToggle from './ThemeToggle';
 import CompassLink from './CompassLink.astro';
+
+/**
+ * minimal — masthead only (brand + utilities), no atlas nav. For pages that
+ * mount AirlockStrip: there the airlock is the door and the sky is the
+ * territory; a second nav band on top of both reads as redundancy, not
+ * orientation. Inner pages keep the full atlas.
+ */
+export interface Props {
+  minimal?: boolean;
+}
+const { minimal = false } = Astro.props;
 ---
 
 <header role="banner">
@@ -10,14 +21,16 @@ import CompassLink from './CompassLink.astro';
       <CompassLink href="/" label={COMPASS_LABEL} size={32} />
       <a href="/" class="wordmark" aria-label={`${SITE_TITLE} — home`}>{SITE_TITLE}</a>
     </div>
-    <div class="nav-links">
-      <a href="/writing/">Writing</a>
-      <a href="/signal/">Signal</a>
-      <a href="/tesserae/">Tesserae</a>
-      <a href="/about/">About</a>
-      <a href="/work/">Work</a>
-      <a href="/studio/">Studio</a>
-    </div>
+    {!minimal && (
+      <div class="nav-links">
+        <a href="/writing/">Writing</a>
+        <a href="/signal/">Signal</a>
+        <a href="/tesserae/">Tesserae</a>
+        <a href="/about/">About</a>
+        <a href="/work/">Work</a>
+        <a href="/studio/">Studio</a>
+      </div>
+    )}
     <div class="nav-util">
       <a href="https://github.com/mazze93" target="_blank" rel="noopener noreferrer" class="util-link">GitHub</a>
       <ThemeToggle client:load />
