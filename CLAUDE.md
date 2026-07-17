@@ -1,6 +1,6 @@
 # Blog — Claude Context
 
-> Local: `/Users/daedalus/Code/blog` · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
+> Local: `~/Projects/blog/mazze-leczzare-blog` (alias `~/Code/blog/…`) · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
 
 Security engineering, technical writing, and essays at the intersection of infrastructure and story. The site is a "static-first working studio" for public-facing work, field notes, and the Cipher Gothic design system.
 
@@ -56,6 +56,9 @@ src/
   assets/images/blog/ # Processed blog images (referenced in MDX with relative paths)
   components/         # Astro + React components (see Components section below)
   content/blog/       # Markdown/MDX blog posts (Content Collection)
+  content/signal/     # Signal transmissions (Content Collection)
+  content/tesserae/   # Tesserae — mosaic-tile fragments (Content Collection)
+  utils/collectNodes.ts # Constellation assembly — nodes for /studio, /project, /nodes-manifest.json
   layouts/            # BlogPost.astro, HomepageLayout.astro
   pages/              # File-based routes
   styles/             # global.css, homepage.css, editorial.css
@@ -100,15 +103,40 @@ files/                # HTML prototypes and design notes (not deployed)
 | `/login`          | `src/pages/login.astro`             | Admin login page                         |
 | `/admin`          | `src/pages/admin/index.astro`       | Admin dashboard (JWT auth-gated)         |
 | `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                        |
+| `/signal`, `/signal/[slug]/` | `src/pages/signal/`      | Transmissions (signal collection)        |
+| `/tesserae`, `/tesserae/[slug]/` | `src/pages/tesserae/`| Mosaic tiles (tesserae collection)       |
+| `/writing`        | `src/pages/writing/index.astro`     | The catalogue — all published work by form |
+| `/studio`         | `src/pages/studio.astro`            | The bench — projects by activity + decay proximity |
+| `/project/[slug]/`| `src/pages/project/[slug].astro`    | Pieces belonging to one project node     |
+| `/support`        | `src/pages/support.astro`           | Support page                             |
+| `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
+| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tree-of-knowledge) — static files, no build step |
 | `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
+| `/api/ingest`     | `functions/api/ingest.ts`           | POST only — authenticated content ingest |
 | `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
 | `/api/login`      | `functions/api/login.ts`            | POST only — admin auth                   |
 | `/api/logout`     | `functions/api/logout.ts`           | POST only — session clear                |
 
-## Content Collection
+## Content Collections
 
-Defined in `src/content.config.ts`. Collection name: `blog`.
-Source: `src/content/blog/**/*.{md,mdx}`. Uses Astro's loader API (`glob` loader).
+Defined in `src/content.config.ts`. **Three collections** (all glob-loader,
+`src/content/<name>/**/*.{md,mdx}`):
+
+| Collection | What it holds | Extra schema fields beyond the blog set |
+| ---------- | ------------- | --------------------------------------- |
+| `blog` | Essays — the primary long-form surface | (full schema below) |
+| `signal` | Transmissions from the field ledger — verse, fragments, dispatches | `transmissionId`, `cycle`, `classification`, `status`, `origin` (all optional strings; map to TransmissionFeed props) |
+| `tesserae` | Mosaic tiles — smallest modular fragments, neither essay nor transmission | blog-common fields only |
+
+**Constellation fields** (`project?: string`, `committed?: boolean`) exist on
+`signal` and `tesserae`: they attach a piece to a project node. The
+constellation is assembled by `src/utils/collectNodes.ts` and surfaces as:
+`/studio` (every project sorted by activity and proximity to decay),
+`/project/[slug]` (pieces per project), `/writing` (the catalogue — one entry
+per published work: essay · paper · standalone · artifact · gallery ·
+instrument), and `/nodes-manifest.json` (machine-readable node manifest).
+
+### blog collection schema
 
 **Frontmatter schema (Zod):**
 
@@ -213,6 +241,23 @@ Env vars: `ADMIN_PASSWORD`, `JWT_SECRET`. Signs a 24h HS256 JWT
 with a random `jti` and sets it as `__Host-auth_token` (HttpOnly, Secure, SameSite=Strict).
 Uses constant-time comparison for password check. Route-level rate limiting should be enforced in the Cloudflare dashboard.
 
+### `functions/api/ingest.ts`
+
+Env vars: `INGEST_SECRET`, `GITHUB_INGEST_TOKEN`. Authenticated machine
+ingest for modular Markdown (tesserae, signal transmissions, blog essays)
+from Obsidian export scripts / Actions. Publishes by **committing to `main`
+via the GitHub Contents API** (a Pages Function has no filesystem — ingest
+means commit), which triggers the normal Pages build. Security posture,
+non-negotiable (rationale in the file header):
+- **`.md` only, never `.mdx`** — MDX executes caller-supplied JSX at build time.
+- **`heroImage` not ingestible** — it resolves through Astro's `image()`
+  against a real on-disk asset; add by hand post-ingest.
+- Frontmatter schemas are `.strict()` **duplicates** of `content.config.ts`
+  (the `astro:content` virtual module can't be imported from a Function) —
+  schema changes must update both places.
+- Rate limiting is a Cloudflare dashboard WAF rule; because this route writes
+  to the repo, set it **stricter** than `/api/login` and `/api/share-event`.
+
 ### `functions/api/logout.ts`
 
 Reads the `__Host-auth_token` cookie, verifies and decodes the JWT, then writes
@@ -232,6 +277,8 @@ Copy `.dev.vars.example` to `.dev.vars` for local development.
 | `CONTACT_SUBJECT_PREFIX` | No (wrangler.toml default) | Prefix used when building the webhook payload subject |
 | `CONTACT_WEBHOOK_URL` | Yes | POST validated contact payloads to this webhook |
 | `CONTACT_WEBHOOK_AUTH_HEADER` | No | Authorization header value sent to the webhook |
+| `INGEST_SECRET` | For `/api/ingest` | Bearer secret for machine content ingest |
+| `GITHUB_INGEST_TOKEN` | For `/api/ingest` | Token used to commit ingested files via GitHub Contents API |
 
 Cloudflare bindings (configure KV in `wrangler.toml`; manage route rate limiting in the dashboard):
 
