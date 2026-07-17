@@ -31,6 +31,28 @@ function setCompassState(state: "idle" | "focus" | "engaged"): void {
   window.dispatchEvent(new CustomEvent("compass:state", { detail: { state } }));
 }
 
+// Deterministic 0..1 from a string — same manifest, same sky (shared idiom
+// with /constellation's plate).
+function hash01(s: string, salt = 0): number {
+  let h = 2166136261 ^ salt;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 10_000) / 10_000;
+}
+
+/** Callsign for the well readout — identity, never decoration. */
+function callsign(slug: string): string {
+  return (
+    slug.split("-").map((w) => w[0]?.toUpperCase() ?? "").join("").slice(0, 3) +
+    "-" +
+    Math.floor(hash01(slug, 21) * 4096).toString(16).toUpperCase().padStart(3, "0")
+  );
+}
+
+const ISOLINE_RADII = [46, 84, 130, 184];
+
 export default function ConstellationNodes() {
   const [nodes, setNodes] = useState<RenderNode[]>([]);
   const [reduced, setReduced] = useState(false);
@@ -145,8 +167,66 @@ export default function ConstellationNodes() {
     ? styles.constellationNodes
     : `${styles.constellationNodes} ${styles.animate}`;
 
+  // Survey furniture — the plate's ordering vocabulary (archive seam, zone
+  // captions, meta labels, well isolines, asterism, callsign readout)
+  // adapted to the living hero. Anchored to base positions; gravity moves
+  // the nodes, the survey stays fixed — instruments don't chase the sky.
+  const gold = nodes.find((n) => n.gold);
+  const signalOthers = nodes.filter((n) => n.zone === "signal" && !n.gold);
+
   return (
     <nav className={containerClass} aria-label="Project constellation" ref={rootRef}>
+      <svg className={styles.cnSurvey} aria-hidden="true">
+        <defs>
+          <radialGradient id="cn-well-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#e8b64c" stopOpacity="0.4" />
+            <stop offset="45%" stopColor="#e8b64c" stopOpacity="0.09" />
+            <stop offset="100%" stopColor="#e8b64c" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {/* archive seam — the archive band ends at 13% along the axis */}
+        <line className={styles.svySeam} x1="13%" y1="8%" x2="13%" y2="90%" />
+        <g className={styles.svyCaptions}>
+          <text x="11%" y="96%" textAnchor="middle">ARCHIVE</text>
+          <text x="24%" y="96%" textAnchor="middle">ERASURE</text>
+          <text x="50%" y="96%" textAnchor="middle">EMERGENCE</text>
+          <text x="86%" y="96%" textAnchor="middle">SIGNAL</text>
+        </g>
+        <g className={styles.svyMeta}>
+          <text x="98.5%" y="34" textAnchor="end">LAT 35.9940° N · LON 78.8986° W</text>
+          <text x="98.5%" y="52" textAnchor="end" className={gold ? styles.svyAcquired : undefined}>
+            {gold ? "[ SIGNAL: ACQUIRED ]" : "[ SIGNAL: SEARCHING ]"}
+          </text>
+        </g>
+        {gold && (
+          <g className={styles.svyIso}>
+            {ISOLINE_RADII.map((r) => (
+              <circle key={r} cx={`${gold.xPct}%`} cy={`${gold.yPct}%`} r={r} />
+            ))}
+            <circle
+              className={styles.svyHalo}
+              cx={`${gold.xPct}%`} cy={`${gold.yPct}%`} r="120"
+              fill="url(#cn-well-glow)"
+            />
+          </g>
+        )}
+        {gold && (
+          <g className={styles.svyAsterism}>
+            {signalOthers.map((n) => (
+              <line
+                key={n.slug}
+                x1={`${gold.xPct}%`} y1={`${gold.yPct}%`}
+                x2={`${n.xPct}%`} y2={`${n.yPct}%`}
+              />
+            ))}
+          </g>
+        )}
+        {gold && (
+          <text className={styles.svyReadout} x={`${gold.xPct}%`} y={`${gold.yPct}%`} dy="46" textAnchor="middle">
+            {callsign(gold.slug)} · MASS {gold.count} · LOCKED
+          </text>
+        )}
+      </svg>
       {nodes.map((n) => {
         const style = {
           "--x": `${n.xPct}%`,
