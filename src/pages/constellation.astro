@@ -290,6 +290,9 @@ const indexSorted = placedAll
   body[data-layout="constellation"] {
     background: var(--c-void);
     color: var(--c-ink);
+    /* horizontal scroll is meaningless on this page; whatever overflows
+       (footer grids at phone widths) must not widen the sky's parent */
+    overflow-x: clip;
   }
 
   /* break out of global.css's main { width: 720px } — the sky is full-bleed */
@@ -337,7 +340,7 @@ const indexSorted = placedAll
       position: static;
       padding: 1rem 1.25rem 0.5rem;
       font-size: 1.1rem;
-      max-width: none;
+      max-width: calc(100vw - 2.5rem);
     }
   }
 
