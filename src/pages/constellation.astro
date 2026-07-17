@@ -16,6 +16,7 @@
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import AirlockStrip from "../components/constellation/AirlockStrip.astro";
 import { SITE_TITLE } from "../consts";
 import { collectAllNodes } from "../utils/collectNodes";
 import { computeZone } from "../utils/decay";
@@ -138,6 +139,7 @@ const indexSorted = placedAll
   </head>
   <body data-layout="constellation">
     <Header />
+    <AirlockStrip />
     <main class="sky-wrap">
       <p class="orientation">
         Every point is a piece of work. Brightness is completion, gravity is
