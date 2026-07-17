@@ -187,6 +187,13 @@ const indexSorted = placedAll
               ))}
             </g>
 
+            <g class="meta-labels" aria-hidden="true">
+              <text x={view.W - 18} y={portrait ? view.H - 46 : 34} text-anchor="end">LAT 35.9940° N · LON 78.8986° W</text>
+              <text x={view.W - 18} y={portrait ? view.H - 30 : 52} text-anchor="end" class:list={[{ acquired: !!g.gold }]}>
+                {g.gold ? "[ SIGNAL: ACQUIRED ]" : "[ SIGNAL: SEARCHING ]"}
+              </text>
+            </g>
+
             <g class="captions" aria-hidden="true">
               {portrait ? (
                 <>
@@ -348,6 +355,14 @@ const indexSorted = placedAll
 
   .captions text, .node-label { font-family: "DM Mono", ui-monospace, monospace; }
   .captions text { fill: var(--c-dim); font-size: 15px; letter-spacing: 0.24em; }
+
+  .meta-labels text {
+    font-family: "DM Mono", ui-monospace, monospace;
+    fill: var(--c-dim);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  .meta-labels text.acquired { fill: var(--c-gold); }
 
   .archive-rule { stroke: var(--c-trace); stroke-dasharray: 2 6; stroke-width: 1; }
 

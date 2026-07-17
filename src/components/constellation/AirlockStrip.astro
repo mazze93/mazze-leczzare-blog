@@ -54,17 +54,33 @@ const paths = [
     flex-shrink: 0;
   }
   .airlock__paths a {
+    display: inline-flex;
+    align-items: center;
     color: var(--c-ink, #c7d2e6);
     text-decoration: none;
     padding: 0.5rem 0; /* ≥44px touch target with line box */
-    border-bottom: 1px solid transparent;
-    transition: color 140ms ease, border-color 140ms ease;
+    transition: color 140ms ease;
+  }
+  /* the rule-prefix that reaches toward you (adapted nav-node idiom) */
+  .airlock__paths a::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--c-emerge, #7fd4d0);
+    margin-right: 10px;
+    opacity: 0.55;
+    transition: width 200ms ease, opacity 200ms ease;
   }
   .airlock__paths a:hover,
   .airlock__paths a:focus-visible {
     color: var(--c-emerge, #7fd4d0);
-    border-bottom-color: var(--c-emerge, #7fd4d0);
     outline: none;
+  }
+  .airlock__paths a:hover::before,
+  .airlock__paths a:focus-visible::before {
+    width: 36px;
+    opacity: 1;
   }
 
   @media (max-width: 640px) {
