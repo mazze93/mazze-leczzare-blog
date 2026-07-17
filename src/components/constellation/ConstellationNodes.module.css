@@ -36,16 +36,48 @@
 .cnNode[data-zone="signal"]     { --zone-color: #f4a261; }
 .cnNode[data-zone="undefined"]  { --zone-color: rgba(242, 244, 248, 0.7); }
 .cnNode[data-zone="resolved"]   { --zone-color: #d9e2f2; }
-/* the gravity well: gold, heavier, breathing halo — the place to start */
+/* the gravity well: a telescope locked on — reticle rings, permanent label */
 .cnNode[data-gold] { --zone-color: #e8b64c; }
 .cnNode[data-gold] .cnDot {
+  position: relative;
   transform: scale(1.6);
   box-shadow:
     0 0 10px rgba(232, 182, 76, 0.85),
     0 0 28px rgba(232, 182, 76, 0.4),
     0 0 64px rgba(232, 182, 76, 0.18);
 }
-.cnNode[data-gold] .cnLabel { color: #e8b64c; }
+/* inner dashed ring — slow tracking rotation */
+.cnNode[data-gold] .cnDot::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border: 1px dashed rgba(232, 182, 76, 0.8);
+  border-radius: 50%;
+  animation: wellTrack 26s linear infinite;
+}
+/* outer acquisition ring — breathing */
+.cnNode[data-gold] .cnDot::after {
+  content: "";
+  position: absolute;
+  inset: -17px;
+  border: 1px solid rgba(232, 182, 76, 0.35);
+  border-radius: 50%;
+  animation: wellBreathe 6.5s ease-in-out infinite;
+}
+/* the well announces itself — label always on, gold */
+.cnNode[data-gold] .cnLabel {
+  color: #e8b64c;
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes wellTrack {
+  to { transform: rotate(360deg); }
+}
+@keyframes wellBreathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.55; }
+}
 /* resolved: the archive diamond — fixed, dignified, square-rotated */
 .cnNode[data-zone="resolved"] .cnDot {
   border-radius: 2px;
@@ -94,6 +126,8 @@
 @media (prefers-reduced-motion: reduce) {
   .animate .cnNode { animation: none; }
   .cnNode { transition: none; }
+  .cnNode[data-gold] .cnDot::before,
+  .cnNode[data-gold] .cnDot::after { animation: none; }
 }
 
 /* Mobile: degrade the overlay to a legible, tappable list pinned to the
@@ -120,6 +154,7 @@
     justify-content: flex-start;
   }
   .cnLabel { opacity: 1; transform: none; }
+  .cnNode[data-gold]              { order: 0; }
   .cnNode[data-zone="signal"]     { order: 1; }
   .cnNode[data-zone="experiment"] { order: 2; }
   .cnNode[data-zone="undefined"]  { order: 3; }
