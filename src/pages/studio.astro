@@ -8,7 +8,12 @@ import "../styles/constellation-pages.css";
 
 const nodes = await collectAllNodes(); // already sorted by lastTouched desc
 const rows = nodes.map((node) => {
-  const state = computeZone(new Date(node.lastTouched).getTime(), node.committed, Date.now());
+  const state = computeZone(
+    new Date(node.lastTouched).getTime(),
+    node.committed,
+    Date.now(),
+    node.resolved,
+  );
   return { node, zone: state.zone, status: decayStatus(state, node.committed) };
 });
 
