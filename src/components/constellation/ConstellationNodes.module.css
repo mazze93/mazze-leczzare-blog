@@ -9,7 +9,7 @@
   position: absolute;
   left: var(--x);
   top: var(--y);
-  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  transform: translate(-50%, -50%) translate(var(--gx, 0px), var(--gy, 0px)) scale(var(--scale, 1));
   opacity: var(--opacity, 1);
   pointer-events: auto;
   display: flex;

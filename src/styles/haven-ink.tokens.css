@@ -1,0 +1,33 @@
+/* ============================================================
+   HAVEN / INK — approved light-mode palette for the constellation
+   (user-authored "Signal & Cost" design language, 2026-07-17).
+   Not yet wired: the plate's light-mode pass maps these onto the
+   sky vars (--c-void/--c-ink/--c-dim/--c-gold/--c-emerge/--c-trace)
+   as an ink-on-paper star chart. Kept as tokens so the palette
+   survives until that burst.
+   ============================================================ */
+:root {
+  /* Haven palette — cool periphery → warm center */
+  --hv-void: #b5b2ac;
+  --hv-edge: #c1bdb7;
+  --hv-outer: #ccc8c2;
+  --hv-mid: #d8d4cd;
+  --hv-warm: #e3dfd8;
+  --hv-center: #ede9e0;
+  --hv-surface: #f4f0e7;
+  --hv-high: #f9f6ee;
+
+  /* Indian ink — density steps */
+  --ink: #1c1714;
+  --ink-flow: #2e2926;
+  --ink-2: #47413e;
+  --ink-3: #6a6460;
+  --ink-ghost: #9e9a96;
+
+  /* Ink washes */
+  --wash-4: rgba(28, 23, 20, 0.04);
+  --wash-8: rgba(28, 23, 20, 0.08);
+  --wash-14: rgba(28, 23, 20, 0.14);
+  --wash-22: rgba(28, 23, 20, 0.22);
+  --wash-38: rgba(28, 23, 20, 0.38);
+}
