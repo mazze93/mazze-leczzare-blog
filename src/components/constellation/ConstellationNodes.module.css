@@ -35,6 +35,15 @@
 .cnNode[data-zone="experiment"] { --zone-color: #2bd3c6; }
 .cnNode[data-zone="signal"]     { --zone-color: #f4a261; }
 .cnNode[data-zone="undefined"]  { --zone-color: rgba(242, 244, 248, 0.7); }
+.cnNode[data-zone="resolved"]   { --zone-color: #d9e2f2; }
+/* resolved: the archive diamond — fixed, dignified, square-rotated */
+.cnNode[data-zone="resolved"] .cnDot {
+  border-radius: 2px;
+  transform: rotate(45deg);
+  background: transparent;
+  border: 1.5px solid var(--zone-color);
+  box-shadow: none;
+}
 
 .cnLabel {
   font-family: var(--font-mono, monospace);
@@ -104,4 +113,5 @@
   .cnNode[data-zone="signal"]     { order: 1; }
   .cnNode[data-zone="experiment"] { order: 2; }
   .cnNode[data-zone="undefined"]  { order: 3; }
+  .cnNode[data-zone="resolved"]   { order: 4; }
 }

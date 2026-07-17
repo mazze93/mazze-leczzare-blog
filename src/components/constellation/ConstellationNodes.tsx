@@ -8,6 +8,7 @@ interface ManifestNode {
   title: string;
   lastTouched: string;
   committed: boolean;
+  resolved?: boolean;
   count: number;
   pieces: { id: string; title: string; type: string; pubDate: string }[];
 }
@@ -51,6 +52,7 @@ export default function ConstellationNodes() {
             new Date(n.lastTouched).getTime(),
             n.committed,
             now,
+            n.resolved === true,
           );
           const { xPct, yPct } = nodePosition(zone, driftRatio, n.slug);
           const { opacity, scale } = nodeStyle(zone, driftRatio);
