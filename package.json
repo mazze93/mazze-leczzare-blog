@@ -3,13 +3,13 @@
   "description": "Build a personal website, blog, or portfolio with Astro.",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "7.0.2",
+    "@astrojs/mdx": "7.0.3",
     "@astrojs/react": "^6.0.1",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "3.7.3",
-    "@fontsource-variable/space-grotesk": "^5.2.10",
-    "@fontsource/crimson-pro": "^5.2.8",
-    "astro": "7.0.7",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
+    "@fontsource/crimson-pro": "^5.3.0",
+    "astro": "7.1.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "typescript": "7.0.2",
@@ -34,14 +34,14 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@fontsource/cormorant-garamond": "^5.2.11",
-    "@fontsource/dm-mono": "^5.2.7",
-    "@fontsource/dm-sans": "^5.2.8",
-    "@fontsource/playfair-display": "^5.2.8",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/dm-mono": "^5.3.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.0.0",
     "playwright": "^1.61.1",
-    "tailwindcss": "^4.3.2",
+    "tailwindcss": "^4.3.3",
     "vitest": "^4.1.10"
   }
 }
