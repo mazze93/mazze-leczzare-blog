@@ -9,7 +9,7 @@
     "@astrojs/sitemap": "3.7.3",
     "@fontsource-variable/space-grotesk": "^5.2.10",
     "@fontsource/crimson-pro": "^5.2.8",
-    "astro": "7.0.7",
+    "astro": "7.1.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "typescript": "7.0.2",
