@@ -105,13 +105,13 @@
   --obsidian-raise2: #162024;
   --bone:            #E9EDEC;
   --bone-dim:        #9FAcAC;
-  --bone-faint:      #6E7A7A;
+  --bone-faint:      #838D8D; /* lifted from #6E7A7A: clears WCAG AA 4.5:1 on obsidian; stays de-emphasized */
   --teal:            #5CCFCF;
   --teal-deep:       #2E8E8E;
   --teal-line:       rgba(92,207,207,0.20);
   --teal-wash:       rgba(92,207,207,0.06);
   --coral:           #F07178;
-  --coral-deep:      #9A4146;
+  --coral-deep:      #C77A72; /* lifted from #9A4146: the void-tile tag needs 4.5:1; muted coral retained */
   --coral-line:      rgba(240,113,120,0.35);
   --coral-wash:      rgba(240,113,120,0.07);
   --hair:            rgba(233,237,236,0.10);
@@ -202,7 +202,8 @@ p{ max-width:var(--measure); }
 .masthead .sub b{ color:var(--bone); font-weight:600; }
 .meta-row{
   margin-top:2rem; display:flex; flex-wrap:wrap; gap:.5rem 1.4rem;
-  font-family:var(--font-mono); font-size:.74rem; color:var(--bone-faint);
+  /* bone-dim (not bone-faint): small mono text needs >=4.5:1 vs obsidian */
+  font-family:var(--font-mono); font-size:.74rem; color:var(--bone-dim);
   letter-spacing:.05em;
 }
 .meta-row span b{ color:var(--teal); font-weight:500; }
@@ -249,7 +250,7 @@ section:last-of-type{ border-bottom:0; }
   min-height:148px; display:flex; flex-direction:column;
 }
 .tile .step{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em; color:var(--teal); text-transform:uppercase; }
-.tile h4{ font-family:var(--font-display); font-weight:600; font-size:1.45rem; margin:.5rem 0 .35rem; color:var(--bone); }
+.tile h3{ font-family:var(--font-display); font-weight:600; font-size:1.45rem; margin:.5rem 0 .35rem; color:var(--bone); }
 .tile p{ font-size:.86rem; color:var(--bone-dim); line-height:1.45; margin:0; }
 .tile .tag{ margin-top:auto; padding-top:.7rem; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.05em; color:var(--teal-deep); }
 .tile.built::after{ content:"●"; position:absolute; top:1.1rem; right:1.1rem; color:var(--teal); font-size:.6rem; }
@@ -262,7 +263,7 @@ section:last-of-type{ border-bottom:0; }
   width:46px; height:46px; flex:0 0 auto; border:1.5px dashed var(--coral-line);
   border-radius:5px; display:grid; place-items:center; color:var(--coral); font-family:var(--font-mono);
 }
-.tile.void h4{ color:var(--coral); margin:0; }
+.tile.void h3{ color:var(--coral); margin:0; }
 .tile.void p{ color:var(--bone-dim); flex:1 1 16rem; }
 .tile.void .tag{ color:var(--coral-deep); padding:0; }
 
@@ -328,10 +329,10 @@ section:last-of-type{ border-bottom:0; }
 .opins{ display:grid; gap:1.2rem; margin-top:1.4rem; }
 @media (min-width:820px){ .opins{ grid-template-columns:repeat(3,1fr); } }
 .opin{ padding:1.3rem 1.3rem 1.45rem; border-radius:6px; background:var(--obsidian-raise); }
-.opin h4{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; margin:0 0 .8rem; }
-.opin.short h4{ color:var(--coral); }
-.opin.diff h4{ color:var(--teal); }
-.opin.proud h4{ color:var(--bone); }
+.opin h3{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; margin:0 0 .8rem; }
+.opin.short h3{ color:var(--coral); }
+.opin.diff h3{ color:var(--teal); }
+.opin.proud h3{ color:var(--bone); }
 .opin p{ font-size:.88rem; color:var(--bone-dim); line-height:1.5; margin:0 0 .7rem; }
 .opin p:last-child{ margin-bottom:0; }
 .opin strong{ color:var(--bone); font-weight:600; }
@@ -343,7 +344,7 @@ section:last-of-type{ border-bottom:0; }
 .becoming .turn{ display:grid; grid-template-columns:auto 1fr; gap:1.3rem; padding:1.2rem 0; border-bottom:1px solid var(--hair); }
 .becoming .turn:last-of-type{ border-bottom:0; }
 .becoming .num{ font-family:var(--font-display); font-weight:800; font-size:2.4rem; color:var(--teal-deep); line-height:1; }
-.becoming .turn h4{ font-family:var(--font-display); font-weight:600; font-size:1.25rem; color:var(--bone); margin:0 0 .4rem; }
+.becoming .turn h3{ font-family:var(--font-display); font-weight:600; font-size:1.25rem; color:var(--bone); margin:0 0 .4rem; }
 .becoming .turn p{ color:var(--bone-dim); font-size:.92rem; margin:0; line-height:1.55; }
 .becoming .turn p em{ color:var(--teal); font-style:italic; }
 .becoming .creed{
@@ -450,26 +451,26 @@ footer{ padding:clamp(2.5rem,6vh,4rem) 0 4rem; }
       <div class="loop">
         <div class="tile built">
           <span class="step">01 · derive + render</span>
-          <h4>Derive</h4>
+          <h3>Derive</h3>
           <p>One canonical <span class="mono">posture.md</span> + <span class="mono">registry.yaml</span> render into each surface's native format. Reconciled against <span class="mono">~/Code</span> every run, so it can't rot into fiction.</p>
           <span class="tag">built · idempotent · backed up</span>
         </div>
         <div class="tile built">
           <span class="step">02 · verify</span>
-          <h4>Verify</h4>
+          <h3>Verify</h3>
           <p><span class="mono">--check</span> classifies every surface: ALIGNED / DRIFTED / UNMANAGED / UNTRACKED / GHOST. Exits nonzero on drift. Coherence becomes a state you <em>assert</em>, in cron or a git hook.</p>
           <span class="tag">built · the antidote to drift</span>
         </div>
         <div class="tile built">
           <span class="step">03 · feedback</span>
-          <h4>Re-align</h4>
+          <h3>Re-align</h3>
           <p>Verify feeds the fix. Run anywhere, see exactly what diverged, re-render only the deltas. The loop closes — across machines, not just one.</p>
           <span class="tag">built · cross-device</span>
         </div>
         <div class="tile void">
           <div class="vmark" aria-hidden="true">∅</div>
           <div>
-            <h4>Enforce — the missing tile</h4>
+            <h3>Enforce — the missing tile</h3>
             <p><span class="mono">CLAUDE.md</span> is advisory context, not a guardrail. The Secure-Pride hard-stops (no unmasked identifiers, no operational-context inference) need <span class="mono">PreToolUse</span> hooks that fail closed. Left deliberately empty — a guard with holes is worse than honest prose.</p>
             <span class="tag">not faked · built with you, on your say-so</span>
           </div>
@@ -594,17 +595,17 @@ $ claude-align --check
       <div class="body-col"><p>You asked for honest opinion, not a status report. Here it is, in three voices.</p></div>
       <div class="opins">
         <div class="opin short">
-          <h4>Where it falls short</h4>
+          <h3>Where it falls short</h3>
           <p><strong>It's two-thirds of a system.</strong> Without enforcement, the highest-stakes project relies on a model choosing to comply — exactly the weakness that triggered all of this.</p>
           <p>The account plane is a seam that will always need a human hand. And cross-device coherence still depends on you actually running <span class="mono">--check</span> on each machine; nothing yet pulls that into one dashboard.</p>
         </div>
         <div class="opin diff">
-          <h4>What I'd do differently</h4>
+          <h3>What I'd do differently</h3>
           <p><strong>Build the loop first, not the pipeline.</strong> I led with distribution because it photographs well in one turn, and demoted verification and enforcement to "later." That was backwards for someone running a MAX-posture security project.</p>
           <p>I'd derive the registry from disk from line one, and verify Cowork/Zed before drawing a map with their names on it.</p>
         </div>
         <div class="opin proud">
-          <h4>What I'm proud of</h4>
+          <h3>What I'm proud of</h3>
           <p><strong>The verifier can't lie.</strong> It shares its "what should be true" computation with the writer — structurally, not by promise.</p>
           <p>And the empty tile. Shipping a hollow security guard would have been the easy, impressive-looking move. Refusing — and saying why — is the part of this I'd defend to anyone.</p>
         </div>
@@ -620,21 +621,21 @@ $ claude-align --check
         <div class="turn">
           <div class="num">1</div>
           <div>
-            <h4>Engage reality</h4>
+            <h3>Engage reality</h3>
             <p>The directive described a workspace that didn't exist. Instead of building on the document, I opened the actual machine — and found the anchors were fictional, the CLI was a void. <em>The truth was on disk, not in the description.</em> Everything good downstream came from looking.</p>
           </div>
         </div>
         <div class="turn">
           <div class="num">2</div>
           <div>
-            <h4>Tell the truth — including on myself</h4>
+            <h3>Tell the truth — including on myself</h3>
             <p>Asked if I was satisfied, I audited my own work and found I'd overstated the idempotence — the paste block rewrote every run. The honest move wasn't to gloss it. I named it, fixed it, re-verified. <em>A claim you won't re-test is just a hope.</em></p>
           </div>
         </div>
         <div class="turn">
           <div class="num">3</div>
           <div>
-            <h4>Grow past the easy answer</h4>
+            <h3>Grow past the easy answer</h3>
             <p>Asked whether this was the system I <em>should</em> have built, I had to admit it wasn't. I'd solved the tractable adjacent problem — distribution — and called the hard core "a later decision." So I built the loop. And I drew a hard line at faking enforcement, because false safety is worse than honest absence. <em>Restraint was part of building it right.</em></p>
           </div>
         </div>
