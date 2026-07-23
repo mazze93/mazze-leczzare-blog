@@ -29,7 +29,7 @@ to be re-derived.
 |---|---|---|
 | Framework | Astro `output: "static"` (SSG), **no** `@astrojs/cloudflare` adapter | Add the adapter in Workers mode, or serve `dist/` via Workers Static Assets |
 | Dynamic edge | **6 Pages Functions**, file-routed under `functions/` | Rewrite as a single Worker with an explicit router — this is the bulk of the work |
-| `functions/_middleware.ts` | Runs on every request: JWT auth guard for `/admin/*` (HMAC-SHA256 vs `JWT_SECRET`, optional `JWT_REVOCATION_LIST` KV) + Markdown-for-Agents (`Accept: text/markdown` → HTMLRewriter strip) + security headers on every response (CSP + `X-Frame-Options`, artifact-aware: `/artifacts/*` gets a relaxed `ARTIFACT_CSP`/`SAMEORIGIN`, everything else gets `DEFAULT_CSP`/`DENY`) | Becomes Worker middleware / router `.use()` — fails **closed** today; preserve that, **including the CSP/`X-Frame-Options` injection** (`withSecurityHeaders`) — it is not optional or covered by `_headers` |
+| `functions/_middleware.ts` | Runs on every request: JWT auth guard for `/admin/*` (HMAC-SHA256 vs `JWT_SECRET`, optional `JWT_REVOCATION_LIST` KV) + Markdown-for-Agents (`Accept: text/markdown` → HTMLRewriter strip) + security headers on substantive responses (CSP + `X-Frame-Options`, artifact-aware: `/artifacts/*` gets a relaxed `ARTIFACT_CSP`/`SAMEORIGIN`, everything else gets `DEFAULT_CSP`/`DENY`) — deliberately **not** on the bare `/admin/*` → `/login` redirect, which has no body to protect | Becomes Worker middleware / router `.use()` — fails **closed** today; preserve that, **including the CSP/`X-Frame-Options` injection** (`withSecurityHeaders`) on real responses **and** its deliberate absence on the redirect — do not add headers there just to make ports "more secure by default"; it'll break parity |
 | `functions/api/contact.ts` | Same-origin, honeypot + timing + field validation, forwards to webhook | Port as route |
 | `functions/api/login.ts` | Signs 24h HS256 JWT, sets `__Host-auth_token` cookie, constant-time password compare | Port as route |
 | `functions/api/logout.ts` | Verifies JWT, writes `revoked:{jti}` to KV, clears cookie | Port as route |
@@ -50,11 +50,15 @@ touches production DNS/routes until Phase 5.
 2. **Router skeleton + middleware.** Stand up the Worker entry + router (Hono is
    the pragmatic choice) and port `_middleware.ts` — JWT guard (fail closed on
    `JWT_SECRET` < 32 chars) + Markdown-for-Agents + **security headers**
-   (`withSecurityHeaders`: CSP and `X-Frame-Options` on every response, with the
-   artifact-aware policy branch for `/artifacts/*`). Preview: `/admin/*` redirects
-   to `/login` unauth'd; `Accept: text/markdown` returns stripped markdown; every
-   response (including redirects that skip CSP today) carries the expected CSP +
-   `X-Frame-Options`.
+   (`withSecurityHeaders`: CSP and `X-Frame-Options` on substantive responses,
+   with the artifact-aware policy branch for `/artifacts/*`). Preserve the
+   redirect exception verbatim: the unauthenticated `/admin/*` → `/login`
+   redirect (and the weak-secret / revoked-JTI redirects) stay a bare
+   `Response.redirect()` with **no** CSP/`X-Frame-Options` — that's existing,
+   intentional behavior (a redirect has no body to protect), not a gap to
+   close. Preview: `/admin/*` redirects to `/login` unauth'd with the same bare
+   headers as today; `Accept: text/markdown` returns stripped markdown; every
+   non-redirect response carries the expected CSP + `X-Frame-Options`.
 3. **Port the 5 API routes** one at a time with parity tests (see §7). Wire KV +
    secrets in `wrangler.toml`. Preview: each endpoint behaves byte-for-byte like
    Pages (esp. `ingest` — it writes to the repo; test against a throwaway path).
@@ -140,11 +144,16 @@ touches production DNS/routes until Phase 5.
   fails closed.
 - **Markdown-for-Agents**: `Accept: text/markdown` returns `text/markdown` with
   `Vary: Accept` and strips nav/header/footer/script/style.
-- **Security headers**: every response carries `Content-Security-Policy` and
-  `X-Frame-Options` — `DEFAULT_CSP`/`DENY` site-wide, `ARTIFACT_CSP`/`SAMEORIGIN`
-  under `/artifacts/*`. Diff header values byte-for-byte against the current
-  Pages deployment; this is easy to silently drop since it lives only in
-  `_middleware.ts`, not in `public/_headers`.
+- **Security headers**: every non-redirect response carries
+  `Content-Security-Policy` and `X-Frame-Options` — `DEFAULT_CSP`/`DENY`
+  site-wide, `ARTIFACT_CSP`/`SAMEORIGIN` under `/artifacts/*`. The
+  unauthenticated `/admin/*` redirect (and the weak-secret / revoked-JTI
+  redirects) must **not** gain these headers — verify the parity harness
+  diffs the redirect byte-for-byte against current Pages **including its
+  absent CSP**, so a Worker port that "fixes" this by adding headers to the
+  redirect fails parity, and a port that drops headers from real responses
+  also fails parity. This is easy to get wrong in either direction since it
+  lives only in `_middleware.ts`, not in `public/_headers`.
 - **Static + Lighthouse**: all routes 200; accessibility ≥ 0.95 on every
   discovered URL (the CI gate is `error`, site-wide, **including static
   artifacts** — see PR #152 for the token-lift pattern).
