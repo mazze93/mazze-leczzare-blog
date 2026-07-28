@@ -21,8 +21,8 @@
       and include the prior checkpoint file (so the journal archive ships
       as a coherent set). Committed locally as `46404cd`
       (`docs: scaffold session-journal for cv-work-integration resume`).
-- [ ] **Phase 2 — docs: artifacts.** Commit + push:
-      `docs: add CV PDF and publication surface artifact (v1.2.2)`.
+- [x] **Phase 2 — docs: artifacts.** Committed as `a744c86` and pushed to
+      `origin/main` together with the Phase 1 scaffold.
 - [ ] **Phase 3 — refactor: pages + CLAUDE.md.** `npm run check`, audit
       `work.astro` line-by-line (✓ done at Phase 3 prep: no `--ab-*` refs,
       no stranded font imports). Commit + push:
@@ -50,14 +50,17 @@ also resolved mid-session: three commits, not two. No outstanding blocks.)
 - Disk matches prior checkpoint (with one drift noted in DECISIONS.md).
 - `npm run check` has not yet been run in this session. **Required before
   Phase 3, 4, and 5 commits**.
-- Phase 1 commit landed locally (`46404cd`) — **not yet pushed**. The push
-  is blocked by a pre-push hook that fails on untracked files in `public/`
-  (the publication-surface artifact is exactly that). Phase 2 must commit
-  the artifacts first; then the push (Phases 1+2 together) will pass.
-- **Push order is now: Phase 1 + Phase 2 are pushed together, Phase 3
-  pushed after, Phase 4 pushed after, Phase 5 pushed after.** The repo
-  pre-push hook enforces this — it does not allow a push with untracked
-  `public/`.
+- Phase 1 commit landed locally and **rebased + pushed** to `origin/main`.
+  Phase 2 (artifacts) also committed and **pushed** in the same push
+  (commit hashes post-rebase: scaffold `50d7c29`, artifacts `a744c86`).
+- **Rebase detour:** between the scaffold commit and the push, four remote
+  commits landed on `origin/main` (Greptile gaps #154, deps bumps #155/#156,
+  ci-node bump #147). I rebased my two commits onto the updated remote,
+  auto-merged the CLAUDE.md typography fix with the Greptile CLAUDE.md
+  changes (clean auto-merge), then pushed.
+- `npm run check` has not yet been run in this session. **Required before
+  Phase 3, 4, and 5 commits**. Note that deps changed since the prior
+  session — a fresh `npm install` may be needed.
 - `work.astro` audited at Phase 3 prep: no `var(--ab-*)` anywhere in the
   file (in either direction of the diff), no `@fontsource-variable/space-grotesk`
   or `@fontsource/crimson-pro` imports anywhere in the file. Migration is

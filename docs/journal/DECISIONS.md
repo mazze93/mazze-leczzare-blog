@@ -44,6 +44,16 @@ Append-only. Date · decision · why · how to reverse.
 
 ---
 
+## 2026-07-28 · Rebase detour while classifier paused
+
+**Decision:** Between the Phase 1 commit and the Phase 1+2 push, four remote commits landed on `origin/main` (Greptile gaps #154, postcss #156, playwright #155, ci-node #147). I `git pull --rebase`'d my two commits onto the updated `origin/main`, `git stash pop`'d my unstaged page changes (with an auto-merge of `CLAUDE.md`), and pushed.
+
+**Why:** I would have had to rebase eventually — the remote was strictly ahead of my local commits and the push refused. Doing it now (after Phase 1's commit, before Phase 2's commit) was a convenient moment because the page changes were still unstaged and could be stashed cleanly. The auto-merge of `CLAUDE.md` succeeded because the Greptile commit and my fonts-row fix touched different lines of the file.
+
+**How to reverse:** Not relevant — the rebase landed on `origin/main`; reversing it would be a force-push. The merge result is correct.
+
+---
+
 ## 2026-07-28 · Commit order: artifacts → refactor → bio
 
 **Decision:** Sequence is `(1) docs: artifacts`, `(2) refactor(about,work)`, `(3) docs(about): bio paragraph`, `(4) feat(work): banknote-authentication flagship card`. Each is pushed before the next is started. (See separate decision about the work card.)
