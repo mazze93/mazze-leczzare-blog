@@ -2,6 +2,9 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { SITE_EMAIL } from '../consts';
+
+const securityEmail = SITE_EMAIL.replace('mailto:', '');
 ---
 
 <!doctype html>
@@ -94,7 +97,7 @@ import Footer from '../components/Footer.astro';
                 </div>
               </div>
               <div class="about-hero__cta-group">
-                <a class="ab-button-primary" href="mailto:hello@mazzeleczzare.com" aria-label="Primary contact CTA">
+                <a class="ab-button-primary" href="/contact/" aria-label="Primary contact CTA">
                   <span class="ab-dot"></span>
                   Work together
                 </a>
@@ -110,7 +113,7 @@ import Footer from '../components/Footer.astro';
           <section class="about-section" aria-labelledby="section-work-title">
             <div class="about-section__header">
               <div>
-                <div class="about-section__eyebrow">Current work</div>
+                <div class="about-section__eyebrow cg-eyebrow">Current work</div>
                 <h2 id="section-work-title" class="about-section__title">What I'm working on</h2>
               </div>
               <p class="about-section__hint">Security, infra, and narrative work with explicit human stakes.</p>
@@ -164,9 +167,9 @@ import Footer from '../components/Footer.astro';
                     <li>Narrative and positioning rebuild for a security-forward product whose public claims had drifted from its production behavior — aligned docs, security page, and sales copy to actual system architecture.</li>
                     <li>50+ episodes of <em>Clear as Mud</em> at mudstack — technical interviews with engineers from Epic, Riot, Sony, and Meta VR; audience growth from zero to established developer media property.</li>
                   </ul>
-                  <p class="client-note">Not a fit for: generic SEO content, compliance theater, or brand work without a technical foundation. If your system has real stakes, email is the right first step.</p>
+                  <p class="client-note">Not a fit for: generic SEO content, compliance theater, or brand work without a technical foundation. If your system has real stakes, reaching out is the right first step.</p>
                   <p class="ab-work-card__cta">
-                    For availability, email <a href="mailto:hello@mazzeleczzare.com">hello@mazzeleczzare.com</a>
+                    For availability, <a href="/contact/">use the contact form</a>
                   </p>
                 </article>
               </div>
@@ -177,7 +180,7 @@ import Footer from '../components/Footer.astro';
           <section class="about-section" aria-labelledby="section-thinking-title">
             <div class="about-section__header">
               <div>
-                <div class="about-section__eyebrow">How I think</div>
+                <div class="about-section__eyebrow cg-eyebrow">How I think</div>
                 <h2 id="section-thinking-title" class="about-section__title">From lab notes to infrastructure</h2>
               </div>
             </div>
@@ -206,7 +209,7 @@ import Footer from '../components/Footer.astro';
           <section class="about-section" aria-labelledby="section-background-title">
             <div class="about-section__header">
               <div>
-                <div class="about-section__eyebrow">Background</div>
+                <div class="about-section__eyebrow cg-eyebrow">Background</div>
                 <h2 id="section-background-title" class="about-section__title">Where I've worked and learned</h2>
               </div>
             </div>
@@ -231,7 +234,7 @@ import Footer from '../components/Footer.astro';
           <section class="about-section" aria-labelledby="section-contact-title">
             <div class="about-section__header">
               <div>
-                <div class="about-section__eyebrow">Work with me</div>
+                <div class="about-section__eyebrow cg-eyebrow">Work with me</div>
                 <h2 id="section-contact-title" class="about-section__title">How we might collaborate</h2>
               </div>
             </div>
@@ -257,13 +260,13 @@ import Footer from '../components/Footer.astro';
               </div>
 
               <div class="ab-cta-panel__channels">
-                <a class="ab-cta-pill" href="mailto:hello@mazzeleczzare.com">
+                <a class="ab-cta-pill" href="/contact/">
                   <span class="ab-cta-pill__dot" aria-hidden="true"></span>
-                  Email — hello@mazzeleczzare.com
+                  Contact form
                 </a>
-                <a class="ab-cta-pill" href="mailto:security@mazzeleczzare.com">
+                <a class="ab-cta-pill" href={SITE_EMAIL}>
                   <span class="ab-cta-pill__dot" aria-hidden="true"></span>
-                  Security inquiries
+                  Security inquiries — {securityEmail}
                 </a>
                 <a class="ab-cta-pill" href="https://github.com/mazze93" target="_blank" rel="noreferrer">
                   <span class="ab-cta-pill__dot" aria-hidden="true"></span>
@@ -523,12 +526,10 @@ import Footer from '../components/Footer.astro';
     flex-wrap: wrap;
   }
 
+  /* Font/size/tracking/color come from .cg-eyebrow (global.css) —
+     consolidated onto the shared design-system mixin; this rule only
+     owns page-specific layout. */
   .about-section__eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--teal);
     margin-bottom: 4px;
   }
 
