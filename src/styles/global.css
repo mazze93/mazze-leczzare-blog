@@ -122,6 +122,184 @@
 }
 
 /* ===========================
+   Cipher Gothic Design System — additive tokens
+   Pulled from the claude.ai/design project (019e1ccb-c42f-4140-9d17-25cc97ab4942),
+   `colors_and_type.css`. Prefixed --cg- throughout: the legacy spacing,
+   radius, and transition scale above already has consumers across the
+   site with different values under some of these same short names (e.g.
+   --radius-md is 6px here, 4px in the design system) — nothing below
+   renames or overrides an existing token or component.
+   Font note: --cg-font-sans specifies Inter, which is not self-hosted here
+   (no @fontsource/inter dependency yet) — it falls through to the system
+   sans stack until that's added. --cg-font-serif/--cg-font-mono reuse the
+   Cormorant Garamond / DM Mono already self-hosted above rather than adding
+   JetBrains Mono as a second monospace family.
+   =========================== */
+:root {
+  /* Type families */
+  --cg-font-serif: var(--font-display);
+  --cg-font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --cg-font-mono:  var(--font-mono);
+
+  /* Type scale (base 16px) */
+  --cg-fs-mono-xs:  0.6rem;
+  --cg-fs-mono-sm:  0.65rem;
+  --cg-fs-mono-md:  0.75rem;
+  --cg-fs-sans-sm:  0.8rem;
+  --cg-fs-sans-md:  0.95rem;
+  --cg-fs-sans-lg:  1.05rem;
+  --cg-fs-serif-sm: 1.1rem;
+  --cg-fs-serif-md: 1.4rem;
+  --cg-fs-serif-lg: 2rem;
+  --cg-fs-serif-xl: 3rem;
+  --cg-fs-display:  clamp(2.5rem, 6vw, 5rem);
+
+  /* Tracking */
+  --cg-tracking-tight:  -0.01em;
+  --cg-tracking-normal: 0;
+  --cg-tracking-wide:   0.05em;
+  --cg-tracking-wider:  0.1em;
+  --cg-tracking-mono:   0.08em;
+  --cg-tracking-label:  0.22em;
+  --cg-tracking-caps:   0.35em;
+
+  /* Line height */
+  --cg-lh-tight:  1.05;
+  --cg-lh-snug:   1.3;
+  --cg-lh-normal: 1.6;
+  --cg-lh-prose:  1.85;
+
+  /* Spacing scale (distinct numbering from --spacing-xs..xl above) */
+  --cg-space-1: 0.25rem;
+  --cg-space-2: 0.5rem;
+  --cg-space-3: 0.75rem;
+  --cg-space-4: 1rem;
+  --cg-space-5: 1.5rem;
+  --cg-space-6: 2rem;
+  --cg-space-7: 3rem;
+  --cg-space-8: 4rem;
+  --cg-space-9: 6rem;
+
+  /* Radii */
+  --cg-radius-xs: 2px;
+  --cg-radius-sm: 3px;
+  --cg-radius-md: 4px;
+  --cg-radius-lg: 6px;
+
+  /* Motion */
+  --cg-ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
+  --cg-ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --cg-ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+  --cg-dur-fast:   150ms;
+  --cg-dur-base:   250ms;
+  --cg-dur-slow:   450ms;
+  --cg-dur-thesis: 900ms;
+
+  /* Measure */
+  --cg-measure-prose: 720px;
+  --cg-measure-page:  780px;
+
+  --cg-hairline: 1px solid var(--rule);
+}
+
+/* Semantic typography mixins — apply via class. Additive utility layer;
+   no existing markup references these yet. */
+.cg-eyebrow {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-sm);
+  font-weight: 400;
+  letter-spacing: var(--cg-tracking-label);
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.cg-section-mark {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-md);
+  font-weight: 400;
+  letter-spacing: var(--cg-tracking-caps);
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.85;
+}
+
+.cg-h1 {
+  font-family: var(--cg-font-serif);
+  font-weight: 300;
+  font-size: var(--cg-fs-display);
+  line-height: var(--cg-lh-tight);
+  letter-spacing: var(--cg-tracking-tight);
+  color: var(--text);
+}
+
+.cg-h2 {
+  font-family: var(--cg-font-serif);
+  font-weight: 300;
+  font-size: var(--cg-fs-serif-lg);
+  line-height: var(--cg-lh-snug);
+  color: var(--text);
+}
+
+.cg-h3 {
+  font-family: var(--cg-font-serif);
+  font-weight: 400;
+  font-size: var(--cg-fs-serif-md);
+  line-height: var(--cg-lh-snug);
+  color: var(--text);
+}
+
+.cg-thesis {
+  font-family: var(--cg-font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  line-height: 1.48;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.cg-body {
+  font-family: var(--cg-font-sans);
+  font-size: var(--cg-fs-sans-md);
+  line-height: var(--cg-lh-normal);
+  color: var(--text-dim);
+}
+
+.cg-prose {
+  font-family: var(--cg-font-serif);
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: var(--cg-lh-prose);
+  color: var(--text);
+}
+
+.cg-mono-label {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-sm);
+  font-weight: 400;
+  letter-spacing: var(--cg-tracking-mono);
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.cg-coord {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-sm);
+  letter-spacing: var(--cg-tracking-wider);
+  color: var(--text-faint);
+}
+
+.cg-code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.88em;
+  color: var(--teal);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid var(--rule);
+  padding: 0.1em 0.4em;
+  border-radius: var(--cg-radius-xs);
+}
+
+/* ===========================
    Homepage body — remap shared CSS vars so Header/Footer auto-adapt
    without any changes to those components
    =========================== */
