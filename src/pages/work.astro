@@ -3,6 +3,101 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_TITLE } from '../consts';
+
+interface Piece {
+  label: string;
+  title: string;
+  href: string;
+  external?: boolean;
+}
+
+interface ProjectCard {
+  slug: string;
+  flagship?: boolean;
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  status: string;
+  thesis: string;
+  pieces: Piece[];
+  projectHref?: string;
+}
+
+const research: ProjectCard[] = [
+  {
+    slug: 'intentional-fragility',
+    flagship: true,
+    eyebrow: 'Spine project',
+    title: 'Intentional Fragility',
+    status: 'Formal paper · two live instruments · essays',
+    thesis:
+      'A system should be built to break in the right places — the break is the record, not the failure. Context should cost something to keep; protection should be earned, not granted. One idea, instantiated across essays, a formal paper, and two live instruments in AI security.',
+    pieces: [
+      { label: 'Spine', title: 'Read the standing statement', href: '/intentional-fragility/' },
+      { label: 'Paper', title: 'Accountable Forgetting in Local-First AI (PDF)', href: '/papers/intentional-fragility.pdf' },
+      { label: 'Instruments', title: 'Kintsugi circuit breaker + a Physarum routing solver, live', href: 'https://fieldnotes.mazzeleczzare.com/mz/intentional-fragility/', external: true },
+      { label: 'Essay', title: 'The Lighthouse Earns Its Floor', href: '/blog/the-lighthouse-earns-its-floor/' },
+    ],
+    projectHref: '/project/intentional-fragility/',
+  },
+  {
+    slug: 'cognitive-topology',
+    eyebrow: 'Essay · April 2026',
+    title: 'The Concept Is Not the State',
+    subtitle: 'What Anthropic’s emotion paper actually found',
+    status: 'Interpretability · constructionism · alignment',
+    thesis:
+      'Anthropic’s interpretability team showed emotion concepts are causally operative in Claude’s behavior. That is not the same as showing Claude has emotions. A constructionist critique, written from a background in affective neuroscience — representational similarity analysis, the Barrett lab’s framework — applied to a live alignment question.',
+    pieces: [
+      { label: 'Essay', title: 'Read the full piece', href: '/blog/concept-is-not-the-state/' },
+    ],
+    projectHref: '/project/cognitive-topology/',
+  },
+  {
+    slug: 'banknote-authentication',
+    eyebrow: 'UC Davis · Luck Lab · 2020',
+    title: 'Counterfeit Banknote Authentication Program',
+    status: 'Bank of Canada · Bank of England · RBA · US Fed',
+    thesis:
+      'Selected by Dr. Steven J. Luck to run experimental data collection for a multi-country banknote-authentication program — eye-tracking, EEG/ERP, and behavioral testing against real forensically recovered counterfeit currency, with consented community volunteers. The direct methodological ancestor of Intentional Fragility: measuring, against real adversarial artifacts, where a security feature actually holds and where it fails.',
+    pieces: [
+      { label: 'Paper', title: 'Dodgson & Raymond — Banknote authenticity is signalled by rapid neural responses, Scientific Reports 12:2076 (2022)', href: 'https://www.nature.com/articles/s41598-022-05972-8', external: true },
+    ],
+  },
+];
+
+const systems: ProjectCard[] = [
+  {
+    slug: 'secure-pride',
+    eyebrow: 'Nonprofit · active',
+    title: 'Secure Pride',
+    status: 'Certificate auth · hardening · playbooks',
+    thesis:
+      'LGBTQ+ clinics, mutual aid orgs, and health services handle identity and health data with real consequences and rarely have dedicated IT. Secure Pride designs certificate-based network authentication, hardens the workstations and cloud services that touch that data, and writes security playbooks non-technical staff can actually follow.',
+    pieces: [
+      { label: 'Site', title: 'securepride.org', href: 'https://securepride.org', external: true },
+      { label: 'Essay', title: 'From Erasure to Signal: Building Secure Pride', href: '/blog/secure-pride-origin/' },
+    ],
+    projectHref: '/project/secure-pride/',
+  },
+  {
+    slug: 'context-synapse',
+    eyebrow: 'Research · Swift, local-only',
+    title: 'Context Synapse',
+    status: 'Bayesian modeling · on-device · no exfiltration',
+    thesis:
+      'A local-first context-orchestration framework: probabilistic modeling of what a system has learned about you over time, entirely on-device, with interfaces for interrogating and correcting what it thinks it knows. Research project and privacy commitment, written into the same codebase.',
+    pieces: [
+      { label: 'Essay', title: 'On Decay, Rot, and the Goblin at the Gate', href: '/blog/on-decay-rot-and-the-goblin-at-the-gate/' },
+    ],
+    projectHref: '/project/context-synapse/',
+  },
+];
+
+const instruments = [
+  { title: 'Stratum', desc: 'Epistemic decision ledger — provenance, not persuasion. The live demo replays its own construction.', href: 'https://stratum.mazzeleczzare.com' },
+  { title: 'Stele', desc: 'The directive compiler. Memory is the model’s; the directive is yours.', href: 'https://stele.mazzeleczzare.com' },
+];
 ---
 
 <!doctype html>
@@ -10,7 +105,7 @@ import { SITE_TITLE } from '../consts';
   <head>
     <BaseHead
       title={`Work — ${SITE_TITLE}`}
-      description="Technical writing, security narratives, podcast production, and content strategy — selected work from Mazze LeCzzare."
+      description="Selected research, security engineering, and systems work from Mazze LeCzzare — Intentional Fragility, Secure Pride, Context Synapse, and the writing that explains each."
     />
   </head>
   <body>
@@ -20,198 +115,129 @@ import { SITE_TITLE } from '../consts';
       <!-- Page header -->
       <div class="work-header">
         <p class="section-eyebrow">Work</p>
-        <h1 class="page-title">Portfolio</h1>
-        <p class="page-desc">Writing, production, and content strategy across B2B SaaS, game development, and community practice.</p>
+        <h1 class="page-title">Research, systems, and the writing that explains both.</h1>
+        <p class="page-desc">
+          Selected projects, organized around one throughline: what a system knows, what it's allowed to forget, and who pays when it gets that wrong. This is the case for the work — the full archive lives in <a href="/writing/">Writing</a> and <a href="/studio/">Studio</a>.
+        </p>
       </div>
 
-      <!-- 01 — Writing -->
-      <section class="work-section" aria-labelledby="writing-label">
-        <p class="section-label" id="writing-label"><span>01 — Writing</span></p>
+      <!-- 01 — Research -->
+      <section class="work-section" aria-labelledby="research-label">
+        <h2 class="section-label" id="research-label"><span>01 — Research</span></h2>
 
         <div class="work-grid">
-
-          <!-- Spec piece: Bandwidth -->
-          <article class="work-card">
-            <div class="card-top">
-              <div class="card-tags">
-                <span class="tag tag--teal">Thought Leadership</span>
-                <span class="tag tag--teal">B2B</span>
-                <span class="tag tag--coral">Spec Sample</span>
+          {research.map((p) => (
+            <article class={`work-card ${p.flagship ? 'work-card--flagship' : ''}`}>
+              <div class="card-top">
+                <span class={`tag ${p.flagship ? 'tag--gold' : 'tag--teal'}`}>{p.eyebrow}</span>
+                <span class="card-status">{p.status}</span>
               </div>
-              <span class="card-venue">Written for Bandwidth</span>
-            </div>
-            <h2 class="card-title">Why Most AI Voice Deployments Stall at Scale — And What the Ones That Don't Have in Common</h2>
-            <p class="card-desc">
-              A spec blog post written for Bandwidth's audience of enterprise IT buyers and communications leaders. Translates infrastructure complexity into strategic framing — using Bandwidth's real product positioning (Maestro, Communications Cloud, Bring Your Own AI) without reading like a brochure.
-            </p>
-            <button class="expand-btn" aria-expanded="false" aria-controls="sample-bandwidth">
-              Read the piece
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </button>
+              <h3 class="card-title">{p.title}</h3>
+              {p.subtitle && <p class="card-subtitle">{p.subtitle}</p>}
+              <p class="card-thesis">{p.thesis}</p>
 
-            <div class="sample-body" id="sample-bandwidth" role="region" aria-label="Full article text" hidden>
-              <p class="sample-note">✦ Written as a portfolio sample — not published</p>
-
-              <h2>Why Most AI Voice Deployments Stall at Scale — And What the Ones That Don't Have in Common</h2>
-
-              <p>There's a gap between an impressive AI voice demo and a production deployment your customers actually trust.</p>
-              <p>Most enterprises have crossed the first threshold. The demo works. The conversational AI handles the test scenarios cleanly. Stakeholders are convinced. Then the rollout begins — and somewhere between pilot and production, the experience degrades. Latency spikes. Audio quality drops. The AI mishears. Customers abandon the interaction and call a human anyway.</p>
-              <p>The problem usually isn't the AI model. It's the infrastructure underneath it.</p>
-              <hr />
-
-              <h3>The Layer Nobody Audits in the Demo</h3>
-              <p>When you evaluate a conversational AI platform, you're evaluating the model's language understanding, its integration capabilities, its interface. What rarely gets stress-tested is the voice transport layer — the network path a call actually travels before it reaches your AI, and back out again before the customer hears a response.</p>
-              <p>In a demo environment, that path is short and controlled. In production, you're routing calls across carrier networks, through cloud infrastructure, across geographies, with real-world variability in latency, packet loss, and jitter. The AI model that sounded natural in testing can sound robotic or stilted when the audio quality feeding it isn't clean.</p>
-              <p>This is why network ownership matters in a way that's easy to underestimate. When your CPaaS provider also owns the network, they can optimize the full path — not just hand the call off at the edge and hope for the best.</p>
-              <hr />
-
-              <h3>"Bring Your Own AI" Requires Bringing the Right Foundation</h3>
-              <p>Enterprise IT teams are increasingly sophisticated about AI model selection. They've evaluated OpenAI, Google, Cognigy, and a dozen vertical-specific platforms. They have preferences. They've built internal tooling around specific APIs.</p>
-              <p>The smart infrastructure strategy isn't to force a single AI provider — it's to build a foundation flexible enough to support whichever model performs best for a given use case, and resilient enough to swap as the landscape evolves.</p>
-              <p>That flexibility only works if the underlying communications infrastructure is genuinely model-agnostic and built to handle production-grade voice quality at scale. Otherwise, you've made your AI strategy portable but left your infrastructure brittle.</p>
-              <p>The enterprises getting this right in 2026 are thinking about voice infrastructure the same way they think about cloud compute: as a strategic capability, not a commodity line item.</p>
-              <hr />
-
-              <h3>What "Production-Ready" Actually Looks Like</h3>
-              <p>The deployments that hold up share a few characteristics:</p>
-              <ul>
-                <li><strong>They treat latency as a product requirement, not an ops problem.</strong> Every 100ms of added latency in a voice interaction changes the conversational feel. Teams that address this early in architecture decisions end up with meaningfully better customer experiences.</li>
-                <li><strong>They build for fallback.</strong> AI voice agents will encounter edge cases the model hasn't seen. Production deployments have graceful handoff paths to human agents, and they instrument those handoffs to feed back into model improvement.</li>
-                <li><strong>They separate the AI layer from the transport layer.</strong> When the model and the network are too tightly coupled, updating one becomes a deployment event for both. Decoupling them gives teams the ability to iterate on AI capabilities without touching call routing — and vice versa.</li>
+              <ul class="card-pieces" role="list">
+                {p.pieces.map((piece) => (
+                  <li class="card-piece">
+                    <a
+                      href={piece.href}
+                      {...(piece.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      aria-label={piece.external ? `${piece.title} (opens in new tab)` : piece.title}
+                    >
+                      <span class="piece-label">{piece.label}</span>
+                      <span class="piece-title">{piece.title}</span>
+                    </a>
+                  </li>
+                ))}
               </ul>
-              <p>The enterprises that moved from AI experimentation to deployment at scale didn't get there by finding a better model. They got there by building a foundation that let their models perform the way they did in the lab.</p>
-              <p>That foundation is an infrastructure decision. Make it early.</p>
-              <hr />
-              <p><em>Bandwidth's Communications Cloud and Maestro orchestration platform give enterprise teams the network-native foundation and model flexibility to deploy AI voice in production — across 65+ countries and the full stack of leading UCaaS and CCaaS platforms.</em></p>
-            </div>
-          </article>
 
-          <!-- LinkedIn article -->
-          <article class="work-card">
-            <div class="card-top">
-              <div class="card-tags">
-                <span class="tag tag--teal">Editorial</span>
-                <span class="tag tag--teal">B2B</span>
-              </div>
-              <span class="card-venue">LinkedIn · 2023</span>
-            </div>
-            <h2 class="card-title">Tips for Indie Game Developers: Approaching Publishers with Confidence and Style</h2>
-            <p class="card-desc">Published under the mudstack brand to a B2B audience of game developers, studio founders, and producers. Translates high-stakes business strategy — publisher relationships, deal negotiation, portfolio positioning — into actionable guidance without losing the voice of the community it was written for.</p>
-            <a class="card-link" href="https://www.linkedin.com/pulse/tips-indie-game-developers-approaching-publishers-confidence-" target="_blank" rel="noopener" aria-label="Read article on LinkedIn (opens in new tab)">
-              Read on LinkedIn
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
-
-          <!-- We All Float On -->
-          <article class="work-card">
-            <div class="card-top">
-              <div class="card-tags">
-                <span class="tag tag--teal">Personal Essay</span>
-                <span class="tag tag--teal">Science &amp; Technology</span>
-              </div>
-              <span class="card-venue">mazzeleczzare.com · March 2026</span>
-            </div>
-            <h2 class="card-title">We All Float On</h2>
-            <p class="card-desc">An essay on cognition, inference, and the relationship between human judgment and artificial intelligence — framed through the history of scientific discovery. Moves from Kepler and Dirac to language models and the question of what it means to navigate uncertainty with purpose.</p>
-            <a class="card-link" href="/blog/we-all-float-on/" aria-label="Read We All Float On">
-              Read the essay
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
-
-          <!-- 80.lv feature -->
-          <article class="work-card">
-            <div class="card-top">
-              <div class="card-tags">
-                <span class="tag tag--teal">Feature Interview</span>
-                <span class="tag tag--teal">B2B SaaS</span>
-              </div>
-              <span class="card-venue">80.lv · September 2023</span>
-            </div>
-            <h2 class="card-title">Unveiling the VR Vision Team's Journey: Crafting Virtual Worlds and Future Innovations</h2>
-            <p class="card-desc">A cross-published feature written for mudstack on 80.lv — one of the largest editorial platforms in game development. Profiled VR Vision's enterprise XR work and their integration of mudstack into a complex multi-team art pipeline. Translated technical production workflow into narrative for a 400K+ developer and artist audience.</p>
-            <a class="card-link" href="https://80.lv/articles/unveiling-the-vr-vision-team-s-journey-crafting-virtual-worlds-and-future-innovations" target="_blank" rel="noopener" aria-label="Read the VR Vision feature on 80.lv (opens in new tab)">
-              Read on 80.lv
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
-
+              {p.projectHref && (
+                <a class="card-link" href={p.projectHref}>
+                  Full project
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                </a>
+              )}
+            </article>
+          ))}
         </div>
       </section>
 
-      <!-- 02 — Production -->
-      <section class="work-section" aria-labelledby="production-label">
-        <p class="section-label" id="production-label"><span>02 — Production</span></p>
+      <!-- 02 — Systems -->
+      <section class="work-section" aria-labelledby="systems-label">
+        <h2 class="section-label" id="systems-label"><span>02 — Systems</span></h2>
 
-        <div class="prod-grid">
+        <div class="work-grid">
+          {systems.map((p) => (
+            <article class="work-card">
+              <div class="card-top">
+                <span class="tag tag--teal">{p.eyebrow}</span>
+                <span class="card-status">{p.status}</span>
+              </div>
+              <h3 class="card-title">{p.title}</h3>
+              <p class="card-thesis">{p.thesis}</p>
 
-          <!-- Podcast -->
-          <article class="prod-card">
-            <svg class="prod-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <circle cx="18" cy="13" r="5"/>
-              <path d="M10 20c0 4.4 3.6 8 8 8s8-3.6 8-8"/>
-              <line x1="18" y1="28" x2="18" y2="33"/>
-              <line x1="13" y1="33" x2="23" y2="33"/>
-            </svg>
-            <h2 class="prod-title">Clear as Mud</h2>
-            <p class="prod-desc">Host and producer of 50+ interview episodes featuring creators and executives from Epic Games, Riot Games, Sony PlayStation, and Meta VR. Full lifecycle ownership: topic ideation, speaker outreach, scripting, production, and multi-format distribution.</p>
-            <a class="card-link" href="https://open.spotify.com/show/50eMqYFskikUzz4EuoYTyf" target="_blank" rel="noopener" aria-label="Listen to Clear as Mud on Spotify (opens in new tab)">
-              Listen on Spotify
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
+              <ul class="card-pieces" role="list">
+                {p.pieces.map((piece) => (
+                  <li class="card-piece">
+                    <a
+                      href={piece.href}
+                      {...(piece.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      aria-label={piece.external ? `${piece.title} (opens in new tab)` : piece.title}
+                    >
+                      <span class="piece-label">{piece.label}</span>
+                      <span class="piece-title">{piece.title}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
 
-          <!-- Webinar: Publisher pitching -->
-          <article class="prod-card">
-            <svg class="prod-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <rect x="3" y="6" width="30" height="20" rx="2"/>
-              <line x1="13" y1="30" x2="23" y2="30"/>
-              <line x1="18" y1="26" x2="18" y2="30"/>
-              <polygon points="14,13 14,21 24,17" fill="currentColor" stroke="none"/>
-            </svg>
-            <h2 class="prod-title">How To Pitch Your Game to a Publisher &amp; Why You Should</h2>
-            <p class="prod-desc">Produced and hosted for mudstack, featuring Bobby Wertheim (VP of Partnerships, Curve Games) and Lauren Hunter. Managed full production lifecycle — topic framing, speaker outreach, run-of-show, live production, and post-event distribution.</p>
-            <a class="card-link" href="https://www.youtube.com/watch?v=rdsgB1Uoi-Q" target="_blank" rel="noopener" aria-label="Watch webinar on YouTube (opens in new tab)">
-              Watch on YouTube
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
+              <a class="card-link" href={p.projectHref}>
+                Full project
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+            </article>
+          ))}
+        </div>
 
-          <!-- Webinar: Breaking into game dev -->
-          <article class="prod-card">
-            <svg class="prod-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <rect x="3" y="6" width="30" height="20" rx="2"/>
-              <line x1="13" y1="30" x2="23" y2="30"/>
-              <line x1="18" y1="26" x2="18" y2="30"/>
-              <polygon points="14,13 14,21 24,17" fill="currentColor" stroke="none"/>
-            </svg>
-            <h2 class="prod-title">Breaking Into Game Dev as a Digital Artist</h2>
-            <p class="prod-desc">Produced and hosted for mudstack, featuring Matt Wright (Environment Art Director, Bad Robot Games) and Jonathan Lloyd (Founder &amp; CEO, CG Hero). Covered portfolio strategy, studio hiring expectations, networking, and common application mistakes.</p>
-            <a class="card-link" href="https://www.youtube.com/watch?v=gSPVU7Omat0" target="_blank" rel="noopener" aria-label="Watch webinar on YouTube (opens in new tab)">
-              Watch on YouTube
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
-
-          <!-- Webinar: Virtual production -->
-          <article class="prod-card">
-            <svg class="prod-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <rect x="3" y="6" width="30" height="20" rx="2"/>
-              <line x1="13" y1="30" x2="23" y2="30"/>
-              <line x1="18" y1="26" x2="18" y2="30"/>
-              <polygon points="14,13 14,21 24,17" fill="currentColor" stroke="none"/>
-            </svg>
-            <h2 class="prod-title">Exploring the Future of Virtual Production</h2>
-            <p class="prod-desc">Produced and hosted for mudstack, featuring HaZ Dulull — film director and virtual production pioneer. Discussed how real-time technology and LED volumes are reshaping the pipeline for indie creators and studio productions alike.</p>
-            <a class="card-link" href="https://www.youtube.com/watch?v=eLk2LYeYa0Q" target="_blank" rel="noopener" aria-label="Watch virtual production webinar on YouTube (opens in new tab)">
-              Watch on YouTube
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-            </a>
-          </article>
-
+        <!-- Also running — compact instrument strip -->
+        <div class="instruments">
+          <h4 class="instruments-label">Also running</h4>
+          <ul class="instruments-list" role="list">
+            {instruments.map((inst) => (
+              <li class="instrument-row">
+                <a href={inst.href} target="_blank" rel="noopener noreferrer" aria-label={`${inst.title} (opens in new tab)`}>
+                  <span class="instrument-title">{inst.title}</span>
+                  <span class="instrument-desc">{inst.desc}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
+
+      <!-- Prior chapter — de-emphasized footnote -->
+      <section class="prior-chapter" aria-labelledby="prior-label">
+        <h4 class="prior-label" id="prior-label">Before this</h4>
+        <p class="prior-text">
+          Five years leading content and production at mudstack — fifty-plus episodes of <em>Clear as Mud</em> with creators from Epic, Riot, Sony, and Meta VR, webinar production, and B2B technical writing for game-development and enterprise-communications audiences. It's where I learned to translate complex systems for people who didn't build them, which turned out to matter more here than I expected.
+        </p>
+      </section>
+
+      <!-- Closing wayfinding -->
+      <nav class="work-wayfinding" aria-label="More ways to explore this work">
+        <a class="wayfind-link" href="/writing/">
+          <span class="wayfind-title">The catalogue</span>
+          <span class="wayfind-desc">Everything published, one entry each</span>
+        </a>
+        <a class="wayfind-link" href="/studio/">
+          <span class="wayfind-title">The bench</span>
+          <span class="wayfind-desc">Every project, by recency and decay</span>
+        </a>
+        <a class="wayfind-link" href="/about/">
+          <span class="wayfind-title">About</span>
+          <span class="wayfind-desc">How this all fits together</span>
+        </a>
+      </nav>
 
     </main>
     <Footer />
@@ -245,20 +271,25 @@ import { SITE_TITLE } from '../consts';
 
   .page-title {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-size: clamp(2.3rem, 5.6vw, 3.8rem);
     font-weight: 300;
     color: var(--text);
     margin: 0 0 0.5em;
-    line-height: 1.05;
+    line-height: 1.08;
+    max-width: 18ch;
   }
 
   .page-desc {
     font-family: var(--font-mono);
-    font-size: 0.82em;
+    font-size: 0.85em;
     color: var(--text-dim);
     margin: 0;
-    max-width: 56ch;
-    line-height: 1.7;
+    max-width: 58ch;
+    line-height: 1.75;
+  }
+
+  .page-desc a {
+    color: var(--teal);
   }
 
   /* ── Section wrapper ── */
@@ -273,10 +304,11 @@ import { SITE_TITLE } from '../consts';
   .section-label {
     font-family: var(--font-mono);
     font-size: 0.68rem;
+    font-weight: 400;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--teal);
-    margin-bottom: 2.5rem;
+    margin: 0 0 2.5rem;
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -292,14 +324,14 @@ import { SITE_TITLE } from '../consts';
   .work-grid {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .work-card {
     background: var(--surface);
     border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    padding: 2rem 2.2rem;
+    padding: 2.2rem 2.4rem;
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-sm);
@@ -320,54 +352,114 @@ import { SITE_TITLE } from '../consts';
   }
   .work-card:hover::before { opacity: 1; }
 
+  /* The spine, literally — a gold rule marks the flagship project. */
+  .work-card--flagship {
+    border-left: 2px solid var(--gold);
+  }
+  .work-card--flagship:hover {
+    border-color: var(--gold);
+    border-left-color: var(--gold);
+    box-shadow: var(--shadow-md), 0 0 28px rgba(212, 165, 116, 0.12);
+  }
+
   .card-top {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
   }
 
-  .card-tags { display: flex; gap: 0.4em; flex-wrap: wrap; }
-
   .tag {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.64rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 0.2em 0.65em;
+    padding: 0.25em 0.7em;
     border-radius: var(--radius-sm);
     border: 1px solid var(--rule);
     color: var(--text-faint);
+    white-space: nowrap;
   }
   .tag--teal { border-color: var(--teal); color: var(--teal); }
-  .tag--coral { border-color: var(--coral); color: var(--coral); }
+  .tag--gold { border-color: var(--gold); color: var(--gold); }
 
-  .card-venue {
+  .card-status {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
     color: var(--text-faint);
-    white-space: nowrap;
+    text-align: right;
   }
 
   .card-title {
     font-family: var(--font-display);
     font-weight: 400;
-    font-size: clamp(1.1rem, 2.2vw, 1.45rem);
-    line-height: 1.25;
+    font-size: clamp(1.3rem, 2.6vw, 1.75rem);
+    line-height: 1.2;
     color: var(--text);
-    margin-bottom: 0.6rem;
+    margin: 0 0 0.3rem;
   }
 
-  .card-desc {
+  .card-subtitle {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--text-faint);
+    margin: 0 0 0.9rem;
+  }
+
+  .card-thesis {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     color: var(--text-dim);
-    line-height: 1.65;
-    margin-bottom: 1.25rem;
+    line-height: 1.7;
+    margin: 0 0 1.5rem;
     max-width: 68ch;
+  }
+
+  /* ── Piece list — shares grammar with /project/[slug] (cn-pieces) so this
+       page reads as the curated front door into the same constellation. ── */
+  .card-pieces {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .card-piece {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .card-piece a {
+    display: flex;
+    align-items: baseline;
+    gap: 1em;
+    padding: 0.85em 0;
+    text-decoration: none;
+  }
+
+  .card-piece a:hover .piece-title,
+  .card-piece a:focus-visible .piece-title {
+    color: var(--teal);
+  }
+
+  .piece-label {
+    font-family: var(--font-mono);
+    font-size: 0.65em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    width: 5.5em;
+    flex-shrink: 0;
+  }
+
+  .piece-title {
+    font-family: var(--font-display);
+    font-size: 1.02em;
+    color: var(--text);
+    transition: color var(--transition-fast);
   }
 
   .card-link {
@@ -385,156 +477,136 @@ import { SITE_TITLE } from '../consts';
   .card-link:hover { gap: 0.75rem; }
   .card-link svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-  /* ── Expand/collapse spec piece ── */
-  .expand-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--teal);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition: gap var(--transition-fast);
-  }
-  .expand-btn:hover { gap: 0.75rem; }
-  .expand-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-  .expand-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 2px; }
-
-  .sample-body {
+  /* ── Also running — instruments strip ── */
+  .instruments {
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid var(--rule);
+    border-top: 1px dashed var(--rule);
   }
-  .sample-body[hidden] { display: none; }
 
-  .sample-body h2 {
-    font-family: var(--font-display);
+  .instruments-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     font-weight: 400;
-    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
-    line-height: 1.2;
-    color: var(--text);
-    margin-bottom: 1.25rem;
-  }
-  .sample-body h3 {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 1.1rem;
-    color: var(--teal);
-    margin: 2rem 0 0.5rem;
-  }
-  .sample-body p {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.75;
-    color: var(--text-dim);
-    margin-bottom: 0.9rem;
-  }
-  .sample-body strong { color: var(--text); font-weight: 500; }
-  .sample-body hr {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 1.75rem 0;
-  }
-  .sample-body ul {
-    padding-left: 1.2rem;
-    margin-bottom: 1rem;
-  }
-  .sample-body li {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    line-height: 1.7;
-    margin-bottom: 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 1rem;
   }
 
-  .sample-note {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    background: rgba(var(--coral-rgb), 0.06);
-    border: 1px solid rgba(var(--coral-rgb), 0.25);
-    color: var(--coral);
-    padding: 0.35em 0.9em;
-    border-radius: var(--radius-sm);
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.05em;
-  }
-
-  /* ── Production grid ── */
-  .prod-grid {
+  .instruments-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
-  .prod-card {
-    background: var(--surface);
+  .instrument-row a {
+    display: block;
+    padding: 1.1rem 1.3rem;
     border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    padding: 1.6rem 1.8rem;
-    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+    text-decoration: none;
+    transition: border-color var(--transition-fast);
   }
-  .prod-card:hover {
-    border-color: rgba(58, 184, 160, 0.3);
-    box-shadow: 0 0 20px rgba(58, 184, 160, 0.1);
-  }
-
-  .prod-icon {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 0.9rem;
-    color: var(--teal);
+  .instrument-row a:hover,
+  .instrument-row a:focus-visible {
+    border-color: rgba(var(--accent-rgb), 0.35);
   }
 
-  .prod-title {
+  .instrument-title {
+    display: block;
     font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 400;
-    margin-bottom: 0.4rem;
+    font-size: 1.05rem;
     color: var(--text);
-    line-height: 1.3;
+    margin-bottom: 0.3rem;
+    transition: color var(--transition-fast);
+  }
+  .instrument-row a:hover .instrument-title { color: var(--teal); }
+
+  .instrument-desc {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    line-height: 1.55;
+    color: var(--text-dim);
   }
 
-  .prod-desc {
+  /* ── Prior chapter ── */
+  .prior-chapter {
+    padding: 2.5rem 0;
+  }
+
+  .prior-label {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    margin-bottom: 1.1rem;
-    line-height: 1.6;
+    font-size: 0.66rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 0.75rem;
+  }
+
+  .prior-text {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.75;
+    color: var(--text-faint);
+    max-width: 68ch;
+    margin: 0;
+  }
+  .prior-text em { color: var(--text-dim); font-style: italic; }
+
+  /* ── Closing wayfinding ── */
+  .work-wayfinding {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding-top: 1rem;
+  }
+
+  .wayfind-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1.1rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+  .wayfind-link:hover,
+  .wayfind-link:focus-visible {
+    border-color: rgba(var(--accent-rgb), 0.35);
+    background: rgba(var(--accent-rgb), 0.04);
+  }
+
+  .wayfind-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+  .wayfind-link:hover .wayfind-title { color: var(--teal); }
+
+  .wayfind-desc {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    line-height: 1.5;
   }
 
   /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .instruments-list { grid-template-columns: 1fr; }
+    .work-wayfinding { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 600px) {
-    .prod-grid { grid-template-columns: 1fr; }
-    .card-top { flex-direction: column; gap: 0.5rem; }
-    .work-card { padding: 1.5rem; }
-    .prod-card { padding: 1.25rem; }
+    .card-top { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .card-status { text-align: left; }
+    .work-card { padding: 1.6rem 1.5rem; }
+    .piece-label { width: 4.2em; }
   }
 </style>
-
-<script>
-  const btn = document.querySelector<HTMLButtonElement>('.expand-btn');
-  const body = document.getElementById('sample-bandwidth');
-
-  if (btn && body) {
-    btn.addEventListener('click', () => {
-      const isOpen = !body.hidden;
-      body.hidden = isOpen;
-      btn.setAttribute('aria-expanded', String(!isOpen));
-      const textNode = btn.childNodes[0];
-      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-        textNode.textContent = isOpen ? 'Read the piece ' : 'Close ';
-      }
-      if (!isOpen) {
-        body.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-  }
-</script>
