@@ -27,17 +27,41 @@
       `work.astro` line-by-line (✓ done at Phase 3 prep: no `--ab-*` refs,
       no stranded font imports). Commit + push:
       `refactor(about,work): migrate to shared Cipher Gothic design tokens`.
-- [ ] **Phase 4 — docs(bio): about.astro.** Bio paragraph verified at Phase 4
-      prep (Nature citation s41598-022-05972-8, Dodgson & Raymond, 2022).
-      `npm run check`. Commit + push:
-      `docs(about): add UC Davis / Luck Lab counterfeit-detection bio paragraph`.
-- [ ] **Phase 5 — feat(work): banknote-authentication flagship card.** Added
-      mid-session when the work.astro diff was audited and found to contain
-      a new flagship card (not just refactor). `npm run check`. Commit + push:
-      `feat(work): add banknote-authentication flagship card (UC Davis / Luck Lab)`.
-- [ ] **Phase 6 — worktree: ff.** `git -C .claude/worktrees/cv-work-integration
-      merge --ff-only origin/main`. Stop and ask if `ff-only` fails.
-- [ ] **Phase 7 — close.** Update this file with final state.
+- [x] **Phase 4 — CANCELLED.** On resume (new session), the bio paragraph
+      claimed in this checkpoint (UC Davis / Luck Lab counterfeit-detection
+      graf, Nature citation s41598-022-05972-8) was audited against disk and
+      found **not present** in `about.astro` — only the base sentence
+      ("Cognitive neuroscience and quantitative psychology at UC Davis...")
+      remains; `git diff` confirmed zero content hunks, refactor-only. No
+      commit in `git log --all -p` ever contained the paragraph — it was
+      never safely committed, only a working-tree edit from the interrupted
+      prior session, most likely lost mid-`git add -p` when that session hit
+      its spend limit ("began Phase 3 temp edits → about.astro" was the last
+      memory entry). User was asked via AskUserQuestion: re-add, or skip
+      since `work.astro`'s new banknote-authentication card already carries
+      the same story. **User chose: skip.** Phase renumbered out of the
+      commit plan — about.astro ships as refactor-only (Phase 3).
+- [x] **Phase 3 — refactor: pages + CLAUDE.md.** `npm run check` passed
+      (40 pages, tsc clean). Committed `bebfad0` in this worktree
+      (`refactor(about,work): migrate to shared Cipher Gothic design tokens`,
+      CLAUDE.md + about.astro only — refactor-only, confirmed clean).
+- [x] **Phase 5 — feat(work): banknote-authentication flagship card.**
+      Simplification: work.astro's refactor and banknote-card hunks are
+      deeply interleaved in one array literal (card data + `flagship` field
+      + CSS all share hunks) — splitting via `git add -p` risked corrupting
+      the file, so committed as one combined commit instead of two.
+      `npm run check` passed. Committed `cdb000b`
+      (`feat(work): migrate tokens + add banknote-authentication flagship
+      card`).
+- [x] **Phase 6 — worktree: N/A.** This session resumed directly inside the
+      `.claude/worktrees/cv-work-integration` worktree (background-job
+      isolation), rebased it onto `origin/main` to pick up the prior
+      session's pushed work, then made all Phase 3/5 commits here directly.
+      No separate ff-merge step needed — this worktree's branch IS the
+      commit history now. Will push `worktree-cv-work-integration` and open
+      a PR (or push to main if the repo allows direct pushes — check before
+      assuming).
+- [ ] **Phase 7 — close.** Update this file with final state after push.
 
 ## Deferred / needs user
 
