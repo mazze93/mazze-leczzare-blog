@@ -61,7 +61,16 @@
       commit history now. Will push `worktree-cv-work-integration` and open
       a PR (or push to main if the repo allows direct pushes — check before
       assuming).
-- [ ] **Phase 7 — close.** Update this file with final state after push.
+- [x] **Phase 7 — close.** Pushed `2966574..534d84e` to `origin/main`
+      (fast-forward, no conflicts). All CV/work-integration commits landed:
+      `a744c86` (artifacts), `bebfad0` (about/work refactor), `cdb000b`
+      (work.astro banknote card), `534d84e` (this journal update). Next
+      session: pull the "Cipher Gothic Design System" claude.ai/design
+      project (`019e1ccb-c42f-…`) into the site — colors already
+      hand-synced (`--teal`/`--coral` match `--cg-teal`/`--cg-coral`
+      byte-for-byte), but spacing/radii/motion tokens and the Inter/
+      JetBrains-Mono font choices are not yet mirrored. See conversation
+      for the drift audit.
 
 ## Deferred / needs user
 
