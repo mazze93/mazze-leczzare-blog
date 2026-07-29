@@ -15,7 +15,7 @@ Security engineering, technical writing, and essays at the intersection of infra
 | Content | Markdown + MDX via Astro Content Collections (loader API) |
 | Edge functions | Cloudflare Pages Functions (`functions/`) |
 | Styles | CSS custom properties + Tailwind CSS 4 (utility layer; `preflight: false`) |
-| Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded); Cormorant Garamond, DM Mono, DM Sans, Playfair Display (via `@fontsource`); Space Grotesk Variable + Crimson Pro (via `@fontsource-variable`/`@fontsource` — used on `/about/` and `/cipher-gothic/`) |
+| Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded); Cormorant Garamond, DM Mono, DM Sans, Playfair Display (via `@fontsource`); Space Grotesk Variable + Crimson Pro (via `@fontsource-variable`/`@fontsource` — used on `/cipher-gothic/` only; `/about/` now consumes the shared Cipher Gothic tokens like the rest of the editorial surface) |
 | RSS | `@astrojs/rss` — feed at `/rss.xml`, auto-generated from blog content collection |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |

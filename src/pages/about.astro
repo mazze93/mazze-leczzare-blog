@@ -2,10 +2,6 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import '@fontsource-variable/space-grotesk/index.css';
-import '@fontsource/crimson-pro/400.css';
-import '@fontsource/crimson-pro/400-italic.css';
-import '@fontsource/crimson-pro/600.css';
 ---
 
 <!doctype html>
@@ -292,45 +288,24 @@ import '@fontsource/crimson-pro/600.css';
   </body>
 </html>
 
-<style is:global>
-  /* ── About page tokens ── */
+<style>
+  /* ── About page — Cipher Gothic tokens ────────────────────────────────
+     No bespoke palette or typefaces: this page consumes the same
+     --teal / --coral / --font-display / --font-mono system as /work,
+     /project/[slug], and the rest of the editorial surface. ── */
   .about-page {
-    --ab-bg: #050608;
-    --ab-bg-elevated: #0b0f14;
-    --ab-surface-soft: #0f141b;
-    --ab-border-subtle: rgba(255, 255, 255, 0.04);
-    --ab-accent: #5CCFCF;
-    --ab-accent-soft: rgba(92, 207, 207, 0.12);
-    --ab-ink: #f4f5f7;
-    --ab-ink-muted: #a0a4b3;
-    --ab-coral: #F07178;
-    --ab-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
-    --ab-radius-sm: 6px;
-    --ab-radius-md: 12px;
-    --ab-radius-pill: 999px;
-    --ab-sans: "Space Grotesk Variable", "Space Grotesk", system-ui, -apple-system, sans-serif;
-    --ab-serif: "Crimson Pro", "Iowan Old Style", Georgia, serif;
-    --ab-max-width: 1040px;
-    --ab-gutter: 24px;
-  }
-
-  /* ── Shell ── */
-  .about-page {
-    background:
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.07), transparent 55%),
-      radial-gradient(circle at 100% 100%, rgba(240, 113, 120, 0.05), transparent 55%),
-      var(--ab-bg);
-    color: var(--ab-ink);
-    font-family: var(--ab-sans);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
     -webkit-font-smoothing: antialiased;
     min-height: 60vh;
   }
 
   .about-shell {
     width: 100%;
-    max-width: var(--ab-max-width);
+    max-width: 1040px;
     margin: 0 auto;
-    padding: 24px var(--ab-gutter) 64px;
+    padding: 24px 24px 64px;
   }
 
   .about-main {
@@ -348,10 +323,10 @@ import '@fontsource/crimson-pro/600.css';
     padding: 24px 20px;
     border-radius: 24px;
     background:
-      linear-gradient(145deg, rgba(10, 16, 24, 0.9), rgba(5, 8, 13, 0.98)),
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.22), transparent 55%);
-    border: 1px solid rgba(92, 207, 207, 0.12);
-    box-shadow: var(--ab-shadow);
+      linear-gradient(145deg, rgba(var(--accent-rgb), 0.05), var(--surface)),
+      radial-gradient(circle at 0 0, rgba(var(--accent-rgb), 0.14), transparent 55%);
+    border: 1px solid rgba(var(--accent-rgb), 0.16);
+    box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
     isolation: isolate;
@@ -362,12 +337,12 @@ import '@fontsource/crimson-pro/600.css';
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.13), transparent 55%),
-      linear-gradient(120deg, rgba(255, 255, 255, 0.04) 0, transparent 40%),
+      radial-gradient(circle at 0 0, rgba(var(--accent-rgb), 0.1), transparent 55%),
+      linear-gradient(120deg, rgba(var(--accent-rgb), 0.04) 0, transparent 40%),
       repeating-linear-gradient(
         to right,
-        rgba(148, 163, 184, 0.2),
-        rgba(148, 163, 184, 0.2) 0.5px,
+        var(--rule),
+        var(--rule) 0.5px,
         transparent 1px,
         transparent 9px
       );
@@ -378,30 +353,31 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .about-hero__title {
-    font-family: var(--ab-sans);
-    font-size: clamp(26px, 3vw, 32px);
-    font-weight: 500;
-    letter-spacing: -0.03em;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4.4vw, 2.6rem);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
     margin: 0 0 12px;
-    color: var(--ab-ink);
+    color: var(--text);
   }
 
   .about-hero__subtitle {
     max-width: 34rem;
-    font-size: 15px;
+    font-size: 0.95rem;
     line-height: 1.7;
-    color: var(--ab-ink-muted);
+    color: var(--text-dim);
     margin-bottom: 16px;
   }
 
-  .about-hero__subtitle strong { color: var(--ab-ink); }
+  .about-hero__subtitle strong { color: var(--text); font-weight: 500; }
 
   .about-hero__tagline {
-    font-family: var(--ab-serif);
+    font-family: var(--font-display);
     font-style: italic;
-    font-size: 13px;
-    color: var(--ab-ink-muted);
-    line-height: 1.9;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    line-height: 1.8;
     max-width: 30rem;
   }
 
@@ -444,27 +420,30 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .ab-meta-label {
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.11em;
-    color: var(--ab-ink-muted);
+    color: var(--text-faint);
   }
 
   .ab-meta-value {
-    font-size: 13px;
-    color: var(--ab-ink);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text);
   }
 
   /* ── Tag pills ── */
   .ab-tag-pill {
-    border-radius: var(--ab-radius-pill);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    border-radius: 999px;
+    border: 1px solid var(--rule);
     padding: 4px 10px;
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.09em;
-    color: var(--ab-ink-muted);
-    background: rgba(15, 23, 42, 0.8);
+    color: var(--text-dim);
+    background: var(--surface);
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -474,29 +453,29 @@ import '@fontsource/crimson-pro/600.css';
     width: 6px;
     height: 6px;
     border-radius: 999px;
-    background: var(--ab-accent);
-    opacity: 0.9;
+    background: var(--teal);
     flex-shrink: 0;
   }
 
   /* ── Buttons ── */
   .ab-button-primary,
   .ab-button-ghost {
-    font-family: var(--ab-sans);
-    font-size: 13px;
-    border-radius: var(--ab-radius-pill);
-    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    border-radius: 999px;
+    padding: 8px 16px;
     border: 1px solid transparent;
     background: transparent;
-    color: var(--ab-ink);
+    color: var(--text);
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
+    min-height: 44px;
     gap: 8px;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    transition: opacity 0.15s ease;
+    letter-spacing: 0.1em;
+    transition: opacity var(--transition-fast), border-color var(--transition-fast);
   }
 
   .ab-button-primary:hover,
@@ -504,20 +483,20 @@ import '@fontsource/crimson-pro/600.css';
 
   .ab-button-primary:focus-visible,
   .ab-button-ghost:focus-visible {
-    outline: 2px solid var(--ab-accent);
+    outline: 2px solid var(--teal);
     outline-offset: 3px;
   }
 
   .ab-button-primary {
-    background: linear-gradient(135deg, rgba(92, 207, 207, 0.18), rgba(92, 207, 207, 0.58));
-    border-color: rgba(92, 207, 207, 0.9);
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.7), 0 14px 40px rgba(15, 23, 42, 0.7);
+    background: rgba(var(--accent-rgb), 0.14);
+    border-color: var(--teal);
+    color: var(--text);
   }
 
   .ab-button-ghost {
-    border-color: rgba(148, 163, 184, 0.5);
-    color: var(--ab-ink-muted);
-    background: rgba(15, 23, 42, 0.8);
+    border-color: var(--rule);
+    color: var(--text-dim);
+    background: var(--surface);
   }
 
   .ab-dot {
@@ -531,7 +510,7 @@ import '@fontsource/crimson-pro/600.css';
   /* ── Sections ── */
   .about-section {
     padding: 16px 4px 0;
-    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    border-top: 1px solid var(--rule);
     margin-top: 12px;
   }
 
@@ -545,27 +524,27 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .about-section__eyebrow {
-    font-family: var(--ab-sans);
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--ab-ink-muted);
+    color: var(--teal);
     margin-bottom: 4px;
   }
 
   .about-section__title {
-    font-family: var(--ab-sans);
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ab-ink);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--text);
     margin: 0;
   }
 
   .about-section__hint {
-    font-size: 12px;
-    color: var(--ab-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
     margin: 0;
   }
 
@@ -584,18 +563,19 @@ import '@fontsource/crimson-pro/600.css';
 
   /* ── Work cards ── */
   .ab-work-card {
-    border-radius: 18px;
+    border-radius: var(--radius-md);
     background:
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.18), transparent 55%),
-      var(--ab-bg-elevated);
-    border: 1px solid var(--ab-border-subtle);
+      radial-gradient(circle at 0 0, rgba(var(--accent-rgb), 0.09), transparent 55%),
+      var(--surface);
+    border: 1px solid var(--rule);
     padding: 18px 18px 16px;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
   }
 
   .ab-work-card--secondary {
-    background: var(--ab-surface-soft);
+    background: var(--surface);
     background-image: none;
   }
 
@@ -609,36 +589,37 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .ab-work-card__title {
-    font-family: var(--ab-sans);
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--ab-ink);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--text);
     margin: 0;
   }
 
   .ab-work-card__badge {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: var(--ab-radius-pill);
-    border: 1px solid rgba(148, 163, 184, 0.5);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--ab-ink-muted);
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
     white-space: nowrap;
   }
 
   .ab-work-card__badge--accent {
-    border-color: rgba(92, 207, 207, 0.8);
-    color: var(--ab-accent);
-    background: rgba(92, 207, 207, 0.1);
+    border-color: var(--teal);
+    color: var(--teal);
+    background: rgba(var(--accent-rgb), 0.08);
   }
 
   .ab-work-card__body {
-    font-size: 13px;
-    line-height: 1.8;
-    color: var(--ab-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: var(--text-dim);
     margin-bottom: 10px;
     margin-top: 0;
   }
@@ -646,43 +627,47 @@ import '@fontsource/crimson-pro/600.css';
   .ab-work-card__list {
     margin: 0 0 10px;
     padding-left: 16px;
-    font-size: 12px;
-    color: var(--ab-ink-muted);
-    line-height: 1.7;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.65;
   }
 
   .ab-work-card__list li + li { margin-top: 4px; }
+  .ab-work-card__list em { color: var(--text); font-style: italic; }
 
   .ab-work-card__cta {
     margin-top: 10px;
-    font-size: 12px;
-    color: var(--ab-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
   }
 
   .ab-work-card__cta a {
-    color: var(--ab-accent);
+    color: var(--teal);
     text-decoration: none;
   }
 
   .ab-work-card__cta a:hover { text-decoration: underline; }
 
   .ab-work-card__cta a:focus-visible {
-    outline: 2px solid var(--ab-accent);
+    outline: 2px solid var(--teal);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
   }
 
   /* ── Narrative blocks ── */
   .ab-narrative-block {
-    border-radius: 18px;
+    border-radius: var(--radius-md);
     padding: 18px 18px 16px;
-    border: 1px solid var(--ab-border-subtle);
+    border: 1px solid var(--rule);
     background:
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.1), transparent 55%),
-      var(--ab-bg-elevated);
-    font-size: 13px;
+      radial-gradient(circle at 0 0, rgba(var(--accent-rgb), 0.06), transparent 55%),
+      var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
     line-height: 1.8;
-    color: var(--ab-ink-muted);
+    color: var(--text-dim);
     height: 100%;
     box-sizing: border-box;
   }
@@ -691,39 +676,42 @@ import '@fontsource/crimson-pro/600.css';
   .ab-narrative-block p:last-child { margin-bottom: 0; }
 
   .ab-narrative-block--serif {
-    font-family: var(--ab-serif);
+    font-family: var(--font-display);
     font-style: italic;
-    font-size: 14px;
+    font-size: 1.05rem;
+    line-height: 1.65;
   }
 
   /* ── Background list ── */
   .ab-background-list {
-    font-size: 13px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
     line-height: 1.7;
-    color: var(--ab-ink-muted);
+    color: var(--text-dim);
   }
 
   .ab-background-list p { margin: 0 0 8px; }
-  .ab-background-list em { color: var(--ab-ink); }
+  .ab-background-list em { color: var(--text); font-style: italic; }
 
   /* ── CTA panel ── */
   .ab-cta-panel {
-    border-radius: 18px;
+    border-radius: var(--radius-md);
     padding: 18px 20px 16px;
-    border: 1px solid var(--ab-border-subtle);
+    border: 1px solid var(--rule);
     background:
-      radial-gradient(circle at 0 0, rgba(92, 207, 207, 0.09), transparent 60%),
-      var(--ab-bg-elevated);
-    font-size: 13px;
-    color: var(--ab-ink-muted);
+      radial-gradient(circle at 0 0, rgba(var(--accent-rgb), 0.06), transparent 60%),
+      var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-dim);
   }
 
   .ab-cta-panel__headline {
-    font-family: var(--ab-sans);
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--ab-ink-muted);
+    color: var(--teal);
     margin-bottom: 6px;
   }
 
@@ -740,24 +728,25 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .ab-cta-pill {
-    font-family: var(--ab-sans);
-    font-size: 12px;
-    padding: 5px 10px;
-    border-radius: var(--ab-radius-pill);
-    border: 1px solid rgba(148, 163, 184, 0.5);
-    color: var(--ab-ink);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    padding: 8px 12px;
+    min-height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    color: var(--text);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(15, 23, 42, 0.8);
-    transition: border-color 0.15s ease;
+    background: var(--surface);
+    transition: border-color var(--transition-fast);
   }
 
-  .ab-cta-pill:hover { border-color: rgba(92, 207, 207, 0.7); }
+  .ab-cta-pill:hover { border-color: var(--teal); }
 
   .ab-cta-pill:focus-visible {
-    outline: 2px solid var(--ab-accent);
+    outline: 2px solid var(--teal);
     outline-offset: 2px;
   }
 
@@ -765,7 +754,7 @@ import '@fontsource/crimson-pro/600.css';
     width: 6px;
     height: 6px;
     border-radius: 999px;
-    background: var(--ab-accent);
+    background: var(--teal);
     flex-shrink: 0;
   }
 
@@ -778,60 +767,63 @@ import '@fontsource/crimson-pro/600.css';
   }
 
   .ab-engagement-card {
-    border-radius: var(--ab-radius-md);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    background: var(--ab-surface-soft);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--rule);
+    background: var(--bg);
     padding: 14px 14px 12px;
   }
 
   .ab-engagement-card__label {
-    font-family: var(--ab-sans);
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--ab-accent);
+    color: var(--teal);
     margin-bottom: 8px;
   }
 
   .ab-engagement-card__detail {
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
     line-height: 1.7;
-    color: var(--ab-ink-muted);
+    color: var(--text-dim);
     margin: 0;
   }
 
   /* ── Client note ── */
   .client-note {
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
     line-height: 1.7;
-    color: var(--ab-ink-muted);
-    border-left: 2px solid rgba(92, 207, 207, 0.4);
+    color: var(--text-faint);
+    border-left: 2px solid rgba(var(--accent-rgb), 0.4);
     padding-left: 10px;
-    margin: 10px 0 10px;
+    margin: 10px 0;
     font-style: italic;
   }
 
   /* ── About footer note ── */
   .about-footer-note {
-    font-size: 11px;
-    color: var(--ab-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-faint);
     text-align: center;
     padding: 16px 0 8px;
-    opacity: 0.7;
+    opacity: 0.85;
   }
 
   .about-footer-note a {
-    color: var(--ab-accent);
+    color: var(--teal);
     text-decoration: none;
   }
 
   .about-footer-note a:hover { text-decoration: underline; }
 
   .about-footer-note a:focus-visible {
-    outline: 2px solid var(--ab-accent);
+    outline: 2px solid var(--teal);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
   }
 
   /* ── Responsive ── */
