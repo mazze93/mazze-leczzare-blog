@@ -91,8 +91,11 @@ body.descended .ghost-edge { opacity: .28; }
 
 .nd-ring { fill: var(--bg); stroke: var(--dmr); stroke-width: .9; transition: stroke .45s, stroke-width .45s, filter .45s, fill .9s; }
 .nd-dot  { fill: var(--dm); transition: fill .45s; }
-.nd-lbl  { font: italic 600 9.5px/1 var(--ser); text-anchor: middle; fill: var(--dm); transition: fill .45s; pointer-events: none; }
-.nd-sub  { font: 300 6.5px/1 var(--mon); text-anchor: middle; fill: var(--dmr); transition: fill .45s; letter-spacing: .04em; pointer-events: none; }
+/* Label sizes are viewBox units (440 wide) scaled into a much smaller
+   painted box, so 9.5/6.5 rendered at ~5–8px. Sized up for legibility;
+   the y-offsets in renderNodes() were widened to match. */
+.nd-lbl  { font: italic 600 13px/1 var(--ser); text-anchor: middle; fill: var(--dm); transition: fill .45s; pointer-events: none; }
+.nd-sub  { font: 300 9.5px/1 var(--mon); text-anchor: middle; fill: var(--dmr); transition: fill .45s; letter-spacing: .02em; pointer-events: none; }
 .nd-wrap { cursor: pointer; }
 .nd-wrap:hover .nd-ring { stroke: var(--tx); stroke-width: 1.3; }
 
