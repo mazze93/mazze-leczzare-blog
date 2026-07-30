@@ -450,11 +450,11 @@ function renderNodes() {
     const wrap = el('g', { class:'nd-wrap '+(litClass[id]||'lit-t'), id:`nd-${id}` }, g);
     el('circle', { cx:n.x, cy:n.y, r:n.r, class:'nd-ring' }, wrap);
     el('circle', { cx:n.x, cy:n.y, r:n.r*.36, class:'nd-dot' }, wrap);
-    const ly = n.y + n.r + 11;
+    const ly = n.y + n.r + 14;
     const sName = el('text', { x:n.x, y:ly,    class:'nd-lbl sname' }, wrap); sName.textContent = n.s;
-    const sSub  = el('text', { x:n.x, y:ly+10, class:'nd-sub sname' }, wrap); sSub.textContent = n.sub;
+    const sSub  = el('text', { x:n.x, y:ly+13, class:'nd-sub sname' }, wrap); sSub.textContent = n.sub;
     const qName = el('text', { x:n.x, y:ly,    class:'nd-lbl qname', fill:'var(--co)' }, wrap); qName.textContent = n.q;
-    const qSub  = el('text', { x:n.x, y:ly+10, class:'nd-sub qname' }, wrap); qSub.textContent = n.qsub;
+    const qSub  = el('text', { x:n.x, y:ly+13, class:'nd-sub qname' }, wrap); qSub.textContent = n.qsub;
     wrap.addEventListener('click', () => selectNode(+id));
     nodeEls[id] = wrap;
   });
