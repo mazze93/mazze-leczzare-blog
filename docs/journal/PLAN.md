@@ -1,140 +1,77 @@
-# PLAN — cv-work-integration (resume session)
+# PLAN — site-rot-sweep
 
-## Request restated
+**Started:** 2026-08-02
+**Branch:** `main`
+**Prior task:** `docs/journal/archive/2026-07-28-cv-work-integration/` (closed,
+shipped `534d84e`). Its final CHECKPOINT line names the one open item this task
+picks up: mirror the Cipher Gothic Design System's fonts into the site.
 
-The prior session (`docs/journal/2026-07-28-1543-cv-integration-checkpoint.md`) ended
-mid-flight with two artifacts staged-for-commit and three files modified-but-unstaged:
+## Request (restated)
 
-1. `docs/mazze-leczzare-cv.pdf` — new
-2. `public/artifacts/publication-surface-v1.2.2.html` — new
-3. `CLAUDE.md` — Fonts row corrected
-4. `src/pages/about.astro` — migrated to shared Cipher Gothic tokens + new UC Davis / Luck Lab bio paragraph
-5. `src/pages/work.astro` — migrated to shared Cipher Gothic tokens
+Fix the documentation-drift issues surfaced by the CLAUDE.md audit, then read
+the journal for unfinished website work and implement it. Don't let rot linger:
+where a reference is wrong, make it right rather than routing around it. Prefer
+commenting out over deleting. Move autonomously; surface real questions.
 
-This session's job: commit each logical unit, push after each, then FF the
-locked worktree to origin/main.
+## Files in scope
 
-User decisions (2026-07-28, via AskUserQuestion this session):
-- **Worktree:** FF to main after push.
-- **Bio paragraph:** split into its own commit (`refactor` then `docs(bio):`).
-- **Commit order:** artifacts → refactor → push each.
-- **Work.astro bio card (added mid-session when the diff was audited):**
-  three commits — refactor + about paragraph + work card. The card is
-  feature work, not refactor, so it owns its own commit. (See DECISIONS.md.)
+| Path | Why |
+| --- | --- |
+| `src/styles/global.css` | `--cg-font-sans` (Inter) declared but never self-hosted |
+| `public/fonts/` | 8 of 24 referenced font files are missing → production 404s |
+| `public/intentional-fragility/index.html` | references 8 font files, 8 missing |
+| `public/writing/what-i-can-stand-by/index.html` | references 6 font files, 6 missing |
+| `public/essays/the-breakthrough-artifact.html` | Google-Fonts CDN under `font-src 'self'` → CSP-blocked |
+| `src/pages/blog/the_breakthrough_artifact.html` | byte-identical duplicate of the above, publishes a 2nd URL |
+| `src/styles/editorial.css` | imported by nothing; header comment tells you to add a Google Fonts `<link>` |
+| `tailwind.config.mjs` + `package.json` | Tailwind installed, configured, and wired to nothing |
+| `CLAUDE.md` | Astro/TS versions, Tailwind, fonts, component list all drifted |
+| `scripts/ops/check-docs-drift.sh` | passed clean through every one of the above — coverage gap |
+| `package.json` / `package-lock.json` | uncommitted `@astrojs/sitemap` caret change from a prior session |
 
-## Files / repos in scope
+## Load-bearing assumption + verification
 
-**In `blog/mazze-leczzare-blog` (on `main`):**
-- The five files above.
-- `docs/journal/PLAN.md`, `DECISIONS.md`, `CHECKPOINT.md` — this scaffold (new).
-- `docs/journal/2026-07-28-1543-cv-integration-checkpoint.md` — left untouched, referenced.
+**Assumption:** the unreferenced files in `public/fonts/` are orphans safe to
+treat as dead weight (what I told the user at the end of the audit turn).
 
-**Adjacent (one phase only):**
-- `.claude/worktrees/cv-work-integration` — locked worktree on branch `cv-work-integration`,
-  same HEAD as main, no commits ahead. FF to `origin/main` at the end of Phase 5.
+**Verified — and it was wrong, in the more urgent direction.** `git log --
+public/fonts` traces them to `7525613 feat(artifacts): publish the
+tessera-claude-anchor session record`. They are not orphans: they serve the
+standalone HTML pages under `public/`, which my earlier grep missed because it
+was scoped to `src/`. Re-running the scan across `public/` shows those pages
+reference **24** font files while the directory holds **13**, under a different
+naming convention. The defect is the inverse of what I reported: not unused
+files to prune, but **missing files that 404 in production**.
 
-## Constraints
-
-- **Repo standard:** `npm run check` before any commit that touches `src/`. Required by
-  `CLAUDE.md` ("Always run `npm run check` before committing any code change").
-- **Max posture:** never print secrets. No secrets in the diffs here (verified — these are
-  docs + prose + style tokens), so a literal-secret-scan is not needed; the changes
-  themselves are safe to commit.
-- **HIGH posture:** "verify before push; no unreviewed publishes." This is a public
-  site. The two `src/pages/*` migrations are public-facing and must pass `npm run check`
-  before commit. The bio paragraph is fully editorial — the prior session drafted it
-  with a Nature citation; it is publishing-grade.
-- **No force-push / no remote-branch deletion / no making-private-public.** Pushes
-  here are plain `git push origin main`.
-- **Commit and push together** (global CLAUDE.md). Each phase ends with a push.
+Recorded as the first DECISIONS.md entry.
 
 ## Phases
 
-Each phase is small enough to finish and commit/push before stopping.
+- **Phase 1 — scaffold.** Archive the closed cv-work-integration journal set,
+  scaffold this one, commit.
+- **Phase 2 — fonts: vendor the missing files.** Fix the 404s in
+  `/intentional-fragility/` and `/writing/what-i-can-stand-by/`. Six of the
+  fourteen are already on disk in `node_modules/@fontsource/`; the rest need
+  packages added.
+- **Phase 3 — fonts: resolve `--cg-font-sans`.** The journal's open item.
+  Self-host Inter so the Cipher Gothic sans token stops falling through to the
+  system stack. Inter is already in `public/fonts/`.
+- **Phase 4 — CSP: stop shipping CDN-font pages outside `/artifacts/`.**
+  `font-src 'self'` blocks `fonts.gstatic.com` everywhere except `/artifacts/*`.
+  Two pages violate this; one of them is a duplicate route.
+- **Phase 5 — dead config.** Tailwind (installed, wired to nothing) and
+  `editorial.css` (imported by nothing, with actively misleading instructions
+  in its header). Comment out / quarantine, never delete.
+- **Phase 6 — CLAUDE.md + drift-script coverage.** Truth up the doc, and extend
+  `check-docs-drift.sh` so the classes of drift found here fail CI next time
+  instead of passing green.
+- **Phase 7 — close.** `npm run check`, `npm run test`, `npm run docs:check`,
+  push.
 
-### Phase 1 — Scaffold the journal
+## Constraints
 
-- Create `docs/journal/PLAN.md`, `DECISIONS.md`, `CHECKPOINT.md`.
-- Commit: `docs: scaffold session-journal for cv-work-integration resume`.
-- **Push deferred** — repo pre-push hook (from `scripts/ops/setup-hooks.sh`)
-  blocks pushes when `public/` has untracked files; the
-  `publication-surface-v1.2.2.html` artifact is exactly that. Phase 1 +
-  Phase 2 must push together.
-
-### Phase 2 — docs: artifacts
-
-- Verify the two artifact files are still on disk and unmodified (`git status`).
-- `git add docs/mazze-leczzare-cv.pdf public/artifacts/publication-surface-v1.2.2.html`.
-- Commit: `docs: add CV PDF and publication surface artifact (v1.2.2)`.
-- Push (this push carries Phase 1 + Phase 2 together — the pre-push hook
-  blocks any push that would leave `public/` with untracked files, so the
-  artifact must be in the *current* HEAD's public/ tree before the push).
-
-### Phase 3 — refactor: pages + CLAUDE.md fonts row
-
-- `git diff src/pages/about.astro src/pages/work.astro` line-by-line audit.
-  The prior session flagged `work.astro` as "not audited line-by-line." This
-  phase is the audit-and-confirm moment: **no `var(--ab-*)` references
-  survived, no stranded `@fontsource-variable/space-grotesk` or
-  `@fontsource/crimson-pro` imports**, the scoped `<style>` block compiles.
-  ✓ Confirmed at the start of this session (Phase 3 prep).
-- **Crucially:** for this phase, also `git add -p` to keep the diff to
-  *only* the refactor hunks — exclude the about.astro bio paragraph (Phase 4)
-  and the work.astro banknote-authentication card + flagship CSS (Phase 5).
-- `npm run check` (repo standard).
-- Commit: `refactor(about,work): migrate to shared Cipher Gothic design tokens`.
-- Push.
-
-### Phase 4 — docs(bio): about.astro UC Davis / Luck Lab paragraph
-
-- Re-read the new paragraph in `src/pages/about.astro` to confirm its content
-  is the UC Davis / Luck Lab / counterfeiting program / Nature
-  (Dodgson & Raymond, *Scientific Reports*, 2022,
-  https://www.nature.com/articles/s41598-022-05972-8) — the prior session
-  authored this and we want to ship it as written, not silently rewrite.
-  ✓ Confirmed at the start of this session (Phase 4 prep).
-- `git add -p` only the bio-paragraph hunk.
-- `npm run check` (repo standard — bio is content, but the file is TypeScript).
-- Commit: `docs(about): add UC Davis / Luck Lab counterfeit-detection bio paragraph`.
-- Push.
-
-### Phase 5 — feat(work): banknote-authentication flagship card
-
-- The new `banknote-authentication` entry in `work.astro` has three
-  *intertwined* kinds of hunks: a schema field (`flagship?: boolean`), data
-  (the new entry), and CSS (`.work-card--flagship`, `tag--gold`,
-  `.work-card--flagship:hover`). All three belong to the new feature.
-- `git add -p` to select only the hunks that introduce the banknote card,
-  the `flagship` field, and the new CSS. The refactor token swaps from
-  `work.astro` were already committed in Phase 3 — make sure this
-  commit's diff doesn't redouble them.
-- `npm run check`.
-- Commit: `feat(work): add banknote-authentication flagship card (UC Davis / Luck Lab)`.
-- Push.
-
-### Phase 6 — worktree: ff to origin/main
-
-- `git -C .claude/worktrees/cv-work-integration fetch origin main`.
-- `git -C .claude/worktrees/cv-work-integration merge --ff-only origin/main`.
-- If `ff-only` fails (e.g. main rebased since the worktree was created), stop
-  and ask — not auto-merge.
-- Tick CHECKPOINT.md.
-- No commit needed in this session for the worktree (it's a branch advance).
-
-### Phase 7 — close
-
-- Update CHECKPOINT.md with final state.
-- Optional: append a one-line summary to `docs/journal/2026-07-28-1543-cv-integration-checkpoint.md`
-  ("Resumed 2026-07-28, all phases landed, see CHECKPOINT.md"). Or leave the
-  prior checkpoint untouched and let CHECKPOINT.md be the new resume point.
-  Default: leave the older file untouched (the skill says append, never re-scaffold).
-
-## Out of scope (do not silently address)
-
-- Any other modifications to `src/`, `public/`, `functions/`, or `docs/` beyond
-  the five files named above.
-- Tech debt from session #153 (Pages→Workers migration scope doc). Deferred.
-- Lighthouse, a11y, or performance audits. Run `npm run check` (TypeScript +
-  Astro build) — Lighthouse is CI-only and not in this session's scope.
-- Anything in `secure-pride/*` (different repo, different posture, different
-  workspace — HARD STOP per global CLAUDE.md).
+- `npm run check` before every commit (repo standard).
+- The `pre-push` hook refuses to push while `public/` holds untracked files —
+  every font file added in Phase 2 must be `git add`ed in the same commit.
+- Prefer commenting out to deleting (user instruction, this session).
+- Commit + push at every phase boundary (global CLAUDE.md).
