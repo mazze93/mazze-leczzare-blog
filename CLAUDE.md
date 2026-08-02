@@ -10,16 +10,16 @@ Security engineering, technical writing, and essays at the intersection of infra
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Astro 6 (`output: "static"`, fully SSG) |
+| Framework | Astro 7 (`output: "static"`, fully SSG, `trailingSlash: "always"`) |
 | UI islands | React 19 (`@astrojs/react`) — used only where interaction earns its keep |
 | Content | Markdown + MDX via Astro Content Collections (loader API) |
 | Edge functions | Cloudflare Pages Functions (`functions/`) |
-| Styles | CSS custom properties + Tailwind CSS 4 (utility layer; `preflight: false`) |
-| Fonts | Atkinson Hyperlegible (self-hosted WOFF, preloaded); Cormorant Garamond, DM Mono, DM Sans, Playfair Display (via `@fontsource`); Space Grotesk Variable + Crimson Pro (via `@fontsource-variable`/`@fontsource` — used on `/cipher-gothic/` only; `/about/` now consumes the shared Cipher Gothic tokens like the rest of the editorial surface) |
+| Styles | Hand-authored CSS custom properties only — see Styles section (Tailwind is installed but **not wired in**) |
+| Fonts | Mostly `@fontsource` `@import`s in `global.css`/`homepage.css`: Cormorant Garamond, DM Mono, DM Sans, Playfair Display; Space Grotesk Variable + Crimson Pro on `/cipher-gothic/` only. Inter is the exception — declared with explicit `@font-face` rules pointing at the already-deployed `/fonts/inter-*.woff2` (see Fonts note below). `BaseHead.astro` preloads exactly one file — Cormorant Garamond latin-400 — imported through Vite with `?url`, never a hardcoded path. |
 | RSS | `@astrojs/rss` — feed at `/rss.xml`, auto-generated from blog content collection |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |
-| Type checking | TypeScript 6 strict mode + `tsc` via `npm run check` |
+| Type checking | TypeScript 7 strict mode + `tsc` via `npm run check` |
 | Deploy CLI | Wrangler 4 (`wrangler.toml` manages Pages/Functions config) |
 | Node | 22.x (`.nvmrc`) |
 
@@ -97,12 +97,20 @@ public/
   _headers            # Cloudflare security headers + agent discovery Link headers
   _redirects          # Cloudflare redirects (/manifesto/ → /work/)
   .well-known/        # Agent/MCP discovery files (see Agent Discoverability section)
-  fonts/              # Self-hosted WOFF files (atkinson-bold, atkinson-regular)
+  fonts/              # Shared self-hosted woff2, served at /fonts/* to the standalone
+                      #   HTML pages under public/ (NOT to the Astro site, which gets
+                      #   its fonts from @fontsource via global.css — the one exception
+                      #   is the Inter @font-face block, which reuses these files).
+                      #   atkinson-{bold,regular}.woff are legacy orphans: nothing
+                      #   references them; /intentional-fragility/ ships its own
+                      #   atkinsonhyperlegible-*.woff2 locally.
   images/blog/        # Static blog images (served directly, no processing)
 
 scripts/ops/          # Local operational scripts (not part of the site build)
 docs/operations/      # Agent operations protocol and memory files
-files/                # HTML prototypes and design notes (not deployed)
+docs/journal/         # Live session journal (PLAN/DECISIONS/CHECKPOINT); archive/ holds closed ones
+docs/archive/         # Files pulled out of a build path but kept in git — see its README
+files/                # HTML prototypes and design notes (not deployed; gitignored)
 ```
 
 ## Routes
@@ -132,7 +140,10 @@ files/                # HTML prototypes and design notes (not deployed)
 | `/project/[slug]/`| `src/pages/project/[slug].astro`    | Pieces belonging to one project node     |
 | `/support`        | `src/pages/support.astro`           | Support page                             |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
-| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tree-of-knowledge) — static files, no build step |
+| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tree-of-knowledge, publication-surface) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
+| `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
+| `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
+| `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` | Standalone page; ships its own `fonts/` subdirectory |
 | `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
 | `/api/ingest`     | `functions/api/ingest.ts`           | POST only — authenticated content ingest |
 | `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
@@ -148,7 +159,7 @@ Defined in `src/content.config.ts`. **Three collections** (all glob-loader,
 | ---------- | ------------- | --------------------------------------- |
 | `blog` | Essays — the primary long-form surface | (full schema below) |
 | `signal` | Transmissions from the field ledger — verse, fragments, dispatches | `transmissionId`, `cycle`, `classification`, `status`, `origin` (all optional strings; map to TransmissionFeed props) |
-| `tesserae` | Mosaic tiles — smallest modular fragments, neither essay nor transmission | blog-common fields only |
+| `tesserae` | Mosaic tiles — smallest modular fragments, neither essay nor transmission | blog-common fields only. **Currently empty** (`.gitkeep` only), so every build prints `The collection "tesserae" does not exist or is empty` — expected, not a regression; it clears when the first tile lands |
 
 **Constellation fields** (`project?: string`, `committed?: boolean`,
 `resolved?: boolean`) exist on **all three** collections (`blog`, `signal`,
@@ -250,7 +261,13 @@ Read source for full detail — these are the non-obvious points:
 - **`blog/MentorQuote.astro`** — attributed mentor/interview quote block.
 - **`blog/VerseBlock.astro`** — verse block variant used within blog posts.
 
-**Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `Header.astro`, `Footer.astro`, `HeaderLink.astro`, `FormattedDate.astro`.
+**Brand mark:**
+- **`Compass.astro`** — hand-coded SVG brand mark. Pure presentational; 5 `state` values (`idle`/`hover`/`focus`/`engaged`/`complete`) × 5 size buckets.
+- **`CompassLink.astro`** — `Compass` wrapped in an anchor. Pure CSS state machine (`:hover`/`:focus-visible` cascading through custom properties) — no JS, no client directive. Use this, not `Compass`, whenever the mark is interactive.
+
+**Also MDX-mountable:** `SectionBreak.astro` (decorative in-prose divider, `aria-hidden`), `blog/ArtifactEmbed.astro` (iframes a `public/artifacts/*.html` file with caption + fullscreen link).
+
+**Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `Header.astro`, `Footer.astro`, `FormattedDate.astro`.
 
 ## Styles
 
@@ -258,15 +275,19 @@ Read source for full detail — these are the non-obvious points:
 | ---- | ------- |
 | `global.css` | CSS custom properties, base resets, shared typography |
 | `homepage.css` | Deep-navy editorial palette for the homepage (`data-layout="homepage"`) |
-| `editorial.css` | Editorial/article-specific prose styles |
+| `editorial.css` | **Imported by nothing** — draft token layer, not live CSS. Read its header before wiring it in: it redefines `--font-mono`, ships a palette that differs from the live one, and names a font the site doesn't have |
 | `compass.css` | Header brand-mark micro-interaction — 5 `[data-state]` phases (idle/hover/focus/engaged/…) |
 | `constellation-pages.css` | Shared `.cn-page` chrome for `/studio` and `/project/[slug]` |
 | `haven-ink.tokens.css` | Approved light-mode palette tokens for the constellation sky — **not yet wired** into the light-mode render path (tech debt, kept for a future pass) |
 
-Tailwind CSS 4 is present as a utility layer (`tailwind.config.mjs`). Preflight is disabled —
-`global.css` owns the base reset. Tailwind tokens map CSS custom properties to Tailwind
-consumers. Four font families are defined: `home-display`, `home-sans`, `blog-serif`,
-`blog-mono`. Do not add Tailwind's own opinionated resets or base styles.
+**Tailwind is dead config — do not write utility classes.** `tailwindcss` is a
+devDependency and `tailwind.config.mjs` exists (with `preflight: false` and the
+`home-display`/`home-sans`/`blog-serif`/`blog-mono` families), but nothing
+consumes it: there is no `@astrojs/tailwind` integration in `astro.config.mjs`,
+no `@import "tailwindcss"` in any stylesheet, and zero Tailwind class names in
+`src/`. Every style in this repo is hand-authored CSS driven by custom
+properties. Either wire Tailwind up deliberately or delete the config — but
+don't assume a `class="flex gap-4"` will do anything today.
 
 ## Cloudflare Functions
 
@@ -418,7 +439,10 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 
 - **Static output only** — `astro.config.mjs` sets `output: "static"`. No SSR. All dynamic behaviour goes through Cloudflare Functions.
 - **Astro islands discipline** — React is used for `ThemeToggle`, `ContactForm`, `PostQuoteShare`, and `ConstellationNodes` (homepage hero) only. Do not add React for non-interactive rendering.
-- **Tailwind utility layer only** — Tailwind maps CSS vars to utility classes. `preflight: false`. Do not let Tailwind own base styles or reset behaviour; `global.css` owns that.
+- **No Tailwind at runtime** — the config is present but unwired (see Styles). Style with CSS custom properties; `global.css` owns the reset.
+- **Two font systems, deliberately** — the Astro site gets fonts from `@fontsource` (Vite-resolved, hashed into `dist/_astro/`). The standalone HTML pages under `public/` get them from `/fonts/*.woff2` or their own local `fonts/` subdirectory, because nothing processes them. Don't "unify" these; check which side of the line a file is on first. `check-docs-drift.sh` §8 resolves every reference and fails on a miss.
+- **CDN fonts only under `/artifacts/`** — `_middleware.ts` grants `ARTIFACT_CSP` (which allows `fonts.googleapis.com`/`gstatic.com`) to `/artifacts/*` alone. A `<link>` to Google Fonts on any other path is CSP-blocked at runtime with no build error — the page just silently renders in fallback typefaces. Self-host instead. Enforced by `check-docs-drift.sh` §9.
+- **Verify file references by resolving them, not by grepping** — paths in this repo mix root-absolute (`/fonts/x.woff2`) and relative (`./fonts/x.woff2`) forms, and `grep "/fonts/"` matches both while meaning neither. Two wrong conclusions were reached this way (see `docs/journal/DECISIONS.md`, 2026-08-02). Resolve against the referring file's base, then `stat`.
 - **No external analytics script** — telemetry is first-party only via `share-event.ts`.
 - **No published email address** — contact routes privately through the function.
 - **`src/consts.ts` is the single source of truth** for site identity — import from there.

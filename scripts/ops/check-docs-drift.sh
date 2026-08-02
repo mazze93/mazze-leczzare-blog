@@ -36,9 +36,24 @@ DOCUMENTED_PAGES=(
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
   "src/pages/writing/index.astro"
+  "src/pages/studio.astro"
+  "src/pages/constellation.astro"
+  "src/pages/cipher-gothic.astro"
+  "src/pages/support.astro"
+  "src/pages/rss.xml.js"
+  "src/pages/nodes-manifest.json.ts"
+  "src/pages/signal/index.astro"
+  "src/pages/tesserae/index.astro"
+  "src/pages/blog/artifacts.astro"
+  "src/pages/blog/dispatches.astro"
+  "src/pages/blog/field-notes.astro"
+  "public/essays/the-breakthrough-artifact.html"
   "public/intentional-fragility/index.html"
   "public/writing/what-i-can-stand-by/index.html"
   "public/artifacts/tessera-claude-anchor.html"
+  "src/pages/project/[slug].astro"
+  "src/pages/signal/[...slug].astro"
+  "src/pages/tesserae/[...slug].astro"
 )
 for f in "${DOCUMENTED_PAGES[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then
@@ -57,8 +72,12 @@ while IFS= read -r actual; do
   done
   [[ $found -eq 0 ]] && warn "  ? $rel — exists but not documented in CLAUDE.md"
 done < <(find "$REPO_ROOT/src/pages" -maxdepth 2 \
-  \( -name "*.astro" -o -name "*.md" -o -name "*.js" -o -name "*.ts" \) \
+  \( -name "*.astro" -o -name "*.md" -o -name "*.js" -o -name "*.ts" -o -name "*.html" \) \
   | grep -v "__" | sort)
+# *.html added 2026-08-02: Astro publishes .html files in src/pages/ as routes,
+# but this scan omitted the extension, so src/pages/blog/the_breakthrough_artifact.html
+# sat there publishing an undocumented duplicate of /essays/the-breakthrough-artifact.html
+# and every drift run reported clean.
 
 echo ""
 
@@ -69,6 +88,7 @@ DOCUMENTED_FUNCTIONS=(
   "functions/api/share-event.ts"
   "functions/api/login.ts"
   "functions/api/logout.ts"
+  "functions/api/ingest.ts"
 )
 for f in "${DOCUMENTED_FUNCTIONS[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then
@@ -122,6 +142,13 @@ DOCUMENTED_COMPONENTS=(
   "src/components/blog/Triptych.astro"
   "src/components/blog/MentorQuote.astro"
   "src/components/blog/VerseBlock.astro"
+  "src/components/blog/ArtifactEmbed.astro"
+  "src/components/Compass.astro"
+  "src/components/CompassLink.astro"
+  "src/components/SectionBreak.astro"
+  "src/components/TransmissionFeed.astro"
+  "src/components/constellation/AirlockStrip.astro"
+  "src/components/constellation/ConstellationNodes.tsx"
 )
 for f in "${DOCUMENTED_COMPONENTS[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then
@@ -139,6 +166,9 @@ DOCUMENTED_STYLES=(
   "src/styles/global.css"
   "src/styles/homepage.css"
   "src/styles/editorial.css"
+  "src/styles/compass.css"
+  "src/styles/constellation-pages.css"
+  "src/styles/haven-ink.tokens.css"
 )
 for f in "${DOCUMENTED_STYLES[@]}"; do
   if [[ -f "$REPO_ROOT/$f" ]]; then
@@ -171,6 +201,7 @@ DOCUMENTED_CONSTS=(
   "SITE_TWITTER"
   "SITE_REPO_URL"
   "SITE_DEFAULT_OG_IMAGE"
+  "COMPASS_LABEL"
 )
 CONSTS_FILE="$REPO_ROOT/src/consts.ts"
 for c in "${DOCUMENTED_CONSTS[@]}"; do
@@ -251,6 +282,66 @@ for field in "${DOCUMENTED_SCHEMA_FIELDS[@]}"; do
     fail "schema field: $field — documented but not found in content.config.ts"
   fi
 done
+
+echo ""
+
+# ── 8. Static asset references resolve ────────────────────────────────────────
+# Added 2026-08-02. Every font a standalone page under public/ asks for must
+# actually exist at the URL it asks for. This is a *resolver*, not a grep: URLs
+# are resolved against the referring page's own URL, because the pages disagree
+# about convention — /artifacts/tessera-claude-anchor.html uses root-absolute
+# `/fonts/…` while /intentional-fragility/ uses relative `./fonts/…` into its own
+# sibling directory. Grepping for the string "/fonts/" matches both and tells
+# you nothing; it substring-matches "./fonts/" and silently resolves to the
+# wrong file. That mistake was made twice in one session, in both directions
+# (phantom orphans, then phantom 404s), which is why this check exists.
+info "── Static asset references (public/**.html → fonts) ──"
+REF_TOTAL=0
+REF_BAD=0
+while IFS= read -r page; do
+  pagerel="${page#$REPO_ROOT/public}"
+  pagedir="$(dirname "$pagerel")"
+  while IFS= read -r url; do
+    [[ -z "$url" ]] && continue
+    REF_TOTAL=$((REF_TOTAL + 1))
+    if [[ "$url" == /* ]]; then
+      target="$REPO_ROOT/public$url"
+    else
+      target="$REPO_ROOT/public$pagedir/${url#./}"
+    fi
+    if [[ ! -f "$target" ]]; then
+      fail "$pagerel → $url (resolves to a file that does not exist)"
+      REF_BAD=$((REF_BAD + 1))
+    fi
+  done < <(grep -oE 'url\(["'"'"']?[^)"'"'"']+\.woff2?["'"'"']?\)' "$page" 2>/dev/null \
+             | sed -E 's/^url\(["'"'"']?//; s/["'"'"']?\)$//')
+done < <(find "$REPO_ROOT/public" -name "*.html" | sort)
+[[ $REF_BAD -eq 0 ]] && pass "$REF_TOTAL font reference(s) resolve"
+
+echo ""
+
+# ── 9. No third-party font requests outside /artifacts/ ───────────────────────
+# Added 2026-08-02. functions/_middleware.ts grants the relaxed ARTIFACT_CSP
+# (which permits fonts.googleapis.com / fonts.gstatic.com) only to /artifacts/*.
+# Everywhere else gets `style-src 'self' 'unsafe-inline'; font-src 'self'`, so a
+# CDN font link on any other path is blocked by the browser and the page renders
+# in fallback typefaces — silently, with no build error. That is exactly how
+# /essays/the-breakthrough-artifact.html shipped broken.
+info "── Third-party font requests (CSP compliance) ──"
+CDN_BAD=0
+while IFS= read -r page; do
+  pagerel="${page#$REPO_ROOT/}"
+  case "$pagerel" in
+    public/artifacts/*) continue ;;   # ARTIFACT_CSP permits CDN fonts here
+  esac
+  # Only <link>/@import that actually fetch — prose and comments mentioning the
+  # hostname are fine (a blog post about self-hosting fonts legitimately does).
+  if grep -qE '<link[^>]+fonts\.(googleapis|gstatic)\.com|@import[^;]*fonts\.googleapis\.com' "$page" 2>/dev/null; then
+    fail "$pagerel — fetches CDN fonts, but CSP outside /artifacts/ is font-src 'self' (self-host instead)"
+    CDN_BAD=$((CDN_BAD + 1))
+  fi
+done < <(find "$REPO_ROOT/public" "$REPO_ROOT/src/pages" -name "*.html" 2>/dev/null | sort)
+[[ $CDN_BAD -eq 0 ]] && pass "no CSP-blocked font requests outside /artifacts/"
 
 echo ""
 
