@@ -18,9 +18,7 @@ commenting out over deleting. Move autonomously; surface real questions.
 | Path | Why |
 | --- | --- |
 | `src/styles/global.css` | `--cg-font-sans` (Inter) declared but never self-hosted |
-| `public/fonts/` | 8 of 24 referenced font files are missing → production 404s |
-| `public/intentional-fragility/index.html` | references 8 font files, 8 missing |
-| `public/writing/what-i-can-stand-by/index.html` | references 6 font files, 6 missing |
+| `public/fonts/` | 2 genuine orphans (`atkinson-{bold,regular}.woff`); the other 11 serve `/artifacts/tessera-claude-anchor.html` |
 | `public/essays/the-breakthrough-artifact.html` | Google-Fonts CDN under `font-src 'self'` → CSP-blocked |
 | `src/pages/blog/the_breakthrough_artifact.html` | byte-identical duplicate of the above, publishes a 2nd URL |
 | `src/styles/editorial.css` | imported by nothing; header comment tells you to add a Google Fonts `<link>` |
@@ -34,25 +32,31 @@ commenting out over deleting. Move autonomously; surface real questions.
 **Assumption:** the unreferenced files in `public/fonts/` are orphans safe to
 treat as dead weight (what I told the user at the end of the audit turn).
 
-**Verified — and it was wrong, in the more urgent direction.** `git log --
-public/fonts` traces them to `7525613 feat(artifacts): publish the
-tessera-claude-anchor session record`. They are not orphans: they serve the
-standalone HTML pages under `public/`, which my earlier grep missed because it
-was scoped to `src/`. Re-running the scan across `public/` shows those pages
-reference **24** font files while the directory holds **13**, under a different
-naming convention. The defect is the inverse of what I reported: not unused
-files to prune, but **missing files that 404 in production**.
+**Checked twice, wrong twice, settled on the third pass.** See the two
+DECISIONS.md entries — the honest version is that I got this wrong in both
+directions before getting it right:
 
-Recorded as the first DECISIONS.md entry.
+1. First pass (audit turn): grepped `src/` only → "13 orphans, dead weight."
+2. Second pass (Phase 2): grepped `public/` for the literal `/fonts/` → "24
+   refs, 13 files, 14 production 404s." Vendored 14 files on that basis.
+   Wrong: the string `/fonts/` substring-matches `./fonts/`, and both pages
+   carry their own populated sibling `fonts/` directory. Reverted.
+3. Third pass: a resolver that parses every `url(...)` in every HTML file under
+   `public/`, resolves relative URLs against each page's own URL, and stats the
+   target → **25 references, 0 broken, 2 orphans**
+   (`public/fonts/atkinson-{bold,regular}.woff`).
+
+**Standing lesson for this repo:** a path is not a string. Anything that claims
+a file reference is dead or broken must resolve and stat it. Phase 6 encodes
+this as a CI check so the next pass can't repeat it.
 
 ## Phases
 
 - **Phase 1 — scaffold.** Archive the closed cv-work-integration journal set,
   scaffold this one, commit.
-- **Phase 2 — fonts: vendor the missing files.** Fix the 404s in
-  `/intentional-fragility/` and `/writing/what-i-can-stand-by/`. Six of the
-  fourteen are already on disk in `node_modules/@fontsource/`; the rest need
-  packages added.
+- **Phase 2 — VOID.** Premised on font 404s that do not exist. Vendored files
+  removed, tree restored. Kept in the plan rather than edited out, so the
+  reversal is legible to whoever resumes.
 - **Phase 3 — fonts: resolve `--cg-font-sans`.** The journal's open item.
   Self-host Inter so the Cipher Gothic sans token stops falling through to the
   system stack. Inter is already in `public/fonts/`.

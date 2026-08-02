@@ -149,6 +149,21 @@ import '@fontsource/crimson-pro/600.css';
 </html>
 
 <style is:global>
+  /* HEADS UP — these --cg-* names are page-local and are NOT the shared Cipher
+     Gothic tokens in src/styles/global.css. Two collisions to know about before
+     editing either file:
+
+       --cg-sans   here = Space Grotesk    ·  --cg-font-sans   global = Inter
+       --cg-serif  here = Crimson Pro      ·  --cg-font-serif  global = Cormorant Garamond
+       --cg-accent here = #5CCFCF          ·  --teal           global = #34c3b9
+       --cg-coral  here = #F07178          ·  --coral          global = #e85a4a
+
+     The global tokens all carry a --cg-font-* / --cg-space-* style prefix, so
+     nothing here actually overrides them — but the names are close enough to
+     read as the same token, and the palettes genuinely differ. Whether this
+     page should adopt the shared palette or keep its own showcase palette is
+     an open design question (see docs/journal/CHECKPOINT.md, deferred list);
+     it is left as-is here rather than silently changed. */
   .cg-page {
     --cg-bg: #050608;
     --cg-bg-elevated: #0b0f14;

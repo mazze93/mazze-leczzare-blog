@@ -129,12 +129,58 @@
    site with different values under some of these same short names (e.g.
    --radius-md is 6px here, 4px in the design system) — nothing below
    renames or overrides an existing token or component.
-   Font note: --cg-font-sans specifies Inter, which is not self-hosted here
-   (no @fontsource/inter dependency yet) — it falls through to the system
-   sans stack until that's added. --cg-font-serif/--cg-font-mono reuse the
-   Cormorant Garamond / DM Mono already self-hosted above rather than adding
-   JetBrains Mono as a second monospace family.
+   Font note: --cg-font-serif/--cg-font-mono reuse the Cormorant Garamond /
+   DM Mono already self-hosted above rather than adding JetBrains Mono as a
+   second monospace family. Inter (--cg-font-sans) IS now self-hosted — see
+   the @font-face block below.
    =========================== */
+
+/* Inter — self-hosted, closing the open item from the Cipher Gothic token pull
+   (`8e0d6ae`, which shipped --cg-font-sans naming a font the site never served,
+   so it silently fell through to the system sans stack).
+
+   These point at /fonts/inter-*.woff2 in public/ rather than going through
+   @fontsource like the fonts at the top of this file. That is deliberate: those
+   four files are already in the repo and already deployed — `7525613` added
+   them for /artifacts/tessera-claude-anchor.html, which serves them from these
+   same URLs. Adding an @fontsource/inter dependency would ship a second copy of
+   bytes we already host. Reusing them costs four @font-face rules and nothing
+   else, and no visitor downloads Inter until a rule actually applies it (today
+   that is .cg-body alone, which has no consumers yet).
+
+   unicode-range matches the artifact's declarations — latin subset. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/inter-300-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/inter-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/inter-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/inter-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 :root {
   /* Type families */
   --cg-font-serif: var(--font-display);
