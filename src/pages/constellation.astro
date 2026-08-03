@@ -184,16 +184,16 @@ const indexSorted = placedAll
                 <stop offset="100%" stop-color="var(--c-gold)" stop-opacity="0" />
               </radialGradient>
               <radialGradient id={`field-${view.id}`} cx={portrait ? "50%" : "82%"} cy={portrait ? "82%" : "42%"} r="90%">
-                <stop offset="0%" stop-color="#101726" />
-                <stop offset="55%" stop-color="#0a0f1b" />
-                <stop offset="100%" stop-color="#06080f" />
+                <stop offset="0%" stop-color="var(--c-field-0)" />
+                <stop offset="55%" stop-color="var(--c-field-1)" />
+                <stop offset="100%" stop-color="var(--c-field-2)" />
               </radialGradient>
               <linearGradient id={`zones-${view.id}`} x1="0" y1="0" x2={portrait ? "0" : "1"} y2={portrait ? "1" : "0"}>
-                <stop offset="0%" stop-color="#02030a" stop-opacity="0.55" />
-                <stop offset="22%" stop-color="#02030a" stop-opacity="0.25" />
-                <stop offset="46%" stop-color="#0e2b2e" stop-opacity="0.14" />
-                <stop offset="62%" stop-color="#0e2b2e" stop-opacity="0.08" />
-                <stop offset="100%" stop-color="#2a2410" stop-opacity="0.16" />
+                <stop offset="0%" stop-color="var(--c-zone-erasure)" stop-opacity="0.55" />
+                <stop offset="22%" stop-color="var(--c-zone-erasure)" stop-opacity="0.25" />
+                <stop offset="46%" stop-color="var(--c-zone-emerge)" stop-opacity="0.14" />
+                <stop offset="62%" stop-color="var(--c-zone-emerge)" stop-opacity="0.08" />
+                <stop offset="100%" stop-color="var(--c-zone-signal)" stop-opacity="0.16" />
               </linearGradient>
             </defs>
 
@@ -202,7 +202,7 @@ const indexSorted = placedAll
 
             <g class="dust" aria-hidden="true">
               {g.dust.map((d, i) => (
-                <circle cx={d.x} cy={d.y} r={d.r} fill="#8fa3c8" opacity={d.o} style={`--i:${i % 9}`} />
+                <circle cx={d.x} cy={d.y} r={d.r} fill="var(--c-dust)" opacity={d.o} style={`--i:${i % 9}`} />
               ))}
             </g>
 
@@ -344,6 +344,46 @@ const indexSorted = placedAll
     --c-gold: #e8b64c;
     --c-emerge: #7fd4d0;
     --c-trace: #46536d;
+    /* Glow and halo. These were hardcoded as rgba() literals inline, so they
+       stayed dark-mode-coloured when everything else inverted — a gold bloom
+       and a near-black text halo sitting on Haven paper. Tokens now, with
+       light values in the [data-theme="light"] block below. */
+    --c-gold-glow: rgba(232, 182, 76, 0.75);
+    --c-halo: rgba(6, 8, 15, 0.9);
+
+    /* The sky's own ground. Two full-bleed <rect>s are painted with these
+       gradients on top of the page background, so they — not --c-void — are
+       what a visitor actually sees behind the stars. */
+    --c-field-0: #101726;
+    --c-field-1: #0a0f1b;
+    --c-field-2: #06080f;
+    --c-zone-erasure: #02030a;
+    --c-zone-emerge:  #0e2b2e;
+    --c-zone-signal:  #2a2410;
+    --c-dust: #8fa3c8;
+    --c-signal-node: #f3ead2;
+  }
+
+  [data-theme="light"] body[data-layout="constellation"] {
+    /* On paper the bloom has to invert: a bright glow adds nothing to a light
+       ground, so the gold node reads as a soft ink shadow instead, and the
+       orientation copy's halo becomes paper rather than void. */
+    --c-gold-glow: rgba(122, 98, 44, 0.30);
+    --c-halo: rgba(244, 240, 231, 0.9);
+
+    /* Haven paper, warm centre → cooler periphery, mirroring the dark field's
+       falloff. Without this the sky <rect>s stayed near-black and covered the
+       light background entirely — the ink-on-paper chart never appeared, which
+       body-background sampling alone did not catch. */
+    --c-field-0: var(--hv-high);
+    --c-field-1: var(--hv-center);
+    --c-field-2: var(--hv-outer);
+    --c-zone-erasure: #9a9488;
+    --c-zone-emerge:  #2f6f6a;
+    --c-zone-signal:  #8a6f33;
+    --c-dust: #6a6460;
+    /* cream reads as a star on a black sky and as nothing at all on paper */
+    --c-signal-node: #3f3a34;
   }
 
   body[data-layout="constellation"] {
@@ -375,7 +415,7 @@ const indexSorted = placedAll
     max-width: 34ch;
     margin: 0;
     line-height: 1.5;
-    text-shadow: 0 1px 18px rgba(6, 8, 15, 0.9);
+    text-shadow: 0 1px 18px var(--c-halo);
     pointer-events: none;
   }
   .orientation a { color: var(--c-emerge); pointer-events: auto; }
@@ -428,8 +468,8 @@ const indexSorted = placedAll
     transform-origin: center;
   }
   .node circle { animation: nodeBreathe 6.5s ease-in-out infinite; animation-delay: calc(var(--i) * 900ms); }
-  .node.signal circle { fill: #f3ead2; }
-  .node.gold circle { fill: var(--c-gold); filter: drop-shadow(0 0 14px rgba(232, 182, 76, 0.75)); }
+  .node.signal circle { fill: var(--c-signal-node); }
+  .node.gold circle { fill: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
   .node.experiment circle { fill: var(--c-emerge); }
   .node.undefined circle { fill: var(--c-trace); }
   .node.resolved rect { fill: none; stroke: var(--c-ink); stroke-width: 1.5; }
