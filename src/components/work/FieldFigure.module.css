@@ -1,0 +1,168 @@
+/*
+ * FieldFigure — masthead plate for /work.
+ *
+ * Opacities are deliberately ~2.5x the source HTML's (0.10–0.18 there, which
+ * read as noise). Everything still sits under the header text, so the ceiling
+ * is set by legibility of the h1 above it, not by timidity.
+ */
+
+.plate {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* the luminous haze right of the axis — gives the field somewhere to go */
+.plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    38rem 22rem at 84% 46%,
+    rgba(var(--accent-rgb), 0.07),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 1200ms var(--transition-slow, 400ms ease);
+}
+
+.lit::after {
+  opacity: 1;
+}
+
+.fig {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rings,
+.field {
+  will-change: transform;
+}
+
+/* ── strokes ─────────────────────────────────────────────── */
+
+.ring,
+.line,
+.far,
+.gold,
+.axis {
+  fill: none;
+  stroke: var(--text);
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.ring {
+  stroke-width: 1;
+  opacity: 0;
+}
+.line {
+  stroke-width: 1;
+  opacity: 0;
+}
+.far {
+  stroke-width: 1;
+  opacity: 0;
+}
+.axis {
+  stroke-width: 1.5;
+  opacity: 0;
+}
+.gold {
+  stroke: var(--gold);
+  stroke-width: 1.4;
+  opacity: 0;
+}
+
+/* ── draw-in ─────────────────────────────────────────────── */
+
+.lit .ring {
+  animation: draw 1400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --draw-opacity: 0.22;
+}
+.lit .line {
+  animation: draw 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --draw-opacity: 0.3;
+}
+.lit .far {
+  animation: draw 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --draw-opacity: 0.34;
+}
+.lit .axis {
+  animation: draw 1600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 60ms;
+  --draw-opacity: 0.75;
+}
+.lit .gold {
+  animation:
+    draw 1300ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    emberPulse 6s ease-in-out 2s infinite;
+  --draw-opacity: 0.85;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  25% {
+    opacity: var(--draw-opacity);
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: var(--draw-opacity);
+  }
+}
+
+/* the accent line keeps a slow ember after it lands */
+@keyframes emberPulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ── reduced motion: the finished plate, held still ──────── */
+
+.still .ring,
+.still .line,
+.still .far,
+.still .axis,
+.still .gold {
+  animation: none !important;
+  stroke-dashoffset: 0;
+}
+.still .ring {
+  opacity: 0.22;
+}
+.still .line {
+  opacity: 0.3;
+}
+.still .far {
+  opacity: 0.34;
+}
+.still .axis {
+  opacity: 0.75;
+}
+.still .gold {
+  opacity: 0.85;
+}
+.still::after {
+  transition: none;
+}
+
+/* Small screens get the plate at reduced weight — the h1 wraps to four or
+   five lines there and needs the contrast back. */
+@media (max-width: 47.5rem) {
+  .fig {
+    opacity: 0.55;
+  }
+}

@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import FieldFigure from '../components/work/FieldFigure';
 import { SITE_TITLE } from '../consts';
 
 interface Piece {
@@ -114,6 +115,7 @@ const instruments = [
 
       <!-- Page header -->
       <div class="work-header">
+        <FieldFigure client:visible />
         <p class="section-eyebrow">Work</p>
         <h1 class="page-title">Research, systems, and the writing that explains both.</h1>
         <p class="page-desc">
@@ -254,9 +256,23 @@ const instruments = [
 
   /* ── Page header ── */
   .work-header {
+    position: relative;
     padding: 4em 0 3em;
     border-bottom: 1px solid var(--rule);
     margin-bottom: 0;
+  }
+
+  /* The field plate is full-bleed behind the header — it reads as a printed
+     sheet the text sits on, not as a box the text sits beside. It escapes
+     main's 900px measure without changing the flow of anything in it. */
+  .work-header :global(.plate-bleed) {
+    position: absolute;
+    inset: 0 calc(50% - 50vw);
+  }
+
+  .work-header > :not(:global(.plate-bleed)) {
+    position: relative;
+    z-index: 1;
   }
 
   .section-eyebrow {
