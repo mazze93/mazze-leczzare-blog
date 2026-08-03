@@ -105,6 +105,14 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
                   <span class="ab-dot"></span>
                   View projects
                 </a>
+                <a
+                  class="ab-button-ghost"
+                  href="/mazze-leczzare-cv.pdf"
+                  type="application/pdf"
+                >
+                  <span class="ab-dot"></span>
+                  Download CV <span class="ab-button-ghost__meta">PDF</span>
+                </a>
               </div>
             </aside>
           </section>
@@ -483,6 +491,14 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
 
   .ab-button-primary:hover,
   .ab-button-ghost:hover { opacity: 0.85; }
+
+  /* Format hint on the CV link — the label says "Download", so say what lands. */
+  .ab-button-ghost__meta {
+    margin-left: 0.5ch;
+    font-size: 0.68rem;
+    letter-spacing: var(--cg-tracking-wide, 0.05em);
+    color: var(--text-faint);
+  }
 
   .ab-button-primary:focus-visible,
   .ab-button-ghost:focus-visible {
