@@ -25,6 +25,11 @@
 @import '@fontsource/dm-mono/latin-500.css';
 @import '@fontsource/dm-mono/latin-500-italic.css';
 @import './compass.css';
+/* Haven / Ink — the approved light-mode palette. Wired 2026-08-02; it had sat
+   unimported since 2026-07-17 with a "not yet wired" note, which is why light
+   mode was only ever half-real. Supplies --hv-*, --ink*, --wash-* to the
+   [data-theme="light"] blocks below. */
+@import './haven-ink.tokens.css';
 
 /* ===========================
    CSS Custom Properties
@@ -434,6 +439,55 @@ body[data-layout="homepage"] {
   --zone-undefined:    22, 20, 16;
   --zone-experiment:   #2bd3c6;
   --zone-signal:       #f4a261;
+
+  /* ---- Homepage surface, Haven/Ink ------------------------------------
+     These eight --home-* tokens were the entire remaining light-mode gap on
+     the site: every other colour token had an override in this block, so the
+     homepage alone stayed deep navy when the toggle was flipped. Mapped onto
+     Haven (warm paper) + Indian ink rather than reusing the editorial light
+     palette, so the homepage keeps a surface of its own in both themes. */
+  --home-bg:         var(--hv-surface);
+  --home-surface:    var(--hv-center);
+  --home-text:       var(--ink);
+  --home-text-dim:   var(--ink-2);
+  --home-text-faint: var(--ink-3);
+  --home-gold:       var(--gold-seam-deep);
+  --home-rule:       var(--wash-14);
+  --home-header-bg:  rgba(244, 240, 231, 0.92);   /* --hv-surface @ 0.92 */
+
+  /* ---- Kintsugi seam, light ---------------------------------------------
+     The seam reads as gold leaf on obsidian in dark. On paper it has to go
+     deeper or it disappears into the warm ground. */
+  --gold-seam:        var(--gold-seam-deep);
+  --gold-seam-bright: #a8813c;
+  --gold-seam-deep:   #6f5628;
+  --hairline:         rgba(111, 86, 40, 0.22);
+  --hairline-soft:    var(--wash-8);
+  --paper:            var(--hv-high);
+  --paper-soft:       var(--hv-mid);
+  --muted-warm:       var(--ink-3);
+}
+
+/* Constellation sky, light — the ink-on-paper star chart the Haven/Ink file
+   described but nothing implemented. Scoped to the layout so it only applies
+   on /constellation, where these vars are declared.
+   Dark values for reference: void #06080f, ink #c7d2e6, dim #7683a0,
+   gold #e8b64c, emerge #7fd4d0, trace #46536d. */
+[data-theme="light"] body[data-layout="constellation"],
+[data-theme="light"] .cn-page {
+  --c-void:   var(--hv-surface);
+  --c-ink:    var(--ink);
+  --c-dim:    var(--ink-3);
+  /* Tuned against --hv-surface #f4f0e7, not picked by eye. --c-gold and
+     --c-emerge both carry text (.gold-word, .orientation a, .shadow-index
+     links) so they clear WCAG AA 4.5:1 — 5.11 and 5.24. --c-trace is
+     graphics only (.archive-rule stroke, .node.undefined fill) so it clears
+     the 3:1 non-text threshold of WCAG 1.4.11 at 3.21. The direct Haven
+     equivalents were too pale on paper: --ink-ghost gave --c-trace 2.46,
+     which fails even the graphics threshold. */
+  --c-gold:   #7a622c;
+  --c-emerge: #1a6f6a;
+  --c-trace:  #8a8580;
 }
 
 /* ===========================

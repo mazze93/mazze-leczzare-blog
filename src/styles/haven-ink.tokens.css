@@ -1,10 +1,17 @@
 /* ============================================================
-   HAVEN / INK — approved light-mode palette for the constellation
+   HAVEN / INK — approved light-mode palette
    (user-authored "Signal & Cost" design language, 2026-07-17).
-   Not yet wired: the plate's light-mode pass maps these onto the
-   sky vars (--c-void/--c-ink/--c-dim/--c-gold/--c-emerge/--c-trace)
-   as an ink-on-paper star chart. Kept as tokens so the palette
-   survives until that burst.
+
+   WIRED 2026-08-02. global.css imports this file, and its
+   [data-theme="light"] blocks map these tokens onto:
+     · the homepage surface  (--home-* — the last 8 colour tokens
+       on the site with no light-mode override, which is why the
+       homepage stayed deep navy while everything else inverted)
+     · the constellation sky (--c-void/--c-ink/--c-dim/--c-gold/
+       --c-emerge/--c-trace) as an ink-on-paper star chart
+
+   This file defines tokens only — it sets no rules and applies to
+   nothing on its own. Edit the mappings in global.css, not here.
    ============================================================ */
 :root {
   /* Haven palette — cool periphery → warm center */
