@@ -36,8 +36,8 @@ interface Props {
 const { header, subheader, panels } = Astro.props;
 
 const ACCENT_COLORS = [
-  'var(--color-gold, #c8a060)',
-  'var(--color-teal, #3ab8a0)',
+  'var(--gold)',
+  'var(--teal)',
   'var(--color-text-faint, #506058)',
 ];
 ---
@@ -96,7 +96,7 @@ const ACCENT_COLORS = [
     font-weight: 300;
     font-size: 0.7rem;
     letter-spacing: 0.4em;
-    color: var(--color-teal, #3ab8a0);
+    color: var(--teal);
     text-transform: uppercase;
     margin-bottom: 0.5rem;
   }

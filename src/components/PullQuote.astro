@@ -1,17 +1,42 @@
 ---
-// PullQuote.astro — editorial pull quote with coral left border
+// PullQuote.astro — editorial pull quote, ruled with a kintsugi seam.
+// The left border was a flat 3px coral bar; it is now the brush stroke, run
+// vertically. Same mark as SectionBreak — geometry lives in Seam.astro.
 // Usage in MDX: <PullQuote>The quoted text here.</PullQuote>
+import Seam from './Seam.astro';
 ---
 <blockquote class="pull-quote">
+  <span class="pull-quote__seam" aria-hidden="true"><Seam orientation="vertical" /></span>
   <slot />
 </blockquote>
 
 <style>
   .pull-quote {
+    position: relative;
+    /* global.css styles every blockquote with a 2px teal left border.
+       The seam replaces it — without this reset the teal bar sits
+       alongside the gold and you get two rules. */
+    border-left: none;
     margin: 3.5rem 0;
     padding: 1.75rem 2.25rem;
-    border-left: 3px solid var(--coral);
-    background: linear-gradient(135deg, rgba(26,18,8,0.6) 0%, transparent 100%);
+    /* was: border-left: 3px solid var(--coral) + a hardcoded rgba(26,18,8,0.6)
+       gradient that only worked on a dark ground. The wash is token-driven now
+       so it inverts with the theme. */
+    background: linear-gradient(
+      135deg,
+      rgba(var(--accent-rgb), 0.05) 0%,
+      transparent 70%
+    );
+  }
+
+  .pull-quote__seam {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 10px;
+    display: block;
+    pointer-events: none;
   }
 
   .pull-quote :global(p) {
