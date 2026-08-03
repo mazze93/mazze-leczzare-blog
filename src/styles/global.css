@@ -32,12 +32,42 @@
 :root {
   color-scheme: dark;
 
-  /* Fixed palette — synced with Cipher Gothic Design System */
-  --teal:       #34c3b9;
-  --teal-dim:   #1c6964;
-  --coral:      #e85a4a;
-  --coral-dim:  #a04030;
-  --gold:       #d4a574;
+  /* Fixed palette — Kintsugi.
+     Migrated 2026-08-02 from the older editorial values (--teal #34c3b9,
+     --coral #e85a4a, --gold #d4a574) to the palette /intentional-fragility/
+     and /cipher-gothic/ were already using. Those two pages were not drifting
+     by accident — they were ahead of the shared tokens, and the shared tokens
+     were the stale copy. Kintsugi is now the site-wide truth: obsidian ground,
+     gold as the seam, teal rhyming the brand.
+
+     Cipher Gothic remains ONE design system deployed here, not the whole site
+     — see the Design Systems section of CLAUDE.md. */
+  --teal:       #5CCFCF;
+  /* The -dim pair are used as text colours (.tag:hover), so they are tuned to
+     clear WCAG AA (4.5:1) on --bg #0f1210, not just picked by eye. Both of
+     their predecessors failed it: #1c6964 was 2.92:1 and #a04030 was 2.94:1.
+     Current: #2f8a8a = 4.60:1, #c25f65 = 4.59:1. */
+  --teal-dim:   #2f8a8a;
+  --coral:      #F07178;
+  --coral-dim:  #c25f65;
+  --gold:       #cda24e;
+
+  /* Gold seam — the kintsugi break. Lifted from /intentional-fragility/ so the
+     seam language is available to every component, not just that one page. */
+  --gold-seam:        #cda24e;
+  --gold-seam-bright: #e6c478;
+  --gold-seam-deep:   #8a6f33;
+  --hairline:         rgba(205, 162, 78, 0.16);
+  --hairline-soft:    rgba(196, 189, 171, 0.12);
+
+  /* Kintsugi ground + paper. --ink-* are the obsidian raises the seam sits on;
+     --paper-* are the warm off-whites it reads against in light mode. */
+  --ink-deep:   #0b0e15;
+  --ink-raise:  #121723;
+  --ink-raise-2:#0e131c;
+  --paper:      #ece7da;
+  --paper-soft: #c4bdab;
+  --muted-warm: #a39c84;
 
   /* Dark mode tokens (default) */
   --charcoal:   #0f1210;
@@ -52,8 +82,8 @@
   /* Semantic aliases */
   --accent:     var(--teal);
   --accent-alt: var(--coral);
-  --accent-rgb: 52, 195, 185;    /* rgb triplet of --teal — for rgba() usage */
-  --coral-rgb:  232, 90, 74;    /* rgb triplet of --coral — for rgba() usage */
+  --accent-rgb: 92, 207, 207;   /* rgb triplet of --teal — for rgba() usage */
+  --coral-rgb:  240, 113, 120;  /* rgb triplet of --coral — for rgba() usage */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
@@ -610,7 +640,8 @@ textarea, input {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--coral);
-  border: 1px solid rgba(232, 112, 90, 0.3);
+  /* was rgba(232, 112, 90, 0.3) — same pre-Kintsugi literal as the :hover rule */
+  border: 1px solid rgba(var(--coral-rgb), 0.3);
   padding: 0.2em 0.6em;
   border-radius: var(--radius-sm);
   line-height: 1.6;
@@ -619,7 +650,9 @@ textarea, input {
 
 .tag:hover {
   color: var(--coral-dim);
-  border-color: rgba(232, 112, 90, 0.5);
+  /* was rgba(232, 112, 90, 0.5) — the pre-Kintsugi coral hardcoded as a
+     literal, so it survived every token change. Uses the triplet now. */
+  border-color: rgba(var(--coral-rgb), 0.5);
 }
 
 /* ===========================

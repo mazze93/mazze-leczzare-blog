@@ -149,21 +149,21 @@ import '@fontsource/crimson-pro/600.css';
 </html>
 
 <style is:global>
-  /* HEADS UP — these --cg-* names are page-local and are NOT the shared Cipher
-     Gothic tokens in src/styles/global.css. Two collisions to know about before
-     editing either file:
+  /* These --cg-* names are page-local and distinct from the shared --cg-font-*
+     / --cg-space-* tokens in global.css. Nothing here overrides anything.
 
-       --cg-sans   here = Space Grotesk    ·  --cg-font-sans   global = Inter
-       --cg-serif  here = Crimson Pro      ·  --cg-font-serif  global = Cormorant Garamond
-       --cg-accent here = #5CCFCF          ·  --teal           global = #34c3b9
-       --cg-coral  here = #F07178          ·  --coral          global = #e85a4a
+     The palette is no longer divergent: --cg-accent #5CCFCF and --cg-coral
+     #F07178 now match the shared --teal / --coral. That was resolved in the
+     Kintsugi migration (2026-08-02) by moving the GLOBAL tokens onto these
+     values, not the other way round — this page and /intentional-fragility/
+     had the current palette; global.css was carrying the stale one.
 
-     The global tokens all carry a --cg-font-* / --cg-space-* style prefix, so
-     nothing here actually overrides them — but the names are close enough to
-     read as the same token, and the palettes genuinely differ. Whether this
-     page should adopt the shared palette or keep its own showcase palette is
-     an open design question (see docs/journal/CHECKPOINT.md, deferred list);
-     it is left as-is here rather than silently changed. */
+     Prefer var(--teal) / var(--coral) over the page-local aliases in new rules
+     here, so the next palette change reaches this page automatically.
+
+     Still page-local by design: --cg-sans (Space Grotesk) and --cg-serif
+     (Crimson Pro). This page documents a type system that is not the site's
+     body type, which is the point of a specimen page. */
   .cg-page {
     --cg-bg: #050608;
     --cg-bg-elevated: #0b0f14;
