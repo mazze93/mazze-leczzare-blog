@@ -33,3 +33,20 @@ Append-only. Format: `date · decision · why · how to reverse`.
   diff set (all three files) wasn't yet assembled; pushing `global.css` alone
   without `editorial.css`/`homepage.css` checked would leave the remote in a
   partially-synced, ambiguous state. Reverse: n/a — no write has happened.
+  **Superseded 2026-08-03** — full diff set assembled, user confirmed, both
+  files pushed. See below.
+
+## 2026-08-03
+
+- **Pushed `global.css` and `editorial.css` to the design-sync project;
+  skipped `homepage.css`.** Why: `homepage.css` read back byte-identical to
+  local — nothing to sync. `global.css` was 383 lines stale (missing Kintsugi
+  palette, Haven/Ink, Cipher Gothic tokens). `editorial.css` tokens were
+  identical but the header comment diverged (site-rot-sweep's "dead config"
+  warning) — pushed anyway, since the project's stated purpose is mirroring
+  `src/styles/*.css` exactly, warnings included, not just the live-consumed
+  parts. Confirmed via `AskUserQuestion` before writing. Reverse: `get_file`
+  the pre-push remote content is not retained anywhere — reverting means
+  re-authoring the stale version by hand, which is not worth doing; the
+  correct fix if this proves wrong is to edit `src/styles/*.css` (source of
+  truth) and re-sync forward, never to hand-edit the remote back.

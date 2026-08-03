@@ -17,20 +17,22 @@ converter skill doesn't apply. The only job is manual CSS parity via
 - [x] **Phase 0 — FieldFigure /work masthead (already shipped, logged here for
       continuity).** Not part of this plan's original scope but completed
       immediately prior in the same session. See CHECKPOINT for detail.
-- [ ] **Phase 1 — diff `global.css`.** Already confirmed stale on remote
-      (missing the entire `--cg-*` additive token block + mixin classes,
-      local lines 122–258). Re-confirm against current local file, stage the
-      write.
-- [ ] **Phase 2 — diff `editorial.css`.** Remote fetched last session, not yet
-      diffed against `src/styles/editorial.css`. Do the diff, stage the write
-      if divergent.
-- [ ] **Phase 3 — diff `homepage.css`.** Not yet fetched from remote at all.
-      Fetch, diff, stage the write if divergent.
-- [ ] **Phase 4 — push.** Present the full diff set to the user, get
-      confirmation (DesignSync `finalize_plan` is permission-gated), then
-      `write_files`.
-- [ ] **Phase 5 — close.** Verify remote files match local via a fresh
-      `get_file` read-back; update CHECKPOINT.
+- [x] **Phase 1 — diff `global.css`.** Re-confirmed stale on remote — 383-line
+      diff. Remote predated the Kintsugi palette migration, the Haven/Ink
+      light-mode import, and the entire Cipher Gothic additive-token block.
+      Staged for write.
+- [x] **Phase 2 — diff `editorial.css`.** Tokens byte-identical; only the
+      site-rot-sweep "dead config, not imported anywhere" header comment
+      differed. Staged for write (parity means the annotation ships too).
+- [x] **Phase 3 — diff `homepage.css`.** Fetched from remote — byte-identical
+      to `src/styles/homepage.css`. No write needed.
+- [x] **Phase 4 — push.** User confirmed via AskUserQuestion ("push both").
+      `finalize_plan` → `write_files` for `uploads/global.css` and
+      `uploads/editorial.css`. `written: 2`.
+- [x] **Phase 5 — close.** Fresh `get_file` read-back of `uploads/global.css`
+      confirms exact match to local (Kintsugi tokens, Haven/Ink import,
+      Cipher Gothic block, Inter `@font-face`, `.tag` rgba-triplet fix all
+      present). CHECKPOINT updated.
 
 ## Known constraints
 

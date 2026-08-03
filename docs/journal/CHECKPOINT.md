@@ -1,18 +1,17 @@
 # CHECKPOINT — design-sync-css-parity
 
-**Last updated:** 2026-08-02 (Phase 0 closed, Phase 1 not yet started)
+**Last updated:** 2026-08-03 (Phase 5 — closed)
 **Branch:** `worktree-cv-work-integration` (worktree) → pushed directly to
 `origin/main`. This branch currently tracks no upstream of its own — pushes
 go via `git push origin worktree-cv-work-integration:main`, not `git push`.
 
 ## To resume
 
-Read `PLAN.md` for phase order, `DECISIONS.md` for why each choice was made.
-Next unchecked phase is **Phase 1 — diff `global.css`**. The stale-remote
-finding from before this journal existed (missing `--cg-*` token block,
-local lines 122–258) still needs re-confirming against current
-`src/styles/global.css` before staging the write — don't assume it's still
-accurate without a fresh `get_file`.
+Task is complete. `src/styles/{global.css,editorial.css,homepage.css}` and
+the claude.ai/design project's `uploads/*.css` are in parity as of this
+close. Re-run the same diff procedure (fresh `get_file` per remote file,
+diff against current local) if local styles change again — do not assume
+parity holds indefinitely; nothing re-checks this automatically.
 
 ## Phase status
 
@@ -25,26 +24,30 @@ accurate without a fresh `get_file`.
       themes on `localhost:4399/work/` — plate visible, draw-in animation
       completes, h1/eyebrow stay legible. `npm run check` green pre- and
       post-rebase. Pushed clean (`7a7b436..3d7385e`).
-- [ ] **Phase 1 — diff `global.css`.** Not started this journal cycle
-      (finding carried over from before the scaffold, needs re-verification).
-- [ ] **Phase 2 — diff `editorial.css`.** Remote content fetched previously,
-      diff against local not yet done.
-- [ ] **Phase 3 — diff `homepage.css`.** Not fetched from remote yet.
-- [ ] **Phase 4 — push (needs user confirmation).**
-- [ ] **Phase 5 — close.**
+- [x] **Phase 1 — diff `global.css`.** 383-line diff. Remote predated the
+      Kintsugi palette migration (`5f650a2`), the Haven/Ink light-mode wiring
+      (`a4b6166`), and the whole Cipher Gothic additive-token block.
+- [x] **Phase 2 — diff `editorial.css`.** Tokens identical; only the
+      site-rot-sweep "dead config" header comment diverged.
+- [x] **Phase 3 — diff `homepage.css`.** Byte-identical to remote — no write.
+- [x] **Phase 4 — push.** User confirmed ("push both") via `AskUserQuestion`.
+      `finalize_plan` (`plan_019e1ccb00cb7782_55abde3bd1c3`) → `write_files`
+      for `uploads/global.css` + `uploads/editorial.css`. `written: 2`.
+- [x] **Phase 5 — close.** Fresh `get_file` read-back of `uploads/global.css`
+      confirmed exact match to local content.
 
 ## Verification state
 
 - FieldFigure: `npm run check` ✓ (39 pages, tsc clean), live browser
   screenshot ✓ (light + dark), pushed to `origin/main` ✓.
-- Design-sync CSS parity: no verification yet this cycle — Phase 1 not
-  started.
+- Design-sync CSS parity: `global.css` write verified via read-back ✓.
+  `editorial.css` write verified via read-back ✓ — matches local exactly,
+  including the "dead config" header comment.
+- `homepage.css`: confirmed identical pre-write, untouched.
 
 ## Deferred / needs user
 
-1. **Design-sync `write_files` call.** Gated on user confirmation once the
-   full three-file diff is assembled (Phase 4). Do not push partial parity.
-2. **`worktree-cv-work-integration` has no upstream tracking branch.** Pushes
+1. **`worktree-cv-work-integration` has no upstream tracking branch.** Pushes
    so far have used the explicit `origin/worktree-cv-work-integration:main`
    refspec successfully; flagged in case a plain `git push` is attempted later
    and fails for a different reason than expected.
@@ -53,5 +56,4 @@ accurate without a fresh `get_file`.
 
 - No remote CSS pulled back into `src/styles/` — sync direction is local →
   remote only, per `.design-sync/config.json`.
-- No `finalize_plan`/`write_files` call made — all design-sync work so far has
-  been read-only (`get_file`).
+- `homepage.css` not written — remote already matched local exactly.
