@@ -39,12 +39,20 @@ proving behaviour, and computed contrast ratios are not a render. Committed with
 the gap stated in the message rather than letting "npm run check passes" stand
 in for "it looks right." Item 1 below is that verification.
 
-**Shipped and pushed:** `c72b64f` sitemap · `a2d1be5` CV · `5f650a2` Kintsugi
-palette. **Committed, NOT yet pushed:** `6ea7bd6` Haven/Ink light mode.
+**All shipped and pushed:** `c72b64f` sitemap · `a2d1be5` CV · `5f650a2`
+Kintsugi palette · `a4b6166` Haven/Ink light mode · `e0b65d4` constellation
+light-mode fix (the verification of `a4b6166`).
+
+**Next up: item 2.** Items 0 and 1 are closed.
 
 ---
 
-## 0. Push the pending commit — do this first
+## 0. Push the pending commit — ✅ DONE
+
+All work through `e0b65d4` is on `origin/main`. Next task is **item 2**.
+
+<details>
+<summary>Original instructions (kept — the retry advice still applies)</summary>
 
 ```bash
 cd ~/Projects/blog/mazze-leczzare-blog
@@ -59,9 +67,38 @@ checks, push again. Zed's file watcher holds transient `.git/index.lock` —
 a failed `git add`/`commit` is usually that; retry after 2s rather than
 deleting the lock.
 
+</details>
+
 ---
 
-## 1. Verify the light mode that just shipped — HIGHEST PRIORITY
+## 1. Verify the light mode that just shipped — ✅ DONE (`e0b65d4`)
+
+**Closed 2026-08-03.** Verified in-browser with Playwright, both themes seeded
+via `localStorage` + `colorScheme` *before* load. Both predicted failure points
+were real, plus four more the prediction missed:
+
+- The gold glow and the orientation halo were dark-coloured in light, as
+  predicted.
+- **Bigger, unpredicted:** the sky paints two full-bleed `<rect>`s whose
+  gradients were hardcoded hex. Haven paper was reaching `body` and then being
+  covered by a near-black field — the ink-on-paper chart never appeared.
+  Sampling `body` background is what hid this; the element you measure is not
+  the one you see.
+- `.node.signal circle` was a hardcoded cream `#f3ead2` — a star on black, and
+  invisible on paper. Now `#3f3a34`, 9.29:1.
+- The `.cn-page` half of the selector turned out to be unnecessary but
+  harmless: `/studio` and `/project/*` already inverted via global tokens.
+
+One probe lesson worth keeping: setting `document.documentElement.dataset.theme`
+*after* page load is overwritten by `BaseHead`'s inline script and
+`ThemeToggle`'s `useEffect`. The first run showed dark and light identical on
+three pages and looked like a serious regression — it was a broken probe. Seed
+the preference before navigation.
+
+Dark mode is pixel-identical to before across all of it.
+
+<details>
+<summary>Original brief (kept for context)</summary>
 
 `6ea7bd6` is the one commit in this pass **not proven end-to-end**. It builds,
 and the values are confirmed in the built CSS, but it has never been rendered.
@@ -100,6 +137,10 @@ Two known risks, both unverified:
   `/project/*` don't invert, that selector is why.
 
 If a fix is needed, it is a follow-up commit — do not amend `6ea7bd6`.
+
+---
+
+</details>
 
 ---
 
