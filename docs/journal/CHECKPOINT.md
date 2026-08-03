@@ -1,78 +1,57 @@
-# CHECKPOINT — site-rot-sweep
+# CHECKPOINT — design-sync-css-parity
 
-**Last updated:** 2026-08-02 (Phase 7 — closed)
-**Branch:** `main`, pushed through `origin/main`. Session start `47ddc8b`.
+**Last updated:** 2026-08-02 (Phase 0 closed, Phase 1 not yet started)
+**Branch:** `worktree-cv-work-integration` (worktree) → pushed directly to
+`origin/main`. This branch currently tracks no upstream of its own — pushes
+go via `git push origin worktree-cv-work-integration:main`, not `git push`.
 
 ## To resume
 
-Task is complete. If picking up the loose ends, read the deferred list below;
-`docs/journal/DECISIONS.md` has the reasoning for every choice made here,
-including two reversals.
+Read `PLAN.md` for phase order, `DECISIONS.md` for why each choice was made.
+Next unchecked phase is **Phase 1 — diff `global.css`**. The stale-remote
+finding from before this journal existed (missing `--cg-*` token block,
+local lines 122–258) still needs re-confirming against current
+`src/styles/global.css` before staging the write — don't assume it's still
+accurate without a fresh `get_file`.
 
 ## Phase status
 
-- [x] **Phase 1 — scaffold.** `7ccb263`. Closed cv-work-integration journal
-      archived to `docs/journal/archive/2026-07-28-cv-work-integration/`.
-- [x] **Phase 2 — VOID.** Premised on font 404s that do not exist. 14 vendored
-      files removed, tree restored, reversal logged. Kept in the plan so the
-      mistake stays legible.
-- [x] **Phase 3 — fonts: `--cg-font-sans` resolved.** `a39ac54`. Inter
-      self-hosted via `@font-face` against the already-deployed
-      `/fonts/inter-*.woff2`; closes the item `8e0d6ae` left open. Also
-      documented the `--cg-sans` / `--cg-font-sans` naming trap in
-      `cipher-gothic.astro`.
-- [x] **Phase 4 — CSP + duplicate route.** `c5a5f6c`. The Breakthrough artifact
-      was fetching CDN fonts under `font-src 'self'` (blocked → rendering in
-      fallback typefaces) and publishing at two URLs. Fonts self-hosted (8 cuts
-      vendored), duplicate archived to `docs/archive/` with 301s. 40 → 39 pages.
-- [x] **Phase 5 — dead config labelled.** `02b0c02`. `tailwind.config.mjs` and
-      `editorial.css` both marked inert in place, with their misleading
-      instructions corrected. No behaviour change.
-- [x] **Phase 6 — CLAUDE.md + drift coverage.** `7ad7769`. Two new checks in
-      `check-docs-drift.sh` (§8 asset-reference resolver, §9 CDN-font/CSP),
-      both verified by reintroducing the defect and confirming exit 1. `*.html`
-      added to the page scan. Manifests filled; run is now clean of warnings as
-      well as errors.
-- [x] **Phase 7 — close.** This entry.
+- [x] **Phase 0 — FieldFigure `/work` masthead.** Commit `3d7385e` on `main`
+      (rebased from `7048b64` on this branch). New files
+      `src/components/work/FieldFigure.tsx` + `FieldFigure.module.css`,
+      mounted `client:visible` in `src/pages/work.astro`'s `.work-header`.
+      Verified in-browser via `mcp__chrome-devtools__*` (claude-in-chrome was
+      blocking new localhost ports this session) in both light and dark
+      themes on `localhost:4399/work/` — plate visible, draw-in animation
+      completes, h1/eyebrow stay legible. `npm run check` green pre- and
+      post-rebase. Pushed clean (`7a7b436..3d7385e`).
+- [ ] **Phase 1 — diff `global.css`.** Not started this journal cycle
+      (finding carried over from before the scaffold, needs re-verification).
+- [ ] **Phase 2 — diff `editorial.css`.** Remote content fetched previously,
+      diff against local not yet done.
+- [ ] **Phase 3 — diff `homepage.css`.** Not fetched from remote yet.
+- [ ] **Phase 4 — push (needs user confirmation).**
+- [ ] **Phase 5 — close.**
 
 ## Verification state
 
-- `npm run check` ✓ — 39 pages, tsc clean.
-- `npm run test` ✓ — 194 tests, 6 files.
-- `npm run docs:check` ✓ — exit 0, zero warnings.
-- Font references resolved (not grepped) across `public/` and `dist/`: 98
-  references in `dist`, 0 broken.
-- No CDN font request anywhere outside `/artifacts/`.
-- All five commits pushed to `origin/main`.
+- FieldFigure: `npm run check` ✓ (39 pages, tsc clean), live browser
+  screenshot ✓ (light + dark), pushed to `origin/main` ✓.
+- Design-sync CSS parity: no verification yet this cycle — Phase 1 not
+  started.
 
 ## Deferred / needs user
 
-1. **`/cipher-gothic` palette divergence.** The page documenting the Cipher
-   Gothic system uses page-local `--cg-accent` `#5CCFCF` / `--cg-coral`
-   `#F07178` and Space Grotesk / Crimson Pro, while the shared tokens are
-   `--teal` `#34c3b9` / `--coral` `#e85a4a` and Cormorant / DM Mono. Nothing
-   overrides anything (different names), so this is not a bug — but the design
-   system's own showcase page not matching the design system is a real
-   question. Commented in place, not changed.
-2. **`tailwindcss` devDependency.** Config is inert and labelled; the package is
-   still installed. Keep (in case Tailwind gets wired up) or `npm rm tailwindcss`
-   and delete the config.
-3. **`public/fonts/atkinson-{bold,regular}.woff`.** The only two genuinely
-   unreferenced font files in the repo — legacy `.woff` from
-   `0063889 source repo import`, superseded by the `atkinsonhyperlegible-*.woff2`
-   that `/intentional-fragility/` ships locally. Left in place.
-4. **CDN fonts remaining under `/artifacts/`.** `tree-of-knowledge.html` and
-   `publication-surface-v1.2.2.html` fetch from fonts.googleapis.com. Permitted
-   by `ARTIFACT_CSP` and rendering fine, so not a defect — but they are the last
-   third-party requests on a site that otherwise makes none.
-5. **Uncommitted `@astrojs/sitemap` `3.7.3` → `^3.7.3`.** Predates this session;
-   left exactly as found. Resolved version unchanged, so no effect either way.
+1. **Design-sync `write_files` call.** Gated on user confirmation once the
+   full three-file diff is assembled (Phase 4). Do not push partial parity.
+2. **`worktree-cv-work-integration` has no upstream tracking branch.** Pushes
+   so far have used the explicit `origin/worktree-cv-work-integration:main`
+   refspec successfully; flagged in case a plain `git push` is attempted later
+   and fails for a different reason than expected.
 
 ## Non-actions (explicit)
 
-- Nothing deleted. The duplicate route was archived to a tracked directory; both
-  dead-config files remain on disk.
-- `functions/` untouched — the CSP was satisfied by fixing the page, not by
-  widening middleware.
-- No dependencies added or removed. The 8 vendored woff2 came from `npm pack`
-  tarballs and `node_modules`, following the convention `7525613` set.
+- No remote CSS pulled back into `src/styles/` — sync direction is local →
+  remote only, per `.design-sync/config.json`.
+- No `finalize_plan`/`write_files` call made — all design-sync work so far has
+  been read-only (`get_file`).
