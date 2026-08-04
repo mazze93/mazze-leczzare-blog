@@ -1,59 +1,95 @@
-# CHECKPOINT — design-sync-css-parity
+# CHECKPOINT — design-systems pass
 
-**Last updated:** 2026-08-03 (Phase 5 — closed)
-**Branch:** `worktree-cv-work-integration` (worktree) → pushed directly to
-`origin/main`. This branch currently tracks no upstream of its own — pushes
-go via `git push origin worktree-cv-work-integration:main`, not `git push`.
+**Last updated:** 2026-08-03 (session close — clean handoff to a new session)
+**Branch:** `main`, in sync with `origin/main`. Working tree clean.
+**Predecessor journals** (all closed, all under `docs/journal/archive/`):
+`2026-07-28-cv-work-integration`, `2026-08-02-site-rot-sweep`,
+`2026-08-03-design-sync-css-parity`.
 
-## To resume
+## To resume — read in this order
 
-Task is complete. `src/styles/{global.css,editorial.css,homepage.css}` and
-the claude.ai/design project's `uploads/*.css` are in parity as of this
-close. Re-run the same diff procedure (fresh `get_file` per remote file,
-diff against current local) if local styles change again — do not assume
-parity holds indefinitely; nothing re-checks this automatically.
+1. This file.
+2. `docs/journal/HANDOFF.md` — the ordered work queue, and this pass's
+   decisions. Items 0 and 1 are closed; item 2 (radiate the seam) is done for
+   SectionBreak / both PullQuotes / AuthorCoda. **The live next task is the
+   astrolabe chrome — item 2 of "Next task" below.**
 
-## Phase status
+## What shipped this session
 
-- [x] **Phase 0 — FieldFigure `/work` masthead.** Commit `3d7385e` on `main`
-      (rebased from `7048b64` on this branch). New files
-      `src/components/work/FieldFigure.tsx` + `FieldFigure.module.css`,
-      mounted `client:visible` in `src/pages/work.astro`'s `.work-header`.
-      Verified in-browser via `mcp__chrome-devtools__*` (claude-in-chrome was
-      blocking new localhost ports this session) in both light and dark
-      themes on `localhost:4399/work/` — plate visible, draw-in animation
-      completes, h1/eyebrow stay legible. `npm run check` green pre- and
-      post-rebase. Pushed clean (`7a7b436..3d7385e`).
-- [x] **Phase 1 — diff `global.css`.** 383-line diff. Remote predated the
-      Kintsugi palette migration (`5f650a2`), the Haven/Ink light-mode wiring
-      (`a4b6166`), and the whole Cipher Gothic additive-token block.
-- [x] **Phase 2 — diff `editorial.css`.** Tokens identical; only the
-      site-rot-sweep "dead config" header comment diverged.
-- [x] **Phase 3 — diff `homepage.css`.** Byte-identical to remote — no write.
-- [x] **Phase 4 — push.** User confirmed ("push both") via `AskUserQuestion`.
-      `finalize_plan` (`plan_019e1ccb00cb7782_55abde3bd1c3`) → `write_files`
-      for `uploads/global.css` + `uploads/editorial.css`. `written: 2`.
-- [x] **Phase 5 — close.** Fresh `get_file` read-back of `uploads/global.css`
-      confirmed exact match to local content.
+| Commit | What |
+| --- | --- |
+| `e0b65d4` | Constellation light mode actually reaches the sky (4 theme-blind literals) |
+| `83b9362` | Brush-stroke seam on SectionBreak; last two CDN fonts self-hosted |
+| `f1991c5` | Seam on both PullQuotes + AuthorCoda; `Seam.astro` extracted |
+| `83e1725` | Swept every stale-palette / dead-fallback site (24 across 14 files) |
+| `3b5d2f1` | Cormorant SC added; editorial.css / SignalHero / Tailwind / atkinson orphans retired |
 
-## Verification state
+All pushed. At close: `npm run check` 39 pages · `npm run test` 194 ·
+`npm run docs:check` clean, zero warnings.
 
-- FieldFigure: `npm run check` ✓ (39 pages, tsc clean), live browser
-  screenshot ✓ (light + dark), pushed to `origin/main` ✓.
-- Design-sync CSS parity: `global.css` write verified via read-back ✓.
-  `editorial.css` write verified via read-back ✓ — matches local exactly,
-  including the "dead config" header comment.
-- `homepage.css`: confirmed identical pre-write, untouched.
+## Standing state
 
-## Deferred / needs user
+- **Three design systems, deliberately.** Kintsugi = site-wide palette
+  (`--teal #5CCFCF`, `--coral #F07178`, `--gold #cda24e`, plus seam tokens).
+  Cipher Gothic = one system deployed here, not the whole site (`--cg-*` type/
+  space/motion + the `/cipher-gothic/` specimen). Haven/Ink = light mode, wired
+  and live. `/artifacts/*` are self-contained and outside all three.
+  **Not yet written into CLAUDE.md** — item 4 of HANDOFF.md.
+- **The seam** lives in `src/components/Seam.astro` — one source for the
+  geometry, `orientation="horizontal|vertical"`. Consumed by `SectionBreak`,
+  both `PullQuote`s, `AuthorCoda`. Reference original: the `.seam` rules in
+  `public/intentional-fragility/index.html`.
+- **Zero third-party font requests** anywhere in `dist/`.
+- **Two standing invariants**, both enforced by `check-docs-drift.sh` (§8, §9):
+  every `url(*.woff2)` resolves, and no CDN font fetch outside `/artifacts/*`.
 
-1. **`worktree-cv-work-integration` has no upstream tracking branch.** Pushes
-   so far have used the explicit `origin/worktree-cv-work-integration:main`
-   refspec successfully; flagged in case a plain `git push` is attempted later
-   and fails for a different reason than expected.
+## Next task — astrolabe chrome over derived geometry
+
+Agreed with mazze; not started. **Keep the derived node geometry**
+(`decay.ts`/`layout.ts` — position means something: erasure→signal by age and
+seal state) and adopt the astrolabe's *chrome*: limb, graduated ring, rete
+overlay, labelled ecliptics. Do not replace the constellation with the flat
+astrolabe plate — that swaps meaningful geometry for decorative.
+
+Inputs mazze supplied:
+- `~/Desktop/mazze-fully-cooked-landing.html` — the astrolabe markup. Its
+  palette already matches Kintsugi. **Its copy is comp copy and explicitly not
+  in mazze's voice — ship none of it.** It pulls Cormorant SC and Martian Mono
+  from Google Fonts, CSP-blocked outside `/artifacts/*`; Cormorant SC is now
+  self-hosted, Martian Mono is not.
+- A reference image (orbital/gravitational — planets on gold geometry), closer
+  in spirit to the existing gold-gravity-well constellation than to a flat plate.
+- `~/Public/Design/lightmode-proto.html` — the Haven/Ink brush source. Its
+  "instrument module" section (ink axes, waveform curves, ink-wash regions) is
+  the nearest precedent for drawing the chrome.
+
+## Deferred / needs a decision
+
+1. **Design-sync parity is now stale.** The `2026-08-03-design-sync-css-parity`
+   journal closed asserting `uploads/global.css` and `uploads/editorial.css` in
+   the claude.ai/design project matched local. Since then this session rewrote
+   `global.css` substantially and **retired `editorial.css` entirely**. That
+   remote pair is out of date and one of them no longer has a local counterpart.
+   Nothing re-checks this automatically. Re-sync or retire the remote copies.
+2. **Three unused blog components.** `blog/Triptych`, `blog/MentorQuote`,
+   `blog/VerseBlock` are imported by zero posts. Unlike what was retired this
+   session they are *usable library surface*, not rot, so they were left alone —
+   but `blog/Triptych` is the only consumer of `--font-caps`/Cormorant SC. Keep
+   as library, or retire them and the font together.
+3. **Martian Mono** — named by the landing proto, absent from the site.
+4. **`--home-gold` reads circular** in the light block (maps to
+   `--gold-seam-deep`, redefined in the same block). Resolves correctly; worth a
+   comment or a direct hex.
+5. **`docs/mazze-leczzare-cv.pdf`** duplicates `public/mazze-leczzare-cv.pdf`.
+   Only `public/` ships.
+6. **`/cipher-gothic` specimen** should read `var(--teal)`/`var(--coral)` rather
+   than its page-local aliases, so the next palette change reaches it.
 
 ## Non-actions (explicit)
 
-- No remote CSS pulled back into `src/styles/` — sync direction is local →
-  remote only, per `.design-sync/config.json`.
-- `homepage.css` not written — remote already matched local exactly.
+- Nothing deleted this session. Every retirement was a `git mv` into
+  `docs/archive/retired-2026-08-03/`, documented in that directory's README.
+- The three unused `blog/*` components were **not** retired — that is a library
+  decision for mazze, not rot to clear unilaterally.
+- No changes to `functions/`, to content, or to the constellation's derived
+  geometry.
