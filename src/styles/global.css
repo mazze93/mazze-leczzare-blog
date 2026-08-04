@@ -89,6 +89,8 @@
   --accent-alt: var(--coral);
   --accent-rgb: 92, 207, 207;   /* rgb triplet of --teal — for rgba() usage */
   --coral-rgb:  240, 113, 120;  /* rgb triplet of --coral — for rgba() usage */
+  --gold-rgb:   205, 162, 78;   /* rgb triplet of --gold */
+  --gold-bright-rgb: 244, 210, 154;  /* rgb triplet of --gold-bright */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
@@ -420,6 +422,8 @@ body[data-layout="homepage"] {
   --gold:       #8a6a3a;
   --accent-rgb: 30, 112, 96;     /* rgb triplet of --teal in light mode */
   --coral-rgb:  176, 48, 32;     /* rgb triplet of --coral in light mode */
+  --gold-rgb:   138, 106, 58;    /* rgb triplet of --gold in light mode */
+  --gold-bright-rgb: 176, 134, 90;   /* rgb triplet of --gold-bright in light */
 
   /* Light mode uses shadows for depth — the inverse of dark mode's glow language */
   --shadow-sm:   0 1px 4px rgba(26, 36, 32, 0.06), 0 1px 2px rgba(26, 36, 32, 0.04);
@@ -626,7 +630,7 @@ code {
   font-family: var(--font-mono);
   font-size: 0.85em;
   padding: 2px 6px;
-  background: rgba(58, 184, 160, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
   color: var(--teal);

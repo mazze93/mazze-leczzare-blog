@@ -76,7 +76,9 @@ footer {
 }
 
 .statement-text {
-  font-family: var(--font-serif, Georgia, serif);
+  /* was var(--font-serif, …) — no such token exists, so this always fell
+     through to Georgia. The site's serif is --font-display. */
+  font-family: var(--font-display);
   font-size: 0.82rem;
   font-style: italic;
   color: var(--text-dim);

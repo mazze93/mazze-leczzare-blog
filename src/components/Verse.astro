@@ -10,7 +10,9 @@
   .verse-block {
     margin: 2.5rem 0;
     padding-left: 2rem;
-    border-left: 1px solid var(--teal-faint, rgba(58,184,160,0.25));
+    /* was var(--teal-faint, rgba(58,184,160,0.25)) — --teal-faint is not
+       defined, so this always rendered the pre-Kintsugi teal #3ab8a0. */
+    border-left: 1px solid rgba(var(--accent-rgb), 0.28);
   }
 
   .verse-block :global(p) {

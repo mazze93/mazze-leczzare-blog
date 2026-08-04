@@ -216,20 +216,20 @@ import { SITE_TITLE, SITE_GITHUB_URL } from '../consts';
   }
 
   .support-card:hover {
-    border-color: rgba(58, 184, 160, 0.4);
+    border-color: rgba(var(--accent-rgb), 0.4);
     background: rgba(20, 30, 36, 0.9);
     transform: translateY(-2px);
   }
 
   .support-card--primary {
     grid-column: 1 / -1;
-    border-color: rgba(58, 184, 160, 0.28);
-    background: rgba(58, 184, 160, 0.06);
+    border-color: rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-rgb), 0.06);
   }
 
   .support-card--primary:hover {
-    border-color: rgba(58, 184, 160, 0.55);
-    background: rgba(58, 184, 160, 0.1);
+    border-color: rgba(var(--accent-rgb), 0.55);
+    background: rgba(var(--accent-rgb), 0.1);
   }
 
   .card-icon {
@@ -268,7 +268,7 @@ import { SITE_TITLE, SITE_GITHUB_URL } from '../consts';
     flex-shrink: 0;
     font-family: var(--font-mono);
     font-size: 1.1rem;
-    color: rgba(58, 184, 160, 0.5);
+    color: rgba(var(--accent-rgb), 0.5);
     transition: color var(--transition-fast), transform var(--transition-fast);
   }
 
