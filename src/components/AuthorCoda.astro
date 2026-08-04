@@ -141,7 +141,9 @@ const {
 }
 
 .coda-bio {
-  font-family: var(--font-body, var(--font-mono));
+  /* was var(--font-body, …) — --font-body lived only in editorial.css,
+     which is retired; the fallback was always what rendered. */
+  font-family: var(--font-mono);
   font-size: 0.88rem;
   color: var(--text-dim);
   line-height: 1.65;

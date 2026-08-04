@@ -17,6 +17,19 @@
 @import '@fontsource/cormorant-garamond/latin-500-italic.css';
 @import '@fontsource/cormorant-garamond/latin-600.css';
 @import '@fontsource/cormorant-garamond/latin-600-italic.css';
+/* Cormorant SC — small caps. Added 2026-08-03: blog/Triptych.astro had been
+   asking for 'Cormorant SC' with no such font on the site, so its headings and
+   labels silently rendered in the generic serif fallback.
+
+   Caveat, recorded honestly: blog/Triptych.astro is currently imported by zero
+   posts (they use the top-level Triptych.astro), so nothing renders this family
+   today. It costs nothing at runtime — @font-face is lazy, and the browser
+   reports these faces "unloaded" until an element matches — and --font-caps is
+   the small-caps slot the landing/astrolabe work needs. If that work does not
+   land, this and the three unused blog/* components should go together. */
+@import '@fontsource/cormorant-sc/latin-300.css';
+@import '@fontsource/cormorant-sc/latin-400.css';
+@import '@fontsource/cormorant-sc/latin-500.css';
 /* DM Mono — latin subset, weights used in design */
 @import '@fontsource/dm-mono/latin-300.css';
 @import '@fontsource/dm-mono/latin-300-italic.css';
@@ -96,6 +109,9 @@
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
   --font-mono:    'DM Mono', 'Courier New', monospace;
   --font-sans:    var(--font-display);
+  /* Small caps — for eyebrows, labels and lettered headings. The name every
+     dead draft in this repo kept reaching for; now it actually resolves. */
+  --font-caps:    'Cormorant SC', 'Cormorant Garamond', Georgia, serif;
 
   /* Spacing */
   --spacing-xs: 0.25rem;

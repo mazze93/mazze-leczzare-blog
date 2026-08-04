@@ -14,8 +14,8 @@ Security engineering, technical writing, and essays at the intersection of infra
 | UI islands | React 19 (`@astrojs/react`) — used only where interaction earns its keep |
 | Content | Markdown + MDX via Astro Content Collections (loader API) |
 | Edge functions | Cloudflare Pages Functions (`functions/`) |
-| Styles | Hand-authored CSS custom properties only — see Styles section (Tailwind is installed but **not wired in**) |
-| Fonts | Mostly `@fontsource` `@import`s in `global.css`/`homepage.css`: Cormorant Garamond, DM Mono, DM Sans, Playfair Display; Space Grotesk Variable + Crimson Pro on `/cipher-gothic/` only. Inter is the exception — declared with explicit `@font-face` rules pointing at the already-deployed `/fonts/inter-*.woff2` (see Fonts note below). `BaseHead.astro` preloads exactly one file — Cormorant Garamond latin-400 — imported through Vite with `?url`, never a hardcoded path. |
+| Styles | Hand-authored CSS custom properties only — see Styles section. No Tailwind (retired 2026-08-03) |
+| Fonts | Mostly `@fontsource` `@import`s in `global.css`/`homepage.css`: Cormorant Garamond, Cormorant SC, DM Mono, DM Sans, Playfair Display; Space Grotesk Variable + Crimson Pro on `/cipher-gothic/` only. Inter is the exception — declared with explicit `@font-face` rules pointing at the already-deployed `/fonts/inter-*.woff2` (see Fonts note below). `BaseHead.astro` preloads exactly one file — Cormorant Garamond latin-400 — imported through Vite with `?url`, never a hardcoded path. |
 | RSS | `@astrojs/rss` — feed at `/rss.xml`, auto-generated from blog content collection |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |
@@ -79,7 +79,8 @@ src/
     collectNodes.ts   #   astro:content wrapper — calls getCollection + nodes.ts.aggregateNodes
   layouts/            # BlogPost.astro, HomepageLayout.astro
   pages/              # File-based routes
-  styles/             # global.css, homepage.css, editorial.css
+  styles/             # global.css, homepage.css, compass.css, constellation-pages.css,
+                      #   haven-ink.tokens.css
   cloudflare-email.d.ts # Type declarations for Cloudflare email binding
   consts.ts           # Site-wide constants
   content.config.ts   # Content collection schema (Astro loader API)
@@ -101,9 +102,8 @@ public/
                       #   HTML pages under public/ (NOT to the Astro site, which gets
                       #   its fonts from @fontsource via global.css — the one exception
                       #   is the Inter @font-face block, which reuses these files).
-                      #   atkinson-{bold,regular}.woff are legacy orphans: nothing
-                      #   references them; /intentional-fragility/ ships its own
-                      #   atkinsonhyperlegible-*.woff2 locally.
+                      #   Every file here resolves — the two legacy atkinson-*.woff
+                      #   orphans were retired 2026-08-03.
   images/blog/        # Static blog images (served directly, no processing)
 
 scripts/ops/          # Local operational scripts (not part of the site build)
@@ -237,7 +237,7 @@ most recent; blog listing shows all.
 Read source for full detail — these are the non-obvious points:
 
 **Layout / page-level:**
-- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Includes a `.breathing-hero__sub` bridge paragraph linking to `/about/` for persona continuity. Respects `prefers-reduced-motion` with static gradient fallback. `SignalHero.astro` is the legacy predecessor — still present but not mounted anywhere.
+- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Includes a `.breathing-hero__sub` bridge paragraph linking to `/about/` for persona continuity. Respects `prefers-reduced-motion` with static gradient fallback. Its legacy predecessor `SignalHero.astro` was retired 2026-08-03 to `docs/archive/retired-2026-08-03/`.
 - **`BlogPost.astro`** (layout) — mounts `<AuthorCoda>` then `<PostQuoteShare client:load>` after `.prose`. All quote-share CSS lives here as scoped `:global()` rules.
 - **`HomepageLayout.astro`** — sets `data-layout="homepage"` on body; editorial deep-navy palette via `src/styles/homepage.css`.
 - **`AuthorCoda.astro`** — author byline + headshot + condensed bio rendered at the end of every post. Headshot path defaults to `/mazze-headshot.jpg`; hides gracefully if image is missing.
@@ -275,19 +275,14 @@ Read source for full detail — these are the non-obvious points:
 | ---- | ------- |
 | `global.css` | CSS custom properties, base resets, shared typography |
 | `homepage.css` | Deep-navy editorial palette for the homepage (`data-layout="homepage"`) |
-| `editorial.css` | **Imported by nothing** — draft token layer, not live CSS. Read its header before wiring it in: it redefines `--font-mono`, ships a palette that differs from the live one, and names a font the site doesn't have |
 | `compass.css` | Header brand-mark micro-interaction — 5 `[data-state]` phases (idle/hover/focus/engaged/…) |
 | `constellation-pages.css` | Shared `.cn-page` chrome for `/studio` and `/project/[slug]` |
-| `haven-ink.tokens.css` | Approved light-mode palette tokens for the constellation sky — **not yet wired** into the light-mode render path (tech debt, kept for a future pass) |
+| `haven-ink.tokens.css` | Haven/Ink light-mode palette. **Wired** — `global.css` imports it and maps it onto the `--home-*` surface and the constellation sky in `[data-theme="light"]` |
 
-**Tailwind is dead config — do not write utility classes.** `tailwindcss` is a
-devDependency and `tailwind.config.mjs` exists (with `preflight: false` and the
-`home-display`/`home-sans`/`blog-serif`/`blog-mono` families), but nothing
-consumes it: there is no `@astrojs/tailwind` integration in `astro.config.mjs`,
-no `@import "tailwindcss"` in any stylesheet, and zero Tailwind class names in
-`src/`. Every style in this repo is hand-authored CSS driven by custom
-properties. Either wire Tailwind up deliberately or delete the config — but
-don't assume a `class="flex gap-4"` will do anything today.
+**No Tailwind.** It was installed-but-unwired for a long time; the config and
+the `tailwindcss` devDependency were both retired 2026-08-03 (config archived to
+`docs/archive/retired-2026-08-03/`). Every style here is hand-authored CSS driven
+by the custom properties in `global.css`. Don't reintroduce utility classes.
 
 ## Cloudflare Functions
 
@@ -439,7 +434,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 
 - **Static output only** — `astro.config.mjs` sets `output: "static"`. No SSR. All dynamic behaviour goes through Cloudflare Functions.
 - **Astro islands discipline** — React is used for `ThemeToggle`, `ContactForm`, `PostQuoteShare`, and `ConstellationNodes` (homepage hero) only. Do not add React for non-interactive rendering.
-- **No Tailwind at runtime** — the config is present but unwired (see Styles). Style with CSS custom properties; `global.css` owns the reset.
+- **No Tailwind** — config and dependency both retired 2026-08-03. Style with CSS custom properties; `global.css` owns the reset.
 - **Two font systems, deliberately** — the Astro site gets fonts from `@fontsource` (Vite-resolved, hashed into `dist/_astro/`). The standalone HTML pages under `public/` get them from `/fonts/*.woff2` or their own local `fonts/` subdirectory, because nothing processes them. Don't "unify" these; check which side of the line a file is on first. `check-docs-drift.sh` §8 resolves every reference and fails on a miss.
 - **CDN fonts only under `/artifacts/`** — `_middleware.ts` grants `ARTIFACT_CSP` (which allows `fonts.googleapis.com`/`gstatic.com`) to `/artifacts/*` alone. A `<link>` to Google Fonts on any other path is CSP-blocked at runtime with no build error — the page just silently renders in fallback typefaces. Self-host instead. Enforced by `check-docs-drift.sh` §9.
 - **Verify file references by resolving them, not by grepping** — paths in this repo mix root-absolute (`/fonts/x.woff2`) and relative (`./fonts/x.woff2`) forms, and `grep "/fonts/"` matches both while meaning neither. Two wrong conclusions were reached this way (see `docs/journal/DECISIONS.md`, 2026-08-02). Resolve against the referring file's base, then `stat`.
