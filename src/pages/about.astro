@@ -124,57 +124,44 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
                 <div class="about-section__eyebrow cg-eyebrow">Current work</div>
                 <h2 id="section-work-title" class="about-section__title">What I'm working on</h2>
               </div>
-              <p class="about-section__hint">Security, infra, and narrative work with explicit human stakes.</p>
+              <p class="about-section__hint">Orientation, not the record — <a href="/work/">/work</a> carries that, with the evidence for each claim.</p>
             </div>
 
+            {/*
+              Deliberately thin. This section used to carry status badges and
+              nine bullets across three cards, which made it a second, worse
+              copy of /work — and every badge and bare count was a fact that
+              could go stale silently. One did: it claimed "50+ episodes" of a
+              podcast that ran 26. /work tiers its claims and links its
+              evidence; this page only has to say what the work is and get out
+              of the way. Keep it to one durable sentence per card. If a
+              sentence here needs a number or a status to work, it belongs on
+              /work instead.
+            */}
             <div class="about-grid">
               <article class="ab-work-card">
-                <div class="ab-work-card__title-row">
-                  <h3 class="ab-work-card__title">Secure Pride</h3>
-                  <span class="ab-work-card__badge ab-work-card__badge--accent">Active — nonprofit</span>
-                </div>
+                <h3 class="ab-work-card__title">Secure Pride</h3>
                 <p class="ab-work-card__body">
-                  Secure Pride exists because LGBTQ+ nonprofits, clinics, and mutual aid orgs handle data with real consequences — identity disclosures, health records, the coordinates of people living in hostile conditions — and almost none of them have adequate protection.
+                  A privacy-first cybersecurity nonprofit for LGBTQ+ clinics, mutual aid orgs, and health services — people for whom a breach is not an inconvenience but an outing. I founded it and work on it as security engineer.
                 </p>
-                <ul class="ab-work-card__list">
-                  <li>Designing certificate-based network authentication and device access paths sized for teams without dedicated IT.</li>
-                  <li>Hardening workstations and cloud services that handle sensitive health and identity data.</li>
-                  <li>Writing security playbooks and plain-language documentation that non-technical staff can actually follow.</li>
-                </ul>
                 <p class="ab-work-card__cta">
-                  Learn more at <a href="https://securepride.org" target="_blank" rel="noreferrer">securepride.org</a>
+                  <a href="https://securepride.org" target="_blank" rel="noreferrer">securepride.org</a>
                 </p>
               </article>
 
               <div class="about-grid__side">
                 <article class="ab-work-card ab-work-card--secondary">
-                  <div class="ab-work-card__title-row">
-                    <h3 class="ab-work-card__title">Context Synapse</h3>
-                    <span class="ab-work-card__badge">Research — Swift</span>
-                  </div>
+                  <h3 class="ab-work-card__title">Context Synapse</h3>
                   <p class="ab-work-card__body">
-                    Context Synapse is a local-first context orchestration framework in Swift — a Bayesian system for managing what a model knows about you across time, without that data ever leaving your device. Research project and values statement, simultaneously.
+                    A local-first context framework in Swift: modeling what a system has learned about you over time, on-device, with a way to interrogate and correct what it thinks it knows.
                   </p>
-                  <ul class="ab-work-card__list">
-                    <li>Local-only state and context graphs to avoid cloud exfiltration of personal history.</li>
-                    <li>Probabilistic modeling of long-term preferences and memory without centralizing raw data.</li>
-                    <li>Interfaces for interrogating and correcting what the system thinks it knows about you.</li>
-                  </ul>
                 </article>
 
                 <article class="ab-work-card ab-work-card--secondary" aria-label="Client work">
-                  <div class="ab-work-card__title-row">
-                    <h3 class="ab-work-card__title">Client work</h3>
-                    <span class="ab-work-card__badge">Select engagements</span>
-                  </div>
+                  <h3 class="ab-work-card__title">Client work</h3>
                   <p class="ab-work-card__body">
-                    Client work sits at the intersection of infrastructure and story. I partner with developer platforms, security-forward products, and mission-driven orgs whose systems touch sensitive data or communities poorly served by default frameworks.
+                    Security architecture, threat modeling, and the documentation that has to match it — for teams whose systems touch sensitive data or communities poorly served by default frameworks.
                   </p>
-                  <ul class="ab-work-card__list">
-                    <li>Security architecture and threat modeling for a dev-tool startup building toward enterprise-grade controls on a startup budget — resulted in documented incident response paths and a revised access control model.</li>
-                    <li>Narrative and positioning rebuild for a security-forward product whose public claims had drifted from its production behavior — aligned docs, security page, and sales copy to actual system architecture.</li>
-                    <li>50+ episodes of <em>Clear as Mud</em> at mudstack — technical interviews with engineers from Epic, Riot, Sony, and Meta VR; audience growth from zero to established developer media property.</li>
-                  </ul>
                   <p class="client-note">Not a fit for: generic SEO content, compliance theater, or brand work without a technical foundation. If your system has real stakes, reaching out is the right first step.</p>
                   <p class="ab-work-card__cta">
                     For availability, <a href="/contact/">use the contact form</a>
@@ -227,7 +214,7 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
                   Cognitive neuroscience and quantitative psychology at UC Davis — EEG/ERP, eye tracking, and representational similarity analysis in the Luck Lab. That work didn't pull me toward writing; it sharpened how I think about noisy systems, experimental design, and the gap between statistically significant and actually meaningful.
                 </p>
                 <p>
-                  Before Secure Pride: content lead at mudstack, over fifty episodes of <em>Clear as Mud</em> with guests from Epic, Riot, Sony, and Meta VR, and growth work at Tennis 919. Alongside that, a long-running habit of building lab infrastructure and open-source tools for my own work.
+                  Before Secure Pride: content lead at mudstack, where I founded and hosted <em>Clear as Mud</em> — twenty-six episodes of long-form interviews with guests from Epic, Riot, Sony, and Meta VR — plus growth work at Tennis 919. Alongside that, a long-running habit of building lab infrastructure and open-source tools for my own work.
                 </p>
               </div>
               <aside class="ab-background-list">
@@ -596,40 +583,15 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
     background-image: none;
   }
 
-  .ab-work-card__title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-  }
-
+  /* __title-row, __badge, __badge--accent, __list removed with the status
+     badges and bullet lists they styled — the cards are one sentence now. */
   .ab-work-card__title {
     font-family: var(--font-display);
     font-size: 1.2rem;
     font-weight: 400;
     letter-spacing: 0.01em;
     color: var(--text);
-    margin: 0;
-  }
-
-  .ab-work-card__badge {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    padding: 3px 9px;
-    border-radius: 999px;
-    border: 1px solid var(--rule);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-faint);
-    white-space: nowrap;
-  }
-
-  .ab-work-card__badge--accent {
-    border-color: var(--teal);
-    color: var(--teal);
-    background: rgba(var(--accent-rgb), 0.08);
+    margin: 0 0 8px;
   }
 
   .ab-work-card__body {
@@ -640,18 +602,6 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
     margin-bottom: 10px;
     margin-top: 0;
   }
-
-  .ab-work-card__list {
-    margin: 0 0 10px;
-    padding-left: 16px;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    line-height: 1.65;
-  }
-
-  .ab-work-card__list li + li { margin-top: 4px; }
-  .ab-work-card__list em { color: var(--text); font-style: italic; }
 
   .ab-work-card__cta {
     margin-top: 10px;
