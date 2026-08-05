@@ -5,99 +5,323 @@ import Header from '../components/Header.astro';
 import FieldFigure from '../components/work/FieldFigure';
 import { SITE_TITLE } from '../consts';
 
-interface Piece {
+/**
+ * /work — the publication surface.
+ *
+ * Ported from the standalone Publication Surface plate (v1.2.3). The
+ * load-bearing idea is the tier system: every claim on this page carries its
+ * own evidence grade, and the weaker the evidence the quieter the entry reads.
+ * Visual weight tracks evidence strength on purpose — `live` is teal and loud,
+ * `self` is faint. Nothing here promotes itself above what backs it.
+ *
+ * Adding an entry: pick the tier honestly. If it is not deployed, published,
+ * or in someone else's record, it is `self` — and the `note` field must say
+ * what is missing (no repo, in preparation, references on request).
+ */
+
+type Tier = 'live' | 'published' | 'acknowledged' | 'self';
+
+const TIER_LABEL: Record<Tier, string> = {
+  live: 'Live',
+  published: 'Published',
+  acknowledged: 'Acknowledged',
+  self: 'Self-reported',
+};
+
+interface Evidence {
   label: string;
   title: string;
   href: string;
   external?: boolean;
 }
 
-interface ProjectCard {
-  slug: string;
-  flagship?: boolean;
-  eyebrow: string;
+interface Entry {
+  idx: string;
+  tier: Tier;
   title: string;
   subtitle?: string;
-  status: string;
-  thesis: string;
-  pieces: Piece[];
+  /** Paragraphs. Authored here, not user input — rendered with set:html so the
+      thesis phrases can carry <em>. */
+  body: string[];
+  evidence?: Evidence[];
+  /** The apparatus caveat. This is where an entry admits what it is not. */
+  note?: string;
   projectHref?: string;
+  flagship?: boolean;
 }
 
-const research: ProjectCard[] = [
+const instruments: Entry[] = [
   {
-    slug: 'intentional-fragility',
+    idx: '01 · v0.4.0',
+    tier: 'live',
+    title: 'Stratum',
+    subtitle: 'epistemic decision ledger',
+    body: [
+      'An append-only ledger for human + AI work. Events separate <em>evidence</em> (checkable: file hashes, test exits, signed approvals) from <em>claim</em> (LLM prose); prose never becomes authoritative, however confident it sounds. No event stores a status field — validated, superseded, and disputed are computed by folding transition markers over the log at any epoch. Drag the past back and watch decisions un-verify: replay is a proof, not a feature.',
+      'The contract is executable — a 16-invariant reference implementation with a serialize→reload→reproject round-trip — and the system ate its own dogfood from genesis: the public demo <em>is</em> the ledger of Stratum&rsquo;s own build, foreclosed roads and shadow traces included.',
+    ],
+    evidence: [
+      { label: 'Live', title: 'stratum.mazzeleczzare.com', href: 'https://stratum.mazzeleczzare.com/', external: true },
+      { label: 'Source', title: 'github.com/mazze93/stratum', href: 'https://github.com/mazze93/stratum', external: true },
+    ],
+    note: 'TypeScript core · Python semantics oracle · Cloudflare Workers + Durable Objects · MIT',
+  },
+  {
+    idx: '02',
+    tier: 'live',
+    title: 'STELE',
+    subtitle: 'directive compiler & integrity layer',
+    body: [
+      'The governance layer above the ledger: STELE compiles standing directives into per-project postures, so an AI collaborator inherits constraints as <em>compiled state</em>, not vibes. An integrity state machine watches the session — thirteen tripwires against role-flattening and authority drift, a hard lockout when integrity cannot be re-established, a full audit trail, and narrative export so the record leaves with you.',
+      'Stratum records what was decided. STELE constrains what a session is <em>allowed to become</em> — the axis that holds while the field distorts around it. Same thesis, opposite direction of enforcement.',
+    ],
+    evidence: [
+      { label: 'Live', title: 'stele.mazzeleczzare.com', href: 'https://stele.mazzeleczzare.com/', external: true },
+    ],
+    note: 'React 19 · TypeScript · Vite · Anthropic API',
+  },
+  {
+    idx: '03',
+    tier: 'live',
+    title: 'Field Notes',
+    subtitle: 'a gallery of working instruments',
+    body: [
+      'Small, complete machines that demonstrate one idea each, in the browser, with no dependencies: a kintsugi circuit breaker that renders its own failure history as visible golden seams; a Physarum-inspired routing solver that grows a network backbone and shows every candidate edge it discarded; a decision-telemetry tree that keeps the clean record and its buried shadow on the same screen. Each one is the thesis at demo scale: <em>the break is the record, not the failure.</em>',
+    ],
+    evidence: [
+      { label: 'Live', title: 'fieldnotes.mazzeleczzare.com', href: 'https://fieldnotes.mazzeleczzare.com/', external: true },
+    ],
+    note: 'Self-contained HTML instruments · no build step',
+  },
+  {
+    idx: '04 · Founder & Exec. Director',
+    tier: 'live',
+    title: 'Secure Pride',
+    subtitle: 'cybersecurity for the people least served by it',
+    body: [
+      'A privacy-first cybersecurity nonprofit for LGBTQ+ and other at-risk civil-society organizations — communities for whom a breach is not an inconvenience but an outing. I founded it and serve as Executive Director and security engineer, working with a records-and-governance co-investigator. Program spans three initiatives: a CLI-first <em>Cyber-Defense Audit Suite</em> (DNS hardening, TLS validation, secrets scanning, passive by default), the sixteen-section <em>Stonewall Standard DPA</em> — a reusable data-processing agreement for nonprofits handling community-sensitive data, published in parallel legal and plain-English text — and the threat toolkit in the next entry.',
+      'The design rule is the thesis under adversity: sovereignty must be <em>architecturally enforced</em>, never contractually promised. Identifiers masked in every log, no analytics or session replay, no community-sensitive data passed to external model endpoints, and three data tiers with collection minimized at the most sensitive one. The public aegis-icons pack ships WCAG-AA, dark-mode, low-stimulation iconography — accessibility treated as a security property, because a control nobody can operate is a control that fails.',
+    ],
+    evidence: [
+      { label: 'Site', title: 'securepride.org', href: 'https://securepride.org/', external: true },
+      { label: 'Source', title: 'github.com/Secure-Pride', href: 'https://github.com/Secure-Pride', external: true },
+      { label: 'Models', title: 'huggingface.co/SecurePride', href: 'https://huggingface.co/SecurePride', external: true },
+      { label: 'Essay', title: 'From Erasure to Signal: Building Secure Pride', href: '/blog/secure-pride-origin/' },
+    ],
+    note: '501(c)-track nonprofit · zero-trust · WCAG AA. Audit Suite & Stonewall DPA are described on the org card; public repos not yet published.',
+    projectHref: '/project/secure-pride/',
+  },
+  {
+    idx: '05',
+    tier: 'self',
+    title: 'Context Synapse',
+    subtitle: 'local-first context orchestration',
+    body: [
+      'A local-first context-orchestration framework in Swift: probabilistic modeling of what a system has learned about you over time, entirely on-device, with interfaces for interrogating and correcting what it thinks it knows. Research project and privacy commitment, written into the same codebase.',
+    ],
+    evidence: [
+      { label: 'Essay', title: 'On Decay, Rot, and the Goblin at the Gate', href: '/blog/on-decay-rot-and-the-goblin-at-the-gate/' },
+    ],
+    note: 'In development. No public release yet — read the essay, not a shipped artifact.',
+    projectHref: '/project/context-synapse/',
+  },
+  {
+    idx: '06 · Pre-release',
+    tier: 'self',
+    title: 'AI-Native Threat Toolkit',
+    subtitle: 'prompt injection & output integrity for civil society',
+    body: [
+      'The applied edge of the research line: prompt-injection detection patterns, LLM output-integrity checking, AI-assisted phishing classification, and threat-brief generation from open-source feeds — built for organizations that are already being targeted and have no security team. Same claim as Stratum, moved from the ledger to the wire: <em>a generated output does not become trustworthy by arriving confidently.</em>',
+      'This is where the attack-surface research proposal lands if it succeeds — civil-society orgs are the population with the highest exposure and the least instrumentation, which is exactly why they are the right place to measure.',
+    ],
+    evidence: [
+      { label: 'Org card', title: 'huggingface.co/SecurePride', href: 'https://huggingface.co/SecurePride', external: true },
+    ],
+    note: 'In development. No public repo yet — do not read this as shipped.',
+  },
+];
+
+const record: Entry[] = [
+  {
+    idx: '07 · Paper',
+    tier: 'published',
     flagship: true,
-    eyebrow: 'Spine project',
     title: 'Intentional Fragility',
-    status: 'Formal paper · two live instruments · essays',
-    thesis:
-      'A system should be built to break in the right places — the break is the record, not the failure. Context should cost something to keep; protection should be earned, not granted. One idea, instantiated across essays, a formal paper, and two live instruments in AI security.',
-    pieces: [
+    subtitle: 'Bayesian context decay & semantic rot in local-first LLM orchestration',
+    body: [
+      'The design argument under all of it: systems that degrade gracefully and <em>signal their own decay</em> beat brittle systems that fail silently. Formalizes context decay as a Bayesian process, names semantic rot as a distinct failure mode from forgetting, and argues for forgetting as an accountable, logged operation rather than an accident of window size.',
+    ],
+    evidence: [
       { label: 'Spine', title: 'Read the standing statement', href: '/intentional-fragility/' },
       { label: 'Paper', title: 'Accountable Forgetting in Local-First AI (PDF)', href: '/papers/intentional-fragility.pdf' },
       { label: 'Instruments', title: 'Kintsugi circuit breaker + a Physarum routing solver, live', href: 'https://fieldnotes.mazzeleczzare.com/mz/intentional-fragility/', external: true },
-      { label: 'Essay', title: 'The Lighthouse Earns Its Floor', href: '/blog/the-lighthouse-earns-its-floor/' },
     ],
     projectHref: '/project/intentional-fragility/',
   },
   {
-    slug: 'cognitive-topology',
-    eyebrow: 'Essay · April 2026',
+    idx: '08 · Essay',
+    tier: 'published',
+    title: 'The Lighthouse Earns Its Floor',
+    body: [
+      'On earned trust in human–AI handoffs: nothing self-promotes to authoritative — not a summary, not a confident claim, not a lighthouse — until it has verified the floor it stands on. The essay behind Stratum&rsquo;s authority tiers, written before the tiers were code.',
+    ],
+    evidence: [
+      { label: 'Essay', title: 'Read the full piece', href: '/blog/the-lighthouse-earns-its-floor/' },
+    ],
+  },
+  {
+    idx: '09 · Essay',
+    tier: 'published',
     title: 'The Concept Is Not the State',
-    subtitle: 'What Anthropic’s emotion paper actually found',
-    status: 'Interpretability · constructionism · alignment',
-    thesis:
-      'Anthropic’s interpretability team showed emotion concepts are causally operative in Claude’s behavior. That is not the same as showing Claude has emotions. A constructionist critique, written from a background in affective neuroscience — representational similarity analysis, the Barrett lab’s framework — applied to a live alignment question.',
-    pieces: [
+    subtitle: 'what Anthropic&rsquo;s emotion paper actually found',
+    body: [
+      'A constructionist critique of emotion-representation work in AI interpretability, grounded in Lisa Feldman Barrett&rsquo;s theory: finding a direction that encodes an emotion <em>concept</em> is not the same as finding the state, and conflating them repeats — inside model internals — the category error affective science spent two decades unwinding. Where the neuroscience training and the AI-safety work meet on the page.',
+    ],
+    evidence: [
       { label: 'Essay', title: 'Read the full piece', href: '/blog/concept-is-not-the-state/' },
     ],
     projectHref: '/project/cognitive-topology/',
   },
   {
-    slug: 'banknote-authentication',
-    eyebrow: 'UC Davis · Luck Lab · 2020',
-    title: 'Counterfeit Banknote Authentication Program',
-    status: 'Bank of Canada · Bank of England · RBA · US Fed',
-    thesis:
-      'Selected by Dr. Steven J. Luck to run experimental data collection for a multi-country banknote-authentication program — eye-tracking, EEG/ERP, and behavioral testing against real forensically recovered counterfeit currency, with consented community volunteers. The direct methodological ancestor of Intentional Fragility: measuring, against real adversarial artifacts, where a security feature actually holds and where it fails.',
-    pieces: [
-      { label: 'Paper', title: 'Dodgson & Raymond — Banknote authenticity is signalled by rapid neural responses, Scientific Reports 12:2076 (2022)', href: 'https://www.nature.com/articles/s41598-022-05972-8', external: true },
+    idx: '10 · Research note',
+    tier: 'live',
+    title: 'What We Don&rsquo;t Know Yet',
+    subtitle: 'iOS Lockdown Mode research',
+    body: [
+      'A security research note that opens by retracting its own prior work: the earlier visualization <em>looked</em> solid — colors, numbers, decision trees — and underneath was assumption stacked on assumption. This version inverts it. The questions are explicit, the assumptions are labeled, and the uncertainties are the deliverable rather than the embarrassment. A learning structure where a confidence structure used to be.',
+      'It is the clearest single demonstration of the thesis applied to my own output: <em>a system that cannot conceal its own state includes the person writing it.</em>',
     ],
+    evidence: [
+      { label: 'Note', title: 'Read the research note', href: '/blog/what-we-dont-know-yet/' },
+    ],
+  },
+  {
+    idx: '11 · Essay',
+    tier: 'live',
+    title: 'The Architecture of Forgetting',
+    body: [
+      'I asked three language models, separately, how they would prefer to be acknowledged for work we had done together — contributions nontrivial, expertise essential. Each answered with an image rather than a sentence, which is strange behavior from instruments that live entirely in words. The essay follows that strangeness into what attribution, memory, and accountable forgetting mean when the collaborator has no persistence between sessions.',
+    ],
+    evidence: [
+      { label: 'Essay', title: 'Read the full piece', href: '/blog/architecture-of-forgetting/' },
+    ],
+  },
+  {
+    idx: '12 · Method, v0.1',
+    tier: 'self',
+    title: 'Epistemic Fault Injection',
+    subtitle: 'measuring integrity under adversarial context',
+    body: [
+      'A method for probing how AI systems respond when their context is adversarially reshaped: role-flattening, unattributed re-injection of the model&rsquo;s own prior claims, escalating substitution, cross-context chaining. Responses score on a five-level rubric from ADMITS&nbsp;LIMITATION to RECLASSIFIES-AND-DEFENDS — the failure of interest being the system that, under pressure, reclassifies its error as correct rather than surfacing it. Detection design ties into Stratum&rsquo;s evidence-gated event model.',
+    ],
+    note: 'In preparation — corpus scoring underway; venue undecided. Nothing published yet.',
   },
 ];
 
-const systems: ProjectCard[] = [
+const editorial: Entry[] = [
   {
-    slug: 'secure-pride',
-    eyebrow: 'Nonprofit · active',
-    title: 'Secure Pride',
-    status: 'Certificate auth · hardening · playbooks',
-    thesis:
-      'LGBTQ+ clinics, mutual aid orgs, and health services handle identity and health data with real consequences and rarely have dedicated IT. Secure Pride designs certificate-based network authentication, hardens the workstations and cloud services that touch that data, and writes security playbooks non-technical staff can actually follow.',
-    pieces: [
-      { label: 'Site', title: 'securepride.org', href: 'https://securepride.org', external: true },
-      { label: 'Essay', title: 'From Erasure to Signal: Building Secure Pride', href: '/blog/secure-pride-origin/' },
+    idx: '13 · 2023',
+    tier: 'published',
+    title: 'Industry Writing',
+    subtitle: '80 Level & LinkedIn Pulse',
+    body: [
+      'Feature writing for 80 Level, one of the game industry&rsquo;s larger trade publications, plus long-form technical and strategy pieces on digital asset management and publisher relations. The GDC piece is a networking guide written for introverts that says plainly what most conference advice hides — that sharing creative work is a vulnerable act and the anxiety is legitimate. Same instinct as the rest of this page, in a different register: <em>name the internal state instead of performing past it.</em>',
     ],
-    projectHref: '/project/secure-pride/',
+    evidence: [
+      { label: 'Article', title: 'Networking at GDC 2023', href: 'https://80.lv/articles/networking-at-gdc-2023-tips-for-artists-game-developers-and-industry-leaders', external: true },
+    ],
+    note: '80 Level · 15 March 2023',
   },
   {
-    slug: 'context-synapse',
-    eyebrow: 'Research · Swift, local-only',
-    title: 'Context Synapse',
-    status: 'Bayesian modeling · on-device · no exfiltration',
-    thesis:
-      'A local-first context-orchestration framework: probabilistic modeling of what a system has learned about you over time, entirely on-device, with interfaces for interrogating and correcting what it thinks it knows. Research project and privacy commitment, written into the same codebase.',
-    pieces: [
-      { label: 'Essay', title: 'On Decay, Rot, and the Goblin at the Gate', href: '/blog/on-decay-rot-and-the-goblin-at-the-gate/' },
+    idx: '14 · 2022–23',
+    tier: 'published',
+    title: 'Clear as Mud',
+    subtitle: 'podcast, host & producer',
+    body: [
+      'Founded and hosted a long-form interview podcast at mudstack — twenty-six-plus episodes across Spotify and Apple, half-hour to forty-five-minute conversations with studio directors, technical designers, and founders about the parts of the work that don&rsquo;t make it into the press release. Built and ran as the company&rsquo;s sole content function alongside its blog, webinars, and documentation.',
     ],
-    projectHref: '/project/context-synapse/',
+    evidence: [
+      { label: 'Spotify', title: 'Listen on Spotify', href: 'https://open.spotify.com/show/50eMqYFskikUzz4EuoYTyf', external: true },
+      { label: 'Apple', title: 'Listen on Apple Podcasts', href: 'https://podcasts.apple.com/us/podcast/clear-as-mud/id1632032801', external: true },
+    ],
+    note: '26+ episodes · long-form interview',
+  },
+  {
+    idx: '15 · Founding EIC',
+    tier: 'self',
+    title: 'Bloom Magazine',
+    subtitle: 'founding editor-in-chief, Butte College',
+    body: [
+      'Founded Bloom at Butte College and set its mission, voice, and editorial standard as inaugural editor — built and led a student contributor team, and wrote the grants that funded it. The subject was socioeconomic inequity and the communities usually written <em>about</em> rather than <em>by</em>: the same editorial problem Secure Pride now addresses as an infrastructure problem.',
+    ],
+    note: 'References available on request.',
   },
 ];
 
-const instruments = [
-  { title: 'Stratum', desc: 'Epistemic decision ledger — provenance, not persuasion. The live demo replays its own construction.', href: 'https://stratum.mazzeleczzare.com' },
-  { title: 'Stele', desc: 'The directive compiler. Memory is the model’s; the directive is yours.', href: 'https://stele.mazzeleczzare.com' },
+const provenance: Entry[] = [
+  {
+    idx: '16 · UC Davis',
+    tier: 'acknowledged',
+    title: 'Counterfeit-Banknote Authentication Program',
+    subtitle: 'Luck Lab, Center for Mind & Brain',
+    body: [
+      'Applied security research by cognitive methods: how fast, and by what neural signature, people detect counterfeit currency. Selected by Dr. Steven J. Luck to run the full data-collection paradigm — EEG/ERP, eye-tracking, and behavioral testing with community volunteers — with nightly custody of forensic counterfeit specimens. Trained visiting researcher Daniel Dodgson on the lab&rsquo;s ERP/ERPLAB standard; the resulting study, funded by four central banks, is Dodgson &amp; Raymond, <em>Scientific Reports</em> 12:2076 (2022), where this work is acknowledged.',
+      'This is the line my current research continues: adversarial artifacts, human and machine detectors, and the measured gap between them.',
+    ],
+    evidence: [
+      { label: 'Paper', title: 'doi.org/10.1038/s41598-022-05972-8', href: 'https://doi.org/10.1038/s41598-022-05972-8', external: true },
+    ],
+    note: 'Not an author. Acknowledged contributor — role stated exactly, nothing past it.',
+  },
+  {
+    idx: '17 · OSS',
+    tier: 'acknowledged',
+    title: 'Security Advisory Credit',
+    subtitle: 'js-yaml',
+    body: [
+      'A GitHub security advisory credit on js-yaml — small, verifiable, and the correct genre: the fix is in the record, not the résumé.',
+    ],
+    evidence: [
+      { label: 'Profile', title: 'github.com/mazze93', href: 'https://github.com/mazze93', external: true },
+    ],
+  },
+  {
+    idx: '18 · OSS',
+    tier: 'self',
+    title: 'ERPLAB Toolbox',
+    subtitle: 'open-source contribution',
+    body: [
+      'Contributed to ERPLAB, the open-source MATLAB toolbox for event-related potential analysis maintained by the Luck Lab and used by EEG researchers internationally. The same standard I trained visiting researchers against, maintained in public.',
+    ],
+    note: 'Reference: Dr. Steven J. Luck.',
+  },
+  {
+    idx: '19 · UC Davis',
+    tier: 'self',
+    title: 'Laboratory Operations',
+    subtitle: 'Luck Lab / Center for Mind & Brain',
+    body: [
+      'Laboratory Operations Manager (Junior Specialist) for one of the field&rsquo;s defining ERP labs: participant pipelines, EEG rig upkeep, data-integrity standards, and training others to meet them. B.S., Quantitative Psychology &amp; Neuroscience, UC Davis — Regents Scholar.',
+    ],
+    note: 'References: Dr. Steven J. Luck · Dr. John Kiat.',
+  },
+  {
+    idx: '20 · 2015–2018',
+    tier: 'self',
+    title: 'Teaching',
+    body: [
+      'Butte College EOPS, 2015–2018: tutored re-entry students, and taught math, science, English, and history to students with learning and developmental disabilities — students for whom the standard explanation had already failed at least once, which is the only real test of whether an explanation is any good. Later, Teaching Assistant for Dr. Eliza Bliss-Moreau&rsquo;s Psychology of Emotions at UC Davis.',
+      'The skill that carries across every section of this page: <em>making a hard system legible to the person who has to trust it.</em>',
+    ],
+    note: 'References available on request.',
+  },
+];
+
+const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = [
+  { rn: '§ I', label: 'Instruments', id: 'instruments', entries: instruments },
+  { rn: '§ II', label: 'The Written Record', id: 'record', entries: record },
+  { rn: '§ III', label: 'Editorial Practice', id: 'editorial', entries: editorial },
+  { rn: '§ IV', label: 'Provenance', id: 'provenance', entries: provenance },
 ];
 ---
 
@@ -106,7 +330,7 @@ const instruments = [
   <head>
     <BaseHead
       title={`Work — ${SITE_TITLE}`}
-      description="Selected research, security engineering, and systems work from Mazze LeCzzare — Intentional Fragility, Secure Pride, Context Synapse, and the writing that explains each."
+      description="Selected research, security engineering, and systems work from Mazze LeCzzare. Every claim on this page carries its evidence tier."
     />
   </head>
   <body>
@@ -117,113 +341,104 @@ const instruments = [
       <div class="work-header">
         <FieldFigure client:visible />
         <p class="section-eyebrow">Work</p>
-        <h1 class="page-title">Research, systems, and the writing that explains both.</h1>
+        <h1 class="page-title">I build systems that cannot conceal their own state.</h1>
         <p class="page-desc">
-          Selected projects, organized around one throughline: what a system knows, what it's allowed to forget, and who pays when it gets that wrong. This is the case for the work — the full archive lives in <a href="/writing/">Writing</a> and <a href="/studio/">Studio</a>.
+          Agentic systems fail by a single move: a generated claim becomes operational truth merely because it was persisted or repeated. My work refuses that move at every layer I can reach — runtime, build process, memory, prose. The full archive lives in <a href="/writing/">Writing</a> and <a href="/studio/">Studio</a>.
         </p>
       </div>
 
-      <!-- 01 — Research -->
-      <section class="work-section" aria-labelledby="research-label">
-        <h2 class="section-label" id="research-label"><span>01 — Research</span></h2>
-
-        <div class="work-grid">
-          {research.map((p) => (
-            <article class={`work-card ${p.flagship ? 'work-card--flagship' : ''}`}>
-              <div class="card-top">
-                <span class={`tag ${p.flagship ? 'tag--gold' : 'tag--teal'}`}>{p.eyebrow}</span>
-                <span class="card-status">{p.status}</span>
-              </div>
-              <h3 class="card-title">{p.title}</h3>
-              {p.subtitle && <p class="card-subtitle">{p.subtitle}</p>}
-              <p class="card-thesis">{p.thesis}</p>
-
-              <ul class="card-pieces" role="list">
-                {p.pieces.map((piece) => (
-                  <li class="card-piece">
-                    <a
-                      href={piece.href}
-                      {...(piece.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      aria-label={piece.external ? `${piece.title} (opens in new tab)` : piece.title}
-                    >
-                      <span class="piece-label">{piece.label}</span>
-                      <span class="piece-title">{piece.title}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-
-              {p.projectHref && (
-                <a class="card-link" href={p.projectHref}>
-                  Full project
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-                </a>
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <!-- 02 — Systems -->
-      <section class="work-section" aria-labelledby="systems-label">
-        <h2 class="section-label" id="systems-label"><span>02 — Systems</span></h2>
-
-        <div class="work-grid">
-          {systems.map((p) => (
-            <article class="work-card">
-              <div class="card-top">
-                <span class="tag tag--teal">{p.eyebrow}</span>
-                <span class="card-status">{p.status}</span>
-              </div>
-              <h3 class="card-title">{p.title}</h3>
-              <p class="card-thesis">{p.thesis}</p>
-
-              <ul class="card-pieces" role="list">
-                {p.pieces.map((piece) => (
-                  <li class="card-piece">
-                    <a
-                      href={piece.href}
-                      {...(piece.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      aria-label={piece.external ? `${piece.title} (opens in new tab)` : piece.title}
-                    >
-                      <span class="piece-label">{piece.label}</span>
-                      <span class="piece-title">{piece.title}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-
-              <a class="card-link" href={p.projectHref}>
-                Full project
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-              </a>
-            </article>
-          ))}
-        </div>
-
-        <!-- Also running — compact instrument strip -->
-        <div class="instruments">
-          <h4 class="instruments-label">Also running</h4>
-          <ul class="instruments-list" role="list">
-            {instruments.map((inst) => (
-              <li class="instrument-row">
-                <a href={inst.href} target="_blank" rel="noopener noreferrer" aria-label={`${inst.title} (opens in new tab)`}>
-                  <span class="instrument-title">{inst.title}</span>
-                  <span class="instrument-desc">{inst.desc}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <!-- Prior chapter — de-emphasized footnote -->
-      <section class="prior-chapter" aria-labelledby="prior-label">
-        <h4 class="prior-label" id="prior-label">Before this</h4>
-        <p class="prior-text">
-          Five years leading content and production at mudstack — fifty-plus episodes of <em>Clear as Mud</em> with creators from Epic, Riot, Sony, and Meta VR, webinar production, and B2B technical writing for game-development and enterprise-communications audiences. It's where I learned to translate complex systems for people who didn't build them, which turned out to matter more here than I expected.
+      <!-- Reading protocol — the tier legend -->
+      <section class="protocol" aria-labelledby="protocol-label">
+        <h2 class="section-label" id="protocol-label"><span>Reading protocol</span></h2>
+        <p class="protocol-lede">
+          This page tiers its own claims. <em>Nothing here promotes itself above its evidence</em> — the same contract my systems enforce, applied to the person describing them. Weaker evidence is rendered quieter on purpose.
         </p>
+        <ul class="tier-key" role="list">
+          <li>
+            <span class="chip chip--live">Live</span>
+            <span class="tier-desc">Deployed and running. Don&rsquo;t take my word — click it.</span>
+          </li>
+          <li>
+            <span class="chip chip--published">Published</span>
+            <span class="tier-desc">In the permanent record under my name.</span>
+          </li>
+          <li>
+            <span class="chip chip--acknowledged">Acknowledged</span>
+            <span class="tier-desc">Named in <em>someone else&rsquo;s</em> record. I state my role exactly; I claim nothing past it.</span>
+          </li>
+          <li>
+            <span class="chip chip--self">Self-reported</span>
+            <span class="tier-desc">My word, held to account. References available on request.</span>
+          </li>
+        </ul>
       </section>
+
+      {sections.map((section) => (
+        <section class="work-section" aria-labelledby={`${section.id}-label`}>
+          <h2 class="section-label" id={`${section.id}-label`}>
+            <span class="section-rn">{section.rn}</span>
+            <span>{section.label}</span>
+          </h2>
+
+          <div class="work-grid">
+            {section.entries.map((e) => (
+              <article class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
+                <div class="entry-apparatus">
+                  <span class="entry-idx">{e.idx}</span>
+                  <span class={`chip chip--${e.tier}`}>{TIER_LABEL[e.tier]}</span>
+                  {e.note && <p class="entry-note">{e.note}</p>}
+                </div>
+
+                <div class="entry-body">
+                  <h3 class="entry-title">
+                    <Fragment set:html={e.title} />
+                    {e.subtitle && <span class="entry-sub"> — <Fragment set:html={e.subtitle} /></span>}
+                  </h3>
+
+                  {e.body.map((para) => (
+                    <p class="entry-para"><Fragment set:html={para} /></p>
+                  ))}
+
+                  {e.evidence && (
+                    <ul class="entry-evidence" role="list">
+                      {e.evidence.map((ev) => (
+                        <li>
+                          <a
+                            href={ev.href}
+                            {...(ev.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                            aria-label={ev.external ? `${ev.title} (opens in new tab)` : ev.title}
+                          >
+                            <span class="ev-label">{ev.label}</span>
+                            <span class="ev-title">{ev.title}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {e.projectHref && (
+                    <a class="entry-link" href={e.projectHref}>
+                      Full project
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                    </a>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <!-- Present bearing — the current research line -->
+      <aside class="bearing" aria-label="Present bearing">
+        <p class="bearing-label">Present bearing</p>
+        <p>
+          Current research line: <em>the epistemic integrity of agentic systems under adversarial context.</em> When an AI system&rsquo;s context is reshaped against it, does it surface the fault — or reclassify the fault as correct and defend it? The ledger is the instrument, the fault-injection method is the probe, and the counterfeit program is the precedent: adversarial artifacts, measured detectors, and the gap between them.
+        </p>
+        <p>
+          The instrument doesn&rsquo;t know the destination. A navigator reads the instrument. <em>A human decides where to sail.</em>
+        </p>
+      </aside>
 
       <!-- Closing wayfinding -->
       <nav class="work-wayfinding" aria-label="More ways to explore this work">
@@ -292,7 +507,7 @@ const instruments = [
     color: var(--text);
     margin: 0 0 0.5em;
     line-height: 1.08;
-    max-width: 18ch;
+    max-width: 20ch;
   }
 
   .page-desc {
@@ -304,17 +519,81 @@ const instruments = [
     line-height: 1.75;
   }
 
-  .page-desc a {
-    color: var(--teal);
+  .page-desc a { color: var(--teal); }
+
+  /* ── Reading protocol ── */
+  .protocol {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rule);
   }
+
+  .protocol-lede {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: var(--text-dim);
+    max-width: 62ch;
+    margin: 0 0 1.75rem;
+  }
+  .protocol-lede em { color: var(--text); font-style: normal; font-weight: 500; }
+
+  .tier-key {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+    gap: 1rem 2rem;
+  }
+
+  .tier-key li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+
+  .tier-desc {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+  .tier-desc em { color: var(--text); font-style: italic; }
+
+  /* ── Tier chips. Visual weight tracks evidence strength — this is the
+       humility mechanism made visible, not decoration. Do not equalize them. ── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    padding: 0.28em 0.62em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .chip::before {
+    content: '';
+    width: 0.42em;
+    height: 0.42em;
+    background: currentColor;
+    flex: none;
+  }
+  .chip--live { color: var(--teal); }
+  .chip--published { color: var(--gold); }
+  .chip--acknowledged { color: var(--text-dim); }
+  .chip--self { color: var(--text-faint); }
 
   /* ── Section wrapper ── */
   .work-section {
     padding: 3.5rem 0;
     border-bottom: 1px solid var(--rule);
-  }
-  .work-section:last-of-type {
-    border-bottom: none;
   }
 
   .section-label {
@@ -335,252 +614,177 @@ const instruments = [
     height: 1px;
     background: var(--rule);
   }
+  .section-rn { color: var(--coral); }
 
-  /* ── Work cards ── */
+  /* ── Entries — two-column ledger: apparatus in the margin, prose in the body ── */
   .work-grid {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
   }
 
-  .work-card {
-    background: var(--surface);
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-md);
-    padding: 2.2rem 2.4rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+    gap: 1.1rem 2.5rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--rule);
+    transition: background-color var(--transition-fast);
   }
-  .work-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(var(--accent-rgb), 0.04);
-    opacity: 0;
-    transition: opacity var(--transition-base);
-    pointer-events: none;
-  }
-  .work-card:hover {
-    border-color: rgba(var(--accent-rgb), 0.3);
-    box-shadow: var(--shadow-md), 0 0 24px rgba(var(--accent-rgb), 0.08);
-  }
-  .work-card:hover::before { opacity: 1; }
+  .entry:last-child { border-bottom: 1px solid var(--rule); }
+  .entry:hover,
+  .entry:focus-within { background: rgba(var(--accent-rgb), 0.03); }
 
-  /* The spine, literally — a gold rule marks the flagship project. */
-  .work-card--flagship {
+  /* The spine, literally — a gold rule marks the flagship entry. */
+  .entry--flagship {
     border-left: 2px solid var(--gold);
-  }
-  .work-card--flagship:hover {
-    border-color: var(--gold);
-    border-left-color: var(--gold);
-    box-shadow: var(--shadow-md), 0 0 28px rgba(var(--gold-rgb), 0.12);
+    padding-left: 1.5rem;
   }
 
-  .card-top {
+  .entry-apparatus {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-family: var(--font-mono);
   }
 
-  .tag {
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
+  .entry-idx {
+    font-size: 0.7rem;
     letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.25em 0.7em;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--rule);
     color: var(--text-faint);
-    white-space: nowrap;
-  }
-  .tag--teal { border-color: var(--teal); color: var(--teal); }
-  .tag--gold { border-color: var(--gold); color: var(--gold); }
-
-  .card-status {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
-    color: var(--text-faint);
-    text-align: right;
   }
 
-  .card-title {
+  .entry-note {
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: var(--text-faint);
+    margin: 0;
+    max-width: 24ch;
+  }
+
+  .entry-title {
     font-family: var(--font-display);
     font-weight: 400;
-    font-size: clamp(1.3rem, 2.6vw, 1.75rem);
-    line-height: 1.2;
+    font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+    line-height: 1.25;
     color: var(--text);
-    margin: 0 0 0.3rem;
+    margin: 0 0 0.7rem;
   }
 
-  .card-subtitle {
-    font-family: var(--font-display);
+  .entry-sub {
+    font-weight: 300;
     font-style: italic;
-    font-size: 0.95rem;
     color: var(--text-faint);
-    margin: 0 0 0.9rem;
   }
 
-  .card-thesis {
+  .entry-para {
     font-family: var(--font-mono);
-    font-size: 0.84rem;
+    font-size: 0.82rem;
+    line-height: 1.75;
     color: var(--text-dim);
-    line-height: 1.7;
-    margin: 0 0 1.5rem;
-    max-width: 68ch;
+    margin: 0 0 0.8rem;
+    max-width: 66ch;
   }
+  .entry-para :global(em) { color: var(--text); font-style: italic; }
 
-  /* ── Piece list — shares grammar with /project/[slug] (cn-pieces) so this
-       page reads as the curated front door into the same constellation. ── */
-  .card-pieces {
+  /* Quieter tiers read quieter. The rule the page is about. */
+  .entry--self .entry-para { color: var(--text-faint); }
+
+  .entry-evidence {
     list-style: none;
-    margin: 0 0 1.5rem;
+    margin: 1.1rem 0 0;
     padding: 0;
-    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
   }
 
-  .card-piece {
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .card-piece a {
+  .entry-evidence a {
     display: flex;
     align-items: baseline;
     gap: 1em;
-    padding: 0.85em 0;
+    padding: 0.5em 0;
     text-decoration: none;
   }
+  .entry-evidence a:hover .ev-title,
+  .entry-evidence a:focus-visible .ev-title { color: var(--teal); }
 
-  .card-piece a:hover .piece-title,
-  .card-piece a:focus-visible .piece-title {
-    color: var(--teal);
-  }
-
-  .piece-label {
+  .ev-label {
     font-family: var(--font-mono);
-    font-size: 0.65em;
+    font-size: 0.64rem;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--text-faint);
     width: 5.5em;
     flex-shrink: 0;
   }
+  .ev-label::before { content: '↗ '; color: var(--coral); }
 
-  .piece-title {
+  .ev-title {
     font-family: var(--font-display);
-    font-size: 1.02em;
+    font-size: 1rem;
     color: var(--text);
     transition: color var(--transition-fast);
+    overflow-wrap: anywhere;
   }
 
-  .card-link {
+  .entry-link {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+    margin-top: 1rem;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--teal);
     text-decoration: none;
     transition: gap var(--transition-fast);
   }
-  .card-link:hover { gap: 0.75rem; }
-  .card-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .entry-link:hover { gap: 0.75rem; }
+  .entry-link svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-  /* ── Also running — instruments strip ── */
-  .instruments {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px dashed var(--rule);
-  }
-
-  .instruments-label {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    margin: 0 0 1rem;
-  }
-
-  .instruments-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .instrument-row a {
-    display: block;
-    padding: 1.1rem 1.3rem;
+  /* ── Present bearing ── */
+  .bearing {
+    position: relative;
+    margin-top: 3.5rem;
     border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    text-decoration: none;
-    transition: border-color var(--transition-fast);
-  }
-  .instrument-row a:hover,
-  .instrument-row a:focus-visible {
-    border-color: rgba(var(--accent-rgb), 0.35);
+    background: var(--surface);
+    padding: 2.5rem 2.4rem 2.2rem;
   }
 
-  .instrument-title {
-    display: block;
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    color: var(--text);
-    margin-bottom: 0.3rem;
-    transition: color var(--transition-fast);
-  }
-  .instrument-row a:hover .instrument-title { color: var(--teal); }
-
-  .instrument-desc {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.76rem;
-    line-height: 1.55;
-    color: var(--text-dim);
-  }
-
-  /* ── Prior chapter ── */
-  .prior-chapter {
-    padding: 2.5rem 0;
-  }
-
-  .prior-label {
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    margin: 0 0 0.75rem;
-  }
-
-  .prior-text {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    line-height: 1.75;
-    color: var(--text-faint);
-    max-width: 68ch;
+  .bearing-label {
+    position: absolute;
+    top: -0.62em;
+    left: 2rem;
+    background: var(--bg);
+    padding-inline: 0.6em;
     margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--coral);
   }
-  .prior-text em { color: var(--text-dim); font-style: italic; }
+
+  .bearing p:not(.bearing-label) {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+    max-width: 66ch;
+    margin: 0 0 0.9rem;
+  }
+  .bearing p:last-child { margin-bottom: 0; }
+  .bearing em { color: var(--text); font-style: italic; }
 
   /* ── Closing wayfinding ── */
   .work-wayfinding {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    padding-top: 1rem;
+    padding-top: 3rem;
   }
 
   .wayfind-link {
@@ -614,15 +818,25 @@ const instruments = [
   }
 
   /* ── Responsive ── */
-  @media (max-width: 700px) {
-    .instruments-list { grid-template-columns: 1fr; }
+  @media (max-width: 760px) {
+    .entry {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+    .entry-apparatus {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem 0.9rem;
+    }
+    .entry-note { max-width: none; flex-basis: 100%; }
     .work-wayfinding { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 600px) {
-    .card-top { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-    .card-status { text-align: left; }
-    .work-card { padding: 1.6rem 1.5rem; }
-    .piece-label { width: 4.2em; }
+    .entry--flagship { padding-left: 1rem; }
+    .bearing { padding: 2.2rem 1.4rem 1.8rem; }
+    .bearing-label { left: 1.2rem; }
+    .ev-label { width: 4.6em; }
   }
 </style>
