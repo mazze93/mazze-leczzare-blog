@@ -12,7 +12,7 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
   <head>
     <BaseHead
       title="About — Mazze LeCzzare"
-      description="Security engineer, content strategist, and founder of Secure Pride. Infrastructure and story for systems with real human stakes."
+      description="Security engineering and narrative for systems with real human stakes. Security architecture, threat modeling, and documentation that matches it — Durham, NC, remote and hybrid. Available for consulting."
     />
     <script type="application/ld+json">
       {
@@ -58,13 +58,16 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
           <section class="about-hero" aria-labelledby="about-hero-title">
             <div class="about-hero__left">
               <h1 id="about-hero-title" class="about-hero__title">
-                Security engineering and narrative for organizations whose systems touch people who can't afford a leak.
+                Security engineering and narrative for systems with real human stakes.
               </h1>
+              <p class="about-hero__lede">
+                I work with teams whose infrastructure touches people who can't afford a leak.
+              </p>
               <p class="about-hero__subtitle">
                 I'm a security engineer, content strategist, and founder of <strong>Secure Pride</strong> — a privacy-first cybersecurity nonprofit for LGBTQ+ clinics, mutual aid orgs, and health services.
               </p>
               <p class="about-hero__tagline">
-                My work starts from three questions: who is this for, what can it see, and what happens when it fails them. If those questions matter to your team, we should talk.
+                My work starts from three questions: who is this for, what can it see, and what happens when it fails them.
               </p>
               <div class="about-hero__tags" aria-label="Disciplines">
                 <span class="ab-tag-pill">
@@ -97,13 +100,13 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
                 </div>
               </div>
               <div class="about-hero__cta-group">
-                <a class="ab-button-primary" href="/contact/" aria-label="Primary contact CTA">
+                <a class="ab-button-primary" href="/contact/">
                   <span class="ab-dot"></span>
-                  Work together
+                  Start a security engagement
                 </a>
                 <a class="ab-button-ghost" href="/work/">
                   <span class="ab-dot"></span>
-                  View projects
+                  View selected work
                 </a>
                 <a
                   class="ab-button-ghost"
@@ -150,21 +153,18 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
               </article>
 
               <div class="about-grid__side">
-                <article class="ab-work-card ab-work-card--secondary">
-                  <h3 class="ab-work-card__title">Context Synapse</h3>
-                  <p class="ab-work-card__body">
-                    A local-first context framework in Swift: modeling what a system has learned about you over time, on-device, with a way to interrogate and correct what it thinks it knows.
-                  </p>
-                </article>
-
                 <article class="ab-work-card ab-work-card--secondary" aria-label="Client work">
                   <h3 class="ab-work-card__title">Client work</h3>
                   <p class="ab-work-card__body">
                     Security architecture, threat modeling, and the documentation that has to match it — for teams whose systems touch sensitive data or communities poorly served by default frameworks.
                   </p>
-                  <p class="client-note">Not a fit for: generic SEO content, compliance theater, or brand work without a technical foundation. If your system has real stakes, reaching out is the right first step.</p>
-                  <p class="ab-work-card__cta">
-                    For availability, <a href="/contact/">use the contact form</a>
+                  <p class="client-note">Not a fit for generic SEO content, compliance theater, or brand work without a technical foundation.</p>
+                </article>
+
+                <article class="ab-work-card ab-work-card--secondary">
+                  <h3 class="ab-work-card__title">Context Synapse</h3>
+                  <p class="ab-work-card__body">
+                    A local-first context framework in Swift: modeling what a system has learned about you over time, on-device, with a way to interrogate and correct what it thinks it knows.
                   </p>
                 </article>
               </div>
@@ -183,10 +183,10 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
               <div>
                 <div class="ab-narrative-block">
                   <p>
-                    I left a neuroscience lab after years of measuring cognitive decline in aged macaques — running behavioral tests, recording scores, eventually preparing their brains for post-mortem analysis. The work produced clean numbers. The numbers became figures in papers. At some point, the distance between the data and the animals stopped being something I could live with.
+                    Everything I do starts from an explicit sense of stakes, and from humans who are not an afterthought.
                   </p>
                   <p>
-                    Everything since has been an attempt to work where the stakes are explicit and the humans are not an afterthought. Secure Pride, Context Synapse, and the systems I write about all start from the same questions: who is this for, what can it see, and what happens when it fails them?
+                    I left a neuroscience lab after years of measuring cognitive decline in aged macaques — work that produced clean numbers and publishable figures, but left a gap between the data and the animals I couldn't live with. Since then, Secure Pride, Context Synapse, and my client work have all been different ways of answering the same questions: who is this for, what can it see, and what happens when it fails them?
                   </p>
                 </div>
               </div>
@@ -200,28 +200,31 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
             </div>
           </section>
 
-          <!-- BACKGROUND -->
-          <section class="about-section" aria-labelledby="section-background-title">
+          {/*
+            The long BACKGROUND section was replaced by this stub. Its facts —
+            Luck Lab, EEG/ERP, ERPLAB, lab operations, teaching, Clear as Mud —
+            are all on /work now, tiered and with evidence links, so repeating
+            them here was a second unsourced copy of a record that has a
+            sourced one. Two things did NOT survive to /work and live only in
+            git history: growth work at Tennis 919, and the music/fiction line
+            below, which is kept because a hiring surface still has to sound
+            like a person.
+          */}
+          <!-- CV STUB -->
+          <section class="about-section" aria-labelledby="section-cv-title">
             <div class="about-section__header">
               <div>
                 <div class="about-section__eyebrow cg-eyebrow">Background</div>
-                <h2 id="section-background-title" class="about-section__title">Where I've worked and learned</h2>
+                <h2 id="section-cv-title" class="about-section__title">The full history</h2>
               </div>
             </div>
-            <div class="about-grid">
-              <div class="ab-background-list">
-                <p>
-                  Cognitive neuroscience and quantitative psychology at UC Davis — EEG/ERP, eye tracking, and representational similarity analysis in the Luck Lab. That work didn't pull me toward writing; it sharpened how I think about noisy systems, experimental design, and the gap between statistically significant and actually meaningful.
-                </p>
-                <p>
-                  Before Secure Pride: content lead at mudstack, where I founded and hosted <em>Clear as Mud</em> — twenty-six episodes of long-form interviews with guests from Epic, Riot, Sony, and Meta VR — plus growth work at Tennis 919. Alongside that, a long-running habit of building lab infrastructure and open-source tools for my own work.
-                </p>
-              </div>
-              <aside class="ab-background-list">
-                <p>
-                  I make music — Ableton, Logic, a Universal Audio Volt 2, and a Martin acoustic-electric named Joni. I write speculative fiction. I'm based in Durham, NC, working across time zones with teams who treat security and narrative as first-class concerns.
-                </p>
-              </aside>
+            <div class="ab-background-list">
+              <p>
+                Labs, tools, podcasts, and past roles — <a href="/mazze-leczzare-cv.pdf">the CV</a> has the record in order, and <a href="/work/">/work</a> has it with the evidence for each claim.
+              </p>
+              <p>
+                Outside of that: I make music — Ableton, Logic, a Universal Audio Volt 2, and a Martin acoustic-electric named Joni — and I write speculative fiction. Based in Durham, NC, working across time zones.
+              </p>
             </div>
           </section>
 
@@ -230,7 +233,7 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
             <div class="about-section__header">
               <div>
                 <div class="about-section__eyebrow cg-eyebrow">Work with me</div>
-                <h2 id="section-contact-title" class="about-section__title">How we might collaborate</h2>
+                <h2 id="section-contact-title" class="about-section__title">How we might work together</h2>
               </div>
             </div>
             <div class="ab-cta-panel">
@@ -254,10 +257,24 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
                 </div>
               </div>
 
+              {/* The primary CTA repeats here so the page closes on the same
+                  action the hero opens with — a reader who scrolled the whole
+                  page should not have to scroll back up to act on it. */}
+              <div class="ab-cta-panel__action">
+                <a class="ab-button-primary" href="/contact/">
+                  <span class="ab-dot"></span>
+                  Start a security engagement
+                </a>
+              </div>
+
               <div class="ab-cta-panel__channels">
-                <a class="ab-cta-pill" href="/contact/">
+                <a class="ab-cta-pill" href="/work/">
                   <span class="ab-cta-pill__dot" aria-hidden="true"></span>
-                  Contact form
+                  View selected work
+                </a>
+                <a class="ab-cta-pill" href="/mazze-leczzare-cv.pdf">
+                  <span class="ab-cta-pill__dot" aria-hidden="true"></span>
+                  Download CV (PDF)
                 </a>
                 <a class="ab-cta-pill" href={SITE_EMAIL}>
                   <span class="ab-cta-pill__dot" aria-hidden="true"></span>
@@ -358,6 +375,16 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
     line-height: 1.15;
     margin: 0 0 12px;
     color: var(--text);
+  }
+
+  /* The line directly under the h1 — carries the hook the headline drops, so
+     it sits closer to title weight than to body copy. */
+  .about-hero__lede {
+    max-width: 34rem;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 18px;
   }
 
   .about-hero__subtitle {
@@ -685,6 +712,11 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
   .ab-cta-panel__body {
     margin: 0 0 12px;
     line-height: 1.7;
+  }
+
+  .ab-cta-panel__action {
+    margin-top: 20px;
+    margin-bottom: 4px;
   }
 
   .ab-cta-panel__channels {
