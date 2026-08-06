@@ -579,6 +579,13 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
     margin: 0;
   }
 
+  /* Underlined so inline links don't rely on color alone to read as links. */
+  .about-section__hint a {
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--accent-rgb), 0.5);
+    text-underline-offset: 2px;
+  }
+
   /* ── Grid ── */
   .about-grid {
     display: grid;
@@ -685,6 +692,13 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
   }
 
   .ab-background-list p { margin: 0 0 8px; }
+
+  /* Underlined so inline links don't rely on color alone to read as links. */
+  .ab-background-list a {
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--accent-rgb), 0.5);
+    text-underline-offset: 2px;
+  }
   .ab-background-list em { color: var(--text); font-style: italic; }
 
   /* ── CTA panel ── */
@@ -802,22 +816,23 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
     font-style: italic;
   }
 
-  /* ── About footer note ── */
+  /* ── About footer note ──
+     No opacity dampening: at 0.85 the text dropped below WCAG AA's 4.5:1
+     contrast floor against --bg (~4.3:1 measured) — text-faint alone clears it. */
   .about-footer-note {
     font-family: var(--font-mono);
     font-size: 0.72rem;
     color: var(--text-faint);
     text-align: center;
     padding: 16px 0 8px;
-    opacity: 0.85;
   }
 
+  /* Underlined so the link doesn't rely on color alone to read as a link. */
   .about-footer-note a {
     color: var(--teal);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
-
-  .about-footer-note a:hover { text-decoration: underline; }
 
   .about-footer-note a:focus-visible {
     outline: 2px solid var(--teal);
