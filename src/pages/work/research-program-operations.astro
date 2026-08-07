@@ -47,50 +47,114 @@ const proof = [
   },
 ];
 
+/**
+ * One record per organization, reverse-chronological — the order a resume
+ * reader expects, and the order that stops the timeline from jumping around.
+ * `positions` is a list because UC Davis is one institution across two labs and
+ * two titles; splitting it into two entries read as two unrelated jobs and hid
+ * that the research-operations run is continuous from 2018 to 2022.
+ *
+ * This array feeds both presentations on the page — the screen dossier and the
+ * print resume — so the dates and claims cannot drift apart between them.
+ */
 const experience = [
   {
-    period: '2020–2022',
-    role: 'Junior Specialist / Laboratory Operations Manager',
-    organization: 'Bliss-Moreau Laboratory · UC Davis Center for Neuroscience',
-    themes: ['Research operations', 'Quantitative methods', 'Documentation'],
-    bullets: [
-      'Managed laboratory operations for quantitative research on emotion, social cognition, and well-being across human and primate populations.',
-      'Developed and maintained Python-based data-processing workflows; contributed to study design, analysis, scientific writing, and project documentation.',
-      'Connected technical and non-technical collaborators across shifting, multi-site research conditions through clear materials, coordination, and status communication.',
-    ],
-  },
-  {
-    period: '2018–2020',
-    role: 'Research Assistant / Laboratory Manager',
-    organization: 'Luck Lab · UC Davis Center for Mind & Brain',
-    themes: ['Research training', 'EEG / ERP', 'Program logistics'],
-    bullets: [
-      'Supported research on attention, working memory, and cognitive and emotional dysfunction using quantitative cognitive electrophysiology.',
-      'Contributed to dissemination work around ERP methodology and the open-source ERPLAB Toolbox for MATLAB.',
-      'Helped coordinate the annual 10-day NIH-funded ERP Boot Camp, supporting participant communication, schedule and materials logistics, and researcher-facing training delivery.',
-    ],
-  },
-  {
-    period: '2022–2023',
-    role: 'Community and Content Manager',
-    organization: 'Mudstack · Developer-tools SaaS',
-    themes: ['Outreach', 'Events', 'Digital engagement'],
-    bullets: [
-      'Built community and content operations from zero, establishing editorial workflows and an audience-facing communications rhythm.',
-      'Authored 50+ technical articles, product guides, and developer documentation for professional creative-technology audiences.',
-      'Produced and hosted seven webinars and the 50-episode Clear as Mud interview series, owning speaker outreach, run-of-show, live production, and multi-format distribution.',
-    ],
-  },
-  {
-    period: '2024–Present',
-    role: 'Founder & Editor-in-Chief',
-    organization: 'Secure Pride · Durham, North Carolina',
+    organization: 'Secure Pride',
+    location: 'Durham, NC',
+    period: 'Mar 2024 – Present',
+    positions: [{ role: 'Founder & Editor-in-Chief', dates: 'Mar 2024 – Present' }],
     themes: ['Security', 'Education', 'Infrastructure'],
     bullets: [
-      'Founded a privacy-first cybersecurity nonprofit serving LGBTQ+ and underserved community organizations.',
-      'Designs secure web infrastructure and produces accessible educational material that helps non-technical partners adopt practical security practices.',
-      'Applies documentation, privacy, and least-privilege principles to the systems and communications that support sensitive work.',
+      'Founded and operate a privacy-first cybersecurity nonprofit serving LGBTQ+ and underserved community organizations.',
+      'Design and maintain secure digital infrastructure using TypeScript, Cloudflare Pages and Workers, WebAuthn, and encryption-oriented tooling.',
+      'Produce plain-language technical documentation and educational materials that help non-technical partners understand and adopt security practices.',
+      'Establish documentation, editorial, and operational systems that make sensitive work more reliable, auditable, and accessible.',
     ],
+  },
+  {
+    organization: 'Tennis 919',
+    location: 'Durham, NC',
+    period: 'Mar 2024 – Mar 2026',
+    positions: [{ role: 'Co-Founder, Head of Marketing', dates: 'Mar 2024 – Mar 2026' }],
+    themes: ['Community', 'Outreach', 'Recurring programs'],
+    bullets: [
+      'Co-founded and grew an inclusive Durham community program to 65+ weekly active members through targeted outreach, SEO, digital communications, and community-centered programming.',
+      'Built and maintained website and booking workflows; supported participant communications and recurring program logistics.',
+    ],
+  },
+  {
+    organization: 'Mudstack',
+    location: 'Remote',
+    period: 'Oct 2022 – Nov 2023',
+    positions: [{ role: 'Community and Content Manager', dates: 'Oct 2022 – Nov 2023' }],
+    themes: ['Outreach', 'Events', 'Digital engagement'],
+    bullets: [
+      'Built community and content operations from zero for an early-stage developer-tools SaaS company, establishing editorial workflows, communications calendars, and audience-engagement processes.',
+      'Authored 50+ technical articles, product guides, and developer-facing documentation, translating complex product and workflow concepts for professional creative-technology audiences.',
+      'Produced and hosted seven webinars and 50 episodes of the Clear as Mud interview series; owned speaker research and outreach, scheduling, run-of-show, live production, and post-event distribution.',
+      'Coordinated content across web, social, email, and community channels; used engagement signals to refine programming and communications.',
+    ],
+  },
+  {
+    organization: 'UC Davis Center for Neuroscience and Center for Mind & Brain',
+    location: 'Davis, CA',
+    period: 'Oct 2018 – Oct 2022',
+    positions: [
+      {
+        role: 'Junior Specialist / Laboratory Operations Manager, Bliss-Moreau Laboratory',
+        dates: 'Aug 2020 – Oct 2022',
+      },
+      {
+        role: 'Research Assistant / Laboratory Manager, Luck Lab',
+        dates: 'Oct 2018 – Aug 2020',
+      },
+    ],
+    themes: ['Research operations', 'Quantitative methods', 'EEG / ERP'],
+    bullets: [
+      'Managed day-to-day laboratory operations supporting quantitative research programs in emotion, social cognition, attention, and working memory across human and primate populations.',
+      'Developed and maintained Python-based data-processing workflows; supported study design, data analysis, scientific writing, presentations, and research documentation.',
+      'Coordinated research logistics, participant and researcher workflows, lab equipment readiness, and data-integrity practices in deadline-driven environments.',
+      'Supported dissemination of EEG/ERP methodology and documentation for the open-source ERPLAB Toolbox, used by an international research community.',
+      'Helped coordinate the annual 10-day NIH-funded ERP Boot Camp, including participant communications, scheduling, training logistics, and cross-site coordination for early-career researchers.',
+      'Bridged technical and non-technical collaborators through clear documentation, meeting materials, status communication, and adaptable project support.',
+    ],
+  },
+];
+
+/** Résumé header block. */
+const RESUME_NAME = 'Mazze LeCzzare Frazer';
+const RESUME_TITLE = 'Research Program Operations · Scientific Communications · Outreach & Events';
+/**
+ * One string, not separate spans — JSX collapses the whitespace around inline
+ * elements inconsistently and the separators ended up glued to the text.
+ *
+ * No email address here on purpose: CLAUDE.md keeps the site free of a
+ * published mailbox and routes contact through the function instead, so the
+ * résumé points at /contact/ rather than putting an address on a public page
+ * for scrapers to harvest.
+ */
+const RESUME_CONTACT =
+  'Durham, NC · mazzeleczzare.com · mazzeleczzare.com/contact · github.com/mazze93';
+const RESUME_SUMMARY =
+  'Research operations and scientific communications professional with four years of direct experience supporting cognitive neuroscience research at UC Davis. Background spans laboratory operations, quantitative data workflows, researcher training, multi-site coordination, technical documentation, event production, and community-centered outreach. Brings founder-level ownership of secure digital infrastructure and demonstrated ability to translate complex technical work into clear, audience-appropriate communications.';
+
+/** Grouped for the resume sheet; the flat `skills` list below feeds the screen. */
+const skillGroups = [
+  {
+    heading: 'Program & research operations',
+    items: 'Research coordination · Laboratory operations · Training-program logistics · Event production · Speaker and participant communications · Multi-site coordination · Scientific writing · Protocols and documentation · Project tracking',
+  },
+  {
+    heading: 'Communications & digital engagement',
+    items: 'Website content · Newsletter and email communications · Social media · Technical editing · Audience-centered education · Analytics and reporting · SEO · Web publishing',
+  },
+  {
+    heading: 'Technical & quantitative',
+    items: 'Python · R · MATLAB / ERPLAB · EEG/ERP analysis · Survey design · TypeScript · Git · Cloudflare · Information architecture · Data-integrity practices',
+  },
+  {
+    heading: 'Tools',
+    items: 'Microsoft 365 · Google Workspace · Notion · Linear · Figma · Adobe Creative Suite · HubSpot',
   },
 ];
 
@@ -162,6 +226,63 @@ const skills = [
   <body>
     <Header />
     <main>
+
+      <!--
+        Print-only résumé.
+
+        The dossier below is built to be read on a screen; printed, it is a web
+        page on paper, which is not what anyone wants out of a "Save as PDF" on
+        a work history. So print gets a different document: a standard
+        reverse-chronological résumé, rendered from the same `experience` array
+        the dossier uses, so the two can never disagree about a date or a claim.
+
+        Plain headings, real lists, real text — no CSS-generated content and no
+        multi-column layout — so the PDF stays parseable by applicant-tracking
+        systems and by anyone's screen reader.
+      -->
+      <section class="resume-sheet" aria-label="Résumé">
+        <header class="resume-head">
+          <h2 class="resume-name">{RESUME_NAME}</h2>
+          <p class="resume-title">{RESUME_TITLE}</p>
+          <p class="resume-contact">{RESUME_CONTACT}</p>
+        </header>
+
+        <section class="resume-block">
+          <h3>Summary</h3>
+          <p>{RESUME_SUMMARY}</p>
+        </section>
+
+        <section class="resume-block">
+          <h3>Experience</h3>
+          {experience.map((item) => (
+            <article class="resume-role">
+              <p class="resume-role__org">
+                <strong>{item.organization}</strong> — {item.location}
+              </p>
+              {item.positions.map((position) => (
+                <p class="resume-role__title">
+                  {position.role}<span class="resume-role__dates">{position.dates}</span>
+                </p>
+              ))}
+              <ul>
+                {item.bullets.map((bullet) => <li>{bullet}</li>)}
+              </ul>
+            </article>
+          ))}
+        </section>
+
+        <section class="resume-block">
+          <h3>Skills</h3>
+          <dl class="resume-skills">
+            {skillGroups.map((group) => (
+              <div>
+                <dt>{group.heading}</dt>
+                <dd>{group.items}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </section>
 
       <!-- Page header -->
       <section class="rpo-header" aria-labelledby="page-title">
@@ -247,8 +368,10 @@ const skills = [
             <article class="experience-entry">
               <p class="experience-entry__period">{item.period}</p>
               <div class="experience-entry__body">
-                <p class="experience-entry__org">{item.organization}</p>
-                <h3>{item.role}</h3>
+                <p class="experience-entry__org">{item.organization} · {item.location}</p>
+                {item.positions.map((position) => (
+                  <h3>{position.role}{item.positions.length > 1 && <span class="role-dates"> · {position.dates}</span>}</h3>
+                ))}
                 <div class="tag-list" aria-label="Areas of work">
                   {item.themes.map((theme) => <span>{theme}</span>)}
                 </div>
@@ -327,6 +450,14 @@ const skills = [
     width: calc(100% - 2rem);
     margin: 0 auto;
     padding: 0 1rem 6rem;
+  }
+
+  /* The résumé exists only for print. display:none also takes it out of the
+     accessibility tree, which is correct here — every fact in it is already
+     present in the dossier below, so a screen-reader user loses nothing and
+     is spared reading the same work history twice. */
+  .resume-sheet {
+    display: none;
   }
 
   /* ── Page header ── */
@@ -718,20 +849,23 @@ const skills = [
   }
 
   /* ── Print / PDF ──
-     What the reader gets when they hit "Save as PDF". Site chrome and the
-     buttons themselves are noise on paper, so they go; everything else is
-     forced to ink-on-white because the dark theme would otherwise either burn
-     a page of toner or (with backgrounds dropped) print near-white on white. */
+     Printing swaps the document: the screen dossier steps aside and the résumé
+     above takes the page. Everything is forced to ink-on-white, because the
+     dark theme would otherwise either burn a page of toner or — with
+     backgrounds dropped — print near-white on white. */
   @media print {
     :global(header[role="banner"]),
     :global(footer[role="contentinfo"]),
-    .pdf-button {
+    .pdf-button,
+    .rpo-header,
+    .rpo-section {
       display: none !important;
     }
 
     :global(body) {
       background: #fff !important;
       color: #101820 !important;
+      font-size: 10pt;
     }
 
     main {
@@ -740,87 +874,136 @@ const skills = [
       padding: 0;
     }
 
-    .page-title,
-    .section-title,
-    .proof-card h3,
-    .work-card h3,
-    .experience-entry h3 {
+    .resume-sheet {
+      display: block;
       color: #101820;
     }
 
-    .page-desc,
-    .thesis-lede,
-    .proof-card p:last-child,
-    .work-card p:not([class]),
-    .experience-entry li,
-    .rpo-facts dd,
-    .skills-list li {
+    /* ── Résumé header ── */
+    .resume-head {
+      border-bottom: 1.5pt solid #101820;
+      padding-bottom: 7pt;
+      margin-bottom: 11pt;
+    }
+
+    .resume-name {
+      font-family: var(--font-display);
+      font-size: 21pt;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      margin: 0;
+      color: #101820;
+    }
+
+    .resume-title {
+      font-family: var(--font-mono);
+      font-size: 8.5pt;
+      letter-spacing: 0.04em;
+      color: #3a4550;
+      margin: 3pt 0 0;
+    }
+
+    .resume-contact {
+      font-family: var(--font-mono);
+      font-size: 8.5pt;
+      color: #3a4550;
+      margin: 4pt 0 0;
+    }
+
+    /* ── Résumé sections ── */
+    .resume-block {
+      margin-bottom: 11pt;
+    }
+
+    .resume-block > h3 {
+      font-family: var(--font-mono);
+      font-size: 8.5pt;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #1f5f5a;
+      margin: 0 0 6pt;
+      padding-bottom: 2.5pt;
+      border-bottom: 0.5pt solid #c3cad1;
+    }
+
+    .resume-block > p {
+      margin: 0;
+      font-size: 9.5pt;
+      line-height: 1.45;
       color: #2b3540;
     }
 
-    .section-eyebrow,
-    .rpo-facts dt,
-    .experience-entry__org,
-    .work-card__eyebrow,
-    .tag-list span {
-      color: #55606c;
-    }
-
-    .proof-card__number,
-    .experience-entry__period,
-    .work-card__label,
-    .work-card a,
-    .rpo-facts a,
-    .closing-cta {
-      color: #1f5f5a;
-    }
-
-    .rpo-header,
-    .rpo-section,
-    .experience-entry,
-    .experience-list {
-      border-color: #ccd2d8;
-    }
-
-    .proof-grid,
-    .work-grid {
-      background: #ccd2d8;
-      border-color: #ccd2d8;
-    }
-
-    .proof-card,
-    .work-card {
-      background: #fff;
-    }
-
-    .rpo-thesis {
-      background: #f2f4f5;
-      border: 1px solid #ccd2d8;
-    }
-
-    /* Keep a card or a role from being split across a page boundary. */
-    .rpo-section,
-    .proof-card,
-    .work-card,
-    .experience-entry {
+    /* ── One role ── */
+    .resume-role {
+      margin-bottom: 9pt;
+      /* A role and its bullets belong on the same page. */
       break-inside: avoid;
     }
 
-    .page-title { font-size: 26pt; }
-    .section-title { font-size: 15pt; }
+    .resume-role:last-child { margin-bottom: 0; }
 
-    /* The on-screen measures (24ch/26ch) are tuned to the screen type sizes.
-       At print sizes they collapse the headings into a narrow column against a
-       full-width page, so give them the width back. */
-    .page-title { max-width: 34ch; }
-    .section-title { max-width: 46ch; }
+    .resume-role__org {
+      font-size: 10pt;
+      margin: 0;
+      color: #101820;
+    }
 
-    /* Links are dead on paper — spell the destination out instead. */
-    .work-card a[href^="http"]::after {
-      content: " (" attr(href) ")";
-      font-size: 0.85em;
-      text-transform: none;
-      letter-spacing: 0;
+    /* The org line carries the location; the date sits with the title it
+       actually belongs to, which is what makes a two-title employer legible. */
+    .resume-role__title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1em;
+      font-family: var(--font-mono);
+      font-size: 8.5pt;
+      color: #3a4550;
+      margin: 2pt 0 0;
+    }
+
+    .resume-role__dates {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .resume-role ul {
+      margin: 4pt 0 0;
+      padding-left: 12pt;
+    }
+
+    .resume-role li {
+      font-size: 9.5pt;
+      line-height: 1.42;
+      color: #2b3540;
+      margin-bottom: 1.5pt;
+    }
+
+    /* ── Skills ── */
+    .resume-skills {
+      margin: 0;
+      display: block;
+    }
+
+    .resume-skills > div {
+      margin-bottom: 4.5pt;
+      break-inside: avoid;
+    }
+
+    .resume-skills dt {
+      font-family: var(--font-mono);
+      font-size: 8pt;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #55606c;
+      margin: 0;
+    }
+
+    .resume-skills dd {
+      font-size: 9pt;
+      line-height: 1.4;
+      color: #2b3540;
+      margin: 1pt 0 0;
     }
   }
 </style>
