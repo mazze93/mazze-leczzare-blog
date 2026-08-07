@@ -7,6 +7,23 @@ import { SITE_TITLE } from '../../consts';
 /**
  * /work/research-program-operations — the research-operations dossier.
  *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * TWO TRACKS, TWO AUDIENCES. Do not merge them.
+ *
+ *   Track A — /mazze-leczzare-cv.pdf, linked from /about/.
+ *     The publishing surface: AI work, security engineering, independent
+ *     research. Aimed at AI-native companies.
+ *
+ *   Track B — this page.
+ *     Operations, marketing, content and community management. Aimed at
+ *     academic and local roles.
+ *
+ * These overlap in the facts and diverge in the argument, which is the point.
+ * The redundancy is deliberate: do not "deduplicate" one into the other, and do
+ * not cross-link Track A from here — sending a program-operations hiring
+ * manager the AI research CV hands them the wrong record.
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
  * The connective layer between the public artifacts on /work/ and the
  * research-lab record: research operations, scientific communication, event
  * production, and secure information systems read as one practice rather than
@@ -424,10 +441,16 @@ const skills = [
           I am interested in research programs that take both rigor and
           participation seriously.
         </h2>
+        <!--
+          No link to /mazze-leczzare-cv.pdf here, deliberately. That CV is the
+          research/AI-facing document and belongs to a different audience; it is
+          linked from /about/, which is where that audience lands. Sending it to
+          a program-operations hiring manager would hand them the wrong record.
+          This page's own "Save as PDF" is its artifact.
+        -->
         <div class="closing-actions">
           <a class="closing-cta" href="/contact/">Start a conversation <span aria-hidden="true">→</span></a>
-          <a class="closing-cta closing-cta--quiet" href="/mazze-leczzare-cv.pdf">Download the CV <span aria-hidden="true">↓</span></a>
-          <button class="pdf-button" type="button" data-print>Save this page as PDF</button>
+          <button class="pdf-button" type="button" data-print>Download this résumé as PDF</button>
         </div>
       </section>
 
