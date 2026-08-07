@@ -67,6 +67,8 @@ html, body { height: 100%; background: var(--bg); color: var(--tx); font-family:
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
 #hd { height: 46px; padding: 0 18px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 12px; flex-shrink: 0; transition: border-color .9s; z-index: 10; }
+#home { font-size: 9px; letter-spacing: .08em; color: var(--tx-d); text-decoration: none; flex-shrink: 0; transition: color .3s; }
+#home:hover { color: var(--acc); }
 #ht { font: italic 600 16px/1 var(--ser); letter-spacing: .14em; color: var(--acc); transition: color .9s; }
 #hs { font-size: 8px; color: var(--tx-d); letter-spacing: .12em; transition: color .9s; }
 #mode { margin-left: auto; display: flex; align-items: center; gap: 10px; }
@@ -193,6 +195,7 @@ body.descended .intro strong { color: var(--co); }
 <div id="app">
 
   <div id="hd">
+    <a id="home" href="https://mazzeleczzare.com/">← mazzeleczzare.com</a>
     <span id="ht">The Tree of Knowledge</span>
     <span id="hs">QLIPHOTH WITHIN SEPHIROTH · DUAL-FACE DECISION TELEMETRY</span>
     <div id="mode">
