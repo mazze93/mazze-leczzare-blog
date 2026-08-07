@@ -50,7 +50,7 @@ const proof = [
   {
     number: '02',
     title: 'Training and events',
-    copy: 'Supported the annual 10-day NIH-funded ERP Boot Camp, and later produced webinars, a 50-episode interview series, and community programming from outreach through post-event distribution.',
+    copy: 'Supported the annual 10-day NIH-funded ERP Boot Camp, and later produced webinars, a 27-episode interview series, and community programming from outreach through post-event distribution.',
   },
   {
     number: '03',
@@ -78,6 +78,8 @@ const experience = [
   {
     organization: 'Secure Pride',
     location: 'Durham, NC',
+    /** Own venture — the live site is the evidence for the claims below. */
+    url: 'securepride.org',
     period: 'Mar 2024 – Present',
     positions: [{ role: 'Founder & Editor-in-Chief', dates: 'Mar 2024 – Present' }],
     themes: ['Security', 'Education', 'Infrastructure'],
@@ -91,6 +93,7 @@ const experience = [
   {
     organization: 'Tennis 919',
     location: 'Durham, NC',
+    url: 'tennis919.com',
     period: 'Mar 2024 – Mar 2026',
     positions: [{ role: 'Co-Founder, Head of Marketing', dates: 'Mar 2024 – Mar 2026' }],
     themes: ['Community', 'Outreach', 'Recurring programs'],
@@ -107,8 +110,8 @@ const experience = [
     themes: ['Outreach', 'Events', 'Digital engagement'],
     bullets: [
       'Built community and content operations from zero for an early-stage developer-tools SaaS company, establishing editorial workflows, communications calendars, and audience-engagement processes.',
-      'Authored 50+ technical articles, product guides, and developer-facing documentation, translating complex product and workflow concepts for professional creative-technology audiences.',
-      'Produced and hosted seven webinars and 50 episodes of the Clear as Mud interview series; owned speaker research and outreach, scheduling, run-of-show, live production, and post-event distribution.',
+      'Published one to two technical articles, product guides, or developer-facing documentation pieces per week — 50+ in total — translating complex product and workflow concepts for professional creative-technology audiences.',
+      'Produced and hosted seven webinars and 27 episodes of the Clear as Mud interview series; owned speaker research and outreach, scheduling, run-of-show, live production, and post-event distribution.',
       'Coordinated content across web, social, email, and community channels; used engagement signals to refine programming and communications.',
     ],
   },
@@ -207,7 +210,7 @@ const selected = [
   },
   {
     label: 'Program production',
-    eyebrow: 'Mudstack · 50 episodes',
+    eyebrow: 'Mudstack · 27 episodes',
     title: 'Clear as Mud',
     copy: 'A full-lifecycle interview program featuring leaders across games, XR, and creative technology: topic development, speaker outreach, scheduling, production, and multi-format distribution.',
     href: 'https://open.spotify.com/show/50eMqYFskikUzz4EuoYTyf',
@@ -295,7 +298,7 @@ const skills = [
           {experience.map((item) => (
             <article class="resume-role">
               <p class="resume-role__org">
-                <strong>{item.organization}</strong> — {item.location}
+                <strong>{item.organization}</strong> — {item.location}{item.url && <span class="resume-role__url"> · {item.url}</span>}
               </p>
               {item.positions.map((position) => (
                 <p class="resume-role__title">
@@ -425,6 +428,11 @@ const skills = [
               <p class="experience-entry__period">{item.period}</p>
               <div class="experience-entry__body">
                 <p class="experience-entry__org">{item.organization} · {item.location}</p>
+                {item.url && (
+                  <p class="experience-entry__url">
+                    <a href={`https://${item.url}`} target="_blank" rel="noopener noreferrer">{item.url}</a>
+                  </p>
+                )}
                 {item.positions.map((position) => (
                   <h3>{position.role}{item.positions.length > 1 && <span class="role-dates"> · {position.dates}</span>}</h3>
                 ))}
@@ -766,6 +774,19 @@ const skills = [
     margin: 0;
   }
 
+  .experience-entry__url {
+    font-family: var(--font-mono);
+    font-size: 0.68em;
+    letter-spacing: 0.06em;
+    margin: 0.2em 0 0;
+  }
+
+  .experience-entry__url a {
+    color: var(--teal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   .tag-list {
     display: flex;
     flex-wrap: wrap;
@@ -1047,6 +1068,14 @@ const skills = [
       font-size: 10pt;
       margin: 0;
       color: #101820;
+    }
+
+    /* Own-venture URL on the org line — turns an assertion into something a
+       reader can check in one click, which is the whole point of listing it. */
+    .resume-role__url {
+      font-family: var(--font-mono);
+      font-size: 8.5pt;
+      color: #1f5f5a;
     }
 
     /* The org line carries the location; the date sits with the title it
