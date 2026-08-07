@@ -145,13 +145,16 @@ const RESUME_TITLE = 'Research Program Operations · Scientific Communications �
  * One string, not separate spans — JSX collapses the whitespace around inline
  * elements inconsistently and the separators ended up glued to the text.
  *
- * No email address here on purpose: CLAUDE.md keeps the site free of a
- * published mailbox and routes contact through the function instead, so the
- * résumé points at /contact/ rather than putting an address on a public page
- * for scrapers to harvest.
+ * The email is a deliberate, owner-approved exception to the site's usual
+ * no-published-mailbox rule (see CLAUDE.md, Key Constraints). A résumé that a
+ * hiring manager cannot reply to fails at the one job it has; recruiters
+ * frequently work from the PDF alone inside an ATS, where a contact-form URL is
+ * a dead end. Note the address is in the page source, not only the print
+ * output — CSS can move it off the screen but cannot hide it from a scraper.
+ * Do not remove it as a constraint violation.
  */
 const RESUME_CONTACT =
-  'Durham, NC · mazzeleczzare.com · mazzeleczzare.com/contact · github.com/mazze93';
+  'Durham, NC · mazze@mazzeleczzare.com · mazzeleczzare.com · linkedin.com/in/mazze-leczzare · github.com/mazze93';
 const RESUME_SUMMARY =
   'Research operations and scientific communications professional with four years of direct experience supporting cognitive neuroscience research at UC Davis. Background spans laboratory operations, quantitative data workflows, researcher training, multi-site coordination, technical documentation, event production, and community-centered outreach. Brings founder-level ownership of secure digital infrastructure and demonstrated ability to translate complex technical work into clear, audience-appropriate communications.';
 
@@ -174,6 +177,24 @@ const skillGroups = [
     items: 'Microsoft 365 · Google Workspace · Notion · Linear · Figma · Adobe Creative Suite · HubSpot',
   },
 ];
+
+/**
+ * Education. The Luck Lab assistant-lab-manager role is deliberately not
+ * repeated here — it already appears in `experience` as the Oct 2018 – Aug 2020
+ * entry, and listing it twice would read as two separate appointments. The TA
+ * post is different work and does belong here.
+ */
+const education = {
+  institution: 'University of California, Davis',
+  location: 'Davis, CA',
+  degree: 'B.S., Quantitative Psychology',
+  year: '2020',
+  details: [
+    'Regents Scholar',
+    'Teaching Assistant — Psychology of Emotions (Eliza Bliss-Moreau)',
+    'Transferred from Butte College, 2018',
+  ],
+};
 
 const selected = [
   {
@@ -289,6 +310,21 @@ const skills = [
         </section>
 
         <section class="resume-block">
+          <h3>Education</h3>
+          <article class="resume-role">
+            <p class="resume-role__org">
+              <strong>{education.institution}</strong> — {education.location}
+            </p>
+            <p class="resume-role__title">
+              {education.degree}<span class="resume-role__dates">{education.year}</span>
+            </p>
+            <ul>
+              {education.details.map((detail) => <li>{detail}</li>)}
+            </ul>
+          </article>
+        </section>
+
+        <section class="resume-block">
           <h3>Skills</h3>
           <dl class="resume-skills">
             {skillGroups.map((group) => (
@@ -338,7 +374,10 @@ const skills = [
             </div>
             <div>
               <dt>Contact</dt>
-              <dd><a href="/contact/">Start a conversation</a></dd>
+              <dd>
+                <a href="mailto:mazze@mazzeleczzare.com">mazze@mazzeleczzare.com</a><br />
+                <a href="https://linkedin.com/in/mazze-leczzare" target="_blank" rel="noopener noreferrer">linkedin.com/in/mazze-leczzare</a>
+              </dd>
             </div>
           </dl>
         </div>
@@ -398,6 +437,20 @@ const skills = [
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <!-- Education -->
+      <section class="rpo-section" aria-labelledby="education-title">
+        <p class="section-eyebrow">Education</p>
+        <h2 id="education-title" class="section-title">{education.degree}</h2>
+        <div class="education-body">
+          <p class="education-inst">
+            {education.institution} · {education.location} · {education.year}
+          </p>
+          <ul class="education-details">
+            {education.details.map((detail) => <li>{detail}</li>)}
+          </ul>
         </div>
       </section>
 
@@ -739,6 +792,30 @@ const skills = [
     margin: 0;
     padding-left: 1.1rem;
     max-width: 70ch;
+  }
+
+  /* ── Education ── */
+  .education-inst {
+    font-family: var(--font-mono);
+    font-size: 0.78em;
+    letter-spacing: 0.04em;
+    color: var(--teal);
+    margin: 0 0 1em;
+  }
+
+  .education-details {
+    display: grid;
+    gap: 0.5em;
+    margin: 0;
+    padding-left: 1.1rem;
+    max-width: 60ch;
+  }
+
+  .education-details li {
+    font-family: var(--font-mono);
+    font-size: 0.78em;
+    color: var(--text-dim);
+    line-height: 1.7;
   }
 
   /* ── Selected work ── */
