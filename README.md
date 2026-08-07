@@ -3,7 +3,7 @@
 [![CI](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/ci.yml/badge.svg)](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/codeql.yml/badge.svg)](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/codeql.yml)
 [![Lighthouse](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/mazze93/mazze-leczzare-blog/actions/workflows/lighthouse.yml)
-![Framework](https://img.shields.io/badge/Astro%206-BC52EE?logo=astro&logoColor=white)
+![Framework](https://img.shields.io/badge/Astro%207-BC52EE?logo=astro&logoColor=white)
 
 Security engineering, technical writing, and essays from Mazze LeCzzare — founder of Secure Pride. Infrastructure and story for systems with real human stakes.
 
@@ -15,11 +15,11 @@ Security engineering, technical writing, and essays from Mazze LeCzzare — foun
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Astro 6 (fully static, `output: "static"`) |
+| Framework | Astro 7 (fully static, `output: "static"`) |
 | UI islands | React 19 — interactive components only |
 | Content | Markdown + MDX via Astro Content Collections |
 | Edge functions | Cloudflare Pages Functions (`functions/api/`) |
-| Fonts | Atkinson Hyperlegible (self-hosted); Space Grotesk Variable, Crimson Pro (via `@fontsource`) |
+| Fonts | Cormorant Garamond, Cormorant SC, DM Mono, DM Sans, Playfair Display via `@fontsource`; Space Grotesk + Crimson Pro on `/cipher-gothic/` only |
 | RSS | `@astrojs/rss` — `/rss.xml` |
 | Deploy | Cloudflare Pages |
 
@@ -32,6 +32,7 @@ npm run build      # Static build → dist/
 npm run preview    # Preview built site locally
 npm run check      # Build + TypeScript check (repo-standard validation)
 npm run docs:check # Validate docs/instruction consistency
+npm run test       # Unit tests (vitest)
 ```
 
 ## Deployment
@@ -92,7 +93,7 @@ Create `src/content/blog/your-slug.md` with frontmatter:
 title: "Post Title"
 description: "One-sentence description."
 pubDate: 2026-04-14
-heroImage: "/your-image.jpg"   # optional
+heroImage: ../../assets/images/blog/your-image.jpg   # optional — relative path, processed by Astro
 ---
 ```
 
