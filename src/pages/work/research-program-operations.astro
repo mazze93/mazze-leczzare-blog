@@ -1,0 +1,826 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+/**
+ * /work/research-program-operations — the research-operations dossier.
+ *
+ * The connective layer between the public artifacts on /work/ and the
+ * research-lab record: research operations, scientific communication, event
+ * production, and secure information systems read as one practice rather than
+ * four unrelated jobs.
+ *
+ * Print-to-PDF, not a PDF library. `window.print()` hands the export to the
+ * browser, which keeps text selectable, links live, and headings structural —
+ * and sends nothing to a third-party conversion service. The @media print
+ * block below is what makes that output presentable: it drops the site chrome
+ * and the buttons, then guards the page breaks.
+ *
+ * Styling reads from the site's own tokens (--text, --rule, --teal, …) rather
+ * than a private palette, so the page follows the theme toggle in both
+ * directions instead of pinning itself to one mode while Header and Footer
+ * follow the other.
+ */
+
+const proof = [
+  {
+    number: '01',
+    title: 'Research operations',
+    copy: 'Four years supporting cognitive neuroscience research at UC Davis: laboratory operations, quantitative workflows, research documentation, study support, and coordination across technical and non-technical collaborators.',
+  },
+  {
+    number: '02',
+    title: 'Training and events',
+    copy: 'Supported the annual 10-day NIH-funded ERP Boot Camp, and later produced webinars, a 50-episode interview series, and community programming from outreach through post-event distribution.',
+  },
+  {
+    number: '03',
+    title: 'Scientific communication',
+    copy: 'Technical and research-facing writing that makes specialized work legible without flattening its complexity — across protocols, documentation, public writing, web content, and educational resources.',
+  },
+  {
+    number: '04',
+    title: 'Trustworthy systems',
+    copy: 'Secure, maintainable digital systems and documentation practices grounded in privacy, accessibility, information architecture, version control, and responsible stewardship of sensitive work.',
+  },
+];
+
+const experience = [
+  {
+    period: '2020–2022',
+    role: 'Junior Specialist / Laboratory Operations Manager',
+    organization: 'Bliss-Moreau Laboratory · UC Davis Center for Neuroscience',
+    themes: ['Research operations', 'Quantitative methods', 'Documentation'],
+    bullets: [
+      'Managed laboratory operations for quantitative research on emotion, social cognition, and well-being across human and primate populations.',
+      'Developed and maintained Python-based data-processing workflows; contributed to study design, analysis, scientific writing, and project documentation.',
+      'Connected technical and non-technical collaborators across shifting, multi-site research conditions through clear materials, coordination, and status communication.',
+    ],
+  },
+  {
+    period: '2018–2020',
+    role: 'Research Assistant / Laboratory Manager',
+    organization: 'Luck Lab · UC Davis Center for Mind & Brain',
+    themes: ['Research training', 'EEG / ERP', 'Program logistics'],
+    bullets: [
+      'Supported research on attention, working memory, and cognitive and emotional dysfunction using quantitative cognitive electrophysiology.',
+      'Contributed to dissemination work around ERP methodology and the open-source ERPLAB Toolbox for MATLAB.',
+      'Helped coordinate the annual 10-day NIH-funded ERP Boot Camp, supporting participant communication, schedule and materials logistics, and researcher-facing training delivery.',
+    ],
+  },
+  {
+    period: '2022–2023',
+    role: 'Community and Content Manager',
+    organization: 'Mudstack · Developer-tools SaaS',
+    themes: ['Outreach', 'Events', 'Digital engagement'],
+    bullets: [
+      'Built community and content operations from zero, establishing editorial workflows and an audience-facing communications rhythm.',
+      'Authored 50+ technical articles, product guides, and developer documentation for professional creative-technology audiences.',
+      'Produced and hosted seven webinars and the 50-episode Clear as Mud interview series, owning speaker outreach, run-of-show, live production, and multi-format distribution.',
+    ],
+  },
+  {
+    period: '2024–Present',
+    role: 'Founder & Editor-in-Chief',
+    organization: 'Secure Pride · Durham, North Carolina',
+    themes: ['Security', 'Education', 'Infrastructure'],
+    bullets: [
+      'Founded a privacy-first cybersecurity nonprofit serving LGBTQ+ and underserved community organizations.',
+      'Designs secure web infrastructure and produces accessible educational material that helps non-technical partners adopt practical security practices.',
+      'Applies documentation, privacy, and least-privilege principles to the systems and communications that support sensitive work.',
+    ],
+  },
+];
+
+const selected = [
+  {
+    label: 'Research training',
+    eyebrow: 'UC Davis Center for Mind & Brain',
+    title: 'NIH-Funded ERP Boot Camp',
+    copy: 'A 10-day intensive program for early-career researchers in quantitative cognitive electrophysiology. Supported operational coordination, participant communication, materials, and instructor-facing logistics.',
+    href: '#experience',
+    linkText: 'See research experience',
+  },
+  {
+    label: 'Program production',
+    eyebrow: 'Mudstack · 50 episodes',
+    title: 'Clear as Mud',
+    copy: 'A full-lifecycle interview program featuring leaders across games, XR, and creative technology: topic development, speaker outreach, scheduling, production, and multi-format distribution.',
+    href: 'https://open.spotify.com/show/50eMqYFskikUzz4EuoYTyf',
+    linkText: 'Listen on Spotify',
+  },
+  {
+    label: 'Public communication',
+    eyebrow: 'Research, infrastructure, and creative technology',
+    title: 'Technical writing and editorial work',
+    copy: 'Selected writing turning complex systems, methodological questions, and high-stakes decisions into useful, audience-aware work — each entry on /work/ carrying its own evidence tier.',
+    href: '/work/',
+    linkText: 'View selected work',
+  },
+  {
+    label: 'Secure systems',
+    eyebrow: 'Privacy-first community infrastructure',
+    title: 'Secure Pride',
+    copy: 'An ongoing effort to make security knowledge and technical infrastructure more usable for community organizations working under meaningful privacy constraints.',
+    href: 'https://github.com/Secure-Pride',
+    linkText: 'View organization',
+  },
+];
+
+const skills = [
+  'Research coordination',
+  'Laboratory operations',
+  'Training-program logistics',
+  'Event production',
+  'Scientific writing',
+  'Technical documentation',
+  'Stakeholder communication',
+  'Website publishing',
+  'Newsletter and email communications',
+  'Community programming',
+  'Python',
+  'R',
+  'MATLAB / ERPLAB',
+  'TypeScript',
+  'Git',
+  'Cloudflare',
+  'Figma',
+  'Notion',
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Research Program Operations — ${SITE_TITLE}`}
+      description="Research operations, scientific communication, program coordination, and secure information systems — four years of cognitive neuroscience research support, training-program logistics, and privacy-first infrastructure."
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+
+      <!-- Page header -->
+      <section class="rpo-header" aria-labelledby="page-title">
+        <div class="rpo-topline">
+          <p class="section-eyebrow">Selected practice</p>
+          <button id="print-portfolio" class="pdf-button" type="button" data-print>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z" />
+            </svg>
+            Save as PDF
+          </button>
+        </div>
+
+        <h1 id="page-title" class="page-title">
+          Research programs become more useful when their systems, communications,
+          and communities hold together.
+        </h1>
+
+        <div class="rpo-header__grid">
+          <p class="page-desc">
+            I support complex research and technical programs through operational
+            rigor, clear communication, reliable events, and privacy-conscious
+            information systems. My work sits at the seam between research practice
+            and public intelligibility: the structures that let people participate,
+            collaborate, learn, and act on complex technical work.
+          </p>
+
+          <dl class="rpo-facts">
+            <div>
+              <dt>Based in</dt>
+              <dd>Durham, North Carolina</dd>
+            </div>
+            <div>
+              <dt>Focus</dt>
+              <dd>Research operations · Programs · Communication</dd>
+            </div>
+            <div>
+              <dt>Contact</dt>
+              <dd><a href="/contact/">Start a conversation</a></dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Capability map -->
+      <section class="rpo-section" aria-labelledby="proof-title">
+        <p class="section-eyebrow">Capability map</p>
+        <h2 id="proof-title" class="section-title">What I bring to an interdisciplinary center</h2>
+
+        <div class="proof-grid">
+          {proof.map((item) => (
+            <article class="proof-card">
+              <p class="proof-card__number">{item.number}</p>
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Operating thesis -->
+      <section class="rpo-section rpo-thesis" aria-labelledby="thesis-title">
+        <p class="section-eyebrow">Operating thesis</p>
+        <h2 id="thesis-title" class="section-title">
+          Coordination is not administrative overhead. It is part of how research
+          becomes durable, discoverable, and shared.
+        </h2>
+        <p class="thesis-lede">
+          Good program operations remove avoidable friction: participants know where
+          to be, collaborators can find the current source of truth, events have an
+          owner and a fallback plan, and public communications preserve both accuracy
+          and invitation.
+        </p>
+      </section>
+
+      <!-- Experience record -->
+      <section id="experience" class="rpo-section" aria-labelledby="experience-title">
+        <p class="section-eyebrow">Experience record</p>
+        <h2 id="experience-title" class="section-title">From research operations to public programs</h2>
+
+        <div class="experience-list">
+          {experience.map((item) => (
+            <article class="experience-entry">
+              <p class="experience-entry__period">{item.period}</p>
+              <div class="experience-entry__body">
+                <p class="experience-entry__org">{item.organization}</p>
+                <h3>{item.role}</h3>
+                <div class="tag-list" aria-label="Areas of work">
+                  {item.themes.map((theme) => <span>{theme}</span>)}
+                </div>
+                <ul>
+                  {item.bullets.map((bullet) => <li>{bullet}</li>)}
+                </ul>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Selected work -->
+      <section class="rpo-section" aria-labelledby="selected-title">
+        <p class="section-eyebrow">Selected work</p>
+        <h2 id="selected-title" class="section-title">Evidence in practice</h2>
+
+        <div class="work-grid">
+          {selected.map((item) => (
+            <article class="work-card">
+              <p class="work-card__label">{item.label}</p>
+              <p class="work-card__eyebrow">{item.eyebrow}</p>
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+              <a
+                href={item.href}
+                target={item.href.startsWith('http') ? '_blank' : undefined}
+                rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              >
+                {item.linkText} <span aria-hidden="true">→</span>
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Methods and tools -->
+      <section class="rpo-section" aria-labelledby="skills-title">
+        <p class="section-eyebrow">Methods and tools</p>
+        <h2 id="skills-title" class="section-title">A working toolkit</h2>
+        <ul class="skills-list">
+          {skills.map((skill) => <li>{skill}</li>)}
+        </ul>
+      </section>
+
+      <!-- Closing -->
+      <section class="rpo-section rpo-closing" aria-labelledby="contact-title">
+        <p class="section-eyebrow">Let's build the connective tissue</p>
+        <h2 id="contact-title" class="section-title">
+          I am interested in research programs that take both rigor and
+          participation seriously.
+        </h2>
+        <div class="closing-actions">
+          <a class="closing-cta" href="/contact/">Start a conversation <span aria-hidden="true">→</span></a>
+          <a class="closing-cta closing-cta--quiet" href="/mazze-leczzare-cv.pdf">Download the CV <span aria-hidden="true">↓</span></a>
+          <button class="pdf-button" type="button" data-print>Save this page as PDF</button>
+        </div>
+      </section>
+
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  // Print-to-PDF: the browser's own dialog does the export, so the output keeps
+  // selectable text and live links, and nothing leaves the reader's machine.
+  document.querySelectorAll<HTMLButtonElement>('[data-print]').forEach((button) => {
+    button.addEventListener('click', () => window.print());
+  });
+</script>
+
+<style>
+  main {
+    max-width: 900px;
+    width: calc(100% - 2rem);
+    margin: 0 auto;
+    padding: 0 1rem 6rem;
+  }
+
+  /* ── Page header ── */
+  .rpo-header {
+    padding: 4em 0 3em;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .rpo-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5em;
+  }
+
+  .section-eyebrow {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 0.75em;
+  }
+
+  .rpo-topline .section-eyebrow {
+    margin-bottom: 0;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.3rem, 5.6vw, 3.8rem);
+    font-weight: 300;
+    color: var(--text);
+    margin: 0 0 0.75em;
+    line-height: 1.08;
+    max-width: 24ch;
+  }
+
+  .rpo-header__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(14rem, 0.8fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .page-desc {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--text-dim);
+    margin: 0;
+    max-width: 58ch;
+    line-height: 1.75;
+  }
+
+  .rpo-facts {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--rule);
+  }
+
+  .rpo-facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.66em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .rpo-facts dd {
+    margin: 0.3rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .rpo-facts a {
+    color: var(--teal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── PDF button ── */
+  .pdf-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 0.6em 0.9em;
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .pdf-button svg {
+    width: 1em;
+    height: 1em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .pdf-button:hover {
+    color: var(--teal);
+    border-color: rgba(var(--accent-rgb), 0.4);
+  }
+
+  .pdf-button:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  /* ── Sections ── */
+  .rpo-section {
+    padding: 3.5em 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    font-weight: 300;
+    color: var(--text);
+    margin: 0 0 1.25em;
+    line-height: 1.15;
+    max-width: 26ch;
+  }
+
+  /* ── Capability map ── */
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .proof-card {
+    background: var(--bg);
+    padding: 1.5rem;
+  }
+
+  .proof-card__number {
+    font-family: var(--font-mono);
+    font-size: 0.68em;
+    letter-spacing: 0.12em;
+    color: var(--teal);
+    margin: 0;
+  }
+
+  .proof-card h3,
+  .work-card h3,
+  .experience-entry h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text);
+    margin: 0.4em 0 0.6em;
+    line-height: 1.2;
+  }
+
+  .proof-card p:last-child,
+  .work-card p:not([class]),
+  .experience-entry li {
+    font-family: var(--font-mono);
+    font-size: 0.78em;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ── Operating thesis ── */
+  .rpo-thesis {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 3em 2em;
+    margin: 3.5em 0;
+    border-bottom: none;
+  }
+
+  .thesis-lede {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--text-dim);
+    line-height: 1.75;
+    max-width: 57ch;
+    margin: 0;
+  }
+
+  /* ── Experience ── */
+  .experience-list {
+    border-top: 1px solid var(--rule);
+  }
+
+  .experience-entry {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.3fr) minmax(0, 1.7fr);
+    gap: 2rem;
+    padding: 2em 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .experience-entry__period {
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    letter-spacing: 0.08em;
+    color: var(--teal);
+    margin: 0;
+  }
+
+  .experience-entry__org {
+    font-family: var(--font-mono);
+    font-size: 0.68em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1.1em;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-list span {
+    font-family: var(--font-mono);
+    font-size: 0.64em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 0.25em 0.5em;
+  }
+
+  .experience-entry ul {
+    display: grid;
+    gap: 0.6em;
+    margin: 0;
+    padding-left: 1.1rem;
+    max-width: 70ch;
+  }
+
+  /* ── Selected work ── */
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .work-card {
+    background: var(--bg);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .work-card__label {
+    font-family: var(--font-mono);
+    font-size: 0.66em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0;
+  }
+
+  .work-card__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72em;
+    color: var(--text-faint);
+    margin: 0.4em 0 0;
+  }
+
+  .work-card a {
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-decoration: none;
+    margin-top: auto;
+    padding-top: 1.25em;
+  }
+
+  .work-card a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Skills ── */
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .skills-list li {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: var(--text-dim);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    padding: 0.45em 0.7em;
+  }
+
+  /* ── Closing ── */
+  .rpo-closing {
+    border-bottom: none;
+  }
+
+  .closing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .closing-cta {
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-decoration: none;
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    border-radius: var(--radius-sm);
+    padding: 0.6em 0.9em;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .closing-cta:hover {
+    border-color: var(--teal);
+  }
+
+  .closing-cta--quiet {
+    color: var(--text-dim);
+    border-color: var(--rule);
+  }
+
+  .closing-cta:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 720px) {
+    .rpo-header__grid,
+    .experience-entry {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .rpo-facts {
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      padding: 1.25rem 0 0;
+    }
+
+    .proof-grid,
+    .work-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .rpo-thesis {
+      padding: 2em 1.25em;
+    }
+  }
+
+  /* ── Print / PDF ──
+     What the reader gets when they hit "Save as PDF". Site chrome and the
+     buttons themselves are noise on paper, so they go; everything else is
+     forced to ink-on-white because the dark theme would otherwise either burn
+     a page of toner or (with backgrounds dropped) print near-white on white. */
+  @media print {
+    :global(header[role="banner"]),
+    :global(footer[role="contentinfo"]),
+    .pdf-button {
+      display: none !important;
+    }
+
+    :global(body) {
+      background: #fff !important;
+      color: #101820 !important;
+    }
+
+    main {
+      max-width: 100%;
+      width: 100%;
+      padding: 0;
+    }
+
+    .page-title,
+    .section-title,
+    .proof-card h3,
+    .work-card h3,
+    .experience-entry h3 {
+      color: #101820;
+    }
+
+    .page-desc,
+    .thesis-lede,
+    .proof-card p:last-child,
+    .work-card p:not([class]),
+    .experience-entry li,
+    .rpo-facts dd,
+    .skills-list li {
+      color: #2b3540;
+    }
+
+    .section-eyebrow,
+    .rpo-facts dt,
+    .experience-entry__org,
+    .work-card__eyebrow,
+    .tag-list span {
+      color: #55606c;
+    }
+
+    .proof-card__number,
+    .experience-entry__period,
+    .work-card__label,
+    .work-card a,
+    .rpo-facts a,
+    .closing-cta {
+      color: #1f5f5a;
+    }
+
+    .rpo-header,
+    .rpo-section,
+    .experience-entry,
+    .experience-list {
+      border-color: #ccd2d8;
+    }
+
+    .proof-grid,
+    .work-grid {
+      background: #ccd2d8;
+      border-color: #ccd2d8;
+    }
+
+    .proof-card,
+    .work-card {
+      background: #fff;
+    }
+
+    .rpo-thesis {
+      background: #f2f4f5;
+      border: 1px solid #ccd2d8;
+    }
+
+    /* Keep a card or a role from being split across a page boundary. */
+    .rpo-section,
+    .proof-card,
+    .work-card,
+    .experience-entry {
+      break-inside: avoid;
+    }
+
+    .page-title { font-size: 26pt; }
+    .section-title { font-size: 15pt; }
+
+    /* The on-screen measures (24ch/26ch) are tuned to the screen type sizes.
+       At print sizes they collapse the headings into a narrow column against a
+       full-width page, so give them the width back. */
+    .page-title { max-width: 34ch; }
+    .section-title { max-width: 46ch; }
+
+    /* Links are dead on paper — spell the destination out instead. */
+    .work-card a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 0.85em;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+  }
+</style>
