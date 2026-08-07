@@ -345,6 +345,9 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
         <p class="page-desc">
           Agentic systems fail by a single move: a generated claim becomes operational truth merely because it was persisted or repeated. My work refuses that move at every layer I can reach — runtime, build process, memory, prose. The full archive lives in <a href="/writing/">Writing</a> and <a href="/studio/">Studio</a>.
         </p>
+        <p class="page-desc page-desc--adjacent">
+          For the research-operations record behind this — lab operations, training programs, and scientific communication — see <a href="/work/research-program-operations/">Research Program Operations</a>.
+        </p>
       </div>
 
       <!-- Reading protocol — the tier legend -->
@@ -520,6 +523,14 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
   }
 
   .page-desc a { color: var(--teal); }
+
+  /* Pointer to the adjacent research-operations dossier. Set quieter than the
+     lede above it — it is a cross-reference, not a second thesis. */
+  .page-desc--adjacent {
+    margin-top: 1.25em;
+    font-size: 0.78em;
+    color: var(--text-faint);
+  }
 
   /* ── Reading protocol ── */
   .protocol {
