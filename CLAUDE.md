@@ -439,7 +439,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 - **CDN fonts only under `/artifacts/`** — `_middleware.ts` grants `ARTIFACT_CSP` (which allows `fonts.googleapis.com`/`gstatic.com`) to `/artifacts/*` alone. A `<link>` to Google Fonts on any other path is CSP-blocked at runtime with no build error — the page just silently renders in fallback typefaces. Self-host instead. Enforced by `check-docs-drift.sh` §9.
 - **Verify file references by resolving them, not by grepping** — paths in this repo mix root-absolute (`/fonts/x.woff2`) and relative (`./fonts/x.woff2`) forms, and `grep "/fonts/"` matches both while meaning neither. Two wrong conclusions were reached this way (see `docs/journal/DECISIONS.md`, 2026-08-02). Resolve against the referring file's base, then `stat`.
 - **No external analytics script** — telemetry is first-party only via `share-event.ts`.
-- **No published email address** — contact routes privately through the function.
+- **No published email address** — contact routes privately through the function. **One approved exception:** `/work/research-program-operations/` publishes `mazze@mazzeleczzare.com` in its résumé contact line, because a résumé a hiring manager cannot reply to fails at its only job, and recruiters routinely work from the PDF alone inside an ATS where a contact-form URL is a dead end. This was an explicit owner decision made with the scraping tradeoff stated. Do not strip it as a constraint violation.
 - **`src/consts.ts` is the single source of truth** for site identity — import from there.
 - **`npm run check` is the repo-standard validation** — run before committing any code change.
 - **Draft posts** — use `draft: true` in frontmatter, never delete in-progress posts.
