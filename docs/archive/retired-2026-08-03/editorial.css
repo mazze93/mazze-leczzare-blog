@@ -1,11 +1,26 @@
 /*
  * editorial.css — Design token layer for Mazze Leczzare blog posts.
  *
- * This file extends the site's existing global.css with the editorial design
- * system derived from the original HTML post prototypes. Import it in
- * BlogPost.astro or in a post-specific layout.
+ * ⚠ NOT IMPORTED BY ANYTHING. Nothing in src/ references this file; blog post
+ *   styling comes from global.css. It is kept for the prototype tokens below,
+ *   but treat it as a draft, not as live CSS — and read these three traps
+ *   before wiring it into BlogPost.astro or anywhere else:
  *
- * Usage:
+ *   1. The :root block below REDEFINES --font-mono, which global.css already
+ *      owns. Importing this file would silently change the mono typeface
+ *      site-wide, not just in posts. Scope the block (e.g. .prose { ... })
+ *      before importing, or drop the duplicate token.
+ *
+ *   2. --font-caps names 'Cormorant SC'. The site does not ship that family
+ *      in any form — no @fontsource dependency, nothing in public/fonts/. Any
+ *      rule using it falls straight through to the generic serif fallback.
+ *
+ *   3. The tokens here are NOT the ones the site actually uses. --color-teal
+ *      is #3ab8a0 where global.css's --teal is #34c3b9; --color-coral is
+ *      #e8705a against --coral #e85a4a. Importing this would shift the
+ *      palette, not extend it.
+ *
+ * Usage (once the above are resolved):
  *   In BlogPost.astro frontmatter:
  *   import '../styles/editorial.css';
  */
@@ -46,10 +61,21 @@
 
 /* ─── FONT IMPORT ─────────────────────────────────────────────── */
 /*
- * Add to your <BaseHead> component or import once at root level:
+ * DO NOT follow the instruction that used to live here. It said to add a
+ * <link> to fonts.googleapis.com in BaseHead. That would not work: the CSP in
+ * functions/_middleware.ts serves `style-src 'self' 'unsafe-inline'; font-src
+ * 'self'` to every path except /artifacts/*, so the browser blocks the
+ * stylesheet and the fonts. It would also be a third-party request on a site
+ * that states it makes none.
  *
- * <link rel="preconnect" href="https://fonts.googleapis.com">
- * <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+SC:wght@300;400;500&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+ * Cormorant Garamond and DM Mono are already self-hosted — global.css imports
+ * them from @fontsource at the top of the file, and Vite copies the woff2 into
+ * dist/ at build time. Nothing further is needed for those two.
+ *
+ * 'Cormorant SC' (--font-caps) is the only family here that is genuinely
+ * absent. To add it, follow the pattern global.css already uses:
+ *   @import '@fontsource/cormorant-sc/latin-400.css';
+ * after adding the dependency — not a CDN <link>.
  */
 
 /* ─── ARTICLE PROSE ───────────────────────────────────────────── */

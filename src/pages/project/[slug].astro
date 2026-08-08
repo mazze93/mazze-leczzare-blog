@@ -1,0 +1,67 @@
+---
+import type { GetStaticPaths } from "astro";
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { collectAllNodes } from "../../utils/collectNodes";
+import { PROJECT_PIECES, PROJECT_THESES } from "../../data/projectPieces";
+import { computeZone, decayStatus } from "../../utils/decay";
+import "../../styles/constellation-pages.css";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const nodes = await collectAllNodes();
+  return nodes.map((node) => ({ params: { slug: node.slug }, props: { node } }));
+};
+
+const { node } = Astro.props;
+const state = computeZone(new Date(node.lastTouched).getTime(), node.committed, Date.now());
+const status = decayStatus(state, node.committed);
+const thesis = PROJECT_THESES[node.slug];
+const external = PROJECT_PIECES[node.slug] ?? [];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`${node.title} — Project`}
+      description={`Pieces in the ${node.title} project.`}
+    />
+  </head>
+  <body>
+    <Header />
+    <main class="cn-page" data-zone={state.zone}>
+      <p class="cn-page__label">
+        Project · <span class="cn-zone-badge" data-zone={state.zone}>{state.zone}</span> · {status}
+      </p>
+      <h1 class="cn-page__title">{node.title}</h1>
+      {thesis && <p class="cn-page__thesis">{thesis}</p>}
+      {external.length > 0 && (
+        <ul class="cn-pieces cn-pieces--external" role="list">
+          {external.map((p) => (
+            <li class="cn-piece">
+              <a
+                href={p.href}
+                {...(p.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                <span class="cn-piece__type" data-kind={p.kind}>{p.kind}</span>
+                <span class="cn-piece__title">{p.title}</span>
+                <span class="cn-piece__desc">{p.desc}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <ul class="cn-pieces" role="list">
+        {node.pieces.map((p) => (
+          <li class="cn-piece">
+            <a href={`/${p.type}/${p.id}/`}>
+              <span class="cn-piece__type">{p.type}</span>
+              <span class="cn-piece__title">{p.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -16,9 +16,11 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  /** Masthead-only header — for pages where AirlockStrip carries the nav. */
+  minimalHeader?: boolean;
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, image, minimalHeader = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -26,8 +28,22 @@ const { title, description, image } = Astro.props;
     <BaseHead title={title} description={description} image={image} />
   </head>
   <body data-layout="homepage">
-    <Header />
-    <slot />
+    <Header minimal={minimalHeader} />
+    <main class="homepage-main">
+      <slot />
+    </main>
     <Footer />
   </body>
 </html>
+
+<style>
+/* Opt out of global.css's `main { width: 720px; ... }` prose constraint —
+   BreathingHero and the writing index each manage their own full-bleed
+   width, so the landmark itself must stay unconstrained. */
+.homepage-main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+</style>

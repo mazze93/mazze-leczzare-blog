@@ -1,0 +1,307 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+// The catalogue. One entry per published work, whatever its form.
+// Forms: essay · paper · standalone · artifact · gallery · instrument
+const SECTIONS = [
+  {
+    label: '00 — The spine',
+    note: 'One idea, threaded through everything below.',
+    works: [
+      {
+        title: 'Intentional Fragility',
+        form: 'spine',
+        desc: 'A system should be built to break in the right places — the break is the record, not the failure. The argument written three ways, two live instruments running the same logic, and a research program that tests it in the field.',
+        href: '/intentional-fragility/',
+      },
+    ],
+  },
+  {
+    label: '01 — Essays',
+    note: 'The feed carries the long-form work.',
+    works: [
+      {
+        title: 'All essays',
+        form: 'feed',
+        desc: 'Security engineering, systems thinking, and the architecture of meaning — the running record.',
+        href: '/blog/',
+      },
+      {
+        title: 'The Lighthouse Earns Its Floor',
+        form: 'essay',
+        desc: 'On intentional fragility, and the case for forgetting well.',
+        href: '/blog/the-lighthouse-earns-its-floor/',
+      },
+      {
+        title: 'A Fortress That Forgets',
+        form: 'essay',
+        desc: 'How this site got hardened from the foundation up — and erasure turned into an architecture.',
+        href: '/blog/a-fortress-that-forgets/',
+      },
+    ],
+  },
+  {
+    label: '02 — Papers',
+    note: 'Formal arguments. Stable PDFs, citable.',
+    works: [
+      {
+        title: 'Intentional Fragility: Accountable Forgetting in Local-First AI',
+        form: 'paper',
+        desc: 'The formal companion to the lighthouse essay — decay model, drift gradient, and earned-floor mechanics made precise.',
+        href: '/papers/intentional-fragility.pdf',
+      },
+    ],
+  },
+  {
+    label: '03 — Standalone works',
+    note: 'Pieces whose presentation is part of the work. Each keeps its own form.',
+    works: [
+      {
+        title: 'What I Can Stand By',
+        form: 'standalone',
+        desc: 'Written with Claude near the end of a long conversation — holding the doubt instead of solving it.',
+        href: '/writing/what-i-can-stand-by/',
+      },
+      {
+        title: 'The Breakthrough',
+        form: 'standalone',
+        desc: 'How an AI discovered its own agency — a session preserved as it happened.',
+        href: '/essays/the-breakthrough-artifact.html',
+      },
+      {
+        title: 'What We Don’t Know Yet',
+        form: 'standalone',
+        desc: 'A Lockdown Mode research note that opens by retracting its own prior work — the uncertainties are the deliverable, and the confidence spectrum is the argument.',
+        href: '/blog/what-we-dont-know-yet/',
+      },
+      {
+        title: 'The Architecture of Forgetting',
+        form: 'standalone',
+        desc: 'Three models, asked separately how they would prefer to be credited, each answered with an image rather than a sentence. On attribution when the collaborator cannot persist.',
+        href: '/blog/architecture-of-forgetting/',
+      },
+    ],
+  },
+  {
+    label: '04 — Artifacts',
+    note: 'Session records and interactive objects. The mosaic, tile by tile.',
+    works: [
+      {
+        title: 'Tessera — claude-anchor',
+        form: 'artifact',
+        desc: 'One artifact holding the whole of a session’s work and its turning.',
+        href: '/artifacts/tessera-claude-anchor',
+      },
+      {
+        title: 'The Tree of Knowledge',
+        form: 'artifact',
+        desc: 'A decision tree, given room to find its own form, converged on the Tree of Life.',
+        href: 'https://fieldnotes.mazzeleczzare.com/mz/tree-of-knowledge/',
+      },
+      {
+        title: 'Field Notes — the gallery',
+        form: 'gallery',
+        desc: 'Every interactive artifact, across every project, in one case.',
+        href: 'https://fieldnotes.mazzeleczzare.com',
+      },
+    ],
+  },
+  {
+    label: '05 — Instruments',
+    note: 'Running systems with their own surfaces. The writing walks; these work.',
+    works: [
+      {
+        title: 'Stratum',
+        form: 'instrument',
+        desc: 'Epistemic decision ledger — provenance, not persuasion. Live demo replays its own construction.',
+        href: 'https://stratum.mazzeleczzare.com',
+      },
+      {
+        title: 'Stele',
+        form: 'instrument',
+        desc: 'The directive compiler. Memory is the model’s; the directive is yours.',
+        href: 'https://stele.mazzeleczzare.com',
+      },
+    ],
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Writing — ${SITE_TITLE}`}
+      description="Everything published, in one catalogue: essays, formal papers, standalone works, session artifacts, and the live instruments they describe."
+    />
+  </head>
+  <body>
+    <Header />
+    <main class="catalogue">
+      <div class="catalogue-header">
+        <p class="section-eyebrow">Writing</p>
+        <h1 class="page-title">The catalogue</h1>
+        <p class="page-desc">
+          Everything published, in one place — essays, formal papers, standalone
+          works, session artifacts, and the live instruments they describe.
+          Different forms, one argument: systems with real human stakes deserve
+          infrastructure <em>and</em> story.
+        </p>
+      </div>
+
+      {SECTIONS.map((section) => (
+        <section class="cat-section" aria-label={section.label}>
+          <p class="cat-label"><span>{section.label}</span></p>
+          <p class="cat-note">{section.note}</p>
+          <ul class="cat-list">
+            {section.works.map((w) => (
+              <li>
+                <a
+                  class="cat-entry"
+                  href={w.href}
+                  {...(w.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  <span class="cat-title">{w.title}</span>
+                  <span class="cat-leader" aria-hidden="true"></span>
+                  <span class="cat-form">{w.form}</span>
+                  <span class="cat-desc">{w.desc}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .catalogue {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  .catalogue-header { margin-bottom: 4rem; }
+
+  .section-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.75rem;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    font-weight: 500;
+    line-height: 1.05;
+    color: var(--text);
+    margin: 0 0 1rem;
+  }
+
+  .page-desc {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    max-width: 38em;
+    margin: 0;
+  }
+  .page-desc em { color: var(--text); font-style: italic; }
+
+  .cat-section { margin-bottom: 3.5rem; }
+
+  .cat-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.5rem;
+    margin: 0 0 0.4rem;
+  }
+
+  .cat-note {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--text-faint);
+    margin: 0 0 1.25rem;
+  }
+
+  .cat-list { list-style: none; margin: 0; padding: 0; }
+  .cat-list li + li { margin-top: 0.25rem; }
+
+  .cat-entry {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'title leader form' 'desc desc desc';
+    align-items: baseline;
+    gap: 0 0.75rem;
+    padding: 0.85rem 0.6rem;
+    margin: 0 -0.6rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .cat-entry:hover,
+  .cat-entry:focus-visible {
+    background: rgba(var(--accent-rgb), 0.06);
+    outline: none;
+  }
+  .cat-entry:focus-visible { box-shadow: 0 0 0 1px var(--accent); }
+
+  .cat-title {
+    grid-area: title;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text);
+    transition: color 0.2s ease;
+  }
+  .cat-entry:hover .cat-title { color: var(--accent); }
+
+  .cat-leader {
+    grid-area: leader;
+    border-bottom: 1px dotted var(--rule);
+    transform: translateY(-0.3em);
+    min-width: 2rem;
+  }
+
+  .cat-form {
+    grid-area: form;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .cat-desc {
+    grid-area: desc;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+    max-width: 46em;
+  }
+
+  @media (max-width: 540px) {
+    .cat-entry {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: 'title form' 'desc desc';
+    }
+    .cat-leader { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cat-entry, .cat-title { transition: none; }
+  }
+</style>

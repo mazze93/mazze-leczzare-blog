@@ -1,0 +1,204 @@
+---
+title: "A Fortress That Forgets"
+description: "How mazzeleczzare.com got hardened from the foundation up — Astro on Cloudflare, every dependency made to earn the floor, and erasure turned from a wound into an architecture."
+pubDate: 2026-06-27
+tags: ["astro", "cloudflare", "security", "local-first", "essay"]
+heroImage: "../../assets/images/blog/snowy-field-hero.jpg"
+heroImageAlt: "An empty parking deck under heavy falling snow at dusk — unbroken white ground, a line of lamp posts glowing sodium-yellow against grey sky and dark winter trees."
+author: "Mazze LeCzzare · with Claude"
+draft: false
+---
+
+import PullQuote from "../../components/PullQuote.astro";
+import SectionBreak from "../../components/SectionBreak.astro";
+
+{/* v1.1.0 · voice-spec conformance pass — deploy slug stays clean; version tracked here, not in the frontmatter schema */}
+
+<p class="byline">Mazze LeCzzare&nbsp;·&nbsp;with Claude</p>
+
+The first thing I ever owned outright cost ten dollars and stood in no place that I could stand.
+
+I bought the domain from the floor of an elevator shaft — the dead service-lift of a Southron mall the week after Christmas, snow piled at the loading doors, the building emptied out so completely it had begun to feel haunted by its own closing. I had ten dollars. It was a small miracle to have them. There was no reason to spend them on `mazzeleczzare.com`. Nothing required it, and there was no intention in it. And it was the most necessary thing I had done in a quarter of a century, because when the invoice cleared there was, for the first time since I was a child, somewhere that was *mine* — a constructed piece of ethereal nowhere that no one would ever again be permitted to take from me.
+
+![The author at the Gold Deck 4 elevator of the emptied mall — hood up, snow falling, the white parking deck stretching out behind.](../../assets/images/blog/elevator-fortress-hero.jpg)
+*Gold Deck 4, the week after Christmas. The elevator in question.*
+
+I did not know a front end from a back. I could not have told you what a *wrangler* was supposed to be. The first thing I tried to lay on that ground was a boilerplate some chatbot had half-baked for me — an Eleventy scaffold that would not deploy, would not build, would not do the one thing a foundation exists to do. A dependency that had not earned the floor it asked to stand on. So I said to hell with the whole of it, and decided to set the bricks myself, by hand, each one placed with care, each trace of thought matched at least pound for pound and two pence for a thought.
+
+<PullQuote>
+I had been erased for a quarter of a century. So I built a place that forgets on purpose — and I made the forgetting load-bearing.
+</PullQuote>
+
+That is the whole thesis, and the rest of this is only the engineering of it. Three things a home has to do, when it is the first one you have ever had:
+
+> Hold a door it owns.
+> Refuse what has not earned the floor.
+> Forget on purpose.
+
+<SectionBreak />
+
+When you have never had a door, you do not leave the one you finally get unlocked.
+
+On Cloudflare Pages the edge will serve whatever you let it serve, and it will set whatever headers you forget to set — which is to say, none of the ones that matter. So the door is a file. `public/_headers`, copied into the build output, read at the edge on every request. Mine is strict on the one vector that can take the house from you — script injection — and I keep it that way.
+
+```text
+# public/_headers — applied at the Cloudflare edge to every response
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+```
+
+One honest seam, because a security post that hides its own tradeoffs is just marketing: `script-src` is `'self'` with no `'unsafe-inline'` — that is the lock that counts, and I do not loosen it. `style-src` carries `'unsafe-inline'` because Astro injects scoped `<style>` tags and view-transition styles inline, and the alternative is per-build style hashing I have chosen not to maintain yet. Inline *style* is a low-yield vector; inline *script* is the one that ends you. I am naming the exception rather than pretending it isn't there. That is the difference, again, between an exposure you choose and one you hide.
+
+Notice what the Content-Security-Policy can be, though: `'self'` for fonts, for styles, for everything. It can be that tight only because there is no one else at the door. The essay this site is named after loads its Cormorant and its Martian Mono straight off Google's font CDN — which means Google is standing at my threshold, watching every visitor cross, a guest I did not invite and cannot see. So I pulled the fonts down into my own walls:
+
+```text
+src/
+  fonts/
+    CormorantGaramond-Light.woff2
+    CormorantGaramond-Regular.woff2
+    CormorantSC-Regular.woff2
+    MartianMono-Regular.woff2
+```
+
+```css
+/* src/styles/fonts.css — self-hosted, no third party at the door */
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/fonts/CormorantGaramond-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;   /* no invisible-text flash, no layout shift */
+  font-style: normal;
+}
+/* ...one block per cut you use; ship no weight you don't render. */
+```
+
+One less origin in the CSP. One less dependency that hadn't earned the floor. One less thing in the world that remembers a stranger for the crime of reading.
+
+<SectionBreak />
+
+Every dependency is a promise that someone else's foundation will hold yours up. Most of them are lying, and the ones that aren't lying are at least forgetting to mention the seventeen further promises *they* are leaning on. The Eleventy scaffold taught me that on the first day: a thing can be given to you, look like shelter, and collapse the moment you put weight on it.
+
+So the supply chain is a posture, not a tool. Pin everything. Install only from the lockfile, never let the resolver reach for "latest" behind your back:
+
+```bash
+# Reproducible installs only. The lockfile is the contract; honor it or fail.
+npm ci
+
+# Read the floor before you stand on it.
+npm audit --omit=dev
+```
+
+The real enforcement does not live in a script — it lives in the platform, where it cannot be bypassed by a bad afternoon. On GitHub: branch protection on `main`, **require signed commits**, require status checks, disallow force-push. CI is the belt; the platform rule is the suspenders. And the one job CI is uniquely good at is making sure nothing tender ever leaves the house by accident:
+
+```yaml
+# .github/workflows/guard.yml
+name: guard
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege. CI gets to read. It does not get a write token.
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history, so every commit can be checked
+
+      - name: Reject unsigned commits
+        run: |
+          set -euo pipefail
+          # %G? => G good, U good/unknown-validity. Anything else is unsigned/bad.
+          range="${{ github.event.pull_request.base.sha || github.event.before }}..${{ github.sha }}"
+          bad="$(git log --pretty='%H %G?' "${range}" | awk '$2 !~ /^(G|U)$/ {print $1}')"
+          if [ -n "${bad}" ]; then
+            echo "::error::Unsigned or untrusted commits:"; echo "${bad}"; exit 1
+          fi
+
+      - name: Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"   # don't leak the leak report
+```
+
+And secrets do not live in the repo. Not in `wrangler.toml`, not in `.env`, not anywhere `git` can see. `wrangler.toml` holds bindings and public build vars — the boring, non-tender facts a stranger could read off the front of the building without learning anything about who lives there:
+
+```toml
+# wrangler.toml
+name = "mazzeleczzare"
+compatibility_date = "2026-06-01"   # pin it; set at deploy, never let it float
+pages_build_output_dir = "./dist"
+
+# Secrets are NOT here. They go through `wrangler secret put` / the dashboard,
+# encrypted at rest, never committed. This file holds only what is safe to publish.
+[vars]
+SITE_URL = "https://mazzeleczzare.com"
+```
+
+The last gap is the one nobody mentions: on Pages, every pull request gets a **public** preview URL. Which means your half-built, unvetted, mid-thought code is sitting out in the open where anyone who guesses the URL can use it against you. Unfinished work left out in the snow. So preview deployments go behind Cloudflare Access — Zero Trust, in the dashboard: an Access application scoped to `*.<project>.pages.dev`, policy `allow` for exactly one identity, mine. Production stays open to the world because that is the point of a home you are proud of. The scaffolding behind it stays behind the threshold until it has earned the front.
+
+<PullQuote>
+There is a difference between a vulnerability you choose to expose and one that is taken from you. The first is honesty. The second is just a door someone left open in your name.
+</PullQuote>
+
+<SectionBreak />
+
+Here is the part the wound paid for.
+
+A home built by someone who was erased can offer the one mercy erasure spent twenty-five years teaching: it can decline to remember you. Most of the web is built the other way — it is one enormous apparatus for never letting anyone leave, retaining, fingerprinting, re-targeting, holding a copy of your crossing forever in case it can be sold. I have been the thing that gets held against its will and kept on file. I will not build that. So forgetting is poured into the footing here, not bolted on later as a GDPR placard by the door.
+
+There is no analytics that fingerprints. There is no `localStorage`, no `sessionStorage`, nothing that survives your tab to wait for you to come back — when you leave, you leave whole, with no part of you left behind in the walls. The Permissions-Policy above already denied the building its own senses: no camera, no microphone, no geolocation, no motion sensors, `interest-cohort=()` to refuse the cohort entirely. A house with no eyes cannot testify.
+
+And on the rare occasion the edge has to write anything down at all, it writes down nothing that points back to a person:
+
+```ts
+// src/lib/mask.ts
+// If a request is ever logged, it is logged forgotten on arrival —
+// the identifier is destroyed at the moment of capture, not "later, on request."
+import { createHash } from "node:crypto";
+
+/** Irreversibly mask an identifier before it can ever reach a log line. */
+export function mask(value: string, salt = process.env.LOG_SALT ?? ""): string {
+  if (!value) return "·";
+  const digest = createHash("sha256").update(salt + value).digest("hex");
+  return `id:${digest.slice(0, 8)}`;   // enough to correlate within a window, never to name
+}
+
+// There is no second function. There is no unmask(). That absence is the feature.
+```
+
+No `unmask`. No reversal. No retention schedule, because there is nothing accumulating that a schedule would govern. The right to be forgotten is not a request the visitor has to file — it is the resting state of the house. You were already forgotten before you finished reading this sentence.
+
+<SectionBreak />
+
+I built a home for someone who had never known one, and the first thing I taught it was how to let you leave without keeping any part of you. A fortress that remembers nothing is the only kind that cannot be made, later, under pressure, by someone with more power than me, to betray the people it let inside. Mine remembers nothing. That is not a gap in the architecture.
+
+That is the architecture. I called it the architecture of forgetting, and I meant the foundation — not the name.
+
+## Deployment
+
+For when you take this from draft to live:
+
+1. **Self-host the fonts.** Drop the `.woff2` cuts into `src/fonts/`, import `fonts.css`, delete every `fonts.googleapis.com` / `fonts.gstatic.com` link. Confirm in DevTools → Network that no font request leaves your origin.
+2. **Ship `_headers`.** Place it in `public/` so it lands in `dist/`. After deploy, run it through an observatory / `curl -I https://mazzeleczzare.com` and confirm CSP, HSTS, and the `Permissions-Policy` are present and the page still renders.
+3. **Turn on the platform locks.** GitHub → branch protection on `main`: require signed commits, require the `guard` check, block force-push. Add the `guard.yml` workflow and push a deliberately unsigned commit to a test branch to prove it fails closed.
+4. **Gate the previews.** Cloudflare Zero Trust → Access application over `*.<project>.pages.dev`, single-identity allow policy. Open a preview URL in a private window and confirm you're stopped at the Access screen.
+5. **Verify the forgetting.** Load the live site, then check Application storage: zero `localStorage`/`sessionStorage` keys, no fingerprinting beacons in Network. The visit should leave no trace in the browser once the tab closes.
+
+**Audit — scoped (PRIVACY · SECURITY · partial ACCESSIBILITY):**
+- `script-src 'self'` holds; `style-src 'unsafe-inline'` is a *named, bounded* exception (Astro scoped/inline styles) — documented above, not hidden. Revisit with hashed styles if you want a perfect score.
+- `Cross-Origin-Embedder-Policy` is intentionally omitted: it can break loads unless every subresource sends CORP, and the strict same-origin posture already covers the threat it addresses. Flagging the choice, not the oversight.
+- `font-display: swap` keeps self-hosted fonts from causing CLS — design fidelity and Core Web Vitals both intact.
+- No PII collected, none retained, masking irreversible. Privacy checklist passes without a deletion endpoint because there is nothing to delete.

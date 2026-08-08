@@ -1,10 +1,13 @@
+export type PieceType = "blog" | "signal" | "tesserae";
+
 export interface RawEntry {
   id: string;
-  type: "blog" | "signal";
+  type: PieceType;
   data: {
     title: string;
     project?: string;
     committed?: boolean;
+    resolved?: boolean;
     pubDate: Date;
     updatedDate?: Date;
   };
@@ -13,7 +16,7 @@ export interface RawEntry {
 export interface PieceRef {
   id: string;
   title: string;
-  type: "blog" | "signal";
+  type: PieceType;
   pubDate: string; // ISO
 }
 
@@ -22,6 +25,9 @@ export interface NodeRecord {
   title: string;       // titleized slug (display name)
   lastTouched: string; // ISO — max(updatedDate ?? pubDate) across pieces
   committed: boolean;  // true if any piece is committed
+  resolved: boolean;   // true if any piece is resolved — TERMINAL: the node
+                       // is complete, archived with dignity, exempt from
+                       // decay, and no longer competes with emerging work
   count: number;
   pieces: PieceRef[];  // newest-first
 }
@@ -60,6 +66,7 @@ export function aggregateNodes(entries: RawEntry[]): NodeRecord[] {
       title: titleize(slug),
       lastTouched: new Date(lastTouchedMs).toISOString(),
       committed: group.some((e) => e.data.committed === true),
+      resolved: group.some((e) => e.data.resolved === true),
       count: group.length,
       pieces: sorted.map((e) => ({
         id: e.id,

@@ -1,71 +1,73 @@
 ---
 /**
- * PullQuote — Editorial pull quote component.
- * Renders a highlighted excerpt with coral left border and gradient background.
+ * PullQuote — Editorial pull quote component (blog variant).
+ * Ruled with a kintsugi seam instead of a flat border. Geometry: Seam.astro.
  *
  * Usage in MDX:
  *   import PullQuote from '@/components/blog/PullQuote.astro';
  *   <PullQuote>"Your quote text here."</PullQuote>
  *
- * @prop accent — optional: 'coral' (default) | 'teal' | 'gold'
+ * @prop accent — optional: 'gold' (default) | 'coral' | 'teal'
+ *
+ * Every colour here used to be a hardcoded literal or a var() whose fallback
+ * always won: --color-coral / --color-teal / --color-gold are defined ONLY in
+ * editorial.css, which nothing imports, so `var(--color-coral, #e8705a)` always
+ * resolved to #e8705a — the pre-Kintsugi coral. Together with the hardcoded
+ * #1a1208 / #0f1210 backgrounds and #e0d8c0 text, this component was rendering
+ * the old palette on a permanently dark ground, invisible to every token change
+ * and broken under light mode. All of it is token-driven now.
  */
 interface Props {
-  accent?: 'coral' | 'teal' | 'gold';
+  accent?: 'gold' | 'coral' | 'teal';
 }
 
-const { accent = 'coral' } = Astro.props;
+const { accent = 'gold' } = Astro.props;
+
+import Seam from '../Seam.astro';
 ---
 
 <blockquote class={`pull-quote pull-quote--${accent}`} role="presentation">
+  <span class="pull-quote__seam" aria-hidden="true"><Seam orientation="vertical" /></span>
   <slot />
 </blockquote>
 
 <style>
   .pull-quote {
+    position: relative;
+    /* global.css styles every blockquote with a 2px teal left border.
+       The seam replaces it — without this reset the teal bar sits
+       alongside the gold and you get two rules. */
+    border-left: none;
     margin: 3.5rem -1rem;
     padding: 2rem 2.5rem;
-    position: relative;
-    background: linear-gradient(135deg, #1a1208 0%, #0f1210 100%);
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--_tint), 0.06) 0%,
+      transparent 72%
+    );
+    font-family: var(--font-display);
     font-size: 1.35rem;
     font-weight: 400;
     font-style: italic;
-    color: #e0d8c0;
+    color: var(--text);
     line-height: 1.6;
   }
 
-  .pull-quote::before {
-    content: '';
+  .pull-quote__seam {
     position: absolute;
     top: 0;
+    bottom: 0;
     left: 0;
-    right: 0;
-    height: 1px;
+    width: 10px;
+    display: block;
+    pointer-events: none;
   }
 
-  /* Accent variants */
-  .pull-quote--coral {
-    border-left: 3px solid var(--color-coral, #e8705a);
-  }
-  .pull-quote--coral::before {
-    background: linear-gradient(90deg, var(--color-coral, #e8705a), transparent);
-  }
-
-  .pull-quote--teal {
-    border-left: 3px solid var(--color-teal, #3ab8a0);
-    background: linear-gradient(135deg, #0d1a18 0%, #0f1210 100%);
-  }
-  .pull-quote--teal::before {
-    background: linear-gradient(90deg, var(--color-teal, #3ab8a0), transparent);
-  }
-
-  .pull-quote--gold {
-    border-left: 3px solid var(--color-gold, #c8a060);
-    background: linear-gradient(135deg, #1a1408 0%, #0f1210 100%);
-  }
-  .pull-quote--gold::before {
-    background: linear-gradient(90deg, var(--color-gold, #c8a060), transparent);
-  }
+  /* Accent only tints the wash now — the rule itself is always the gold seam,
+     because the seam is the brand mark, not a per-quote decoration. */
+  .pull-quote--gold  { --_tint: var(--accent-rgb); }
+  .pull-quote--coral { --_tint: var(--coral-rgb); }
+  .pull-quote--teal  { --_tint: var(--accent-rgb); }
 
   /* Ensure nested <p> inherits quote styling */
   .pull-quote :global(p) {

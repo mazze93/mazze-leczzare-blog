@@ -36,9 +36,9 @@ interface Props {
 const { header, subheader, panels } = Astro.props;
 
 const ACCENT_COLORS = [
-  'var(--color-gold, #c8a060)',
-  'var(--color-teal, #3ab8a0)',
-  'var(--color-text-faint, #506058)',
+  'var(--gold)',
+  'var(--teal)',
+  'var(--text-faint)',
 ];
 ---
 
@@ -92,11 +92,11 @@ const ACCENT_COLORS = [
   }
 
   .triptych__heading {
-    font-family: 'Cormorant SC', serif;
+    font-family: var(--font-caps);
     font-weight: 300;
     font-size: 0.7rem;
     letter-spacing: 0.4em;
-    color: var(--color-teal, #3ab8a0);
+    color: var(--teal);
     text-transform: uppercase;
     margin-bottom: 0.5rem;
   }
@@ -104,7 +104,7 @@ const ACCENT_COLORS = [
   .triptych__subheading {
     font-family: 'DM Mono', monospace;
     font-size: 0.6rem;
-    color: var(--color-text-faint, #506058);
+    color: var(--text-faint);
     letter-spacing: 0.15em;
   }
 
@@ -132,7 +132,7 @@ const ACCENT_COLORS = [
   .triptych__index {
     font-family: 'DM Mono', monospace;
     font-size: 0.55rem;
-    color: var(--color-text-faint, #506058);
+    color: var(--text-faint);
     position: absolute;
     top: 2.5rem;
     left: 0.5rem;
@@ -146,7 +146,7 @@ const ACCENT_COLORS = [
     aspect-ratio: 16 / 10;
     object-fit: cover;
     display: block;
-    border: 1px solid var(--color-rule, #232e2a);
+    border: 1px solid var(--rule);
     filter: brightness(0.92) contrast(1.05);
     transition: filter 0.4s ease;
   }
@@ -168,10 +168,10 @@ const ACCENT_COLORS = [
   }
 
   .triptych__label {
-    font-family: 'Cormorant SC', serif;
+    font-family: var(--font-caps);
     font-size: 0.82rem;
     letter-spacing: 0.25em;
-    color: var(--color-text-dim, #8a9890);
+    color: var(--text-dim);
     display: block;
     margin-bottom: 0.2rem;
   }
@@ -180,7 +180,7 @@ const ACCENT_COLORS = [
     font-family: 'DM Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.1em;
-    color: var(--color-text-faint, #506058);
+    color: var(--text-faint);
     display: block;
   }
 

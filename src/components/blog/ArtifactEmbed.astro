@@ -47,7 +47,8 @@ const {
   width: 100%;
   height: var(--frame-h, 620px);
   overflow: hidden;
-  background: #0F1923;
+  /* was #0F1923 — a hardcoded dark that stayed dark under light mode */
+  background: var(--surface);
 }
 
 .artifact-frame {

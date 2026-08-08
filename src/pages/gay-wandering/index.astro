@@ -1,0 +1,442 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from '../../consts';
+
+const checkoutURL = import.meta.env.PUBLIC_GAY_WANDERING_CHECKOUT_URL?.trim();
+const checkoutReady = Boolean(checkoutURL);
+const description =
+  'Eleven wild, illustrated poems of youth, grief, desire, and ecstatic vision by Mazze LeCzzare Frazer.';
+const bookSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: 'Gay Wandering',
+  alternateName: 'Gay Wandering: A Nonlinear Settler Myth',
+  author: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_URL },
+  description,
+  bookFormat: 'https://schema.org/EBook',
+  inLanguage: 'en',
+  image: `${SITE_URL}/gay-wandering/cover.jpg`,
+  offers: checkoutReady
+    ? {
+        '@type': 'Offer',
+        url: checkoutURL,
+        price: '15.00',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      }
+    : undefined,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Gay Wandering | ${SITE_TITLE}`}
+      description={description}
+      image="/gay-wandering/og.jpg"
+      type="article"
+    />
+    <script type="application/ld+json" set:html={JSON.stringify(bookSchema)} />
+  </head>
+  <body data-layout="gay-wandering">
+    <Header />
+    <main>
+      <section class="hero" aria-labelledby="book-title">
+        <div class="cover-stage">
+          <div class="cover-shadow" aria-hidden="true"></div>
+          <img
+            class="cover"
+            src="/gay-wandering/cover.jpg"
+            width="1024"
+            height="1536"
+            alt="Cover of Gay Wandering: a bruised watercolor landscape crossed by a broken gold compass"
+            fetchpriority="high"
+          />
+          <span class="edition-mark">Reader No. 01</span>
+        </div>
+
+        <div class="hero-copy">
+          <p class="kicker">Poems from the road · California, seventeen to twenty</p>
+          <h1 id="book-title">Gay<br />Wandering</h1>
+          <p class="subtitle">A nonlinear settler myth</p>
+          <p class="lede">
+            Eleven young poems carried out of hitchhiking, festival stages, West Hollywood,
+            dangerous lovers, ancient gods, and the stubborn fact of still being here.
+          </p>
+          <div class="purchase-row" id="edition">
+            {
+              checkoutReady ? (
+                <a class="buy-button lemonsqueezy-button" href={checkoutURL}>
+                  Get the complete reader <span>$15+</span>
+                </a>
+              ) : (
+                <a class="buy-button" href="/contact/?subject=Gay%20Wandering">
+                  Join the first-edition list <span>$15+</span>
+                </a>
+              )
+            }
+            <p class="purchase-note">
+              Pay what you choose above $15. The suggested supporter price is $28.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="threshold" aria-labelledby="threshold-title">
+        <p class="folio">Selected evidence · I</p>
+        <blockquote>
+          <p>
+            And like Aphrodite they rose from the water,<br />
+            all radiant in the most elegant repose,<br />
+            their beauty more dazzling than our own sun,
+          </p>
+          <cite>— The Riverbank Gods</cite>
+        </blockquote>
+        <div class="threshold-copy">
+          <h2 id="threshold-title">The poems keep their bruises.</h2>
+          <p>
+            Written between seventeen and twenty, these poems are wild, vain, frightened,
+            erotic, grieving, and naïve. This edition repairs the damaged lines without
+            teaching them better manners.
+          </p>
+        </div>
+      </section>
+
+      <section class="contents" aria-labelledby="contents-title">
+        <div class="contents-heading">
+          <p class="folio">The complete object</p>
+          <h2 id="contents-title">One open loop,<br />held offline.</h2>
+        </div>
+        <div class="edition-details">
+          <ul>
+            <li><span>11</span> complete poems</li>
+            <li><span>04</span> full-color plates</li>
+            <li><span>01</span> interactive offline reader</li>
+            <li><span>01</span> archival, printable PDF</li>
+          </ul>
+          <p>
+            The definitive edition is delivered as a downloadable bundle. The HTML reader
+            carries its own type, images, navigation, themes, and living compass—no account,
+            app, or internet connection required after download.
+          </p>
+        </div>
+      </section>
+
+      <section class="night-poem" aria-label="A second selected poem">
+        <p class="folio">Selected evidence · II</p>
+        <blockquote>
+          <p>
+            Some nights I just never sleep at all<br />
+            and I sit and I wonder where the stars would fall.<br />
+            I sit here racked and shivering cold,<br />
+            wondering who will be there to take care of me when I'm old.
+          </p>
+          <cite>— Some Nights</cite>
+        </blockquote>
+      </section>
+
+      <section class="final-door" aria-labelledby="final-door-title">
+        <span class="door-orbit" aria-hidden="true"></span>
+        <p class="folio">Reader No. 01</p>
+        <h2 id="final-door-title">Enter anywhere.<br />The loop remains open.</h2>
+        {
+          checkoutReady ? (
+            <a class="buy-button lemonsqueezy-button" href={checkoutURL}>
+              Get <em>Gay Wandering</em> <span>$15+</span>
+            </a>
+          ) : (
+            <a class="buy-button" href="/contact/?subject=Gay%20Wandering">
+              Join the first-edition list <span>$15+</span>
+            </a>
+          )
+        }
+        <p class="aftercare">
+          Buyers receive the complete edition immediately and may choose to hear when the
+          next reader, artwork, or physical edition opens.
+        </p>
+      </section>
+    </main>
+    <Footer />
+    {checkoutReady && <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>}
+  </body>
+</html>
+
+<style>
+  :global(body[data-layout='gay-wandering']) {
+    --gw-field: #08060a;
+    --gw-paper: #e9deca;
+    --gw-ash: #a99d92;
+    --gw-gold: #c9a96e;
+    --gw-gold-bright: #f1dfb6;
+    --gw-wine: #502838;
+    --gw-indigo: #323c5a;
+    background: var(--gw-field);
+    color: var(--gw-paper);
+  }
+
+  :global(body[data-layout='gay-wandering'] header),
+  :global(body[data-layout='gay-wandering'] footer) {
+    --bg: var(--gw-field);
+    --surface: #0b080d;
+    --text: var(--gw-paper);
+    --text-dim: var(--gw-ash);
+    --text-faint: #8e827a;
+    --rule: rgba(201, 169, 110, 0.18);
+    --header-bg: rgba(8, 6, 10, 0.9);
+    --teal: var(--gw-gold);
+  }
+
+  main {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 8% 18%, rgba(80, 40, 56, 0.28), transparent 28rem),
+      radial-gradient(circle at 92% 28%, rgba(50, 60, 90, 0.2), transparent 32rem),
+      var(--gw-field);
+  }
+
+  .hero {
+    position: relative;
+    min-height: min(920px, calc(100vh - 56px));
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.82fr) minmax(24rem, 1.18fr);
+    gap: clamp(2rem, 7vw, 8rem);
+    align-items: center;
+    width: min(1200px, calc(100% - 3rem));
+    margin: 0 auto;
+    padding: clamp(4rem, 9vw, 8rem) 0;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 5% -20% auto 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gw-gold), transparent);
+    opacity: 0.32;
+    transform: rotate(-8deg);
+    pointer-events: none;
+  }
+
+  .cover-stage { position: relative; perspective: 1000px; }
+  .cover-shadow {
+    position: absolute;
+    inset: 8% -8% -5% 12%;
+    background: rgba(80, 40, 56, 0.5);
+    filter: blur(45px);
+    transform: rotate(4deg);
+  }
+
+  .cover {
+    position: relative;
+    display: block;
+    width: min(100%, 27rem);
+    height: auto;
+    margin: 0 auto;
+    border: 1px solid rgba(241, 223, 182, 0.26);
+    box-shadow: 0 2.8rem 7rem rgba(0, 0, 0, 0.66);
+    transform: rotateY(2deg) rotateZ(-0.7deg);
+  }
+
+  .edition-mark {
+    position: absolute;
+    right: -1.1rem;
+    bottom: 8%;
+    writing-mode: vertical-rl;
+    font: 400 0.67rem/1 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--gw-gold);
+  }
+
+  .kicker, .folio {
+    margin: 0 0 1.5rem;
+    font: 400 0.68rem/1.5 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--gw-gold);
+  }
+
+  h1 {
+    margin: 0;
+    font: 300 clamp(5rem, 12vw, 10.5rem)/0.68 var(--font-display);
+    letter-spacing: -0.065em;
+    color: var(--gw-paper);
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    margin: 2.3rem 0 0;
+    font: italic 400 clamp(1.2rem, 2.2vw, 1.75rem)/1.3 var(--font-display);
+    color: var(--gw-gold-bright);
+  }
+
+  .lede {
+    max-width: 35rem;
+    margin: 1.6rem 0 2.4rem;
+    font: 400 clamp(1.15rem, 2.1vw, 1.5rem)/1.55 var(--font-display);
+    color: rgba(233, 222, 202, 0.78);
+  }
+
+  .purchase-row { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+  .buy-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem;
+    min-height: 3.5rem;
+    padding: 0.85rem 1.1rem 0.85rem 1.35rem;
+    border: 1px solid var(--gw-gold);
+    color: var(--gw-field);
+    background: var(--gw-gold-bright);
+    font: 500 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    box-shadow: 0 0 2rem rgba(201, 169, 110, 0.08);
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+  .buy-button span { color: #5d492d; }
+  .buy-button em { font-style: normal; }
+  .buy-button:hover {
+    color: var(--gw-field);
+    background: #fff0c8;
+    transform: translateY(-2px);
+    box-shadow: 0 0 2.5rem rgba(201, 169, 110, 0.2);
+  }
+  .buy-button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+  .purchase-note {
+    max-width: 18rem;
+    margin: 0;
+    font: 400 0.68rem/1.55 var(--font-mono);
+    color: var(--gw-ash);
+  }
+
+  .threshold, .contents, .night-poem, .final-door {
+    width: min(1080px, calc(100% - 3rem));
+    margin: 0 auto;
+    padding: clamp(5rem, 12vw, 10rem) 0;
+    border-top: 1px solid rgba(201, 169, 110, 0.18);
+  }
+
+  .threshold {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(3rem, 9vw, 9rem);
+    align-items: end;
+  }
+  .threshold .folio { grid-column: 1 / -1; }
+  blockquote { margin: 0; }
+  blockquote p {
+    margin: 0;
+    font: italic 300 clamp(1.7rem, 4.2vw, 3.3rem)/1.28 var(--font-display);
+    color: var(--gw-paper);
+  }
+  blockquote cite {
+    display: block;
+    margin-top: 1.6rem;
+    font: 400 0.68rem/1 var(--font-mono);
+    letter-spacing: 0.12em;
+    color: var(--gw-gold);
+  }
+  .threshold-copy h2, .contents h2, .final-door h2 {
+    font: 300 clamp(2.8rem, 6vw, 5.6rem)/0.95 var(--font-display);
+    color: var(--gw-paper);
+  }
+  .threshold-copy p, .edition-details p, .aftercare {
+    font: 400 1rem/1.8 var(--font-mono);
+    color: var(--gw-ash);
+  }
+
+  .contents {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(3rem, 10vw, 10rem);
+  }
+  .edition-details ul { list-style: none; padding: 0; margin: 0 0 3rem; }
+  .edition-details li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(201, 169, 110, 0.16);
+    font: 400 0.8rem/1.5 var(--font-mono);
+    color: var(--gw-paper);
+  }
+  .edition-details li span { color: var(--gw-gold); }
+
+  .night-poem {
+    min-height: 38rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 55% 40%, rgba(50, 60, 90, 0.18), transparent 25rem);
+  }
+  .night-poem blockquote { max-width: 52rem; }
+
+  .final-door {
+    position: relative;
+    min-height: 48rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .door-orbit {
+    position: absolute;
+    width: min(60vw, 33rem);
+    aspect-ratio: 1;
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 50%;
+    box-shadow: inset 0 0 5rem rgba(80, 40, 56, 0.08), 0 0 5rem rgba(50, 60, 90, 0.08);
+    pointer-events: none;
+  }
+  .door-orbit::before, .door-orbit::after {
+    content: '';
+    position: absolute;
+    inset: 18%;
+    border: 1px solid rgba(201, 169, 110, 0.12);
+    border-radius: 50%;
+  }
+  .door-orbit::after { inset: 50% -10%; border-radius: 0; border-width: 1px 0 0; }
+  .final-door > *:not(.door-orbit) { position: relative; }
+  .final-door h2 { margin-bottom: 2.5rem; }
+  .aftercare { max-width: 37rem; margin: 2rem auto 0; font-size: 0.72rem; }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; width: min(100% - 2rem, 36rem); }
+    .cover { max-width: 20rem; }
+    .edition-mark { right: 0; }
+    h1 { font-size: clamp(5rem, 24vw, 8rem); }
+    .threshold, .contents { grid-template-columns: 1fr; }
+    .threshold .folio { grid-column: 1; }
+    .threshold, .contents, .night-poem, .final-door { width: min(100% - 2rem, 42rem); }
+    .door-orbit { width: 90vw; }
+  }
+
+  @media (max-width: 640px) {
+    :global(body[data-layout='gay-wandering'] header nav) {
+      min-height: 52px;
+      flex-wrap: nowrap;
+    }
+    :global(body[data-layout='gay-wandering'] header .nav-links) { display: none; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cover-stage { animation: arrive 900ms cubic-bezier(.2,.8,.2,1) both; }
+    .hero-copy > * { animation: rise 700ms ease both; }
+    .hero-copy > :nth-child(2) { animation-delay: 100ms; }
+    .hero-copy > :nth-child(3) { animation-delay: 180ms; }
+    .hero-copy > :nth-child(4) { animation-delay: 260ms; }
+    .hero-copy > :nth-child(5) { animation-delay: 340ms; }
+  }
+  @keyframes arrive { from { opacity: 0; transform: translateY(2rem) rotate(-1deg); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(1rem); } }
+</style>

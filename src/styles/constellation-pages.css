@@ -1,0 +1,133 @@
+.cn-page {
+  max-width: 760px;
+  width: calc(100% - 2rem);
+  margin: 0 auto;
+  padding: 4em 1rem 5em;
+}
+
+.cn-page__label {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 0.5em;
+}
+
+.cn-page__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 300;
+  color: var(--text);
+  margin: 0 0 0.3em;
+  line-height: 1.05;
+}
+
+.cn-zone-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2em 0.6em;
+  border-radius: var(--radius-sm);
+  border: 1px solid currentColor;
+}
+
+.cn-zone-badge[data-zone="experiment"] {
+  color: var(--zone-experiment);
+}
+
+.cn-zone-badge[data-zone="signal"] {
+  color: var(--zone-signal);
+}
+
+.cn-zone-badge[data-zone="undefined"] {
+  color: var(--text-faint);
+}
+
+.cn-pieces {
+  list-style: none;
+  margin: 2.5em 0 0;
+  padding: 0;
+}
+
+.cn-piece {
+  border-bottom: 1px solid var(--rule);
+}
+
+.cn-piece a {
+  display: flex;
+  align-items: baseline;
+  gap: 1em;
+  padding: 1em 0;
+  text-decoration: none;
+}
+
+.cn-piece a:hover .cn-piece__title {
+  color: var(--teal);
+}
+
+.cn-piece__type {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  width: 4em;
+  flex-shrink: 0;
+}
+
+.cn-piece__title {
+  font-family: var(--font-display);
+  font-size: 1.15em;
+  color: var(--text);
+  transition: color var(--transition-fast);
+}
+
+.cn-page__thesis {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.15em;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 42em;
+  margin: 0.75em 0 1.5em;
+}
+
+.cn-pieces--external {
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0.5em;
+}
+
+.cn-pieces--external .cn-piece a {
+  flex-wrap: wrap;
+}
+
+.cn-piece__type[data-kind="spine"] { color: var(--gold); }
+.cn-piece__type[data-kind="paper"],
+.cn-piece__type[data-kind="artifact"],
+.cn-piece__type[data-kind="instrument"] { color: var(--text-dim); }
+
+.cn-piece__desc {
+  flex-basis: 100%;
+  font-size: 0.88em;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin-top: 0.25em;
+  padding-left: calc(4em + 1em);
+  max-width: 52em;
+}
+
+@media (max-width: 540px) {
+  .cn-piece__desc { padding-left: 0; }
+}
+
+/* Zone reading register: erasure pages read faded (but still WCAG AA). */
+.cn-page[data-zone="undefined"] {
+  opacity: 0.82;
+  filter: grayscale(0.25);
+}
+
+.cn-page[data-zone="signal"] .cn-page__title {
+  letter-spacing: 0.01em;
+}

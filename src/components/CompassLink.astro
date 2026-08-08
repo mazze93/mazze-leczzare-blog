@@ -54,7 +54,7 @@ const { href, label, size = 32, class: className = '' } = Astro.props;
     --compass-sparkle-opacity: 1;
     --compass-trail-opacity: 0.4;
     color: var(--gold-bright);
-    filter: drop-shadow(0 0 12px rgba(244, 210, 154, 0.6));
+    filter: drop-shadow(0 0 12px rgba(var(--gold-bright-rgb), 0.6));
   }
 
   .compass-link:focus-visible {

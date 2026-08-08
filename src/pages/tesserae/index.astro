@@ -1,0 +1,184 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+import { getCollection } from 'astro:content';
+
+const tesserae = (
+  await getCollection('tesserae', ({ data }) => !data.draft)
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <BaseHead
+    title={`Tesserae — ${SITE_TITLE}`}
+    description="Mosaic tiles — small modular fragments. Neither essay nor transmission: the smallest pieces of the work."
+  />
+</head>
+<body>
+  <Header />
+  <main class="tess-main">
+
+    <header class="tess-header">
+      <span class="tess-eyebrow">Mosaic · Fragments</span>
+      <h1 class="tess-title">Tesserae</h1>
+      <p class="tess-desc">
+        The smallest pieces of the work — modular fragments that are neither
+        essay (Writing) nor transmission (Signal). Mosaic tiles, set one at a time.
+      </p>
+      <div class="tess-rule" aria-hidden="true"></div>
+    </header>
+
+    {tesserae.length > 0 ? (
+      <ol class="tess-list" role="list">
+        {tesserae.map((entry, i) => (
+          <li class="tess-item">
+            <a href={`/tesserae/${entry.id}/`} class="tess-link">
+              <span class="tess-num" aria-hidden="true">
+                {String(tesserae.length - i).padStart(2, '0')}
+              </span>
+              <span class="tess-body">
+                <span class="tess-item-title">{entry.data.title}</span>
+                {entry.data.description && (
+                  <span class="tess-item-desc">{entry.data.description}</span>
+                )}
+              </span>
+              <span class="tess-date"><FormattedDate date={entry.data.pubDate} /></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="tess-empty">No fragments set yet.</p>
+    )}
+
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  .tess-main {
+    max-width: 900px;
+    width: calc(100% - 2rem);
+    margin: 0 auto;
+    padding: 0 1rem 5rem;
+  }
+
+  .tess-header { padding: 4em 0 2.5em; }
+
+  .tess-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .tess-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 300;
+    color: var(--text);
+    margin: 0.2em 0 0.3em;
+    line-height: 1.0;
+    letter-spacing: 0.01em;
+  }
+
+  .tess-desc {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.75;
+    margin: 0;
+    max-width: 58ch;
+  }
+
+  .tess-rule {
+    height: 1px;
+    background: linear-gradient(
+      to right, transparent, var(--teal) 15%, var(--rule) 55%, transparent
+    );
+    margin: var(--spacing-lg) 0 0;
+    opacity: 0.55;
+  }
+
+  .tess-list { list-style: none; margin: 0; padding: 0; }
+  .tess-item { border-bottom: 1px solid var(--rule); }
+
+  .tess-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5em;
+    padding: 1.1em 0;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+  }
+  .tess-link:hover .tess-item-title { color: var(--teal); }
+  .tess-link:hover .tess-num        { color: var(--teal); }
+
+  .tess-num {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    width: 1.8em;
+    transition: color var(--transition-fast);
+  }
+
+  .tess-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    min-width: 0;
+  }
+
+  .tess-item-title {
+    font-family: var(--font-display);
+    font-size: 1.2em;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.2;
+    transition: color var(--transition-fast);
+  }
+
+  .tess-item-desc {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-faint);
+    line-height: 1.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tess-date {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tess-empty {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    padding: 3em 0;
+    text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 640px) {
+    .tess-link { flex-wrap: wrap; gap: 0.5em; }
+    .tess-item-desc { display: none; }
+    .tess-date { width: 100%; }
+  }
+</style>
