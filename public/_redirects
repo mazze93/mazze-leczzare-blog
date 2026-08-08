@@ -1,2 +1,10 @@
 /manifesto/ /work/ 301
 /manifesto  /work/ 301
+
+# The Breakthrough artifact shipped twice: src/pages/blog/the_breakthrough_artifact.html
+# was a byte-identical copy of public/essays/the-breakthrough-artifact.html, so the same
+# document published at two URLs. Only the /essays/ one is linked (from /writing/), so it
+# is canonical; the src/pages/ copy moved to files/ and these keep its URL alive for
+# anything already pointing at it.
+/blog/the_breakthrough_artifact/ /essays/the-breakthrough-artifact.html 301
+/blog/the_breakthrough_artifact  /essays/the-breakthrough-artifact.html 301

@@ -1,7 +1,17 @@
 ---
 /**
  * BreathingHero.astro
- * Homepage hero: "From Erasure → Signal"
+ * Homepage hero: the two shipped products, Stratum and Stele.
+ *
+ * This replaced a display headline ("From Erasure → Signal") that read as a
+ * thesis rather than an answer. A reader landing here has one question —
+ * what has this person built, and does it run — and the products were the
+ * least visible things on the site. They lead now; the constellation and the
+ * essays stay, one layer back.
+ *
+ * The two glyphs are deliberately not a shared icon set: Stratum draws its
+ * append-only layers (newest band lit), Stele an inscribed upright slab. They
+ * should read as two different objects at a glance, not two instances of one.
  *
  * Environmental breathing canvas — three zones:
  *   Zone 1 (left): noise particles, white, low opacity, random walk
@@ -20,20 +30,68 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 <section class="breathing-hero" aria-label="Site introduction">
   <canvas class="breathing-hero__canvas" aria-hidden="true"></canvas>
   <div class="breathing-hero__content">
+    <p class="breathing-hero__eyebrow">
+      <span class="breathing-hero__live" aria-hidden="true"></span>
+      Shipped &amp; running
+    </p>
     <h1 class="breathing-hero__headline">
-      From Erasure <span class="breathing-hero__arrow" aria-label="to">&rarr;</span> Signal
+      I build systems that cannot conceal their own state.
     </h1>
-    <p class="breathing-hero__tagline">
-      Technology, systems thinking, and the architecture of meaning.
-    </p>
-    <p class="breathing-hero__sub">
-      Security engineering, infrastructure, and writing for systems
-      with real human stakes. Based in Durham, NC. <a href="/about/">About the work →</a>
-    </p>
-    <div class="breathing-hero__actions">
-      <a href="/blog/" class="breathing-hero__cta">Read the writing</a>
-      <a href="/work/" class="breathing-hero__cta breathing-hero__cta--secondary">Explore the work</a>
+
+    <div class="hero-nodes">
+      <article class="hero-node hero-node--stratum">
+        <svg class="hero-node__glyph" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <rect class="stratum-band stratum-band--new" x="6" y="9"  width="28" height="4" rx="1" />
+          <rect class="stratum-band"                   x="6" y="17" width="23" height="4" rx="1" />
+          <rect class="stratum-band"                   x="6" y="25" width="27" height="4" rx="1" />
+          <rect class="stratum-band"                   x="6" y="33" width="18" height="3" rx="1" />
+        </svg>
+        <h2 class="hero-node__name">Stratum</h2>
+        <p class="hero-node__role">epistemic decision ledger</p>
+        <p class="hero-node__desc">
+          An append-only ledger for human + AI work. Evidence — file hashes, test
+          exits, signed approvals — stays separable from claim, so model prose
+          never becomes authoritative just by being persisted.
+        </p>
+        <p class="hero-node__stack">TypeScript · Cloudflare Workers + Durable Objects · MIT</p>
+        <a class="hero-node__link" href="https://stratum.mazzeleczzare.com/" target="_blank" rel="noopener noreferrer">
+          Open Stratum <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+
+      <article class="hero-node hero-node--stele">
+        <svg class="hero-node__glyph" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <path class="stele-slab" d="M20 4 L30 11 V36 H10 V11 Z" />
+          <line class="stele-seal stele-seal--lit" x1="14" y1="19" x2="26" y2="19" />
+          <line class="stele-seal" x1="14" y1="24" x2="26" y2="24" />
+          <line class="stele-seal" x1="14" y1="29" x2="22" y2="29" />
+        </svg>
+        <h2 class="hero-node__name">Stele</h2>
+        <p class="hero-node__role">directive compiler &amp; integrity layer</p>
+        <p class="hero-node__desc">
+          Compiles standing directives into per-project postures, so a collaborator
+          inherits constraints as compiled state rather than vibes. Thirteen
+          tripwires against authority drift, with a hard lockout when integrity
+          cannot be re-established.
+        </p>
+        <p class="hero-node__stack">React 19 · TypeScript · Vite · Anthropic API</p>
+        <a class="hero-node__link" href="https://stele.mazzeleczzare.com/" target="_blank" rel="noopener noreferrer">
+          Open Stele <span aria-hidden="true">↗</span>
+        </a>
+      </article>
     </div>
+
+    <div class="breathing-hero__actions">
+      <a href="/work/" class="breathing-hero__cta">See the evidence</a>
+      <a href="/blog/" class="breathing-hero__cta breathing-hero__cta--secondary">Read the writing</a>
+      <a href="/about/" class="breathing-hero__cta breathing-hero__cta--secondary">About</a>
+    </div>
+    <p class="breathing-hero__orientation">
+      Behind this: every point in the sky is a piece of work. Brightness is
+      completion, gravity is connection — start at the
+      <span class="breathing-hero__gold-word">gold signal</span>. Prefer a list?
+      <a href="/writing/">The index</a> is the same sky, flattened.
+    </p>
   </div>
   <ConstellationNodes client:load />
 </section>
@@ -58,79 +116,216 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   .breathing-hero__content {
     position: relative;
     z-index: 10;
-    text-align: right;
-    padding-right: clamp(2rem, 10vw, 8rem);
-    padding-left: 2rem;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: 0;
+    text-align: left;
+    padding: 6rem clamp(1.25rem, 5vw, 3rem) 4rem;
+    max-width: 1060px;
+    margin-inline: auto;
     width: 100%;
     animation: heroFadeIn 1.2s ease-out both;
+    /* Let the pointer reach the canvas nodes underneath; links opt back in. */
+    pointer-events: none;
+  }
+
+  .breathing-hero__content a {
+    pointer-events: auto;
+  }
+
+  /* The plate's orientation line, adapted: one sky, same welcome. */
+  /* In flow, below the CTAs. It used to sit absolutely positioned at the top
+     left, which worked against a right-aligned headline but collided with the
+     eyebrow once the content became a centred two-column block. It is an aid
+     for reading the constellation, so it belongs after the thing it explains. */
+  .breathing-hero__orientation {
+    position: relative;
+    z-index: 10;
+    font-family: var(--font-display, Georgia, serif);
+    font-style: italic;
+    font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+    line-height: 1.6;
+    max-width: 62ch;
+    color: rgba(242, 244, 248, 0.5);
+    margin: 2.25rem 0 0;
+    pointer-events: none;
+    text-shadow: 0 1px 18px rgba(11, 13, 18, 0.9);
+    animation: heroFadeIn 1.2s ease-out both;
+  }
+  .breathing-hero__orientation a {
+    color: #2bd3c6;
+    pointer-events: auto;
+  }
+  .breathing-hero__gold-word {
+    color: #e8b64c;
+    font-style: normal;
+  }
+
+  .breathing-hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2bd3c6;
+    margin: 0 0 1.1rem;
+  }
+
+  .breathing-hero__live {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2bd3c6;
+    box-shadow: 0 0 0 3px rgba(43, 211, 198, 0.16);
   }
 
   .breathing-hero__headline {
     font-family: var(--font-display, Georgia, serif);
-    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(1.9rem, 4.4vw, 3.4rem);
     font-weight: 300;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em;
     color: #f2f4f8;
-    margin: 0 0 1rem;
-    line-height: 1.05;
+    margin: 0 0 2.75rem;
+    line-height: 1.1;
+    max-width: 20ch;
   }
 
-  .breathing-hero__arrow {
-    color: #2bd3c6;
-    filter: drop-shadow(0 0 12px rgba(43, 211, 198, 0.6));
-    display: inline-block;
-    margin: 0 0.2em;
-    transition: transform 0.4s ease;
+  /* ── The two product nodes ── */
+  .hero-nodes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
   }
 
-  .breathing-hero__headline:hover .breathing-hero__arrow {
-    transform: translateX(4px);
+  .hero-node {
+    position: relative;
+    padding: 1.6rem 1.5rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    background: rgba(11, 13, 18, 0.62);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    pointer-events: auto;
+    transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
   }
 
-  .breathing-hero__tagline {
-    font-family: var(--font-mono, monospace);
-    font-size: clamp(0.9rem, 1.8vw, 1.15rem);
+  /* Each node carries its own accent so the pair never reads as one repeated
+     card: Stratum teal (the ledger), Stele amber (the seal). */
+  .hero-node--stratum { --node-accent: #2bd3c6; }
+  .hero-node--stele   { --node-accent: #e8b64c; }
+
+  .hero-node::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    border-radius: 10px 0 0 10px;
+    background: var(--node-accent);
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+  }
+
+  .hero-node:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(11, 13, 18, 0.78);
+    transform: translateY(-2px);
+  }
+
+  .hero-node:hover::before { opacity: 1; }
+
+  .hero-node__glyph {
+    width: 34px;
+    height: 34px;
+    display: block;
+    margin-bottom: 0.9rem;
+  }
+
+  /* Stratum — append-only layers, newest band lit. */
+  .stratum-band { fill: rgba(242, 244, 248, 0.22); }
+  .stratum-band--new { fill: var(--node-accent); }
+
+  /* Stele — an inscribed upright slab. */
+  .stele-slab {
+    fill: none;
+    stroke: rgba(242, 244, 248, 0.34);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+  .stele-seal {
+    stroke: rgba(242, 244, 248, 0.24);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .stele-seal--lit { stroke: var(--node-accent); }
+
+  .hero-node__name {
+    font-family: var(--font-display, Georgia, serif);
+    font-size: 1.55rem;
     font-weight: 400;
-    letter-spacing: 0.015em;
-    color: rgba(242, 244, 248, 0.6);
-    line-height: 1.6;
-    margin: 0 0 2.5rem;
+    color: #f2f4f8;
+    margin: 0;
+    line-height: 1.1;
   }
 
-  .breathing-hero__sub {
+  .hero-node__role {
     font-family: var(--font-mono, monospace);
-    font-size: clamp(0.75rem, 1.4vw, 0.9rem);
-    color: rgba(242, 244, 248, 0.45);
-    line-height: 1.6;
-    margin: -1.5rem 0 2.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--node-accent);
+    margin: 0.4rem 0 0.85rem;
   }
 
-  .breathing-hero__sub a {
-    color: #2bd3c6;
+  .hero-node__desc {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.79rem;
+    line-height: 1.65;
+    color: rgba(242, 244, 248, 0.66);
+    margin: 0 0 1rem;
+  }
+
+  .hero-node__stack {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+    color: rgba(242, 244, 248, 0.34);
+    margin: 0 0 1.1rem;
+  }
+
+  .hero-node__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    color: var(--node-accent);
     text-decoration: none;
-    opacity: 0.85;
-    transition: opacity 0.2s ease;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
   }
 
-  .breathing-hero__sub a:hover { opacity: 1; }
+  .hero-node__link:hover { border-bottom-color: var(--node-accent); }
+
+  .hero-node__link:focus-visible,
+  .breathing-hero__cta:focus-visible {
+    outline: 2px solid var(--node-accent, #2bd3c6);
+    outline-offset: 3px;
+  }
 
   .breathing-hero__actions {
     display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
+    gap: 0.75rem;
     flex-wrap: wrap;
   }
 
   .breathing-hero__cta {
     display: inline-block;
-    padding: 0.75rem 2rem;
+    padding: 0.7rem 1.5rem;
     border-radius: 6px;
     font-family: var(--font-mono, monospace);
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 500;
     text-decoration: none;
     transition:
       background 0.25s ease,
@@ -177,7 +372,10 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     .breathing-hero__content {
       animation: none;
     }
-    .breathing-hero__arrow {
+    .breathing-hero__orientation {
+      animation: none;
+    }
+    .hero-node {
       transition: none;
     }
     .breathing-hero__cta {
@@ -186,19 +384,23 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   }
 
   @media (max-width: 768px) {
-    .breathing-hero__content {
-      text-align: center;
-      padding: 2rem;
-      margin: 0 auto;
+    /* the mobile node list replaces the sky; nothing to orient against */
+    .breathing-hero__orientation {
+      display: none;
     }
-    .breathing-hero__actions {
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
+    .breathing-hero__content {
+      padding: 4.5rem 1.25rem 3rem;
+    }
+    .hero-nodes {
+      grid-template-columns: 1fr;
+    }
+    .hero-node {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: rgba(11, 13, 18, 0.8);
     }
     .breathing-hero__cta {
-      width: 100%;
-      max-width: 16rem;
+      flex: 1 1 auto;
       text-align: center;
     }
   }
@@ -274,6 +476,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     let width = 0;
     let height = 0;
     let particles: NoiseParticle[] = [];
+    let graticule: { ox: number; oy: number }[][] = [];
     let nodes: BreathingNode[] = [];
     let connections: NodeConnection[] = [];
     let mouse = { x: -999, y: -999 };
@@ -311,6 +514,22 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       nodes = [];
       connections = [];
 
+      // Survey graticule — the rigid grid gravity gets to bend (approved
+      // spec pull). Atmosphere may warp; truth nodes keep their own physics.
+      graticule = [];
+      const step = Math.max(120, width / 14);
+      const sample = 48;
+      for (let x = step; x < width; x += step) {
+        const line: { ox: number; oy: number }[] = [];
+        for (let y = 0; y <= height; y += sample) line.push({ ox: x, oy: y });
+        graticule.push(line);
+      }
+      for (let y = step; y < height; y += step) {
+        const line: { ox: number; oy: number }[] = [];
+        for (let x = 0; x <= width; x += sample) line.push({ ox: x, oy: y });
+        graticule.push(line);
+      }
+
       // Zone 1: noise particles (left third)
       for (let i = 0; i < 60; i++) {
         particles.push({
@@ -323,9 +542,10 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
         });
       }
 
-      // Zone 2: emergence nodes (middle third)
+      // Zone 2: emergence nodes (middle third) — ambient counts kept below
+      // the truth-node layer's presence: atmosphere, not subject
       const zone2Nodes: BreathingNode[] = [];
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 24; i++) {
         const n = makeNode(
           width / 3 + Math.random() * (width / 3),
           Math.random() * height,
@@ -343,7 +563,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
       // Zone 3: signal nodes (right third)
       const zone3Nodes: BreathingNode[] = [];
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < 32; i++) {
         const n = makeNode(
           (width / 3) * 2 + Math.random() * (width / 3),
           Math.random() * height,
@@ -364,7 +584,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       return {
         node1, node2, zone,
         opacity: 0,
-        targetOpacity: zone === 2 ? Math.random() * 0.2 + 0.1 : Math.random() * 0.35 + 0.2,
+        targetOpacity: zone === 2 ? Math.random() * 0.12 + 0.06 : Math.random() * 0.2 + 0.12,
         formed: false,
         formationDelay: Math.random() * 4000,
         mouseInfluence: 0,
@@ -483,10 +703,37 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       ctx!.fillStyle = 'rgba(11, 13, 18, 0.4)';
       ctx!.fillRect(0, 0, width, height);
 
+      drawGraticule();
       particles.forEach(p => { updateParticle(p); drawParticle(p); });
       nodes.forEach(n => updateNode(n));
       connections.forEach(c => { updateConnection(c); drawConnection(c); });
       nodes.forEach(n => drawNode(n));
+    }
+
+    // Bend each graticule vertex toward the cursor — gravitational lensing
+    // as interaction. Pull field matches the node physics (300px reach).
+    function drawGraticule() {
+      ctx!.strokeStyle = `rgba(${palette.particle}, 0.045)`;
+      ctx!.lineWidth = 1;
+      for (const line of graticule) {
+        ctx!.beginPath();
+        for (let i = 0; i < line.length; i++) {
+          const v = line[i];
+          let x = v.ox;
+          let y = v.oy;
+          const dx = mouse.x - v.ox;
+          const dy = mouse.y - v.oy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 300 && dist > 0.001) {
+            const pull = (1 - dist / 300) * 26;
+            x += (dx / dist) * pull;
+            y += (dy / dist) * pull;
+          }
+          if (i === 0) ctx!.moveTo(x, y);
+          else ctx!.lineTo(x, y);
+        }
+        ctx!.stroke();
+      }
     }
 
     function handleVisibility() {

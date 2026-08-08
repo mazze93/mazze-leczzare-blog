@@ -1,0 +1,108 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title="Page not found"
+      description="This page doesn't exist — find your way back to mazzeleczzare.com."
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <section class="notfound-shell">
+        <p class="eyebrow">404</p>
+        <h1>This page doesn't exist</h1>
+        <p class="lede">
+          The link that brought you here is broken, or the page moved. Here's
+          where you can pick back up:
+        </p>
+        <div class="notfound-links">
+          <a href="/" class="notfound-link">Home</a>
+          <a href="/writing/" class="notfound-link">Writing</a>
+          <a href="/work/" class="notfound-link">Work</a>
+          <a href="/contact/" class="notfound-link">Contact</a>
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .notfound-shell {
+    min-height: calc(100vh - 68px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(560px, 100%);
+    margin: 0 auto;
+    padding: 4rem 1.25rem 5rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 1rem;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    line-height: 1.15;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+
+  .lede {
+    max-width: 32rem;
+    margin: 0 0 2rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+
+  .notfound-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .notfound-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    color: var(--teal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0.4em 0;
+  }
+
+  .notfound-link:hover {
+    color: var(--coral);
+  }
+
+  .notfound-link:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+</style>

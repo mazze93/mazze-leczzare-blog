@@ -69,3 +69,30 @@ describe("decayStatus", () => {
     expect(decayStatus(at(ERASURE_DAYS + 5), false)).toBe("in erasure");
   });
 });
+
+describe("resolved — the terminal archive (burst a)", () => {
+  const now = Date.parse("2026-07-17T00:00:00Z");
+  const yearsOld = now - 400 * DAY_MS;
+
+  it("resolved work never decays, regardless of age", () => {
+    const state = computeZone(yearsOld, false, now, true);
+    expect(state.zone).toBe("resolved");
+    expect(state.driftRatio).toBe(0);
+  });
+
+  it("resolved outranks committed (precedence: resolved > sealed > age)", () => {
+    const state = computeZone(yearsOld, true, now, true);
+    expect(state.zone).toBe("resolved");
+  });
+
+  it("unresolved old work still erases — the archive does not rescue the abandoned", () => {
+    const state = computeZone(yearsOld, false, now, false);
+    expect(state.zone).toBe("undefined");
+    expect(state.driftRatio).toBe(1);
+  });
+
+  it("decayStatus names the archival state", () => {
+    const state = computeZone(yearsOld, false, now, true);
+    expect(decayStatus(state, false)).toBe("resolved — archival");
+  });
+});

@@ -1,0 +1,95 @@
+---
+/**
+ * AirlockStrip.astro — the door before the world (burst c).
+ *
+ * The constellation is immersive by design; this strip is what keeps it
+ * professional: a ten-second path for the visitor who arrived from a CV,
+ * a talk, or LinkedIn and needs to know where they are and what to click.
+ * Plain language only — the metaphor lives below, never in the airlock.
+ * Zero hydration; renders in both themes via existing CSS vars.
+ */
+export interface Props {
+  /** One plain-language line about the person, not the metaphor. */
+  tagline?: string;
+}
+const {
+  tagline = "Security engineering, systems thinking, and writing with real human stakes — Durham, NC.",
+} = Astro.props;
+
+const paths = [
+  { href: "/work/", label: "The work" },
+  { href: "/writing/", label: "The writing" },
+  { href: "/contact/", label: "Contact" },
+];
+---
+
+<aside class="airlock" aria-label="Orientation and quick paths">
+  <p class="airlock__line">{tagline}</p>
+  <nav class="airlock__paths" aria-label="Quick paths">
+    {paths.map((p) => <a href={p.href}>{p.label}</a>)}
+  </nav>
+</aside>
+
+<style>
+  .airlock {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem 2rem;
+    padding: 0.55rem clamp(1.25rem, 5vw, 4.5rem);
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    /* --home-text-faint (not --c-dim): the --c-* constellation-sky tokens
+       are only ever declared under [data-theme="light"] scoped to
+       body[data-layout="constellation"]/.cn-page, so on the homepage they're
+       always undefined and this fell back to a dark-only hardcoded color —
+       unreadable against the light-mode --home-bg. --home-text-faint is
+       already remapped for both themes. */
+    color: var(--home-text-faint, #7683a0);
+    border-bottom: 1px solid rgba(125, 140, 170, 0.14);
+    background: transparent;
+  }
+
+  .airlock__line { margin: 0; }
+
+  .airlock__paths {
+    display: flex;
+    gap: 1.5rem;
+    flex-shrink: 0;
+  }
+  .airlock__paths a {
+    display: inline-flex;
+    align-items: center;
+    color: var(--home-text, #c7d2e6);
+    text-decoration: none;
+    padding: 0.5rem 0; /* ≥44px touch target with line box */
+    transition: color 140ms ease;
+  }
+  /* the rule-prefix that reaches toward you (adapted nav-node idiom) */
+  .airlock__paths a::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--teal);
+    margin-right: 10px;
+    opacity: 0.55;
+    transition: width 200ms ease, opacity 200ms ease;
+  }
+  .airlock__paths a:hover,
+  .airlock__paths a:focus-visible {
+    color: var(--teal);
+    outline: none;
+  }
+  .airlock__paths a:hover::before,
+  .airlock__paths a:focus-visible::before {
+    width: 36px;
+    opacity: 1;
+  }
+
+  @media (max-width: 640px) {
+    .airlock { justify-content: center; text-align: center; }
+  }
+</style>

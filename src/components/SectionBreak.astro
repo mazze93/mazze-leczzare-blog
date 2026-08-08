@@ -4,46 +4,21 @@
  * Decorative in-prose divider — a quiet pause between movements of an essay.
  * Purely presentational: hidden from assistive tech, carries no semantic weight.
  *
+ * The break in the page is the gold. Brush geometry lives in Seam.astro.
+ *
  * Usage:
  *   <SectionBreak />
  */
+import Seam from './Seam.astro';
 ---
 
 <div class="section-break" role="presentation" aria-hidden="true">
-  <span class="section-break__mark">✦</span>
+  <Seam />
 </div>
 
 <style>
   .section-break {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin: var(--spacing-xl, 4rem) 0;
-    color: var(--text-faint);
-  }
-
-  .section-break::before,
-  .section-break::after {
-    content: "";
-    height: 1px;
-    width: min(4rem, 20%);
-    background: linear-gradient(
-      to var(--_dir, right),
-      transparent,
-      var(--rule)
-    );
-  }
-
-  .section-break::after {
-    --_dir: left;
-  }
-
-  .section-break__mark {
-    font-family: var(--font-mono);
-    font-size: 0.75em;
-    line-height: 1;
-    color: var(--teal);
-    opacity: 0.7;
+    margin: var(--spacing-xl, 4rem) auto;
+    width: min(21rem, 72%);
   }
 </style>

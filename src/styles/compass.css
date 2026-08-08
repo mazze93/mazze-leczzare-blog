@@ -123,7 +123,7 @@
   --compass-sparkle-opacity: 0;
   --compass-trail-opacity: 0;
   color: var(--gold-bright);
-  filter: drop-shadow(0 0 8px rgba(212, 165, 116, 0.45));
+  filter: drop-shadow(0 0 8px rgba(var(--gold-rgb), 0.45));
 }
 
 .compass[data-state="engaged"] {
@@ -131,7 +131,7 @@
   --compass-sparkle-opacity: 1;
   --compass-trail-opacity: 0.4;
   color: var(--gold-bright);
-  filter: drop-shadow(0 0 12px rgba(244, 210, 154, 0.6));
+  filter: drop-shadow(0 0 12px rgba(var(--gold-bright-rgb), 0.6));
 }
 
 .compass[data-state="complete"] {

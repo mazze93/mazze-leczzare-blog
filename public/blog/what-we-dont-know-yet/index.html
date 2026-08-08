@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What We Don't Know: iOS Lockdown Mode Research</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+      background: #0a0a0a;
+      color: #c0c0c0;
+      line-height: 1.7;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    h1 {
+      color: #a0a0a0;
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 60px;
+      line-height: 1.6;
+    }
+
+    /* QUESTION BLOCKS */
+    .question-block {
+      margin: 80px 0;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+    }
+
+    .question-block.open {
+      border-left: 3px solid #666;
+      background: rgba(100, 100, 100, 0.02);
+    }
+
+    .question-number {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .question-text {
+      font-size: 1.3rem;
+      color: #d0d0d0;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .question-text strong {
+      color: #e0e0e0;
+      font-weight: 600;
+    }
+
+    .exploration {
+      margin: 24px 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.01);
+      border-left: 2px solid #444;
+      padding-left: 20px;
+    }
+
+    .exploration-label {
+      font-size: 0.85rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .exploration-content {
+      color: #999;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .hypothesis {
+      background: rgba(100, 150, 150, 0.1);
+      border-left: 3px solid #5a8a7a;
+      color: #8ab5a5;
+    }
+
+    .test {
+      background: rgba(150, 100, 100, 0.1);
+      border-left: 3px solid #8a5a5a;
+      color: #b5908a;
+    }
+
+    .gap {
+      background: rgba(100, 100, 150, 0.1);
+      border-left: 3px solid #5a5a8a;
+      color: #8a8ab5;
+    }
+
+    .blind-spot {
+      background: rgba(150, 100, 150, 0.1);
+      border-left: 3px solid #8a5a8a;
+      color: #b5908a;
+    }
+
+    /* DECISION TREE - BUT HONEST */
+    .decision-tree {
+      margin: 40px 0;
+      font-size: 0.9rem;
+    }
+
+    .tree-node {
+      margin: 12px 0 12px 20px;
+      padding: 12px;
+      border-left: 2px solid #444;
+      padding-left: 16px;
+      color: #888;
+    }
+
+    .tree-node.question {
+      color: #999;
+      border-left-color: #555;
+    }
+
+    .tree-node.uncertain {
+      color: #888;
+      border-left-color: #555;
+      font-style: italic;
+    }
+
+    .tree-node.assumption {
+      color: #666;
+      border-left-color: #444;
+      font-weight: 600;
+    }
+
+    /* CODE BLOCKS */
+    .code-block {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      color: #888;
+      margin: 20px 0;
+      line-height: 1.5;
+    }
+
+    .code-comment {
+      color: #555;
+    }
+
+    .code-key {
+      color: #666;
+    }
+
+    /* EVIDENCE/UNKNOWNS TABLE */
+    .evidence-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 0.9rem;
+    }
+
+    .evidence-table th {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #888;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.8rem;
+    }
+
+    .evidence-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #999;
+    }
+
+    .evidence-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .evidence-known {
+      color: #7a9a7a;
+    }
+
+    .evidence-unknown {
+      color: #9a7a9a;
+      font-style: italic;
+    }
+
+    /* INTERACTIVE UNCERTAINTY SLIDER */
+    .confidence-spectrum {
+      margin: 32px 0;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+    }
+
+    .spectrum-label {
+      color: #666;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .spectrum-bar {
+      display: flex;
+      height: 30px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .spectrum-segment {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 600;
+    }
+
+    .spectrum-certain {
+      background: linear-gradient(90deg, transparent, rgba(122, 154, 122, 0.3));
+    }
+
+    .spectrum-confident {
+      background: linear-gradient(90deg, rgba(122, 154, 122, 0.3), rgba(150, 150, 150, 0.2));
+    }
+
+    .spectrum-uncertain {
+      background: linear-gradient(90deg, rgba(150, 150, 150, 0.2), rgba(154, 122, 154, 0.3));
+    }
+
+    .spectrum-unknown {
+      background: linear-gradient(90deg, rgba(154, 122, 154, 0.3), transparent);
+    }
+
+    .spectrum-description {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .spectrum-label-item {
+      text-align: center;
+    }
+
+    /* EXPERIMENTAL METHOD */
+    .method-section {
+      margin: 60px 0;
+      padding: 40px;
+      background: rgba(100, 100, 100, 0.03);
+      border: 1px solid rgba(100, 100, 100, 0.2);
+      border-radius: 4px;
+    }
+
+    .method-section h3 {
+      color: #888;
+      margin-bottom: 24px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 400;
+    }
+
+    .method-step {
+      margin-bottom: 24px;
+      padding-left: 20px;
+      border-left: 2px solid #555;
+    }
+
+    .method-step-num {
+      font-weight: 600;
+      color: #999;
+      margin-bottom: 8px;
+    }
+
+    .method-step-content {
+      color: #888;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* TOOLS YOU'LL NEED TO BUILD */
+    .tools-needed {
+      margin: 60px 0;
+      padding: 40px;
+      background: rgba(100, 100, 150, 0.05);
+      border-left: 3px solid #5a5a8a;
+      border-radius: 4px;
+    }
+
+    .tools-needed h3 {
+      color: #8a8ab5;
+      margin-bottom: 24px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 400;
+    }
+
+    .tool-item {
+      margin: 16px 0;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.01);
+      border-left: 2px solid #5a5a8a;
+      padding-left: 16px;
+      color: #8a8ab5;
+    }
+
+    .tool-name {
+      font-weight: 600;
+      color: #9a9ac5;
+    }
+
+    .tool-desc {
+      color: #7a7aaa;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* FOOTER - THE HONEST PART */
+    .epilogue {
+      margin: 120px 0 60px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+    }
+
+    .epilogue h2 {
+      color: #888;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
+    .epilogue p {
+      color: #888;
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+
+    .epilogue-bold {
+      color: #999;
+      font-weight: 600;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .container {
+        padding: 40px 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .question-text {
+        font-size: 1.1rem;
+      }
+
+      .spectrum-description {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <meta name="description" content="A framework for thinking about iOS Lockdown Mode research without pretending confidence where there isn't any: open questions, hypotheses, how to test them, and what could be wrong — built to learn with you, not to tell you what to think.">
+  <link rel="canonical" href="https://mazzeleczzare.com/blog/what-we-dont-know-yet/">
+  <meta property="og:title" content="What We Don’t Know Yet">
+  <meta property="og:description" content="A framework for thinking about iOS Lockdown Mode research without pretending confidence where there isn't any — open questions, hypotheses, and what could be wrong.">
+  <meta property="og:url" content="https://mazzeleczzare.com/blog/what-we-dont-know-yet/">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://mazzeleczzare.com/mazze-leczzare-social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What We Don’t Know Yet">
+  <meta name="twitter:description" content="A framework for thinking about iOS Lockdown Mode research without pretending confidence where there isn't any — open questions, hypotheses, and what could be wrong.">
+  <meta name="twitter:image" content="https://mazzeleczzare.com/mazze-leczzare-social-preview.png">
+  <meta name="author" content="Mazze LeCzzare">
+</head>
+<body>
+  <div class="container">
+    <h1>What We Don't Know Yet</h1>
+    <div class="subtitle">
+      A framework for thinking about iOS Lockdown Mode research without pretending confidence where there isn't any. Built to learn with you, not to tell you what to think.
+    </div>
+
+    <!-- QUESTION 1 -->
+    <div class="question-block open">
+      <div class="question-number">Open Question 1</div>
+      <div class="question-text">
+        Can you actually <strong>predict exploitability</strong> from static properties (entitlements, descriptor validation, constraint patterns)?
+      </div>
+
+      <div class="exploration hypothesis">
+        <div class="exploration-label">Our Hypothesis</div>
+        <div class="exploration-content">
+          If a service rejects file paths + URLs but accepts arbitrary XPC descriptors without strict type validation, you can fuzz it for descriptor confusion. Constraint pattern → exploitability signature.
+        </div>
+      </div>
+
+      <div class="exploration test">
+        <div class="exploration-label">How to Test This</div>
+        <div class="exploration-content">
+          1. Extract entitlements from 10-15 persisted services (static analysis)<br>
+          2. Probe each with test message types (dynamic probing)<br>
+          3. Document the rejection patterns<br>
+          4. Fuzz only the "predictably permissive" services<br>
+          5. Compare: did the predicted-exploitable ones actually crash more often?
+        </div>
+      </div>
+
+      <div class="exploration gap">
+        <div class="exploration-label">What Could Be Wrong</div>
+        <div class="exploration-content">
+          <strong>Confounding:</strong> A service that accepts descriptors might accept them for *semantic* reasons (it needs file descriptors to work), not because of validation gaps. You can't crash it in a useful way. The descriptor acceptance doesn't predict exploitability—it predicts necessity.<br><br>
+          <strong>Context dependency:</strong> Whether a service "validates" descriptors might depend on the call sequence leading up to it. Static analysis can't see that. You might categorize a service as "permissive" when it's actually "permissive only after initialization."<br><br>
+          <strong>Signal vs. Noise:</strong> A service might crash frequently on malformed descriptors, but all those crashes might be "benign" (caught at the IPC boundary, no kernel memory corruption, no privilege escalation potential). You'd categorize it as exploitable when it's actually just crashy.
+        </div>
+      </div>
+
+      <div class="confidence-spectrum">
+        <div class="spectrum-label">Confidence Spectrum</div>
+        <div class="spectrum-bar">
+          <div class="spectrum-segment spectrum-certain">CERTAIN</div>
+          <div class="spectrum-segment spectrum-confident">CONFIDENT</div>
+          <div class="spectrum-segment spectrum-uncertain">UNCERTAIN</div>
+          <div class="spectrum-segment spectrum-unknown">UNKNOWN</div>
+        </div>
+        <div class="spectrum-description">
+          <div class="spectrum-label-item">
+            <strong>Certain</strong><br>
+            <span style="color: #555;">We know this works</span>
+          </div>
+          <div class="spectrum-label-item">
+            <strong>Confident</strong><br>
+            <span style="color: #555;">Probably true</span>
+          </div>
+          <div class="spectrum-label-item">
+            <strong>Uncertain</strong><br>
+            <span style="color: #555;">Could be either way</span>
+          </div>
+          <div class="spectrum-label-item">
+            <strong>Unknown</strong><br>
+            <span style="color: #555;">Need to find out</span>
+          </div>
+        </div>
+        <div style="margin-top: 20px; color: #666; font-size: 0.85rem;">
+          ← Our hypothesis sits around here: "UNCERTAIN." We have a plausible mechanism, but we haven't validated it under Lockdown Mode with real services.
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTION 2 -->
+    <div class="question-block open">
+      <div class="question-number">Open Question 2</div>
+      <div class="question-text">
+        Does reducing from 120 to 12 targets actually <strong>improve research quality</strong>, or just move your blindness?
+      </div>
+
+      <div class="exploration hypothesis">
+        <div class="exploration-label">Our Hypothesis</div>
+        <div class="exploration-content">
+          By filtering targets through entitlement analysis, you reduce noise. Fewer targets = higher crash-per-testcase ratio = more exploitable crashes. You spend less time on policy-blocked surfaces.
+        </div>
+      </div>
+
+      <div class="exploration test">
+        <div class="exploration-label">How to Test This</div>
+        <div class="exploration-content">
+          Phase A: Fuzz all 120 persisted services for 500 testcases each. Record crashes.<br>
+          Phase B: Identify the 12 with highest crash rates. Fuzz those 12 for 5000 testcases each.<br>
+          Phase C: Compare. Did Phase B find more exploitable crashes per testcase than Phase A?
+        </div>
+      </div>
+
+      <div class="exploration gap">
+        <div class="exploration-label">What Could Be Wrong</div>
+        <div class="exploration-content">
+          <strong>Bias:</strong> The "12 high-interest" targets might just be "services that crash easily on garbage input," not "services that are exploitable." Frequent crashes ≠ security-relevant crashes. You might be optimizing toward the wrong metric entirely.<br><br>
+          <strong>Diversity loss:</strong> By filtering to 12, you might miss vulnerabilities in the 108 you discarded. Those services might have *rarer* but *more exploitable* bugs. You've optimized for signal density at the cost of surface coverage.<br><br>
+          <strong>Lockdown-specific effects:</strong> A service that accepts descriptors freely *pre-Lockdown* might have been hardened post-Lockdown. Your static analysis might miss that hardening. You predict HIGH INTEREST based on pre-Lockdown data, but the service is actually neutered.
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTION 3 -->
+    <div class="question-block open">
+      <div class="question-number">Open Question 3</div>
+      <div class="question-text">
+        What does <strong>"exploitable"</strong> actually mean under Lockdown Mode?
+      </div>
+
+      <div class="exploration blind-spot">
+        <div class="exploration-label">The Blind Spot</div>
+        <div class="exploration-content">
+          We've been using "exploitable" to mean "can produce a crash." But under Lockdown Mode, crashing a service might not *matter*. The restrictions prevent you from doing anything useful with the crash.<br><br>
+          Example: You find a use-after-free in iMessage attachment handling. You crash the imagent service. Under Lockdown Mode, you can't send attachments anyway (Lockdown blocks attachment types). The crash is real, but the exploitation path is blocked by policy, not by the vulnerability.<br><br>
+          Or: A service crashes on a crafted descriptor. But the crash is caught at the IPC boundary. No kernel memory corruption. No privilege escalation. Just a service restart. That's a finding, but is it "exploitable" in any meaningful sense?
+        </div>
+      </div>
+
+      <div class="exploration test">
+        <div class="exploration-label">How to Test This</div>
+        <div class="exploration-content">
+          For each crash you find:<br>
+          1. Can you cause it to leak memory? ← Test<br>
+          2. Can you cause it to escalate privilege? ← Test<br>
+          3. Can you cause it to violate Lockdown restrictions? ← Test<br>
+          4. Is the crash even *useful* given Lockdown's constraints? ← Analyze<br><br>
+          Most crashes will fail (3) and (4). That doesn't make them useless findings, but it changes what "exploitable" means.
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTION 4 -->
+    <div class="question-block open">
+      <div class="question-number">Open Question 4</div>
+      <div class="question-text">
+        Are the constraint patterns you observe <strong>stable across contexts</strong>, or do they depend on call sequences you can't statically predict?
+      </div>
+
+      <div class="exploration gap">
+        <div class="exploration-label">The Problem</div>
+        <div class="exploration-content">
+          You probe a service in isolation: send it a file path message. It rejects it. You categorize it as "rejects file paths."<br><br>
+          But what if that service only validates file paths *after* being initialized by another message? What if the rejection pattern changes depending on the service's internal state? Your static analysis sees "file path = rejected" globally. Reality is "file path = rejected except in state 0x42 after message sequence ABC."<br><br>
+          You can't know this without exhaustive fuzzing, which defeats the purpose of the filtering.
+        </div>
+      </div>
+
+      <div class="exploration test">
+        <div class="exploration-label">How to Test This</div>
+        <div class="exploration-content">
+          Build a stateful fuzzer that doesn't reset the service between messages. Let it explore the state space. Document what constraint patterns emerge. Compare to your static predictions. How often does reality diverge from prediction?
+        </div>
+      </div>
+    </div>
+
+    <!-- THE METHOD -->
+    <div class="method-section">
+      <h3>A Framework for Learning (Not Proving)</h3>
+      
+      <div class="method-step">
+        <div class="method-step-num">Step 1: Map the Unknown</div>
+        <div class="method-step-content">
+          Before you build the triage layer, document what you *don't know* about these 120 services. For each one:<br>
+          • What entitlements does it require?<br>
+          • What descriptor types does it accept?<br>
+          • What happens when you send it malformed data?<br>
+          • Does its behavior change based on Lockdown Mode?<br><br>
+          This is data collection, not hypothesis testing. Just observation. Make it searchable, queryable, version-controllable.
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="method-step-num">Step 2: Generate Hypotheses (Not Conclusions)</div>
+        <div class="method-step-content">
+          From the observations, generate falsifiable hypotheses:<br>
+          • "Service X accepts descriptors without type checking"<br>
+          • "Service Y's validation depends on previous message sequence"<br>
+          • "Service Z's behavior changed between iOS 25 and 26"<br><br>
+          Each hypothesis should have a concrete test attached.
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="method-step-num">Step 3: Run the Tests (Accept Wrong Answers)</div>
+        <div class="method-step-content">
+          For each hypothesis, design a minimal test. Expect to be wrong. Document what you expected vs. what you found. The mismatches are where learning happens.
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="method-step-num">Step 4: Build the Triage Layer on Evidence, Not Confidence</div>
+        <div class="method-step-content">
+          Only *after* testing, build the triage tool. It categorizes services based on what you actually found, not on assumptions. The categories themselves are hypotheses, not conclusions. Document the uncertainty in the output.
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="method-step-num">Step 5: Publish the Unknowns</div>
+        <div class="method-step-content">
+          When you release this (as a tool, paper, or research finding), include a "Things We Don't Know Yet" section. What questions does this raise? What edge cases do we still not understand? What would break this categorization?<br><br>
+          That section will be more valuable than the categorization itself.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLS TO BUILD -->
+    <div class="tools-needed">
+      <h3>Infrastructure You'll Need</h3>
+
+      <div class="tool-item">
+        <div class="tool-name">Service Observation Logger</div>
+        <div class="tool-desc">
+          Runs on SRD. For each service, sends test messages (file paths, URLs, descriptors of various types) and logs the responses. Not fuzzing yet—just observation. Builds a searchable database.
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div class="tool-name">Hypothesis Tracker</div>
+        <div class="tool-desc">
+          A document (markdown, notion, whatever) where you write: "Hypothesis: imagent accepts arbitrary descriptors. Test: send 1000 random descriptors. Expected: N crashes. Actual: M crashes. Analysis: hypothesis is [WRONG/PARTIALLY WRONG/INTERESTING]."
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div class="tool-name">Uncertainty Classifier</div>
+        <div class="tool-desc">
+          The triage tool itself. But instead of HIGH/MEDIUM/LOW, it outputs: "Based on 50 test messages, this service probably accepts descriptors without validation, but we've only tested 0.01% of possible descriptor types. Confidence: UNCERTAIN. Next steps: [...]"
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div class="tool-name">Edge Case Explorer</div>
+        <div class="tool-desc">
+          After fuzzing, a tool that systematically documents crashes by: type (memory, logic, policy), exploitability (certain, likely, unknown), Lockdown-compatibility (blocks exploitation, doesn't block, unknown). Makes the gap between "crash found" and "exploit available" explicit.
+        </div>
+      </div>
+    </div>
+
+    <!-- EPILOGUE -->
+    <div class="epilogue">
+      <h2>Why This Approach Matters</h2>
+      <p>
+        Every visualization I showed you before was a <span class="epilogue-bold">confidence structure</span>. It looked solid because it had colors, numbers, decision trees. But underneath was assumption built on assumption.
+      </p>
+      <p>
+        This approach is the opposite: it builds <span class="epilogue-bold">learning structures</span>. The questions are explicit. The assumptions are labeled. The uncertainties are the point.
+      </p>
+      <p>
+        When you build the triage layer this way, you're not building a tool to convince other researchers that you've solved the problem. You're building a tool that teaches you (and them) what the problem actually *is*. Those are different projects entirely.
+      </p>
+      <p>
+        The first kind makes you money. The second kind makes you wise.
+      </p>
+      <p style="margin-top: 40px; color: #777; font-size: 0.95rem;">
+        <span class="epilogue-bold">This is free learning:</span> No credential gates, no paywall, no optimization toward engagement metrics. Just a framework for thinking clearly about what you don't know. Use it. Break it. Learn from the breaking.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>

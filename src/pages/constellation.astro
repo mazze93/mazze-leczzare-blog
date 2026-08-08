@@ -1,0 +1,583 @@
+---
+// ── /constellation — the sky, full-bleed (burst b, iteration 3) ─────────────
+// Every node is a project on the erasure → signal axis. Position, size, and
+// brightness are all derived — nothing curated. Geometry is shared with the
+// homepage's living constellation (src/utils/layout.ts): one sky, two tempos.
+// Gold = the gravity well: max(mass × liveness) among committed, unresolved
+// nodes. Resolved work holds the fixed archive array; abandoned work fades
+// to traces beside it.
+//
+// Two orientations, both built statically (no JS, no hydration):
+//   landscape — erasure left → signal right (the survey plate)
+//   portrait  — erasure top → signal bottom (gravity pulls toward the thumb)
+// CSS orientation media queries pick one. Touch devices keep living nodes'
+// labels visible (hover is not a thing under a thumb). The shadow index
+// below is the same manifest flattened — the guaranteed-legible view.
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import AirlockStrip from "../components/constellation/AirlockStrip.astro";
+import { SITE_TITLE } from "../consts";
+import { collectAllNodes } from "../utils/collectNodes";
+import { computeZone } from "../utils/decay";
+import { nodePosition, nodeStyle } from "../utils/layout";
+
+interface PlacedNode {
+  slug: string;
+  title: string;
+  zone: string;
+  status: string;
+  count: number;
+  xPct: number; // 0–100 along the erasure→signal axis
+  yPct: number; // 0–100 across the axis
+  r: number;
+  opacity: number;
+  gold: boolean;
+  resolved: boolean;
+  living: boolean; // signal/emergence — label shown persistently on touch
+  lastTouched: string;
+  tele: { dash: string; rot: number; tickLen: number; code: string; mass: number };
+}
+
+const now = Date.now();
+
+// Deterministic 0..1 from a string — same build, same sky.
+function hash01(s: string, salt = 0): number {
+  let h = 2166136261 ^ salt;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 10_000) / 10_000;
+}
+
+const nodes = await collectAllNodes();
+
+// Telemetry signature — every node carries unique instrument geometry,
+// derived deterministically from its slug (identity, never decoration):
+// dash rhythm, ring rotation, tick offset, and a callsign code.
+function telemetry(slug: string, count: number) {
+  const h = (salt: number) => hash01(slug, salt);
+  const code =
+    slug.split("-").map((w) => w[0]?.toUpperCase() ?? "").join("").slice(0, 3) +
+    "-" + Math.floor(h(21) * 4096).toString(16).toUpperCase().padStart(3, "0");
+  return {
+    dash: `${(2 + h(31) * 5).toFixed(1)} ${(3 + h(37) * 7).toFixed(1)}`,
+    rot: Math.round(h(41) * 360),
+    tickLen: 5 + Math.round(h(43) * 5),
+    code,
+    mass: count,
+  };
+}
+
+const placedAll: PlacedNode[] = nodes.map((n) => {
+  const state = computeZone(new Date(n.lastTouched).getTime(), n.committed, now, n.resolved);
+  const pos = nodePosition(state.zone, state.driftRatio, n.slug);
+  const style = nodeStyle(state.zone, state.driftRatio);
+  return {
+    slug: n.slug,
+    title: n.title,
+    zone: state.zone,
+    status:
+      state.zone === "resolved" ? "resolved — archival"
+      : state.zone === "signal" ? "signal — sealed"
+      : state.zone === "undefined" ? "in erasure"
+      : state.driftRatio > 0 ? `drifting (${Math.round(state.driftRatio * 100)}%)`
+      : "active mass",
+    count: n.count,
+    xPct: pos.xPct,
+    yPct: pos.yPct,
+    r: Math.min(7 + n.count * 3.5, 24) * style.scale,
+    opacity: state.zone === "undefined" ? 0.2 : style.opacity,
+    gold: false,
+    resolved: state.zone === "resolved",
+    living: state.zone === "signal" || state.zone === "experiment",
+    lastTouched: n.lastTouched.slice(0, 10),
+    tele: telemetry(n.slug, n.count),
+  };
+});
+
+// Gravity well: heaviest live committed node; recency breaks ties.
+const liveSignal = placedAll
+  .filter((p) => p.zone === "signal")
+  .sort((a, b) => b.count - a.count || b.lastTouched.localeCompare(a.lastTouched));
+if (liveSignal.length > 0) liveSignal[0].gold = true;
+
+// ── two views over one placement ─────────────────────────────────────────────
+interface ViewSpec {
+  id: "landscape" | "portrait";
+  W: number;
+  H: number;
+  // axis: erasure→signal maps onto width (landscape) or height (portrait)
+  toXY: (p: PlacedNode) => { x: number; y: number };
+}
+
+const VIEWS: ViewSpec[] = [
+  {
+    id: "landscape",
+    W: 1200,
+    H: 640,
+    toXY: (p) => ({ x: Math.round((p.xPct / 100) * 1200), y: Math.round((p.yPct / 100) * 640) }),
+  },
+  {
+    id: "portrait",
+    W: 620,
+    H: 1080,
+    // gravity pulls DOWN to signal; erasure/archive float at the top
+    toXY: (p) => ({ x: Math.round((p.yPct / 100) * 620), y: Math.round((p.xPct / 100) * 1080) }),
+  },
+];
+
+function viewGeometry(view: ViewSpec) {
+  const placed = placedAll.map((p) => ({ ...p, ...view.toXY(p) }));
+  const gold = placed.find((p) => p.gold);
+  const signal = placed.filter((p) => p.zone === "signal" && !p.gold);
+  const asterism = gold ? signal.map((p) => ({ x1: gold.x, y1: gold.y, x2: p.x, y2: p.y })) : [];
+  const dust = Array.from({ length: 130 }, (_, i) => ({
+    x: Math.round(hash01(`dust-${i}`, 3) * view.W),
+    y: Math.round(hash01(`dust-${i}`, 5) * view.H),
+    r: 0.6 + hash01(`dust-${i}`, 9) * 1.1,
+    o: 0.1 + hash01(`dust-${i}`, 11) * 0.22,
+  }));
+  return { placed, gold, asterism, dust };
+}
+
+const isolineRadii = [46, 84, 130, 184];
+const indexSorted = placedAll
+  .slice()
+  .sort((a, b) => (a.gold ? -1 : b.gold ? 1 : b.lastTouched.localeCompare(a.lastTouched)));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Constellation — ${SITE_TITLE}`}
+      description="Every point is a piece of work. Brightness is completion, gravity is connection. Start at the gold signal."
+    />
+  </head>
+  <body data-layout="constellation">
+    <Header minimal />
+    <AirlockStrip />
+    <main class="sky-wrap">
+      <p class="orientation">
+        Every point is a piece of work. Brightness is completion, gravity is
+        connection — start at the <span class="gold-word">gold signal</span>.
+        Prefer a list? <a href="/writing/">The index</a> is the same sky, flattened.
+      </p>
+
+      {VIEWS.map((view) => {
+        const g = viewGeometry(view);
+        const portrait = view.id === "portrait";
+        return (
+          <svg
+            class={`sky sky--${view.id}`}
+            viewBox={`0 0 ${view.W} ${view.H}`}
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label={`Constellation map of all projects, arranged from erasure ${portrait ? "at the top to signal at the bottom" : "on the left to signal on the right"}. An equivalent text index follows.`}
+          >
+            <defs>
+              <radialGradient id={`well-glow-${view.id}`} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="var(--c-gold)" stop-opacity="0.55" />
+                <stop offset="45%" stop-color="var(--c-gold)" stop-opacity="0.12" />
+                <stop offset="100%" stop-color="var(--c-gold)" stop-opacity="0" />
+              </radialGradient>
+              <radialGradient id={`field-${view.id}`} cx={portrait ? "50%" : "82%"} cy={portrait ? "82%" : "42%"} r="90%">
+                <stop offset="0%" stop-color="var(--c-field-0)" />
+                <stop offset="55%" stop-color="var(--c-field-1)" />
+                <stop offset="100%" stop-color="var(--c-field-2)" />
+              </radialGradient>
+              <linearGradient id={`zones-${view.id}`} x1="0" y1="0" x2={portrait ? "0" : "1"} y2={portrait ? "1" : "0"}>
+                <stop offset="0%" stop-color="var(--c-zone-erasure)" stop-opacity="0.55" />
+                <stop offset="22%" stop-color="var(--c-zone-erasure)" stop-opacity="0.25" />
+                <stop offset="46%" stop-color="var(--c-zone-emerge)" stop-opacity="0.14" />
+                <stop offset="62%" stop-color="var(--c-zone-emerge)" stop-opacity="0.08" />
+                <stop offset="100%" stop-color="var(--c-zone-signal)" stop-opacity="0.16" />
+              </linearGradient>
+            </defs>
+
+            <rect width={view.W} height={view.H} fill={`url(#field-${view.id})`} />
+            <rect width={view.W} height={view.H} fill={`url(#zones-${view.id})`} aria-hidden="true" />
+
+            <g class="dust" aria-hidden="true">
+              {g.dust.map((d, i) => (
+                <circle cx={d.x} cy={d.y} r={d.r} fill="var(--c-dust)" opacity={d.o} style={`--i:${i % 9}`} />
+              ))}
+            </g>
+
+            <g class="meta-labels" aria-hidden="true">
+              <text x={view.W - 18} y={portrait ? view.H - 46 : 34} text-anchor="end">LAT 35.9940° N · LON 78.8986° W</text>
+              <text x={view.W - 18} y={portrait ? view.H - 30 : 52} text-anchor="end" class:list={[{ acquired: !!g.gold }]}>
+                {g.gold ? "[ SIGNAL: ACQUIRED ]" : "[ SIGNAL: SEARCHING ]"}
+              </text>
+            </g>
+
+            <g class="captions" aria-hidden="true">
+              {portrait ? (
+                <>
+                  <text x={view.W * 0.5} y={34} text-anchor="middle">ERASURE · ARCHIVE</text>
+                  <text x={view.W * 0.5} y={view.H * 0.5} text-anchor="middle">EMERGENCE</text>
+                  <text x={view.W * 0.5} y={view.H - 20} text-anchor="middle">SIGNAL</text>
+                </>
+              ) : (
+                <>
+                  <text x={view.W * 0.11} y={view.H - 22} text-anchor="middle">ARCHIVE</text>
+                  <text x={view.W * 0.24} y={view.H - 22} text-anchor="middle">ERASURE</text>
+                  <text x={view.W * 0.5} y={view.H - 22} text-anchor="middle">EMERGENCE</text>
+                  <text x={view.W * 0.86} y={view.H - 22} text-anchor="middle">SIGNAL</text>
+                </>
+              )}
+            </g>
+
+            {/* archive seam — archive band ends at 12% along the axis */}
+            {portrait ? (
+              <line class="archive-rule" x1={view.W * 0.06} y1={view.H * 0.13} x2={view.W * 0.94} y2={view.H * 0.13} aria-hidden="true" />
+            ) : (
+              <line class="archive-rule" x1={view.W * 0.13} y1={view.H * 0.08} x2={view.W * 0.13} y2={view.H * 0.9} aria-hidden="true" />
+            )}
+
+            {g.gold && (
+              <g class="isolines" aria-hidden="true">
+                {isolineRadii.map((r) => (
+                  <circle cx={g.gold!.x} cy={g.gold!.y} r={r} />
+                ))}
+                <circle cx={g.gold!.x} cy={g.gold!.y} r="120" fill={`url(#well-glow-${view.id})`} class="well-halo" />
+              </g>
+            )}
+
+            <g class="asterism" aria-hidden="true">
+              {g.asterism.map((l) => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
+            </g>
+
+            {g.placed.map((p, i) => (
+              <a href={`/project/${p.slug}/`} class="node-link" aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}>
+                <g
+                  class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living }]}
+                  style={`--i:${i}; --o:${p.opacity}`}
+                >
+                  {p.resolved ? (
+                    <rect
+                      x={p.x - p.r * 0.9} y={p.y - p.r * 0.9}
+                      width={p.r * 1.8} height={p.r * 1.8}
+                      transform={`rotate(45 ${p.x} ${p.y})`}
+                    />
+                  ) : (
+                    <circle cx={p.x} cy={p.y} r={p.r} />
+                  )}
+                  {/* telemetry ring — unique dash rhythm + rotation per node */}
+                  {!p.resolved && (
+                    <circle
+                      class="tele-ring"
+                      cx={p.x} cy={p.y} r={p.r + 7}
+                      stroke-dasharray={p.tele.dash}
+                      transform={`rotate(${p.tele.rot} ${p.x} ${p.y})`}
+                    />
+                  )}
+                  {/* living nodes: reticle ticks at the signature angle */}
+                  {p.living && [0, 90, 180, 270].map((a) => {
+                    const rad = ((a + p.tele.rot) * Math.PI) / 180;
+                    const r1 = p.r + 11;
+                    const r2 = r1 + p.tele.tickLen;
+                    return (
+                      <line
+                        class="tele-tick"
+                        x1={p.x + Math.cos(rad) * r1} y1={p.y + Math.sin(rad) * r1}
+                        x2={p.x + Math.cos(rad) * r2} y2={p.y + Math.sin(rad) * r2}
+                      />
+                    );
+                  })}
+                  {/* the well: acquisition ring + permanent callsign readout */}
+                  {p.gold && (
+                    <>
+                      <circle class="tele-well-ring" cx={p.x} cy={p.y} r={p.r + 20} />
+                      <text class="tele-readout" x={p.x} y={p.y + p.r + 34} text-anchor="middle">
+                        {p.tele.code} · MASS {p.tele.mass} · LOCKED
+                      </text>
+                    </>
+                  )}
+                  <text class="node-label" x={p.x} y={p.y - p.r - 24} text-anchor="middle">
+                    {p.title}
+                    <tspan class="node-meta" x={p.x} dy="15">{p.status} · {p.count}</tspan>
+                  </text>
+                </g>
+              </a>
+            ))}
+          </svg>
+        );
+      })}
+
+      <section class="shadow-index" aria-label="Project index (text equivalent of the constellation)">
+        <h2>The sky, flattened</h2>
+        <ol>
+          {indexSorted.map((p) => (
+            <li class:list={[{ gold: p.gold }]}>
+              <a href={`/project/${p.slug}/`}>{p.title}</a>
+              <span class="idx-meta">{p.status} · {p.count} {p.count === 1 ? "piece" : "pieces"} · {p.lastTouched}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </main>
+    <Footer />
+    <script>
+      // The plate speaks to the brand compass like the living field does
+      // (Header listens; ConstellationNodes.tsx defines the contract).
+      const send = (state: "idle" | "focus" | "engaged") =>
+        window.dispatchEvent(new CustomEvent("compass:state", { detail: { state } }));
+      document.querySelectorAll<SVGAElement>(".node-link").forEach((link) => {
+        link.addEventListener("mouseenter", () => send("focus"));
+        link.addEventListener("mouseleave", () => send("idle"));
+        link.addEventListener("focus", () => send("focus"));
+        link.addEventListener("blur", () => send("idle"));
+        link.addEventListener("click", () => send("engaged"));
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  :root {
+    --c-void: #06080f;
+    --c-ink: #c7d2e6;
+    --c-dim: #7683a0;
+    --c-gold: #e8b64c;
+    --c-emerge: #7fd4d0;
+    --c-trace: #46536d;
+    /* Glow and halo. These were hardcoded as rgba() literals inline, so they
+       stayed dark-mode-coloured when everything else inverted — a gold bloom
+       and a near-black text halo sitting on Haven paper. Tokens now, with
+       light values in the [data-theme="light"] block below. */
+    --c-gold-glow: rgba(232, 182, 76, 0.75);
+    --c-halo: rgba(6, 8, 15, 0.9);
+
+    /* The sky's own ground. Two full-bleed <rect>s are painted with these
+       gradients on top of the page background, so they — not --c-void — are
+       what a visitor actually sees behind the stars. */
+    --c-field-0: #101726;
+    --c-field-1: #0a0f1b;
+    --c-field-2: #06080f;
+    --c-zone-erasure: #02030a;
+    --c-zone-emerge:  #0e2b2e;
+    --c-zone-signal:  #2a2410;
+    --c-dust: #8fa3c8;
+    --c-signal-node: #f3ead2;
+  }
+
+  [data-theme="light"] body[data-layout="constellation"] {
+    /* On paper the bloom has to invert: a bright glow adds nothing to a light
+       ground, so the gold node reads as a soft ink shadow instead, and the
+       orientation copy's halo becomes paper rather than void. */
+    --c-gold-glow: rgba(122, 98, 44, 0.30);
+    --c-halo: rgba(244, 240, 231, 0.9);
+
+    /* Haven paper, warm centre → cooler periphery, mirroring the dark field's
+       falloff. Without this the sky <rect>s stayed near-black and covered the
+       light background entirely — the ink-on-paper chart never appeared, which
+       body-background sampling alone did not catch. */
+    --c-field-0: var(--hv-high);
+    --c-field-1: var(--hv-center);
+    --c-field-2: var(--hv-outer);
+    --c-zone-erasure: #9a9488;
+    --c-zone-emerge:  #2f6f6a;
+    --c-zone-signal:  #8a6f33;
+    --c-dust: #6a6460;
+    /* cream reads as a star on a black sky and as nothing at all on paper */
+    --c-signal-node: #3f3a34;
+  }
+
+  body[data-layout="constellation"] {
+    background: var(--c-void);
+    color: var(--c-ink);
+    /* horizontal scroll is meaningless on this page; whatever overflows
+       (footer grids at phone widths) must not widen the sky's parent */
+    overflow-x: clip;
+  }
+
+  /* break out of global.css's main { width: 720px } — the sky is full-bleed */
+  .sky-wrap {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .orientation {
+    position: absolute;
+    z-index: 5;
+    top: clamp(1rem, 4vh, 3rem);
+    left: clamp(1.25rem, 5vw, 4.5rem);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(1.3rem, 2.2vw, 2rem);
+    font-style: italic;
+    color: var(--c-ink);
+    max-width: 34ch;
+    margin: 0;
+    line-height: 1.5;
+    text-shadow: 0 1px 18px var(--c-halo);
+    pointer-events: none;
+  }
+  .orientation a { color: var(--c-emerge); pointer-events: auto; }
+  .gold-word { color: var(--c-gold); font-style: normal; }
+
+  .sky {
+    width: 100%;
+    /* fill the viewport under the header, but never letterbox: cap height at
+       the sky's own aspect so the field always meets its edges */
+    height: min(calc(100vh - 57px), calc(100vw * (640 / 1200)));
+    min-height: 480px;
+    display: block;
+  }
+  .sky--portrait { height: min(calc(100vh - 57px), calc(100vw * (1080 / 620))); }
+  /* orientation swap: exactly one sky is ever in the document flow */
+  .sky--portrait { display: none; }
+  @media (orientation: portrait) and (max-width: 820px) {
+    .sky--landscape { display: none; }
+    .sky--portrait { display: block; }
+    .orientation {
+      position: static;
+      padding: 1rem 1.25rem 0.5rem;
+      font-size: 1.1rem;
+      max-width: calc(100vw - 2.5rem);
+    }
+  }
+
+  .captions text, .node-label { font-family: "DM Mono", ui-monospace, monospace; }
+  .captions text { fill: var(--c-dim); font-size: 15px; letter-spacing: 0.24em; }
+
+  .meta-labels text {
+    font-family: "DM Mono", ui-monospace, monospace;
+    fill: var(--c-dim);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  .meta-labels text.acquired { fill: var(--c-gold); }
+
+  .archive-rule { stroke: var(--c-trace); stroke-dasharray: 2 6; stroke-width: 1; }
+
+  .isolines circle { fill: none; stroke: var(--c-gold); stroke-opacity: 0.14; stroke-width: 1; }
+  .well-halo { animation: breathe 7s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
+  .asterism line { stroke: var(--c-gold); stroke-opacity: 0.18; stroke-width: 1; }
+
+  .node { opacity: 0; animation: arrive 240ms ease-out forwards; animation-delay: calc(var(--i) * 60ms); }
+  .node circle, .node rect {
+    opacity: var(--o, 1);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .node circle { animation: nodeBreathe 6.5s ease-in-out infinite; animation-delay: calc(var(--i) * 900ms); }
+  .node.signal circle { fill: var(--c-signal-node); }
+  .node.gold circle { fill: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
+  .node.experiment circle { fill: var(--c-emerge); }
+  .node.undefined circle { fill: var(--c-trace); }
+  .node.resolved rect { fill: none; stroke: var(--c-ink); stroke-width: 1.5; }
+
+  .tele-ring {
+    fill: none;
+    stroke: var(--c-dim);
+    stroke-opacity: 0.5;
+    stroke-width: 0.8;
+  }
+  .node.gold .tele-ring {
+    stroke: var(--c-gold);
+    stroke-opacity: 0.75;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: teleTrack 30s linear infinite;
+  }
+  .tele-tick { stroke: var(--c-dim); stroke-opacity: 0.55; stroke-width: 1; }
+  .node.gold .tele-tick { stroke: var(--c-gold); stroke-opacity: 0.8; }
+  .tele-well-ring {
+    fill: none;
+    stroke: var(--c-gold);
+    stroke-opacity: 0.3;
+    stroke-width: 1;
+  }
+  .tele-readout {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    fill: var(--c-gold);
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 3px;
+  }
+
+  @keyframes teleTrack { to { transform: rotate(360deg); } }
+
+  .node-label {
+    fill: var(--c-ink);
+    font-size: 17px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .node-meta { fill: var(--c-dim); font-size: 12px; letter-spacing: 0.08em; }
+  .node-link:hover .node-label,
+  .node-link:focus .node-label { opacity: 1; }
+  .node-link:focus { outline: none; }
+  .node-link:focus .node circle,
+  .node-link:focus .node rect { stroke: var(--c-emerge); stroke-width: 2; }
+
+  /* under a thumb there is no hover: living nodes keep their labels */
+  @media (hover: none) {
+    .node.living .node-label { opacity: 1; }
+  }
+
+  .dust circle { animation: twinkle 9s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 1s); }
+
+  @keyframes arrive { to { opacity: 1; } }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.06); opacity: 0.85; }
+  }
+  @keyframes nodeBreathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .node { animation: none; opacity: 1; }
+    .node circle, .dust circle, .well-halo { animation: none; }
+    .node.gold .tele-ring { animation: none; }
+  }
+
+  .shadow-index {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 3rem clamp(1.25rem, 5vw, 4.5rem) 4rem;
+    font-family: "DM Mono", ui-monospace, monospace;
+  }
+  .shadow-index h2 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--c-dim);
+    margin-bottom: 0.75rem;
+  }
+  .shadow-index ol { list-style: none; padding: 0; margin: 0; }
+  .shadow-index li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #131b2c;
+    font-size: 1rem;
+  }
+  .shadow-index li.gold a { color: var(--c-gold); }
+  .shadow-index a { color: var(--c-ink); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  .shadow-index a:hover, .shadow-index a:focus { color: var(--c-emerge); text-decoration: underline; }
+  .idx-meta { color: var(--c-dim); font-size: 0.75rem; letter-spacing: 0.06em; }
+</style>

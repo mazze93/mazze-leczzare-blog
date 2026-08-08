@@ -1,0 +1,105 @@
+---
+/**
+ * Seam.astro — the kintsugi seam, as a reusable mark.
+ *
+ * One source for the brush geometry. Every consumer (SectionBreak, PullQuote,
+ * AuthorCoda) draws the same stroke, so retuning the brush happens here once
+ * rather than in four copied path strings.
+ *
+ * Geometry is the Haven / Ink "section-divider" mark (Mark B) from the
+ * light-mode prototype, worked in gold instead of Indian ink. It is NOT a
+ * stroked line — it is two closed Bézier paths, out and back, so the mark
+ * swells at the middle and tapers to a point at each end the way a loaded
+ * brush does. A constant-width stroke cannot do that, which is the whole
+ * reason for borrowing the geometry rather than approximating it.
+ *
+ * Three layers, all from the original:
+ *   1. bleed  — a wider, near-transparent copy: pigment spreading into paper
+ *   2. body   — the stroke itself, carrying the gold gradient
+ *   3. touch/lift — ellipses where the brush met the page and left it
+ *
+ * Props:
+ *   orientation — 'horizontal' (default) | 'vertical'
+ *   draw        — animate the stroke being laid down (default true)
+ */
+interface Props {
+  orientation?: 'horizontal' | 'vertical';
+  draw?: boolean;
+  class?: string;
+}
+
+const { orientation = 'horizontal', draw = true, class: className = '' } = Astro.props;
+
+const uid = `seam-${crypto.randomUUID().slice(0, 8)}`;
+const vertical = orientation === 'vertical';
+
+// The vertical form is the same curve with x and y transposed — not a rotate()
+// transform, so the taper stretches along the axis the mark actually spans.
+const BODY = vertical
+  ? "M11,4 C4,30 7.5,80 9,155 C10,210 8.5,272 11,336 C13.5,272 15,210 13,155 C14.5,80 17.5,30 11,4 Z"
+  : "M4,11 C30,4 80,7.5 155,9 C210,10 272,8.5 336,11 C272,13.5 210,15 155,13 C80,14.5 30,17.5 4,11 Z";
+const BLEED = vertical
+  ? "M11,4 C2,28 5,78 7,155 C8,212 6.5,274 11,336 C15.5,274 16,212 15,155 C17,78 20,28 11,4 Z"
+  : "M4,11 C28,2 78,5 155,7 C212,8 274,6.5 336,11 C274,15.5 212,16 155,15 C78,17 28,20 4,11 Z";
+
+const viewBox = vertical ? "0 0 22 340" : "0 0 340 22";
+const touch = vertical ? { cx: 11, cy: 4, rx: 2.8, ry: 2.2 } : { cx: 4, cy: 11, rx: 2.2, ry: 2.8 };
+const lift  = vertical ? { cx: 11, cy: 336, rx: 2.4, ry: 1.8 } : { cx: 336, cy: 11, rx: 1.8, ry: 2.4 };
+---
+
+<svg
+  class:list={["seam", vertical ? "seam--v" : "seam--h", draw && "seam--draw", className]}
+  viewBox={viewBox}
+  fill="none"
+  preserveAspectRatio="none"
+  focusable="false"
+  aria-hidden="true"
+>
+  <defs>
+    <linearGradient id={uid} x1="0" y1="0" x2={vertical ? "0" : "1"} y2={vertical ? "1" : "0"}>
+      <stop offset="0"    stop-color="var(--gold-seam-deep)" />
+      <stop offset="0.32" stop-color="var(--gold-seam)" />
+      <stop offset="0.52" stop-color="var(--gold-seam-bright)" />
+      <stop offset="0.72" stop-color="var(--gold-seam)" />
+      <stop offset="1"    stop-color="var(--gold-seam-deep)" />
+    </linearGradient>
+  </defs>
+  <path class="seam__bleed" d={BLEED} fill={`url(#${uid})`} />
+  <path class="seam__body"  d={BODY}  fill={`url(#${uid})`} />
+  <ellipse class="seam__touch" {...touch} fill={`url(#${uid})`} />
+  <ellipse class="seam__lift"  {...lift}  fill={`url(#${uid})`} />
+</svg>
+
+<style>
+  .seam {
+    display: block;
+    overflow: visible;
+  }
+
+  .seam--h { width: 100%; height: auto; }
+  .seam--v { height: 100%; width: 100%; }
+
+  /* Gold on obsidian: the bleed reads as leaf-scatter, so it can carry a
+     little glow. Opacities follow the Haven original's ink/paper ratio. */
+  .seam__bleed { opacity: 0.07; }
+  .seam__body  { opacity: 0.92; }
+  .seam__touch { opacity: 0.5; }
+  .seam__lift  { opacity: 0.34; }
+
+  /* On paper the same mark behaves like pigment, not light: the bleed spreads
+     a touch more and the body sits down harder into the ground. */
+  :global([data-theme="light"]) .seam__bleed { opacity: 0.1; }
+  :global([data-theme="light"]) .seam__body  { opacity: 1; }
+
+  /* Laid down along its own axis. clip-path rather than stroke-dashoffset —
+     these are fills, and fills cannot be dash-animated. */
+  .seam--draw { clip-path: inset(0 100% 0 0); animation: seam-lay-h 1.4s cubic-bezier(0.32, 0, 0.24, 1) forwards; }
+  .seam--draw.seam--v { clip-path: inset(0 0 100% 0); animation-name: seam-lay-v; }
+
+  @keyframes seam-lay-h { to { clip-path: inset(0 0 0 0); } }
+  @keyframes seam-lay-v { to { clip-path: inset(0 0 0 0); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .seam--draw { animation: none; clip-path: none; }
+  }
+</style>

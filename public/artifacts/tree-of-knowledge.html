@@ -4,8 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Tree of Knowledge · Qliphoth within Sephiroth</title>
+<meta name="description" content="Dual-face decision telemetry. The Tree of Life is a decision as recorded — clean and coherent. The Tree of Knowledge is the same path read from its shadow: the oscillation and contradiction each clean node had to bury to stay clean.">
+<link rel="canonical" href="https://mazzeleczzare.com/artifacts/tree-of-knowledge.html">
+<meta property="og:title" content="The Tree of Knowledge · Qliphoth within Sephiroth">
+<meta property="og:description" content="Dual-face decision telemetry: select a node, then DESCEND to read the shadow trace beneath its clean, recorded decision.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mazzeleczzare.com/artifacts/tree-of-knowledge.html">
+<meta property="og:image" content="https://mazzeleczzare.com/mazze-leczzare-social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Tree of Knowledge · Qliphoth within Sephiroth">
+<meta name="twitter:description" content="Dual-face decision telemetry: select a node, then DESCEND to read the shadow trace beneath its clean, recorded decision.">
+<meta name="twitter:image" content="https://mazzeleczzare.com/mazze-leczzare-social-preview.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+/* Fonts self-hosted from /fonts/ — no third-party requests. The CDN import
+   this replaced worked here (ARTIFACT_CSP permits it on /artifacts/*) but
+   was the last external font fetch on the site. Only the cuts the CSS
+   actually uses are vendored; the import requested 10. */
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/cormorantgaramond-400-normal.woff2) format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url(/fonts/cormorantgaramond-400-italic.woff2) format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/cormorantgaramond-500-normal.woff2) format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:500;font-display:swap;src:url(/fonts/cormorantgaramond-500-italic.woff2) format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/cormorantgaramond-600-normal.woff2) format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-display:swap;src:url(/fonts/cormorantgaramond-600-italic.woff2) format('woff2');}
+@font-face{font-family:'DM Mono';font-style:normal;font-weight:300;font-display:swap;src:url(/fonts/dmmono-300-normal.woff2) format('woff2');}
+@font-face{font-family:'DM Mono';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/dmmono-400-normal.woff2) format('woff2');}
+@font-face{font-family:'DM Mono';font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/dmmono-500-normal.woff2) format('woff2');}
+@font-face{font-family:'DM Mono';font-style:italic;font-weight:300;font-display:swap;src:url(/fonts/dmmono-300-italic.woff2) format('woff2');}
 
 :root {
   --bg:    #0F1923;
@@ -54,6 +78,8 @@ html, body { height: 100%; background: var(--bg); color: var(--tx); font-family:
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
 #hd { height: 46px; padding: 0 18px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 12px; flex-shrink: 0; transition: border-color .9s; z-index: 10; }
+#home { font-size: 9px; letter-spacing: .08em; color: var(--tx-d); text-decoration: none; flex-shrink: 0; transition: color .3s; }
+#home:hover { color: var(--acc); }
 #ht { font: italic 600 16px/1 var(--ser); letter-spacing: .14em; color: var(--acc); transition: color .9s; }
 #hs { font-size: 8px; color: var(--tx-d); letter-spacing: .12em; transition: color .9s; }
 #mode { margin-left: auto; display: flex; align-items: center; gap: 10px; }
@@ -180,6 +206,7 @@ body.descended .intro strong { color: var(--co); }
 <div id="app">
 
   <div id="hd">
+    <a id="home" href="https://mazzeleczzare.com/">← mazzeleczzare.com</a>
     <span id="ht">The Tree of Knowledge</span>
     <span id="hs">QLIPHOTH WITHIN SEPHIROTH · DUAL-FACE DECISION TELEMETRY</span>
     <div id="mode">

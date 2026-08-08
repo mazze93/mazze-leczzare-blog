@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
@@ -58,10 +58,29 @@ const heroImageAlt = resolved.heroImageAlt ?? title;
 const contentType = resolved.contentType ?? 'field-note';
 const repoUrl = resolved.repoUrl;
 
-// Resolve a string path for OG/social meta: prefer explicit OG override,
-// fall back to the built asset path (ImageMetadata) or the string path.
-const heroImageOG = resolved.heroImageOG
-  ?? (typeof heroImage === 'object' && heroImage !== null ? heroImage.src : heroImage);
+// Resolve a string path for OG/social meta, in priority order:
+//   1. an explicit heroImageOG frontmatter override
+//   2. the post's own heroImage, resized to a proper 1200x630 OG crop
+//      (never the raw source — some hero originals are several MB, which
+//      is what social crawlers were fetching before this fix)
+//   3. posts with no heroImage at all fall back to the site's one branded
+//      social-preview banner (SITE_DEFAULT_OG_IMAGE, synced with the
+//      Cipher Gothic design project)
+let heroImageOG = resolved.heroImageOG;
+if (!heroImageOG) {
+  if (typeof heroImage === 'object' && heroImage !== null) {
+    const ogImage = await getImage({
+      src: heroImage,
+      width: 1200,
+      height: 630,
+      format: 'jpg',
+      quality: 80,
+    });
+    heroImageOG = ogImage.src;
+  } else {
+    heroImageOG = heroImage ?? SITE_DEFAULT_OG_IMAGE;
+  }
+}
 
 const rawPubDate = resolved.pubDate;
 const rawUpdatedDate = resolved.updatedDate;
@@ -79,7 +98,7 @@ const articleSchema = {
   '@type': 'Article',
   headline: title,
   description,
-  image: [new URL(heroImageOG ?? SITE_DEFAULT_OG_IMAGE, SITE_URL).toString()],
+  image: [new URL(heroImageOG, SITE_URL).toString()],
   datePublished: pubDate.toISOString(),
   dateModified: (updatedDate ?? pubDate).toISOString(),
   author: {

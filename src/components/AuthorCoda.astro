@@ -1,5 +1,6 @@
 ---
 import { SITE_AUTHOR } from '../consts';
+import Seam from './Seam.astro';
 
 interface Props {
   headshot?: string;
@@ -15,6 +16,7 @@ const {
 ---
 
 <aside class="author-coda" aria-label="About the author">
+  <span class="coda-seam" aria-hidden="true"><Seam /></span>
   <div class="coda-inner">
     <div class="coda-avatar-wrap">
       <img
@@ -33,7 +35,7 @@ const {
       <span class="coda-byline">Written by {SITE_AUTHOR}</span>
       {contentType === 'artifact' && (
         <p class="coda-bio">
-          Content strategist, security researcher, and founder of
+          Content strategist, security researcher, and founder of{' '}
           <a href="https://securepride.org">Secure Pride</a> — a privacy-first cybersecurity
           nonprofit built for LGBTQ+ organizations. Former neuroscientist. Essays on memory,
           infrastructure, and the cost of not naming things.
@@ -54,7 +56,7 @@ const {
       )}
       {contentType === 'field-note' && (
         <p class="coda-bio">
-          Content strategist, security researcher, and founder of
+          Content strategist, security researcher, and founder of{' '}
           <a href="https://securepride.org">Secure Pride</a> — a privacy-first cybersecurity
           nonprofit built for LGBTQ+ organizations. Former neuroscientist. Essays on memory,
           infrastructure, and the cost of not naming things.
@@ -70,7 +72,30 @@ const {
   max-width: calc(100% - 2em);
   margin: 0 auto;
   padding: 2.5em 1em 4em;
-  border-top: 1px solid var(--rule);
+  /* was: border-top: 1px solid var(--rule). The coda is where the essay breaks
+     and the author steps out from behind it — the seam belongs here more than
+     on any other rule in the layout. */
+  position: relative;
+}
+
+.coda-seam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  /* A rule, not a statement — the coda seam stays fine. Taller values
+     read as a blot because preserveAspectRatio="none" stretches the
+     brush's 22-unit height across the full 720px column. */
+  height: 7px;
+  pointer-events: none;
+}
+
+/* The SVG derives its own height from the viewBox ratio (340x22), so at a
+   720px column it renders ~46px tall regardless of the wrapper. Constrain the
+   mark itself — a coda rule should be fine, not a blot. */
+.coda-seam :global(.seam) {
+  height: 7px;
 }
 
 .coda-inner {
@@ -116,7 +141,9 @@ const {
 }
 
 .coda-bio {
-  font-family: var(--font-body, var(--font-mono));
+  /* was var(--font-body, …) — --font-body lived only in editorial.css,
+     which is retired; the fallback was always what rendered. */
+  font-family: var(--font-mono);
   font-size: 0.88rem;
   color: var(--text-dim);
   line-height: 1.65;

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Intentional Fragility — Mazze Leczzare</title>
+<meta name="description" content="One idea instantiated across a body of work: a system should be built to break in the right places, and the break is the record, not the failure. Essays, instruments, and a research program in AI security.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Intentional Fragility">
+<meta property="og:description" content="The break is the gold seam. A body of work threaded by one idea — accountable forgetting, fragility as a faculty.">
+<meta property="og:url" content="https://mazzeleczzare.com/intentional-fragility/">
+<meta property="og:image" content="https://mazzeleczzare.com/mazze-leczzare-social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Intentional Fragility">
+<meta name="twitter:description" content="The break is the gold seam. A body of work threaded by one idea — accountable forgetting, fragility as a faculty.">
+<meta name="twitter:image" content="https://mazzeleczzare.com/mazze-leczzare-social-preview.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%23cda24e' stroke-width='3'/%3E%3Cpath d='M50 14 A66 66 0 0 1 50 86 A66 66 0 0 1 50 14Z' fill='none' stroke='%23cda24e' stroke-width='3'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%23cda24e'/%3E%3C/svg%3E">
+<style>
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url(./fonts/cormorantgaramond-500-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url(./fonts/cormorantgaramond-600-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(./fonts/cormorantgaramond-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(./fonts/cormorantgaramond-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(./fonts/dmmono-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(./fonts/dmmono-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(./fonts/atkinsonhyperlegible-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./fonts/atkinsonhyperlegible-700-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<link rel="canonical" href="https://mazzeleczzare.com/intentional-fragility/">
+
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   INTENTIONAL FRAGILITY — the spine
+   obsidian dominant · gold leaf is the seam · teal rhymes the brand ·
+   coral marks only the unresolved. All values verified ≥4.5:1 on ink.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#0b0e15; --ink-raise:#121723; --ink-raise-2:#0e131c;
+  --gold:#cda24e; --gold-bright:#e6c478; --gold-deep:#8a6f33;
+  --teal:#5CCFCF; --coral:#F07178;
+  --paper:#ece7da; --paper-soft:#c4bdab; --muted:#a39c84;
+  --hairline:rgba(205,162,78,.16); --hairline-soft:rgba(196,189,171,.12);
+  --serif:"Cormorant Garamond",Georgia,serif;
+  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+  --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --gutter:clamp(1.25rem,5vw,4rem);
+  --seam-x:clamp(34px,8vw,120px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--ink);-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);line-height:1.72;
+  font-size:clamp(1rem,.95rem + .2vw,1.08rem);-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;position:relative}
+
+/* ── atmosphere ──────────────────────────────────────────────────────── */
+.field{position:fixed;inset:0;z-index:0;pointer-events:none}
+.field::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(120% 80% at 12% -5%, rgba(205,162,78,.10), transparent 55%),
+  radial-gradient(90% 70% at 95% 105%, rgba(92,207,207,.06), transparent 55%),
+  radial-gradient(140% 120% at 50% 50%, transparent 60%, rgba(0,0,0,.45))}
+.field::after{content:"";position:absolute;inset:0;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ── the seam: kintsugi crack and routing path at once ──────────────── */
+.seam{position:absolute;top:0;bottom:0;left:var(--seam-x);width:40px;z-index:1;pointer-events:none}
+.seam svg{width:100%;height:100%;display:block;overflow:visible}
+.seam path{fill:none;stroke:url(#goldgrad);stroke-width:1.4;
+  stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.6s cubic-bezier(.4,0,.2,1) .2s forwards}
+.seam path.glow{stroke:var(--gold);stroke-width:4;opacity:.18;filter:blur(3px)}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+.shell{position:relative;z-index:2;padding-left:calc(var(--seam-x) + 40px);
+  padding-right:var(--gutter);max-width:1180px}
+@media (max-width:680px){.seam{left:18px;width:26px}.shell{padding-left:52px;padding-right:var(--gutter)}}
+
+/* ════════════════════════════════════════════════════════════════════
+   MASTHEAD
+   ════════════════════════════════════════════════════════════════════ */
+.mast{padding:clamp(3rem,9vh,6.5rem) 0 clamp(2.5rem,7vh,5rem)}
+.compass{width:clamp(52px,9vw,72px);height:auto;color:var(--gold);margin-bottom:1.6rem;
+  opacity:0;transform:rotate(-52deg);transform-origin:50% 50%;
+  animation:settle 1.8s cubic-bezier(.16,1,.3,1) .15s forwards}
+@keyframes settle{to{opacity:.92;transform:rotate(0deg)}}
+.compass circle,.compass path{vector-effect:non-scaling-stroke}
+
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--gold);display:flex;align-items:center;gap:.9rem;margin-bottom:1.6rem;
+  opacity:0;animation:fade .9s .4s forwards}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold);display:block}
+
+.mast h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.8rem,11vw,7rem);
+  line-height:.92;letter-spacing:-.015em;color:var(--paper)}
+.mast h1 em{color:var(--gold);font-style:italic;font-weight:500}
+.line{display:block;overflow:hidden}
+.line span{display:block;transform:translateY(108%);animation:rise 1s cubic-bezier(.16,1,.3,1) forwards}
+.line:nth-child(1) span{animation-delay:.45s}
+.line:nth-child(2) span{animation-delay:.6s}
+
+.dek{font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:clamp(1.25rem,3.4vw,2rem);line-height:1.38;color:var(--paper-soft);
+  max-width:30ch;margin-top:2rem;opacity:0;animation:fade 1s 1.05s forwards}
+.standfirst{margin-top:2.2rem;max-width:56ch;color:var(--muted);font-size:1.02rem;
+  opacity:0;animation:fade 1s 1.25s forwards}
+.standfirst b{color:var(--paper-soft);font-weight:400;font-style:italic;
+  font-family:var(--serif);font-size:1.12em}
+
+.ledger{display:flex;flex-wrap:wrap;gap:0;margin-top:3rem;border-top:1px solid var(--hairline);
+  opacity:0;animation:fade 1s 1.45s forwards}
+.ledger div{padding:1rem 2rem 1rem 0;margin-right:2rem;border-right:1px solid var(--hairline-soft)}
+.ledger div:last-child{border-right:none}
+.ledger dt{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold-deep);margin-bottom:.4rem}
+.ledger dd{font-family:var(--mono);font-size:.86rem;color:var(--paper-soft)}
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTIONS
+   ════════════════════════════════════════════════════════════════════ */
+section{position:relative;padding:clamp(3rem,8vh,6rem) 0;border-top:1px solid var(--hairline-soft)}
+.node{position:absolute;left:calc(-1 * (var(--seam-x) + 40px) + var(--seam-x) - 4px);
+  top:calc(clamp(3rem,8vh,6rem) + 4px);width:11px;height:11px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 0 4px var(--ink),0 0 16px rgba(205,162,78,.6)}
+@media (max-width:680px){.node{left:-40px}}
+
+.sec-label{font-family:var(--mono);font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:1rem;display:flex;gap:.8rem;align-items:center}
+.sec-label .n{color:var(--gold-deep)}
+.sec-h{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,5vw,3.2rem);
+  line-height:1.04;letter-spacing:-.01em;color:var(--paper);margin-bottom:1.4rem;max-width:20ch}
+.sec-h em{color:var(--gold);font-style:italic;font-weight:500}
+.prose{max-width:64ch;color:var(--paper-soft);font-size:1.05rem}
+.prose p+p{margin-top:1.1rem}
+.prose em{color:var(--paper);font-style:italic}
+.prose .q{font-family:var(--serif);font-style:italic;font-size:1.5rem;line-height:1.45;
+  color:var(--paper);margin:1.6rem 0;padding-left:1.4rem;border-left:2px solid var(--gold)}
+
+/* ── essays index (peer pieces) ─────────────────────────────────────── */
+.essays{margin-top:1.5rem}
+.essay{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,3vw,2.5rem);
+  align-items:baseline;padding:1.6rem 0;border-bottom:1px solid var(--hairline-soft);
+  text-decoration:none;color:inherit;transition:background .3s,padding-left .3s}
+.essay:hover{background:linear-gradient(90deg,rgba(205,162,78,.05),transparent);padding-left:.8rem}
+.essay .idx{font-family:var(--mono);font-size:.8rem;color:var(--gold-deep);padding-top:.4rem}
+.essay .body h4{font-family:var(--serif);font-weight:600;font-size:1.65rem;color:var(--paper);
+  line-height:1.12;margin-bottom:.45rem}
+.essay:hover .body h4{color:var(--gold-bright)}
+.essay .body p{font-size:.96rem;color:var(--muted);max-width:62ch}
+.essay .body .sub{display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;
+  font-family:var(--mono);font-size:.72rem;color:var(--gold-deep)}
+.essay .kind{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);white-space:nowrap;border:1px solid var(--hairline);border-radius:20px;
+  padding:.35rem .8rem;align-self:start;margin-top:.4rem}
+
+/* ════════════════════════════════════════════════════════════════════
+   INSTRUMENTS — two live demos
+   ════════════════════════════════════════════════════════════════════ */
+.instrument{margin-top:2.5rem;display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(1.5rem,4vw,3rem);
+  align-items:start}
+.instrument.flip{grid-template-columns:1.1fr .9fr}
+.instrument.flip .text{order:2}
+@media (max-width:880px){.instrument,.instrument.flip{grid-template-columns:1fr}.instrument.flip .text{order:0}}
+.inst-name{font-family:var(--serif);font-weight:600;font-size:1.8rem;color:var(--paper);margin-bottom:.2rem}
+.inst-name em{color:var(--gold);font-style:italic}
+.inst-tag{font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold-deep);margin-bottom:1rem}
+.inst-text p{color:var(--paper-soft);font-size:1rem}
+.inst-text p+p{margin-top:.9rem}
+.inst-text .src{display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.74rem;
+  color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(92,207,207,.3)}
+.inst-text .src:hover{border-color:var(--teal)}
+
+.panel{background:linear-gradient(165deg,var(--ink-raise),var(--ink-raise-2));
+  border:1px solid var(--hairline);border-radius:14px;padding:1.5rem 1.4rem;position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(80% 60% at 80% 0%,rgba(205,162,78,.07),transparent 60%)}
+.panel h3{font-family:var(--mono);font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold-deep);margin-bottom:1.2rem;position:relative}
+
+/* kintsugi breaker */
+.states{display:flex;flex-direction:column;gap:0;position:relative}
+.state{display:flex;align-items:flex-start;gap:1rem;padding:.9rem 0;position:relative}
+.state:not(:last-child)::after{content:"";position:absolute;left:6px;top:2.3rem;bottom:-.35rem;
+  width:1.4px;background:linear-gradient(var(--gold),var(--gold-deep));opacity:.5}
+.state .dot{flex-shrink:0;width:13px;height:13px;border-radius:50%;margin-top:.35rem;
+  border:1.5px solid var(--gold);background:var(--ink);transition:background .3s,box-shadow .3s}
+.state .lab{font-family:var(--mono);font-size:.9rem;color:var(--paper);letter-spacing:.04em}
+.state .desc{display:block;font-family:var(--body);font-size:.8rem;color:var(--muted);margin-top:.2rem;line-height:1.5}
+.state.active .dot{background:var(--gold);box-shadow:0 0 14px rgba(205,162,78,.7)}
+.state.active .lab{color:var(--gold-bright)}
+.state.eject .dot{border-color:var(--coral)}
+.state.eject.active .dot{background:var(--coral);box-shadow:0 0 14px rgba(240,113,120,.6)}
+.state.eject.active .lab{color:var(--coral)}
+
+.panel-foot{margin-top:1.3rem;padding-top:1.1rem;border-top:1px solid var(--hairline-soft);
+  display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.panel-foot .reason{font-family:var(--mono);font-size:.74rem;color:var(--muted);min-height:1.2em;line-height:1.4}
+.panel-foot .reason b{color:var(--gold-bright)}
+.runbtn{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;color:var(--ink);
+  background:var(--gold);border:none;border-radius:7px;padding:.5rem 1rem;cursor:pointer;
+  transition:background .2s,transform .1s;white-space:nowrap}
+.runbtn:hover{background:var(--gold-bright)}
+.runbtn:active{transform:scale(.96)}
+.runbtn:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.runbtn:disabled{opacity:.5;cursor:default}
+
+/* slime mold canvas */
+.slime-wrap{position:relative}
+canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background:#070a10}
+.slime-read{display:flex;gap:1.4rem;margin-top:1.1rem;flex-wrap:wrap;align-items:center}
+.slime-read .stat{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.slime-read .stat b{color:var(--paper);font-weight:400}
+.slime-read .stat .v{color:var(--gold-bright)}
+.slime-state{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;padding:.3rem .7rem;
+  border-radius:6px;border:1px solid var(--hairline-soft)}
+.slime-state.closed{color:var(--gold-bright);border-color:rgba(205,162,78,.35)}
+.slime-state.half{color:var(--teal);border-color:rgba(92,207,207,.3)}
+.slime-state.open{color:var(--coral);border-color:rgba(240,113,120,.3)}
+
+/* ════════════════════════════════════════════════════════════════════
+   RESEARCH PROGRAM — two halves
+   ════════════════════════════════════════════════════════════════════ */
+.halves{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:2rem}
+@media (max-width:760px){.halves{grid-template-columns:1fr}}
+.half{background:var(--ink-raise-2);border:1px solid var(--hairline-soft);border-radius:12px;
+  padding:1.4rem 1.4rem 1.5rem;position:relative}
+.half .axis{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.7rem}
+.half h4{font-family:var(--serif);font-weight:600;font-size:1.4rem;color:var(--paper);margin-bottom:.5rem}
+.half p{font-size:.92rem;color:var(--paper-soft)}
+.half .meta{margin-top:.9rem;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+.join{text-align:center;font-family:var(--serif);font-style:italic;color:var(--gold);
+  font-size:1.1rem;margin:1.4rem 0 0;opacity:.85}
+
+.fellows{margin-top:2rem;background:linear-gradient(165deg,var(--ink-raise),var(--ink-raise-2));
+  border:1px solid var(--hairline);border-left:2px solid var(--gold);border-radius:0 12px 12px 0;
+  padding:1.6rem 1.6rem}
+.fellows .tag{font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold-deep);margin-bottom:.7rem}
+.fellows h4{font-family:var(--serif);font-weight:600;font-size:1.5rem;color:var(--paper);margin-bottom:.6rem}
+.fellows p{font-size:.98rem;color:var(--paper-soft);max-width:64ch}
+.fellows .row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.1rem}
+.fellows .pill{font-family:var(--mono);font-size:.7rem;color:var(--paper-soft);
+  border:1px solid var(--hairline-soft);border-radius:7px;padding:.4rem .85rem;background:var(--ink)}
+.fellows .pill .g{color:var(--gold)} .fellows .pill .t{color:var(--teal)} .fellows .pill .m{color:var(--coral)}
+
+/* ── colophon ───────────────────────────────────────────────────────── */
+.colophon{padding:clamp(3rem,8vh,5rem) 0 clamp(4rem,10vh,7rem);border-top:1px solid var(--hairline);color:var(--muted)}
+.colophon .glyph{font-family:var(--serif);font-size:2.4rem;color:var(--gold);font-style:italic;display:block;margin-bottom:1rem}
+.colophon p{max-width:58ch;font-size:.96rem}
+.colophon a{color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(92,207,207,.3)}
+.colophon a:hover{border-color:var(--teal)}
+.colophon .meta{font-family:var(--mono);font-size:.74rem;color:var(--gold-deep);margin-top:2rem;letter-spacing:.08em}
+
+/* ── motion + reduced-motion fallback ───────────────────────────────── */
+@keyframes rise{to{transform:translateY(0)}}
+@keyframes fade{to{opacity:1}}
+.reveal{opacity:0;transform:translateY(22px)}
+.reveal.seen{animation:revealIn .9s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes revealIn{to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s !important;animation-delay:0s !important;transition-duration:.001s !important}
+  .seam path{stroke-dashoffset:0}.line span{transform:none}.compass{opacity:.92;transform:none}
+  .eyebrow,.dek,.standfirst,.ledger{opacity:1}.reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="field" aria-hidden="true"></div>
+
+<div class="seam" aria-hidden="true">
+  <svg viewBox="0 0 40 2800" preserveAspectRatio="none">
+    <defs><linearGradient id="goldgrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a6f33"/><stop offset="0.5" stop-color="#e6c478"/><stop offset="1" stop-color="#8a6f33"/>
+    </linearGradient></defs>
+    <path class="glow" pathLength="1" d="M20 0 L20 230 L7 360 L31 520 L11 700 L29 900 L13 1120 L30 1340 L16 1560 L28 1800 L12 2030 L29 2260 L20 2500 L20 2800"/>
+    <path pathLength="1" d="M20 0 L20 230 L7 360 L31 520 L11 700 L29 900 L13 1120 L30 1340 L16 1560 L28 1800 L12 2030 L29 2260 L20 2500 L20 2800"/>
+  </svg>
+</div>
+
+<div class="shell">
+
+  <!-- ── MASTHEAD ────────────────────────────────────────────────────── -->
+  <header class="mast">
+    <svg class="compass" viewBox="0 0 100 100" aria-hidden="true" fill="none">
+      <circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="0.8" opacity="0.5" pathLength="100" stroke-dasharray="30 5 17 6 26 5 6 99" stroke-linecap="round"/>
+      <path d="M10.2 73 A46 46 0 0 1 27 10.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.95"/>
+      <circle cx="50" cy="50" r="35" stroke="currentColor" stroke-width="0.6" opacity="0.4" pathLength="100" stroke-dasharray="44 7 30 8 100" stroke-linecap="round"/>
+      <path d="M50 18 A68 68 0 0 1 50 82 A68 68 0 0 1 50 18 Z" stroke="currentColor" stroke-width="1.05" opacity="0.92"/>
+      <path d="M78 50 A68 68 0 0 1 22 50 A68 68 0 0 1 78 50 Z" stroke="currentColor" stroke-width="1.05" opacity="0.82"/>
+      <circle cx="50" cy="50" r="1.9" fill="currentColor"/>
+    </svg>
+    <div class="eyebrow">The work · a spine, not a portfolio</div>
+    <h1>
+      <span class="line"><span>Intentional</span></span>
+      <span class="line"><span><em>Fragility</em></span></span>
+    </h1>
+    <p class="dek">A system should be built to break in the right places — and the break is the record, not the failure.</p>
+    <p class="standfirst">
+      One idea, instantiated across a body of work: an argument written three ways, two
+      instruments that run the same logic in different domains, and a research program that
+      tests it in the field. <b>The break is the gold seam.</b> Everything here is threaded on it.
+    </p>
+    <dl class="ledger">
+      <div><dt>Argument</dt><dd>Three essays</dd></div>
+      <div><dt>Instruments</dt><dd>Two · live</dd></div>
+      <div><dt>Program</dt><dd>AI Security</dd></div>
+      <div><dt>Status</dt><dd>Open · in motion</dd></div>
+    </dl>
+  </header>
+
+  <!-- ── THE THROUGH-LINE ────────────────────────────────────────────── -->
+  <section class="reveal">
+    <span class="node" aria-hidden="true"></span>
+    <div class="sec-label"><span class="n">i</span> The through-line</div>
+    <h2 class="sec-h">Self-improvement is not the <em>same</em> as durability.</h2>
+    <div class="prose">
+      <p>
+        The reflex in systems design is to make failure rarer — score the parts by
+        reliability, route toward whatever stops breaking, harden until the cracks stop
+        showing. It produces something that looks robust and is, underneath, brittle:
+        the first real break arrives with no rehearsal.
+      </p>
+      <p class="q">There is richness in the broken.</p>
+      <p>
+        The inversion is to treat a break as a signal to be read, not an error to be
+        erased. A tool that does useful work and then fails tells you more than one that
+        runs forever doing nothing. The <em>shape</em> of how a thing breaks — per task,
+        per context — is the data. So you keep the fracture, fill it with gold, and let
+        the next system read it. What follows is that one refusal, instantiated.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── THE ARGUMENT (ESSAYS) ───────────────────────────────────────── -->
+  <section class="reveal">
+    <span class="node" aria-hidden="true"></span>
+    <div class="sec-label"><span class="n">ii</span> The argument</div>
+    <h2 class="sec-h">Written three ways</h2>
+    <div class="essays">
+      <a class="essay" href="/blog/the-lighthouse-earns-its-floor/">
+        <span class="idx">01</span>
+        <span class="body">
+          <h4>The Lighthouse Earns Its Floor</h4>
+          <p>Intentional fragility as a philosophy of forgetting: context should cost something to keep, and the things we most want to protect should earn their protection rather than be granted it.</p>
+          <span class="sub">⤷ formal paper beneath — proof of authorship (PDF)</span>
+        </span>
+        <span class="kind">Essay</span>
+      </a>
+      <a class="essay" href="/blog/the-concept-is-not-the-state/">
+        <span class="idx">02</span>
+        <span class="body">
+          <h4>The Concept Is Not the State</h4>
+          <p>A peer-level methodological rebuttal read through Barrett's constructionist frame: emotion concepts can be causally operative in a model without that making functional emotion a natural kind.</p>
+        </span>
+        <span class="kind">Essay</span>
+      </a>
+      <a class="essay" href="/blog/the-jingle-of-me/">
+        <span class="idx">03</span>
+        <span class="body">
+          <h4>The Jingle of Me</h4>
+          <p>Why Secure Pride exists. Protection-first, identity-grounded — the case for privacy infrastructure built for the people the industry tends to hurt.</p>
+        </span>
+        <span class="kind">Essay</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── THE INSTRUMENTS (TWO LIVE DEMOS) ────────────────────────────── -->
+  <section class="reveal">
+    <span class="node" aria-hidden="true"></span>
+    <div class="sec-label"><span class="n">iii</span> The instruments</div>
+    <h2 class="sec-h">The same logic, in two <em>different</em> domains</h2>
+    <div class="prose"><p>
+      When one abstraction shows up in two unrelated security problems, that is the evidence it
+      is real. Both instruments run the identical three-state discipline — reinforce what carries
+      value, let the rest decay, route around the break. One does it to tools. One does it to
+      dependency graphs, the way a slime mold does it to a rail map.
+    </p></div>
+
+    <!-- kintsugi -->
+    <div class="instrument">
+      <div class="text inst-text">
+        <div class="inst-name"><em>kintsugi</em></div>
+        <div class="inst-tag">Tool routing · Python · verified</div>
+        <p>A fragility-aware toolbelt for a research harness. Tools are <em>expected</em> to eject under load; the breaker trips on a soft threshold, the portable task context hands off to the next tool intact, and the eject-reason taxonomy is kept as the research payload.</p>
+        <p>Routing ranks tools by value-density — goal advanced per token — never by reliability. Ejection is never penalized anywhere in the code.</p>
+        <a class="src" href="/papers/intentional-fragility.pdf">→ the formal argument (PDF)</a>
+      </div>
+      <div class="panel" role="img" aria-label="kintsugi circuit breaker: CLOSED to HALF-OPEN to OPEN, ejecting on a real reason then handing off context.">
+        <h3>Circuit · live</h3>
+        <div class="states">
+          <div class="state" data-s="closed"><span class="dot"></span><span><span class="lab">CLOSED</span><span class="desc">Tool active · monitoring health signals</span></span></div>
+          <div class="state" data-s="half"><span class="dot"></span><span><span class="lab">HALF-OPEN</span><span class="desc">Strain detected · one cautious retry</span></span></div>
+          <div class="state eject" data-s="open"><span class="dot"></span><span><span class="lab">OPEN</span><span class="desc">Serialize context · route to fallback</span></span></div>
+        </div>
+        <div class="panel-foot">
+          <span class="reason" id="reason" aria-live="polite">Idle. Run the cycle to watch it break.</span>
+          <button class="runbtn" id="run" aria-label="Run the circuit breaker cycle">Run cycle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- theatre of dependencies / slime mold -->
+    <div class="instrument flip" style="margin-top:2.5rem">
+      <div class="panel slime-wrap">
+        <h3>Slime mold routing · live</h3>
+        <canvas id="slime" aria-label="A live Physarum-style network solver: tubes between dependency roots thicken where flux is high and decay where it is not, converging on an efficient backbone."></canvas>
+        <div class="slime-read">
+          <span class="stat">coverage <b class="v" id="cov">—</b></span>
+          <span class="stat">backbone <b class="v" id="bb">—</b> edges</span>
+          <span class="slime-state closed" id="sstate">CLOSED</span>
+          <button class="runbtn" id="reseed" aria-label="Re-seed the network" style="margin-left:auto">Re-seed</button>
+        </div>
+      </div>
+      <div class="text inst-text">
+        <div class="inst-name">Theatre of Dependencies</div>
+        <div class="inst-tag">Supply-chain · SBOM · slime-mold routing</div>
+        <p>Feed a dependency graph as terrain. The organism treats roots as food sources and lays tubes between them, thickening the paths that carry flux and starving the ones that don't — converging on a minimal set of roots whose trail covers the most surface. That set is the upgrade ritual.</p>
+        <p>It is the same fragility, applied to a different graph. <em>Physarum polycephalum</em> famously rebuilt the Tokyo rail network this way — reinforce what works, prune what doesn't (Tero et al., <span style="font-style:italic">Science</span>, 2010).</p>
+        <a class="src" href="https://github.com/mazze93">→ repos at github.com/mazze93</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── THE RESEARCH PROGRAM ────────────────────────────────────────── -->
+  <section class="reveal">
+    <span class="node" aria-hidden="true"></span>
+    <div class="sec-label"><span class="n">iv</span> The research program</div>
+    <h2 class="sec-h">Two halves of one falsifiable question</h2>
+    <div class="prose"><p>
+      The same stance, pointed at a real population: under-resourced, queer-serving
+      organizations with active adversaries and defenses below their threat model. One half
+      measures what an attacker gains. The other measures what a defender gains — under
+      constraints the rest of the industry refuses to adopt.
+    </p></div>
+    <div class="halves">
+      <div class="half">
+        <div class="axis">Offensive · the threat</div>
+        <h4>Attack-surface uplift</h4>
+        <p>Against a real civil-society network stack, what attacks become accessible to a mid-skill adversary <em>with</em> LLM assistance that they could not run without it? Three skill tiers, four metrics, a defensive companion output.</p>
+        <div class="meta">Fellows proposal · testbed already exists</div>
+      </div>
+      <div class="half">
+        <div class="axis">Defensive · the capacity</div>
+        <h4>CAIRN — Evidence Charter</h4>
+        <p>Does local-first, human-in-the-loop AI measurably raise an org's security capacity <em>without</em> the surveillance harms of platform AI? Two-tier metrics, a hard firewall, falsifiable on purpose.</p>
+        <div class="meta">Secure Pride · n=1 → small-n</div>
+      </div>
+    </div>
+    <p class="join">— one program, measured from both sides —</p>
+
+    <div class="fellows">
+      <div class="tag">One application, given its due</div>
+      <h4>Anthropic Fellows · AI Security</h4>
+      <p>The offensive half is the basis of a Fellows proposal. It earns a real section here and no more than that — the body of work is the durable object; the application is one vehicle through it, with narrow odds and an honest weighting.</p>
+      <div class="row">
+        <span class="pill"><span class="g">◆</span> AI Security — primary track</span>
+        <span class="pill"><span class="t">◆</span> Model Welfare — differentiation signal</span>
+        <span class="pill"><span class="m">○</span> rolling · late-2026 target</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COLOPHON ────────────────────────────────────────────────────── -->
+  <footer class="colophon reveal">
+    <span class="node" aria-hidden="true"></span>
+    <span class="glyph" aria-hidden="true">金継ぎ</span>
+    <p>
+      Set in Cormorant Garamond, DM Mono, and Atkinson Hyperlegible. The seam that runs this
+      page is the kintsugi crack and the routing path at once — the break and the route are the
+      same gold line. The compass is the mark. Built as a standing spine for
+      <a href="https://mazzeleczzare.com">mazzeleczzare.com</a>.
+    </p>
+    <p class="meta">INTENTIONAL FRAGILITY · THE GOLD SEAM · 2026 · MAZZE LECZZARE</p>
+  </footer>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   Scroll reveals
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reveals = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    reveals.forEach(function(el){ el.classList.add('seen'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('seen'); io.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   kintsugi circuit breaker — walks the state machine, ejects on a real reason
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  var states = Array.prototype.slice.call(document.querySelectorAll('.state'));
+  var reason = document.getElementById('reason');
+  var btn = document.getElementById('run');
+  if (!btn) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reasons = ['value_stall','budget_exceeded','retry_exhausted','error_threshold','latency_friction'];
+  function clear(){ states.forEach(function(s){ s.classList.remove('active'); }); }
+  function run(){
+    btn.disabled = true; clear();
+    var pick = reasons[Math.floor(Math.random()*reasons.length)];
+    var s = reduce ? 0 : 1;
+    function at(i,msg,d){ setTimeout(function(){ if(i>=0) states[i].classList.add('active'); reason.innerHTML = msg; }, reduce?0:d); }
+    at(0,'CLOSED · tool active, signals nominal',0);
+    at(1,'HALF-OPEN · strain on the soft threshold',900*s);
+    at(2,'OPEN · ejected — <b>'+pick+'</b>',1800*s);
+    setTimeout(function(){ reason.innerHTML = 'Context serialized · handed to fallback. <b>The break is kept.</b>'; }, reduce?0:2700*s);
+    setTimeout(function(){ clear(); reason.innerHTML = 'Idle. Run the cycle to watch it break.'; btn.disabled = false; }, reduce?1200:4600);
+  }
+  btn.addEventListener('click', run);
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   Slime mold routing — a working Physarum-style adaptive network solver.
+   Tero et al. rule: push flux along low-resistance paths between food
+   sources, reinforce tubes that carry it, decay all tubes baseline. The
+   backbone self-organizes. Coverage drives the CLOSED/HALF-OPEN/OPEN state.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  var canvas = document.getElementById('slime');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0, raf = null;
+
+  // food-source layout (normalized), a hub fanning outward like a rail map
+  var base = [
+    [0.50,0.50],[0.20,0.28],[0.34,0.74],[0.66,0.24],[0.80,0.62],
+    [0.14,0.60],[0.50,0.16],[0.86,0.34],[0.40,0.40],[0.62,0.78],
+    [0.26,0.46],[0.74,0.50]
+  ];
+  var nodes = [], edges = [], adj = [];
+  var REINFORCE = 0.22, DECAY = 0.021, DMIN = 0.02, DMAX = 7;
+
+  function dist(a,b){ var dx=a.x-b.x, dy=a.y-b.y; return Math.sqrt(dx*dx+dy*dy); }
+  function other(e,i){ return e.a===i ? e.b : e.a; }
+  function edgeExists(i,j){ for (var e=0;e<edges.length;e++){ var x=edges[e]; if((x.a===i&&x.b===j)||(x.a===j&&x.b===i)) return true; } return false; }
+
+  function buildEdges(){
+    edges = []; adj = nodes.map(function(){ return []; });
+    var k = 3;
+    for (var i=0;i<nodes.length;i++){
+      var ds = [];
+      for (var j=0;j<nodes.length;j++) if (i!==j) ds.push([j, dist(nodes[i],nodes[j])]);
+      ds.sort(function(a,b){ return a[1]-b[1]; });
+      for (var m=0;m<k && m<ds.length;m++){
+        var j2 = ds[m][0];
+        if (!edgeExists(i,j2)){
+          var idx = edges.length;
+          edges.push({ a:i, b:j2, len:ds[m][1], D:0.1 });
+          adj[i].push(idx); adj[j2].push(idx);
+        }
+      }
+    }
+  }
+
+  function layout(){
+    nodes = base.map(function(n){ return { x:n[0]*W, y:n[1]*H }; });
+    buildEdges();
+  }
+
+  function resize(){
+    var rect = canvas.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = Math.max(1, W*DPR); canvas.height = Math.max(1, H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    layout();
+  }
+
+  function dijkstra(src, sink){
+    var n = nodes.length, INF = 1e9;
+    var dv = new Array(n), prevE = new Array(n), vis = new Array(n);
+    for (var i=0;i<n;i++){ dv[i]=INF; prevE[i]=-1; vis[i]=false; }
+    dv[src] = 0;
+    for (var it=0; it<n; it++){
+      var u=-1, best=INF;
+      for (var v=0;v<n;v++) if (!vis[v] && dv[v]<best){ best=dv[v]; u=v; }
+      if (u===-1) break;
+      vis[u]=true;
+      if (u===sink) break;
+      for (var ei=0; ei<adj[u].length; ei++){
+        var e = edges[adj[u][ei]], w = other(e,u);
+        var r = e.len / e.D;            // resistance falls as conductivity rises
+        if (dv[u]+r < dv[w]){ dv[w] = dv[u]+r; prevE[w] = adj[u][ei]; }
+      }
+    }
+    var path = [], cur = sink;
+    while (cur!==src && prevE[cur]!==-1){ var pe = edges[prevE[cur]]; path.push(prevE[cur]); cur = other(pe,cur); }
+    return path;
+  }
+
+  function step(){
+    var n = nodes.length;
+    var s = (Math.random()*n)|0, t = (Math.random()*n)|0;
+    if (s===t) return;
+    var path = dijkstra(s, t);
+    for (var p=0;p<path.length;p++) edges[path[p]].D += REINFORCE;
+    for (var e=0;e<edges.length;e++){
+      var x = edges[e];
+      x.D *= (1 - DECAY);
+      if (x.D < DMIN) x.D = DMIN;
+      if (x.D > DMAX) x.D = DMAX;
+    }
+  }
+
+  function coverage(){
+    var n = nodes.length, par = [];
+    for (var i=0;i<n;i++) par[i]=i;
+    function find(x){ while(par[x]!==x){ par[x]=par[par[x]]; x=par[x]; } return x; }
+    var thr = 0.7, strong = 0;
+    for (var e=0;e<edges.length;e++) if (edges[e].D >= thr){ strong++; par[find(edges[e].a)] = find(edges[e].b); }
+    var pairs=0, conn=0;
+    for (var a=0;a<n;a++) for (var b=a+1;b<n;b++){ pairs++; if (find(a)===find(b)) conn++; }
+    return { cov: pairs ? conn/pairs : 0, strong: strong };
+  }
+
+  function setState(cov){
+    var el = document.getElementById('sstate');
+    if (!el) return;
+    el.classList.remove('closed','half','open');
+    if (cov >= 0.92){ el.textContent='CLOSED · healthy'; el.classList.add('closed'); }
+    else if (cov >= 0.6){ el.textContent='HALF-OPEN · thin'; el.classList.add('half'); }
+    else { el.textContent='OPEN · fragmented'; el.classList.add('open'); }
+  }
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    // explored terrain: every candidate tube, faint
+    for (var e=0;e<edges.length;e++){
+      var x = edges[e], A = nodes[x.a], B = nodes[x.b];
+      var nd = Math.min(1, x.D / DMAX);
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y);
+      ctx.strokeStyle = 'rgba(205,162,78,' + (0.06 + nd*0.7).toFixed(3) + ')';
+      ctx.lineWidth = 0.5 + nd*4.5;
+      ctx.stroke();
+    }
+    // flux pulses along the backbone (skipped under reduced motion)
+    if (!reduce){
+      for (var e2=0;e2<edges.length;e2++){
+        var x2 = edges[e2]; if (x2.D < 1.2) continue;
+        var A2 = nodes[x2.a], B2 = nodes[x2.b];
+        var phase = ((t*0.00018) + (e2*0.37)) % 1;
+        var px = A2.x + (B2.x-A2.x)*phase, py = A2.y + (B2.y-A2.y)*phase;
+        ctx.beginPath(); ctx.arc(px,py, 1.6, 0, 6.2832);
+        ctx.fillStyle = 'rgba(230,196,120,0.9)'; ctx.fill();
+      }
+    }
+    // food sources
+    for (var i=0;i<nodes.length;i++){
+      var N = nodes[i];
+      ctx.beginPath(); ctx.arc(N.x,N.y, 3.2, 0, 6.2832);
+      ctx.fillStyle = '#e6c478'; ctx.fill();
+      ctx.beginPath(); ctx.arc(N.x,N.y, 7, 0, 6.2832);
+      ctx.strokeStyle = 'rgba(205,162,78,0.25)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+
+  function readout(){
+    var c = coverage();
+    var cov = document.getElementById('cov'), bb = document.getElementById('bb');
+    if (cov) cov.textContent = Math.round(c.cov*100) + '%';
+    if (bb) bb.textContent = c.strong;
+    setState(c.cov);
+  }
+
+  var settleSteps = 0;
+  function frame(t){
+    // keep adapting gently so the network stays alive; heavier early to converge
+    var perFrame = settleSteps < 120 ? 6 : 1;
+    for (var k=0;k<perFrame;k++){ step(); settleSteps++; }
+    draw(t);
+    if (settleSteps % 8 === 0) readout();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function reseed(){
+    for (var e=0;e<edges.length;e++) edges[e].D = 0.1;
+    settleSteps = 0;
+  }
+
+  function start(){
+    resize();
+    if (reduce){
+      // converge synchronously, draw one static frame, no loop
+      for (var k=0;k<400;k++) step();
+      draw(0); readout();
+      return;
+    }
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(frame);
+  }
+
+  var rt;
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(start, 200); });
+  var rs = document.getElementById('reseed');
+  if (rs) rs.addEventListener('click', reseed);
+
+  // defer start until the canvas is on screen, to avoid offscreen work
+  if ('IntersectionObserver' in window){
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting){ start(); io2.disconnect(); } });
+    }, { threshold: 0.15 });
+    io2.observe(canvas);
+  } else { start(); }
+})();
+</script>
+</body>
+</html>

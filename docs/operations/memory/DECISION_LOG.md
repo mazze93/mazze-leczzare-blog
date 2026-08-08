@@ -108,3 +108,42 @@ Mitigation:
 
 - Reference benchmark docs in the instruction order as overlays.
 - Keep repo-local mechanics docs current when scripts, bindings, or workflow rules change.
+
+## DECISION-005
+
+Date: 2026-07-23
+Category: Deployment / Architecture
+Title: Migrate the blog from Cloudflare Pages to Cloudflare Workers (deliberate, deferred)
+
+Context:
+The blog has become the primary publication surface. A stray Cloudflare Workers
+service (`mazze-leczzare-blog`, id e20b265e…, Git-connected alongside the real
+Pages project) false-fails a "Workers Builds" check on every PR, which surfaced
+the platform question. Current stack is static Astro SSG + six Pages Functions
+using Pages-specific file-routing.
+
+Decision:
+Adopt Cloudflare Workers as the target deploy platform for the blog and migrate
+deliberately — on a branch, with a preview deploy tested against all routes and
+the five API endpoints before cutover. Not started; not rushed to silence CI.
+
+Why:
+
+- Cloudflare's platform investment (Static Assets, gradual deploys, observability,
+  Cron, Durable Objects) is Workers-first; Pages is effectively feature-frozen.
+- The primary surface should sit on the actively developed platform.
+- Unlocks Workers Builds as real CI instead of the broken half-connection.
+
+Risks:
+
+- Pages Functions file-routing must be rewritten as a Worker router — the bulk of
+  the effort and the main regression surface (auth, ingest-to-repo, telemetry).
+- It is the live primary surface; a bad cutover is user-visible.
+
+Mitigation:
+
+- Full phased scope + parity/verification protocol + tech-debt handoff in
+  `docs/superpowers/plans/2026-07-23-pages-to-workers-migration.md`.
+- Interim: disconnect the stray Workers Build in the Cloudflare dashboard
+  (user-only) to stop the false-red without touching production.
+- Flip the `CLAUDE.md` "Pages — not Workers" contract line in the cutover commit.

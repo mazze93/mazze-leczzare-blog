@@ -30,7 +30,8 @@ const blog = defineCollection({
     sessionTranscript: z.string().optional(),
     // ── constellation fields ──
     project: z.string().optional(),    // slug — joins/creates a node (singular for v1)
-    committed: z.boolean().optional(), // true → node pinned to signal, immune to decay
+    committed: z.boolean().optional(),  // true → node pinned to signal, immune to decay
+    resolved: z.boolean().optional(),   // terminal archive seal — deliberate editorial act, not ingestible
   }),
 });
 
@@ -65,6 +66,7 @@ const signal = defineCollection({
     // ── constellation fields ──
     project: z.string().optional(),
     committed: z.boolean().optional(),
+    resolved: z.boolean().optional(),   // terminal archive seal — deliberate editorial act, not ingestible
   }),
 });
 
@@ -90,6 +92,7 @@ const tesserae = defineCollection({
     // ── constellation fields ──
     project: z.string().optional(),
     committed: z.boolean().optional(),
+    resolved: z.boolean().optional(),   // terminal archive seal — deliberate editorial act, not ingestible
   }),
 });
 

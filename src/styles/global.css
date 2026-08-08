@@ -17,6 +17,19 @@
 @import '@fontsource/cormorant-garamond/latin-500-italic.css';
 @import '@fontsource/cormorant-garamond/latin-600.css';
 @import '@fontsource/cormorant-garamond/latin-600-italic.css';
+/* Cormorant SC — small caps. Added 2026-08-03: blog/Triptych.astro had been
+   asking for 'Cormorant SC' with no such font on the site, so its headings and
+   labels silently rendered in the generic serif fallback.
+
+   Caveat, recorded honestly: blog/Triptych.astro is currently imported by zero
+   posts (they use the top-level Triptych.astro), so nothing renders this family
+   today. It costs nothing at runtime — @font-face is lazy, and the browser
+   reports these faces "unloaded" until an element matches — and --font-caps is
+   the small-caps slot the landing/astrolabe work needs. If that work does not
+   land, this and the three unused blog/* components should go together. */
+@import '@fontsource/cormorant-sc/latin-300.css';
+@import '@fontsource/cormorant-sc/latin-400.css';
+@import '@fontsource/cormorant-sc/latin-500.css';
 /* DM Mono — latin subset, weights used in design */
 @import '@fontsource/dm-mono/latin-300.css';
 @import '@fontsource/dm-mono/latin-300-italic.css';
@@ -25,6 +38,11 @@
 @import '@fontsource/dm-mono/latin-500.css';
 @import '@fontsource/dm-mono/latin-500-italic.css';
 @import './compass.css';
+/* Haven / Ink — the approved light-mode palette. Wired 2026-08-02; it had sat
+   unimported since 2026-07-17 with a "not yet wired" note, which is why light
+   mode was only ever half-real. Supplies --hv-*, --ink*, --wash-* to the
+   [data-theme="light"] blocks below. */
+@import './haven-ink.tokens.css';
 
 /* ===========================
    CSS Custom Properties
@@ -32,12 +50,42 @@
 :root {
   color-scheme: dark;
 
-  /* Fixed palette — synced with Cipher Gothic Design System */
-  --teal:       #34c3b9;
-  --teal-dim:   #1c6964;
-  --coral:      #e85a4a;
-  --coral-dim:  #a04030;
-  --gold:       #d4a574;
+  /* Fixed palette — Kintsugi.
+     Migrated 2026-08-02 from the older editorial values (--teal #34c3b9,
+     --coral #e85a4a, --gold #d4a574) to the palette /intentional-fragility/
+     and /cipher-gothic/ were already using. Those two pages were not drifting
+     by accident — they were ahead of the shared tokens, and the shared tokens
+     were the stale copy. Kintsugi is now the site-wide truth: obsidian ground,
+     gold as the seam, teal rhyming the brand.
+
+     Cipher Gothic remains ONE design system deployed here, not the whole site
+     — see the Design Systems section of CLAUDE.md. */
+  --teal:       #5CCFCF;
+  /* The -dim pair are used as text colours (.tag:hover), so they are tuned to
+     clear WCAG AA (4.5:1) on --bg #0f1210, not just picked by eye. Both of
+     their predecessors failed it: #1c6964 was 2.92:1 and #a04030 was 2.94:1.
+     Current: #2f8a8a = 4.60:1, #c25f65 = 4.59:1. */
+  --teal-dim:   #2f8a8a;
+  --coral:      #F07178;
+  --coral-dim:  #c25f65;
+  --gold:       #cda24e;
+
+  /* Gold seam — the kintsugi break. Lifted from /intentional-fragility/ so the
+     seam language is available to every component, not just that one page. */
+  --gold-seam:        #cda24e;
+  --gold-seam-bright: #e6c478;
+  --gold-seam-deep:   #8a6f33;
+  --hairline:         rgba(205, 162, 78, 0.16);
+  --hairline-soft:    rgba(196, 189, 171, 0.12);
+
+  /* Kintsugi ground + paper. --ink-* are the obsidian raises the seam sits on;
+     --paper-* are the warm off-whites it reads against in light mode. */
+  --ink-deep:   #0b0e15;
+  --ink-raise:  #121723;
+  --ink-raise-2:#0e131c;
+  --paper:      #ece7da;
+  --paper-soft: #c4bdab;
+  --muted-warm: #a39c84;
 
   /* Dark mode tokens (default) */
   --charcoal:   #0f1210;
@@ -52,13 +100,18 @@
   /* Semantic aliases */
   --accent:     var(--teal);
   --accent-alt: var(--coral);
-  --accent-rgb: 52, 195, 185;    /* rgb triplet of --teal — for rgba() usage */
-  --coral-rgb:  232, 90, 74;    /* rgb triplet of --coral — for rgba() usage */
+  --accent-rgb: 92, 207, 207;   /* rgb triplet of --teal — for rgba() usage */
+  --coral-rgb:  240, 113, 120;  /* rgb triplet of --coral — for rgba() usage */
+  --gold-rgb:   205, 162, 78;   /* rgb triplet of --gold */
+  --gold-bright-rgb: 244, 210, 154;  /* rgb triplet of --gold-bright */
 
   /* Typography */
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
   --font-mono:    'DM Mono', 'Courier New', monospace;
   --font-sans:    var(--font-display);
+  /* Small caps — for eyebrows, labels and lettered headings. The name every
+     dead draft in this repo kept reaching for; now it actually resolves. */
+  --font-caps:    'Cormorant SC', 'Cormorant Garamond', Georgia, serif;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -122,6 +175,230 @@
 }
 
 /* ===========================
+   Cipher Gothic Design System — additive tokens
+   Pulled from the claude.ai/design project (019e1ccb-c42f-4140-9d17-25cc97ab4942),
+   `colors_and_type.css`. Prefixed --cg- throughout: the legacy spacing,
+   radius, and transition scale above already has consumers across the
+   site with different values under some of these same short names (e.g.
+   --radius-md is 6px here, 4px in the design system) — nothing below
+   renames or overrides an existing token or component.
+   Font note: --cg-font-serif/--cg-font-mono reuse the Cormorant Garamond /
+   DM Mono already self-hosted above rather than adding JetBrains Mono as a
+   second monospace family. Inter (--cg-font-sans) IS now self-hosted — see
+   the @font-face block below.
+   =========================== */
+
+/* Inter — self-hosted, closing the open item from the Cipher Gothic token pull
+   (`8e0d6ae`, which shipped --cg-font-sans naming a font the site never served,
+   so it silently fell through to the system sans stack).
+
+   These point at /fonts/inter-*.woff2 in public/ rather than going through
+   @fontsource like the fonts at the top of this file. That is deliberate: those
+   four files are already in the repo and already deployed — `7525613` added
+   them for /artifacts/tessera-claude-anchor.html, which serves them from these
+   same URLs. Adding an @fontsource/inter dependency would ship a second copy of
+   bytes we already host. Reusing them costs four @font-face rules and nothing
+   else, and no visitor downloads Inter until a rule actually applies it (today
+   that is .cg-body alone, which has no consumers yet).
+
+   unicode-range matches the artifact's declarations — latin subset. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/inter-300-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/inter-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/inter-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/inter-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+:root {
+  /* Type families */
+  --cg-font-serif: var(--font-display);
+  --cg-font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --cg-font-mono:  var(--font-mono);
+
+  /* Type scale (base 16px) */
+  --cg-fs-mono-xs:  0.6rem;
+  --cg-fs-mono-sm:  0.65rem;
+  --cg-fs-mono-md:  0.75rem;
+  --cg-fs-sans-sm:  0.8rem;
+  --cg-fs-sans-md:  0.95rem;
+  --cg-fs-sans-lg:  1.05rem;
+  --cg-fs-serif-sm: 1.1rem;
+  --cg-fs-serif-md: 1.4rem;
+  --cg-fs-serif-lg: 2rem;
+  --cg-fs-serif-xl: 3rem;
+  --cg-fs-display:  clamp(2.5rem, 6vw, 5rem);
+
+  /* Tracking */
+  --cg-tracking-tight:  -0.01em;
+  --cg-tracking-normal: 0;
+  --cg-tracking-wide:   0.05em;
+  --cg-tracking-wider:  0.1em;
+  --cg-tracking-mono:   0.08em;
+  --cg-tracking-label:  0.22em;
+  --cg-tracking-caps:   0.35em;
+
+  /* Line height */
+  --cg-lh-tight:  1.05;
+  --cg-lh-snug:   1.3;
+  --cg-lh-normal: 1.6;
+  --cg-lh-prose:  1.85;
+
+  /* Spacing scale (distinct numbering from --spacing-xs..xl above) */
+  --cg-space-1: 0.25rem;
+  --cg-space-2: 0.5rem;
+  --cg-space-3: 0.75rem;
+  --cg-space-4: 1rem;
+  --cg-space-5: 1.5rem;
+  --cg-space-6: 2rem;
+  --cg-space-7: 3rem;
+  --cg-space-8: 4rem;
+  --cg-space-9: 6rem;
+
+  /* Radii */
+  --cg-radius-xs: 2px;
+  --cg-radius-sm: 3px;
+  --cg-radius-md: 4px;
+  --cg-radius-lg: 6px;
+
+  /* Motion */
+  --cg-ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
+  --cg-ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --cg-ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+  --cg-dur-fast:   150ms;
+  --cg-dur-base:   250ms;
+  --cg-dur-slow:   450ms;
+  --cg-dur-thesis: 900ms;
+
+  /* Measure */
+  --cg-measure-prose: 720px;
+  --cg-measure-page:  780px;
+
+  --cg-hairline: 1px solid var(--rule);
+}
+
+/* Semantic typography mixins — apply via class. Additive utility layer;
+   no existing markup references these yet. */
+.cg-eyebrow {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-sm);
+  font-weight: 400;
+  letter-spacing: var(--cg-tracking-label);
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.cg-section-mark {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-md);
+  font-weight: 400;
+  letter-spacing: var(--cg-tracking-caps);
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.85;
+}
+
+.cg-h1 {
+  font-family: var(--cg-font-serif);
+  font-weight: 300;
+  font-size: var(--cg-fs-display);
+  line-height: var(--cg-lh-tight);
+  letter-spacing: var(--cg-tracking-tight);
+  color: var(--text);
+}
+
+.cg-h2 {
+  font-family: var(--cg-font-serif);
+  font-weight: 300;
+  font-size: var(--cg-fs-serif-lg);
+  line-height: var(--cg-lh-snug);
+  color: var(--text);
+}
+
+.cg-h3 {
+  font-family: var(--cg-font-serif);
+  font-weight: 400;
+  font-size: var(--cg-fs-serif-md);
+  line-height: var(--cg-lh-snug);
+  color: var(--text);
+}
+
+.cg-thesis {
+  font-family: var(--cg-font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  line-height: 1.48;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.cg-body {
+  font-family: var(--cg-font-sans);
+  font-size: var(--cg-fs-sans-md);
+  line-height: var(--cg-lh-normal);
+  color: var(--text-dim);
+}
+
+.cg-prose {
+  font-family: var(--cg-font-serif);
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: var(--cg-lh-prose);
+  color: var(--text);
+}
+
+.cg-mono-label {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-sm);
+  font-weight: 400;
+  letter-spacing: var(--cg-tracking-mono);
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.cg-coord {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-fs-mono-sm);
+  letter-spacing: var(--cg-tracking-wider);
+  color: var(--text-faint);
+}
+
+.cg-code {
+  font-family: var(--cg-font-mono);
+  font-size: 0.88em;
+  color: var(--teal);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid var(--rule);
+  padding: 0.1em 0.4em;
+  border-radius: var(--cg-radius-xs);
+}
+
+/* ===========================
    Homepage body — remap shared CSS vars so Header/Footer auto-adapt
    without any changes to those components
    =========================== */
@@ -161,6 +438,8 @@ body[data-layout="homepage"] {
   --gold:       #8a6a3a;
   --accent-rgb: 30, 112, 96;     /* rgb triplet of --teal in light mode */
   --coral-rgb:  176, 48, 32;     /* rgb triplet of --coral in light mode */
+  --gold-rgb:   138, 106, 58;    /* rgb triplet of --gold in light mode */
+  --gold-bright-rgb: 176, 134, 90;   /* rgb triplet of --gold-bright in light */
 
   /* Light mode uses shadows for depth — the inverse of dark mode's glow language */
   --shadow-sm:   0 1px 4px rgba(26, 36, 32, 0.06), 0 1px 2px rgba(26, 36, 32, 0.04);
@@ -180,6 +459,55 @@ body[data-layout="homepage"] {
   --zone-undefined:    22, 20, 16;
   --zone-experiment:   #2bd3c6;
   --zone-signal:       #f4a261;
+
+  /* ---- Homepage surface, Haven/Ink ------------------------------------
+     These eight --home-* tokens were the entire remaining light-mode gap on
+     the site: every other colour token had an override in this block, so the
+     homepage alone stayed deep navy when the toggle was flipped. Mapped onto
+     Haven (warm paper) + Indian ink rather than reusing the editorial light
+     palette, so the homepage keeps a surface of its own in both themes. */
+  --home-bg:         var(--hv-surface);
+  --home-surface:    var(--hv-center);
+  --home-text:       var(--ink);
+  --home-text-dim:   var(--ink-2);
+  --home-text-faint: var(--ink-3);
+  --home-gold:       var(--gold-seam-deep);
+  --home-rule:       var(--wash-14);
+  --home-header-bg:  rgba(244, 240, 231, 0.92);   /* --hv-surface @ 0.92 */
+
+  /* ---- Kintsugi seam, light ---------------------------------------------
+     The seam reads as gold leaf on obsidian in dark. On paper it has to go
+     deeper or it disappears into the warm ground. */
+  --gold-seam:        var(--gold-seam-deep);
+  --gold-seam-bright: #a8813c;
+  --gold-seam-deep:   #6f5628;
+  --hairline:         rgba(111, 86, 40, 0.22);
+  --hairline-soft:    var(--wash-8);
+  --paper:            var(--hv-high);
+  --paper-soft:       var(--hv-mid);
+  --muted-warm:       var(--ink-3);
+}
+
+/* Constellation sky, light — the ink-on-paper star chart the Haven/Ink file
+   described but nothing implemented. Scoped to the layout so it only applies
+   on /constellation, where these vars are declared.
+   Dark values for reference: void #06080f, ink #c7d2e6, dim #7683a0,
+   gold #e8b64c, emerge #7fd4d0, trace #46536d. */
+[data-theme="light"] body[data-layout="constellation"],
+[data-theme="light"] .cn-page {
+  --c-void:   var(--hv-surface);
+  --c-ink:    var(--ink);
+  --c-dim:    var(--ink-3);
+  /* Tuned against --hv-surface #f4f0e7, not picked by eye. --c-gold and
+     --c-emerge both carry text (.gold-word, .orientation a, .shadow-index
+     links) so they clear WCAG AA 4.5:1 — 5.11 and 5.24. --c-trace is
+     graphics only (.archive-rule stroke, .node.undefined fill) so it clears
+     the 3:1 non-text threshold of WCAG 1.4.11 at 3.21. The direct Haven
+     equivalents were too pale on paper: --ink-ghost gave --c-trace 2.46,
+     which fails even the graphics threshold. */
+  --c-gold:   #7a622c;
+  --c-emerge: #1a6f6a;
+  --c-trace:  #8a8580;
 }
 
 /* ===========================
@@ -318,7 +646,7 @@ code {
   font-family: var(--font-mono);
   font-size: 0.85em;
   padding: 2px 6px;
-  background: rgba(58, 184, 160, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
   color: var(--teal);
@@ -386,7 +714,8 @@ textarea, input {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--coral);
-  border: 1px solid rgba(232, 112, 90, 0.3);
+  /* was rgba(232, 112, 90, 0.3) — same pre-Kintsugi literal as the :hover rule */
+  border: 1px solid rgba(var(--coral-rgb), 0.3);
   padding: 0.2em 0.6em;
   border-radius: var(--radius-sm);
   line-height: 1.6;
@@ -395,7 +724,9 @@ textarea, input {
 
 .tag:hover {
   color: var(--coral-dim);
-  border-color: rgba(232, 112, 90, 0.5);
+  /* was rgba(232, 112, 90, 0.5) — the pre-Kintsugi coral hardcoded as a
+     literal, so it survived every token change. Uses the triplet now. */
+  border-color: rgba(var(--coral-rgb), 0.5);
 }
 
 /* ===========================

@@ -58,3 +58,23 @@ describe("nodeStyle", () => {
     expect(s.scale).toBeLessThan(1);
   });
 });
+
+describe("resolved zone (burst b, iteration 2)", () => {
+  it("places resolved nodes in the fixed archive column, left of erasure traces", () => {
+    const resolved = nodePosition("resolved", 0, "some-project");
+    const erased = nodePosition("undefined", 1, "some-project");
+    expect(resolved.xPct).toBeGreaterThanOrEqual(7);
+    expect(resolved.xPct).toBeLessThanOrEqual(12);
+    expect(erased.xPct).toBeGreaterThan(resolved.xPct);
+  });
+
+  it("position is deterministic for a given slug", () => {
+    expect(nodePosition("resolved", 0, "alpha")).toEqual(nodePosition("resolved", 0, "alpha"));
+  });
+
+  it("resolved style is dignified — near-full presence, no drift dimming", () => {
+    const s = nodeStyle("resolved", 1); // driftRatio must be ignored
+    expect(s.opacity).toBeCloseTo(0.88);
+    expect(s.scale).toBeCloseTo(0.92);
+  });
+});

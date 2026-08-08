@@ -1,3 +1,24 @@
+/*
+ * ⚠ INERT — this config is not loaded by anything. Tailwind does not run on
+ *   this site, and utility classes written in .astro/.tsx files do nothing.
+ *
+ *   What is missing (all three, as of 2026-08-02):
+ *     · no Tailwind integration in astro.config.mjs
+ *     · no `@import "tailwindcss"` (or @tailwind directive) in any stylesheet
+ *     · no PostCSS config invoking it
+ *   And correspondingly: zero Tailwind class names anywhere in src/.
+ *
+ *   Every style in this repo is hand-authored CSS driven by the custom
+ *   properties in src/styles/global.css. That is the working system — see the
+ *   Styles section of CLAUDE.md.
+ *
+ *   Kept rather than deleted because the theme mapping below is a useful
+ *   record of which CSS variables were meant to reach Tailwind consumers, and
+ *   because `tailwindcss` is still a devDependency. If you want Tailwind live,
+ *   wire up the three items above deliberately; if you want it gone, drop this
+ *   file and the dependency together. Do not assume it is already working.
+ */
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}'],

@@ -76,7 +76,9 @@ footer {
 }
 
 .statement-text {
-  font-family: var(--font-serif, Georgia, serif);
+  /* was var(--font-serif, …) — no such token exists, so this always fell
+     through to Georgia. The site's serif is --font-display. */
+  font-family: var(--font-display);
   font-size: 0.82rem;
   font-style: italic;
   color: var(--text-dim);
@@ -108,6 +110,10 @@ footer {
   color: var(--text-dim);
   text-decoration: none;
   transition: color var(--transition-fast);
+  /* Flex items become block boxes automatically; the padding brings the tap
+     target up toward the WCAG 24x24px minimum (bare text at this size falls
+     well short of it). */
+  padding: 6px 0;
 }
 
 .footer-nav a:hover,

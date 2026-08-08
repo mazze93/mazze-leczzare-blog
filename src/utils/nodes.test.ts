@@ -3,7 +3,7 @@ import { aggregateNodes, titleize, type RawEntry } from "./nodes";
 
 function entry(
   id: string,
-  type: "blog" | "signal",
+  type: "blog" | "signal" | "tesserae",
   data: Partial<RawEntry["data"]> & { title: string; pubDate: Date },
 ): RawEntry {
   return { id, type, data: { ...data } as RawEntry["data"] };
@@ -96,5 +96,30 @@ describe("aggregateNodes", () => {
       entry("b", "blog", { title: "B", project: "fresh", pubDate: new Date("2026-05-01") }),
     ]);
     expect(nodes.map((n) => n.slug)).toEqual(["fresh", "stale"]);
+  });
+});
+
+describe("resolved fold + tesserae pieces (burst a)", () => {
+  it("node.resolved is true when any piece is resolved", () => {
+    const nodes = aggregateNodes([
+      entry("a", "blog", { title: "A", project: "alpha", pubDate: new Date("2026-01-01") }),
+      entry("b", "signal", { title: "B", project: "alpha", pubDate: new Date("2026-02-01"), resolved: true }),
+    ]);
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].resolved).toBe(true);
+  });
+
+  it("node.resolved defaults false", () => {
+    const nodes = aggregateNodes([
+      entry("a", "blog", { title: "A", project: "alpha", pubDate: new Date("2026-01-01") }),
+    ]);
+    expect(nodes[0].resolved).toBe(false);
+  });
+
+  it("tesserae entries aggregate as pieces", () => {
+    const nodes = aggregateNodes([
+      entry("t", "tesserae", { title: "Tile", project: "alpha", pubDate: new Date("2026-03-01") }),
+    ]);
+    expect(nodes[0].pieces[0].type).toBe("tesserae");
   });
 });

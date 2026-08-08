@@ -24,13 +24,17 @@ export function nodePosition(zone: Zone, driftRatio: number, slug: string): Node
   const u = seededUnit(slug);
   const v = seededUnit(slug + "::y");
   let xPct: number;
-  if (zone === "signal") {
+  if (zone === "resolved") {
+    // the fixed archive array: a tidy column in outer space, beyond erasure —
+    // resolved work holds position forever (no drift term by construction)
+    xPct = 7 + u * 5; // 7–12
+  } else if (zone === "signal") {
     xPct = 78 + u * 14; // 78–92
   } else if (zone === "undefined") {
-    xPct = 6 + u * 16; // 6–22
+    xPct = 14 + u * 12; // 14–26 (traces drift beside, never into, the archive)
   } else {
     const base = 40 + u * 26; // 40–66
-    const pulled = base - driftRatio * (base - 24); // toward ~24 at full drift
+    const pulled = base - driftRatio * (base - 28); // toward ~28 at full drift
     xPct = pulled;
   }
   const yPct = 12 + v * 76; // 12–88
@@ -42,9 +46,11 @@ export interface NodeStyleOut {
   scale: number;
 }
 
-/** Visual intensity: signal full, experiment dims with drift, undefined faded. */
+/** Visual intensity: signal full, resolved dignified, experiment dims with
+ *  drift, undefined faded. */
 export function nodeStyle(zone: Zone, driftRatio: number): NodeStyleOut {
   if (zone === "signal") return { opacity: 1, scale: 1 };
+  if (zone === "resolved") return { opacity: 0.88, scale: 0.92 };
   if (zone === "undefined") return { opacity: 0.42, scale: 0.82 };
   return { opacity: 1 - driftRatio * 0.45, scale: 1 - driftRatio * 0.12 };
 }
