@@ -237,7 +237,7 @@ most recent; blog listing shows all.
 Read source for full detail — these are the non-obvious points:
 
 **Layout / page-level:**
-- **`BreathingHero.astro`** — homepage hero: three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes). Includes a `.breathing-hero__sub` bridge paragraph linking to `/about/` for persona continuity. Respects `prefers-reduced-motion` with static gradient fallback. Its legacy predecessor `SignalHero.astro` was retired 2026-08-03 to `docs/archive/retired-2026-08-03/`.
+- **`BreathingHero.astro`** — homepage hero. Leads with the two shipped products, Stratum and Stele, as side-by-side cards (distinct hand-drawn glyphs — append-only bands vs. an inscribed slab — a role line, a description, a stack line, and an outbound link each), under a "Shipped & running" eyebrow. This replaced a display headline that read as a thesis rather than an answer; the products had previously been the least visible things on the site. Behind the content sits the three-zone environmental breathing canvas (noise particles, emergence nodes, signal nodes) and `ConstellationNodes`. Respects `prefers-reduced-motion` with static gradient fallback. Its legacy predecessor `SignalHero.astro` was retired 2026-08-03 to `docs/archive/retired-2026-08-03/`.
 - **`BlogPost.astro`** (layout) — mounts `<AuthorCoda>` then `<PostQuoteShare client:load>` after `.prose`. All quote-share CSS lives here as scoped `:global()` rules.
 - **`HomepageLayout.astro`** — sets `data-layout="homepage"` on body; editorial deep-navy palette via `src/styles/homepage.css`.
 - **`AuthorCoda.astro`** — author byline + headshot + condensed bio rendered at the end of every post. Headshot path defaults to `/mazze-headshot.jpg`; hides gracefully if image is missing.
@@ -267,7 +267,11 @@ Read source for full detail — these are the non-obvious points:
 
 **Also MDX-mountable:** `SectionBreak.astro` (decorative in-prose divider, `aria-hidden`), `blog/ArtifactEmbed.astro` (iframes a `public/artifacts/*.html` file with caption + fullscreen link).
 
-**Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `Header.astro`, `Footer.astro`, `FormattedDate.astro`.
+**Navigation:**
+- **`Header.astro`** — masthead. `minimal` prop drops the nav links entirely (used by the homepage, where `AirlockStrip` is the door). The full nav is `Work · Writing · About · Studio ▾ · │ · Stratum● · Stele●`, where the teal dot marks running software rather than another essay. **Studio is a disclosure parent, not a peer link:** it opens a menu holding The bench (`/studio/`), Signal, and Tesserae. Those two are thin fragment surfaces, and giving each a top-level slot spent nav width out of proportion to their content — Tesserae had no link at all and was an unreachable route. Implemented as a `<button aria-expanded>` + `hidden` `<ul>`, not a CSS hover menu (hover menus are unreachable by keyboard and unusable on touch); Escape returns focus to the trigger, `focusin`/click outside closes, ArrowDown opens onto the first item. The toggle is vanilla JS in the component's existing `<script>` block — deliberately not a React island, per Key Constraints. That script also listens for `compass:state` to refract the brand compass.
+- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, and `/tesserae/` as siblings, so the nested surfaces stay one click away from any page.
+
+**Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
 
 ## Styles
 

@@ -26,8 +26,25 @@ const { minimal = false } = Astro.props;
         <a href="/work/">Work</a>
         <a href="/writing/">Writing</a>
         <a href="/about/">About</a>
-        <a href="/studio/">Studio</a>
-        <a href="/signal/">Signal</a>
+        <div class="nav-group">
+          <button
+            type="button"
+            class="nav-disclosure"
+            id="studio-toggle"
+            aria-expanded="false"
+            aria-controls="studio-menu"
+          >
+            Studio
+            <svg class="nav-chevron" viewBox="0 0 10 6" aria-hidden="true" focusable="false">
+              <path d="M1 1 L5 5 L9 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <ul class="nav-menu" id="studio-menu" aria-labelledby="studio-toggle" hidden>
+            <li><a href="/studio/">The bench</a></li>
+            <li><a href="/signal/">Signal</a></li>
+            <li><a href="/tesserae/">Tesserae</a></li>
+          </ul>
+        </div>
         <span class="nav-rule" aria-hidden="true"></span>
         <a class="nav-product" href="https://stratum.mazzeleczzare.com/" target="_blank" rel="noopener noreferrer">Stratum<span class="nav-live" aria-hidden="true"></span><span class="sr-only"> (live app, opens in a new tab)</span></a>
         <a class="nav-product" href="https://stele.mazzeleczzare.com/" target="_blank" rel="noopener noreferrer">Stele<span class="nav-live" aria-hidden="true"></span><span class="sr-only"> (live app, opens in a new tab)</span></a>
@@ -146,6 +163,91 @@ nav {
   color: var(--teal);
 }
 
+/* Studio is a parent, not a peer. Signal and Tesserae are both thin fragment
+   surfaces — one transmission, no tiles yet — and giving each a top-level slot
+   spent nav width proportional to ambition rather than content. Nesting them
+   under the bench keeps both reachable (Tesserae had no link at all and was
+   unreachable) without a nav that reads longer than the site is deep.
+   Disclosure button rather than hover: hover menus are unreachable by keyboard
+   and unusable on touch. */
+.nav-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.nav-disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  padding: 0.4em 0.7em;
+  cursor: pointer;
+  line-height: inherit;
+  transition: color var(--transition-fast);
+}
+
+.nav-disclosure:hover,
+.nav-disclosure[aria-expanded="true"] {
+  color: var(--teal);
+}
+
+.nav-chevron {
+  width: 9px;
+  height: 6px;
+  transition: transform var(--transition-fast);
+}
+
+.nav-disclosure[aria-expanded="true"] .nav-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-menu {
+  position: absolute;
+  top: calc(100% + 0.4em);
+  left: 0;
+  z-index: calc(var(--z-header) + 1);
+  min-width: 12em;
+  margin: 0;
+  padding: 0.4em 0;
+  list-style: none;
+  background: var(--header-bg, #0b0d12);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+@supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+  .nav-menu {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+.nav-menu[hidden] {
+  display: none;
+}
+
+.nav-menu li {
+  margin: 0;
+}
+
+.nav-menu a {
+  display: block;
+  padding: 0.5em 1em;
+  white-space: nowrap;
+}
+
+.nav-disclosure:focus-visible,
+.nav-menu a:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
 .nav-util {
   display: flex;
   align-items: center;
@@ -218,6 +320,10 @@ nav {
   .util-link { display: none; }
   :global(.theme-toggle) { display: inline-flex; }
   .nav-links a { padding: 0.3em 0.5em; }
+  .nav-disclosure { padding: 0.3em 0.5em; }
+  /* The nav wraps at this width, so an absolutely-positioned menu can hang off
+     the right edge. Pin it to the left of the viewport-side instead. */
+  .nav-menu { left: auto; right: 0; }
 }
 </style>
 
@@ -237,6 +343,53 @@ nav {
       if (detail.state === "engaged") {
         resetTimer = setTimeout(() => { compass.dataset.state = "idle"; }, 600);
       }
+    });
+  }
+
+  // Studio disclosure. A button rather than a hover target so it is operable by
+  // keyboard and on touch; `hidden` is toggled alongside aria-expanded so the
+  // menu is genuinely absent from the a11y tree when closed, not just invisible.
+  const studioToggle = document.querySelector<HTMLButtonElement>("#studio-toggle");
+  const studioMenu = document.querySelector<HTMLElement>("#studio-menu");
+
+  if (studioToggle && studioMenu) {
+    const setOpen = (open: boolean) => {
+      studioToggle.setAttribute("aria-expanded", String(open));
+      studioMenu.hidden = !open;
+    };
+
+    const close = (returnFocus = false) => {
+      if (studioMenu.hidden) return;
+      setOpen(false);
+      if (returnFocus) studioToggle.focus();
+    };
+
+    studioToggle.addEventListener("click", () => {
+      setOpen(studioMenu.hidden);
+    });
+
+    // ArrowDown opens and lands on the first item, matching menu-button convention.
+    studioToggle.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowDown") return;
+      event.preventDefault();
+      setOpen(true);
+      studioMenu.querySelector("a")?.focus();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") close(true);
+    });
+
+    // Any click outside the group closes it. Focus leaving the group does too,
+    // which covers Tab-out without trapping focus inside the menu.
+    document.addEventListener("click", (event) => {
+      const target = event.target as Node | null;
+      if (target && !studioToggle.closest(".nav-group")?.contains(target)) close();
+    });
+
+    document.addEventListener("focusin", (event) => {
+      const target = event.target as Node | null;
+      if (target && !studioToggle.closest(".nav-group")?.contains(target)) close();
     });
   }
 </script>
