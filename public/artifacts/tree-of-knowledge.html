@@ -117,8 +117,11 @@ body.descended .ghost-edge { opacity: .28; }
 
 .nd-ring { fill: var(--bg); stroke: var(--dmr); stroke-width: .9; transition: stroke .45s, stroke-width .45s, filter .45s, fill .9s; }
 .nd-dot  { fill: var(--dm); transition: fill .45s; }
-.nd-lbl  { font: italic 600 9.5px/1 var(--ser); text-anchor: middle; fill: var(--dm); transition: fill .45s; pointer-events: none; }
-.nd-sub  { font: 300 6.5px/1 var(--mon); text-anchor: middle; fill: var(--dmr); transition: fill .45s; letter-spacing: .04em; pointer-events: none; }
+/* Label sizes are viewBox units (440 wide) scaled into a much smaller
+   painted box, so 9.5/6.5 rendered at ~5–8px. Sized up for legibility;
+   the y-offsets in renderNodes() were widened to match. */
+.nd-lbl  { font: italic 600 13px/1 var(--ser); text-anchor: middle; fill: var(--dm); transition: fill .45s; pointer-events: none; }
+.nd-sub  { font: 300 9.5px/1 var(--mon); text-anchor: middle; fill: var(--dmr); transition: fill .45s; letter-spacing: .02em; pointer-events: none; }
 .nd-wrap { cursor: pointer; }
 .nd-wrap:hover .nd-ring { stroke: var(--tx); stroke-width: 1.3; }
 
@@ -139,7 +142,7 @@ body.descended #daath-group { opacity: 1; pointer-events: auto; }
 .daath-ring { fill: none; stroke: var(--tx-d); stroke-width: .8; stroke-dasharray: 3 4; animation: voidspin 14s linear infinite; }
 @keyframes voidspin { to { transform: rotate(360deg); } }
 .daath-inner { fill: var(--bg-p); transition: fill .9s; }
-.daath-lbl  { font: italic 500 9px/1 var(--ser); text-anchor: middle; fill: var(--tx-d); letter-spacing: .1em; pointer-events: none; }
+.daath-lbl  { font: italic 500 12px/1 var(--ser); text-anchor: middle; fill: var(--tx-d); letter-spacing: .08em; pointer-events: none; }
 #daath-group:hover .daath-ring { stroke: var(--co); }
 
 .qname { opacity: 0; transition: opacity .9s; }
@@ -199,6 +202,71 @@ body.descended .intro strong { color: var(--co); }
 
 #fn { border-top: 1px solid var(--bd); padding: 9px 15px; flex-shrink: 0; background: var(--bg-p); font-size: 7.5px; line-height: 1.6; color: var(--tx-d); letter-spacing: .04em; transition: border-color .9s, background .9s; }
 #fn b { color: var(--gd); font-weight: 500; }
+
+/* ══════════════════════════════════════════════════════════════
+   READABILITY FLOOR — the original pixel scale (6.5–10px) was
+   built for a desktop canvas and is sub-legible everywhere. Raise
+   the floor on ALL viewports; hierarchy is preserved, just larger.
+   ══════════════════════════════════════════════════════════════ */
+#ht        { font-size: 17px; }
+#hs        { font-size: 10px; }
+#mode-lbl  { font-size: 10px; }
+#descend   { font-size: 11px; padding: 7px 15px; }
+#legend    { font-size: 10.5px; gap: 10px 16px; }
+.lg-dot    { width: 9px; height: 9px; }
+#nn        { font-size: 17px; }
+#nn-q      { font-size: 13px; }
+#nf        { font-size: 11px; }
+.face-ttl  { font-size: 11px; }
+.etag      { font-size: 10px; padding: 2px 7px; }
+.face-body { font-size: 15px; line-height: 1.75; }
+.quote     { font-size: 13px; line-height: 1.65; }
+.conf-lbl  { font-size: 10px; }
+.conf-val  { font-size: 10px; }
+.intro     { font-size: 15px; line-height: 1.8; }
+.void-txt  { font-size: 15px; max-width: 320px; }
+#fn        { font-size: 11px; line-height: 1.7; }
+
+/* Lift small-label contrast to AA in both faces.
+   life:  #6a8a9a→#88a6b6 on #0F1923 ≈ 6.9:1
+   abyss: #4a525a→#7f8994 on #07090d ≈ 5.3:1 (was ~2.4:1, failing) */
+:root           { --tx-d: #88a6b6; }
+body.descended  { --tx-d: #7f8994; }
+
+/* ══ REDUCED MOTION — none of the loops were gated before ══ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+  #grain { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NARROW / MOBILE — the two-column desktop dashboard cannot fit a
+   phone. Stack it, unlock scrolling, and give each half full width
+   so the SVG tree and the reading text both become legible.
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 800px) {
+  html, body { height: auto; overflow: auto; }
+  #app       { height: auto; min-height: 100vh; }
+
+  #hd  { height: auto; min-height: 46px; padding: 9px 14px; flex-wrap: wrap; }
+  #hs  { display: none; }
+
+  #mn  { flex-direction: column; overflow: visible; }
+  #lp  { width: 100%; height: 68vh; border-right: none;
+         border-bottom: 1px solid var(--bd); }
+  #rp  { width: 100%; height: auto; overflow: visible; }
+  #rs  { overflow: visible; padding: 16px 16px 6px; }
+
+  #descend   { padding: 9px 16px; font-size: 12px; }
+  #nn        { font-size: 18px; }
+  #nf        { font-size: 12px; }
+  .face-body { font-size: 16px; }
+  .intro     { font-size: 16px; }
+  .void-txt  { font-size: 16px; }
+}
 </style>
 </head>
 <body>
@@ -409,11 +477,11 @@ function renderNodes() {
     const wrap = el('g', { class:'nd-wrap '+(litClass[id]||'lit-t'), id:`nd-${id}` }, g);
     el('circle', { cx:n.x, cy:n.y, r:n.r, class:'nd-ring' }, wrap);
     el('circle', { cx:n.x, cy:n.y, r:n.r*.36, class:'nd-dot' }, wrap);
-    const ly = n.y + n.r + 11;
+    const ly = n.y + n.r + 14;
     const sName = el('text', { x:n.x, y:ly,    class:'nd-lbl sname' }, wrap); sName.textContent = n.s;
-    const sSub  = el('text', { x:n.x, y:ly+10, class:'nd-sub sname' }, wrap); sSub.textContent = n.sub;
+    const sSub  = el('text', { x:n.x, y:ly+13, class:'nd-sub sname' }, wrap); sSub.textContent = n.sub;
     const qName = el('text', { x:n.x, y:ly,    class:'nd-lbl qname', fill:'var(--co)' }, wrap); qName.textContent = n.q;
-    const qSub  = el('text', { x:n.x, y:ly+10, class:'nd-sub qname' }, wrap); qSub.textContent = n.qsub;
+    const qSub  = el('text', { x:n.x, y:ly+13, class:'nd-sub qname' }, wrap); qSub.textContent = n.qsub;
     wrap.addEventListener('click', () => selectNode(+id));
     nodeEls[id] = wrap;
   });
@@ -452,6 +520,16 @@ const nn = document.getElementById('nn');
 const nnq = document.getElementById('nn-q');
 const nf = document.getElementById('nf');
 let currentNodeId = null;
+
+/* When stacked (narrow), the reading panel sits below the tree — off
+   the fold. A tap must scroll it into view or nothing visibly happens. */
+const mqStack  = window.matchMedia('(max-width: 800px)');
+const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+function revealPanel() {
+  if (!mqStack.matches) return;
+  const rp = document.getElementById('rp');
+  if (rp) rp.scrollIntoView({ behavior: mqReduce.matches ? 'auto' : 'smooth', block: 'start' });
+}
 
 function clearSel() {
   if (currentNodeId !== null) clearConfGlow(currentNodeId);
@@ -498,6 +576,8 @@ function selectNode(id) {
     hint.innerHTML = `Only the lit face shows here. <strong>DESCEND</strong> to read what this node concealed — the trace beneath the decision, with its certainty weight.`;
     rs.appendChild(hint);
   }
+
+  revealPanel();
 }
 
 function selectDaath() {
@@ -517,6 +597,7 @@ function selectDaath() {
     I cannot tell from inside. Da'ath stays empty because what belongs here is the one thing
     no trace contains.</div>`;
   rs.appendChild(v);
+  revealPanel();
 }
 
 /* ── descent toggle ── */

@@ -17,13 +17,12 @@ const {
 ---
 
 <figure class="artifact-embed">
-  <div class="artifact-frame-wrap" style={`height: ${height}px`}>
+  <div class="artifact-frame-wrap" style={`--frame-h: ${height}px`}>
     <iframe
       src={src}
       title={title}
       class="artifact-frame"
       loading="lazy"
-      scrolling="no"
       allowfullscreen
     ></iframe>
   </div>
@@ -46,6 +45,7 @@ const {
 .artifact-frame-wrap {
   position: relative;
   width: 100%;
+  height: var(--frame-h, 620px);
   overflow: hidden;
   /* was #0F1923 — a hardcoded dark that stayed dark under light mode */
   background: var(--surface);
@@ -90,6 +90,16 @@ const {
 
 .fullscreen-link:hover {
   color: var(--coral);
+}
+
+@media (max-width: 800px) {
+  /* Stacked, the artifact is taller than the desktop frame and needs to
+     scroll internally. Grow the frame and let the iframe scroll; the
+     "Open full screen" link remains the escape hatch for the full view. */
+  .artifact-frame-wrap {
+    height: min(82vh, 640px);
+    min-height: 560px;
+  }
 }
 
 @media (max-width: 640px) {
