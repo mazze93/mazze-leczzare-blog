@@ -6,6 +6,9 @@ CONTACT_SUBJECT_PREFIX=Mazze Contact
 ADMIN_PASSWORD=
 # Secret used to sign and verify admin session JWTs (minimum 32 random chars).
 JWT_SECRET=
+# Verifies Turnstile tokens server-side for /api/contact via siteverify.
+# Paired with the public site key hardcoded in src/consts.ts (TURNSTILE_SITE_KEY).
+TURNSTILE_SECRET_KEY=
 
 # ── Optional secrets ──────────────────────────────────────────────────────────
 # POST validated contact payloads to a webhook or Worker endpoint.

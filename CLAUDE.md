@@ -61,6 +61,7 @@ SITE_TWITTER         = "@southerncunning"
 SITE_REPO_URL        = "https://github.com/mazze93/mazze-leczzare-blog"
 SITE_DEFAULT_OG_IMAGE = "/mazze-leczzare-social-preview.png"
 COMPASS_LABEL        = "Mazze LeCzzare — home"
+TURNSTILE_SITE_KEY    = "0x4AAAAAAEYJ6c3cC0X8i_-F"
 ```
 
 ## Directory Structure
@@ -245,7 +246,7 @@ Read source for full detail — these are the non-obvious points:
 
 **Interactive islands (React):**
 - **`PostQuoteShare.tsx`** — paragraph-level quote sharing. Imperative DOM; assigns `data-quote-share-id` to `.prose > p`, injects share buttons, telemetries to `/api/share-event` via `sendBeacon`.
-- **`ContactForm.tsx`** — honeypot field (`company`), timing check (`startedAt`), submits JSON to `POST /api/contact`.
+- **`ContactForm.tsx`** — honeypot field (`company`), timing check (`startedAt`), explicit-render Cloudflare Turnstile widget (`TURNSTILE_SITE_KEY`), submits JSON to `POST /api/contact`.
 - **`ThemeToggle.tsx`** — reads/writes `localStorage['theme-preference']` and `document.documentElement.dataset.theme`.
 - **`constellation/ConstellationNodes.tsx`** — mounted `client:load` inside `BreathingHero.astro` (the homepage hero). Renders live project nodes using `decay.ts`/`layout.ts` math; the one React island that isn't a form/toggle — see Key Constraints.
 
@@ -315,9 +316,19 @@ Runs on every request before any function. Three responsibilities:
 ### `functions/api/contact.ts`
 
 Env vars: `CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`, `CONTACT_WEBHOOK_URL`,
-`CONTACT_WEBHOOK_AUTH_HEADER`. Requires same-origin browser submissions and a configured
-webhook URL. Validates honeypot, timing (≥1500ms), name (2–80), email, message (20–4000).
-Escapes header values and forwards a structured JSON payload to the webhook receiver.
+`CONTACT_WEBHOOK_AUTH_HEADER`, `TURNSTILE_SECRET_KEY`. Requires same-origin browser
+submissions, a configured webhook URL, and a configured Turnstile secret key. Validates
+honeypot, timing (≥1500ms), the Turnstile token (via `siteverify`, `remoteip` set from
+`CF-Connecting-IP`), name (2–80), email, message (20–4000). Escapes header values and
+forwards a structured JSON payload to the webhook receiver.
+
+**Turnstile**: the widget on `/contact` (`ContactForm.tsx`) is rendered explicitly against
+`TURNSTILE_SITE_KEY` (`src/consts.ts` — site keys are public, unlike the secret key, so
+it's safe to inline). The client loads `https://challenges.cloudflare.com/turnstile/v0/api.js`
+lazily, captures the token via callback, and resets the widget after every submit attempt
+(tokens are single-use). `functions/_middleware.ts`'s `BASE_CSP` allows
+`https://challenges.cloudflare.com` in `script-src`, `connect-src`, and `frame-src` for
+this reason.
 
 ### `functions/api/share-event.ts`
 
@@ -366,6 +377,7 @@ Copy `.dev.vars.example` to `.dev.vars` for local development.
 | `CONTACT_SUBJECT_PREFIX` | No (wrangler.toml default) | Prefix used when building the webhook payload subject |
 | `CONTACT_WEBHOOK_URL` | Yes | POST validated contact payloads to this webhook |
 | `CONTACT_WEBHOOK_AUTH_HEADER` | No | Authorization header value sent to the webhook |
+| `TURNSTILE_SECRET_KEY` | Yes | Verifies Turnstile tokens server-side for `/api/contact` (paired with the public `TURNSTILE_SITE_KEY` in `src/consts.ts`) |
 | `INGEST_SECRET` | For `/api/ingest` | Bearer secret for machine content ingest |
 | `GITHUB_INGEST_TOKEN` | For `/api/ingest` | Token used to commit ingested files via GitHub Contents API |
 
