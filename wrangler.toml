@@ -40,23 +40,31 @@ id = "be4945b2396d4601ba12a645490b3efb"
 preview_id = "TODO_run_wrangler_kv_namespace_create_preview"
 
 # ── Rate limiting ────────────────────────────────────────────────────────────────────
-# Pages Functions supports [[ratelimits]] as of 2025.
-# Create namespaces in the Cloudflare dashboard (Manage > Rate Limiting Namespaces)
-# then replace the TODO namespace_id values below.
+# Native Workers Rate Limiting binding (GA since 2025-09), not the dashboard WAF rate
+# limiting rules. `namespace_id` is not a provisioned resource — it's just an
+# account-unique string you pick to scope each limiter's counter; nothing to create in
+# the dashboard first. `simple.period` is Cloudflare's binding API and only accepts
+# 10 or 60 (seconds). These bindings are declared but not yet read by any Function —
+# route-level enforcement for /api/login, /api/share-event, and /api/ingest is still
+# managed via Cloudflare dashboard WAF rules per CLAUDE.md; wire `env.<NAME>.limit()`
+# into the relevant handler when ready to switch enforcement to this binding.
 #
-# Suggested limits (enforce in the binding handler, not just here):
+# Suggested limits:
 #   LOGIN_RATE_LIMIT   —  5 req/min  (brute-force protection)
 #   INGEST_RATE_LIMIT  — 5 req/min  (writes to repo via GITHUB_INGEST_TOKEN)
 #   CONTACT_RATE_LIMIT — 10 req/min (webhook relay)
 
 [[ratelimits]]
-binding = "LOGIN_RATE_LIMIT"
-namespace_id = "TODO_create_in_cloudflare_dashboard"
+name = "LOGIN_RATE_LIMIT"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }
 
 [[ratelimits]]
-binding = "INGEST_RATE_LIMIT"
-namespace_id = "TODO_create_in_cloudflare_dashboard"
+name = "INGEST_RATE_LIMIT"
+namespace_id = "1002"
+simple = { limit = 5, period = 60 }
 
 [[ratelimits]]
-binding = "CONTACT_RATE_LIMIT"
-namespace_id = "TODO_create_in_cloudflare_dashboard"
+name = "CONTACT_RATE_LIMIT"
+namespace_id = "1003"
+simple = { limit = 10, period = 60 }
