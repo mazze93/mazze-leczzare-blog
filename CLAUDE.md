@@ -105,6 +105,14 @@ public/
                       #   Every file here resolves — the two legacy atkinson-*.woff
                       #   orphans were retired 2026-08-03.
   images/blog/        # Static blog images (served directly, no processing)
+  papers/             # Formal-argument PDFs, citable and stable — linked from a post
+                      #   with a "Formal companion" line and cataloged in
+                      #   /writing under "02 — Papers" (see writing/index.astro)
+  social/             # Shareable LinkedIn/social carousel PDFs, one per post that has
+                      #   one — 1080-wide multi-page decks distilling a post's argument,
+                      #   linked from that post with a "Shareable version" line. Not
+                      #   cataloged in /writing (they're derivative collateral, not a
+                      #   primary work). Built via the `carousel` skill.
 
 scripts/ops/          # Local operational scripts (not part of the site build)
 docs/operations/      # Agent operations protocol and memory files
