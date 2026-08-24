@@ -154,6 +154,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` | Standalone page; ships its own `fonts/` subdirectory |
+| `/auth.md`        | `public/auth.md`                    | [Auth.md](https://auth.md/) agent-authentication disclosure — see Agent Discoverability |
 | `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
 | `/api/ingest`     | `functions/api/ingest.ts`           | POST only — authenticated content ingest |
 | `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
@@ -406,8 +407,16 @@ The site exposes machine-readable agent discovery files under `public/.well-know
 | `agent-skills/share-event/SKILL.md` | Share-event skill instructions for agents |
 | `api-catalog` | RFC 9727 linkset API catalog |
 | `oauth-authorization-server` | OAuth AS metadata |
-| `oauth-protected-resource` | OAuth protected resource metadata |
+| `oauth-protected-resource` | OAuth protected resource metadata — describes the `/admin` boundary only; not an agent registration mechanism (see `/auth.md`) |
 | `security.txt` | Security contact information |
+
+`public/auth.md` (served at `/auth.md`, per the [Auth.md](https://auth.md/)
+convention) is the disclosure doc for agents deciding how to authenticate:
+no registration or API-key issuance exists, the public read-only surface
+above needs no credentials, `/api/contact` and `/api/share-event` are
+same-origin-gated (not agent-callable), and `/admin` is a human-only,
+cookie-session area — the OAuth-shaped `.well-known` metadata documents
+that boundary but isn't an invitation to register a client.
 
 Homepage (`/`) sends Link headers for all discovery endpoints via `public/_headers`.
 Middleware serves `text/markdown` content-negotiation for any AI agent that requests it.

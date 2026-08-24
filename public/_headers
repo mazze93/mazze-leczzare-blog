@@ -13,6 +13,11 @@
   Link: </.well-known/agent-skills/index.json>; rel="service-doc"
   Link: </.well-known/mcp/server-card.json>; rel="service-desc"
   Link: </.well-known/agent-card.json>; rel="service-desc"
+  Link: </auth.md>; rel="service-doc"; type="text/markdown"
+
+/auth.md
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
 
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
