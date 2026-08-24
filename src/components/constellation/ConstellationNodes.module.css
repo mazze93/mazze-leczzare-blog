@@ -1,3 +1,43 @@
+/* ---- Theme tokens ------------------------------------------------------
+   Every colour in this file was a dark-only literal, so the constellation
+   kept its near-black survey chrome — gold labels, white node text, a navy
+   scrim — after the rest of the homepage went to Haven paper. The gold and
+   the node labels carry real text, so light needs deeper values rather than
+   the same hexes dimmed. Dark stays the base; light re-points the slots.
+   `[data-theme="light"]` is an attribute selector, so CSS Modules leaves it
+   alone and only the class names are hashed. */
+.constellationNodes {
+  --cn-gold:      #e8b64c;
+  --cn-gold-rgb:  232, 182, 76;
+  --cn-grid:      #46536d;
+  --cn-caption:   #5d6b85;
+  --cn-label:     #f2f4f8;
+  --cn-label-halo: rgba(0, 0, 0, 0.85);
+  --cn-readout-halo: #0b0d12;
+  --cn-undefined: rgba(242, 244, 248, 0.7);
+  --cn-resolved:  #d9e2f2;
+  --cn-experiment:#2bd3c6;
+  --cn-signal:    #f4a261;
+  --cn-focus:     #f4d29a;
+  --cn-scrim:     11, 13, 18;
+}
+
+[data-theme="light"] .constellationNodes {
+  --cn-gold:      #7a622c;
+  --cn-gold-rgb:  122, 98, 44;
+  --cn-grid:      #9e9a96;
+  --cn-caption:   #6a6460;
+  --cn-label:     #1c1714;
+  --cn-label-halo: rgba(244, 240, 231, 0.9);
+  --cn-readout-halo: #f4f0e7;
+  --cn-undefined: rgba(28, 23, 20, 0.62);
+  --cn-resolved:  #47413e;
+  --cn-experiment:#10635c;
+  --cn-signal:    #8a4b12;
+  --cn-focus:     #7a622c;
+  --cn-scrim:     244, 240, 231;
+}
+
 .constellationNodes {
   position: absolute;
   inset: 0;
@@ -17,29 +57,29 @@
 }
 
 .svySeam {
-  stroke: #46536d;
+  stroke: var(--cn-grid);
   stroke-dasharray: 2 6;
   stroke-width: 1;
 }
 
 .svyCaptions text {
   font-family: var(--font-mono, monospace);
-  fill: #5d6b85;
+  fill: var(--cn-caption);
   font-size: 13px;
   letter-spacing: 0.24em;
 }
 
 .svyMeta text {
   font-family: var(--font-mono, monospace);
-  fill: #5d6b85;
+  fill: var(--cn-caption);
   font-size: 11px;
   letter-spacing: 0.1em;
 }
-.svyMeta .svyAcquired { fill: #e8b64c; }
+.svyMeta .svyAcquired { fill: var(--cn-gold); }
 
 .svyIso circle {
   fill: none;
-  stroke: #e8b64c;
+  stroke: var(--cn-gold);
   stroke-opacity: 0.14;
   stroke-width: 1;
 }
@@ -51,7 +91,7 @@
 }
 
 .svyAsterism line {
-  stroke: #e8b64c;
+  stroke: var(--cn-gold);
   stroke-opacity: 0.18;
   stroke-width: 1;
 }
@@ -60,9 +100,9 @@
   font-family: var(--font-mono, monospace);
   font-size: 11px;
   letter-spacing: 0.14em;
-  fill: #e8b64c;
+  fill: var(--cn-gold);
   paint-order: stroke;
-  stroke: #0b0d12;
+  stroke: var(--cn-readout-halo);
   stroke-width: 3px;
 }
 
@@ -93,26 +133,26 @@
   box-shadow: 0 0 12px 2px var(--zone-color);
 }
 
-.cnNode[data-zone="experiment"] { --zone-color: #2bd3c6; }
-.cnNode[data-zone="signal"]     { --zone-color: #f4a261; }
-.cnNode[data-zone="undefined"]  { --zone-color: rgba(242, 244, 248, 0.7); }
-.cnNode[data-zone="resolved"]   { --zone-color: #d9e2f2; }
+.cnNode[data-zone="experiment"] { --zone-color: var(--cn-experiment); }
+.cnNode[data-zone="signal"]     { --zone-color: var(--cn-signal); }
+.cnNode[data-zone="undefined"]  { --zone-color: var(--cn-undefined); }
+.cnNode[data-zone="resolved"]   { --zone-color: var(--cn-resolved); }
 /* the gravity well: a telescope locked on — reticle rings, permanent label */
-.cnNode[data-gold] { --zone-color: #e8b64c; }
+.cnNode[data-gold] { --zone-color: var(--cn-gold); }
 .cnNode[data-gold] .cnDot {
   position: relative;
   transform: scale(1.6);
   box-shadow:
-    0 0 10px rgba(232, 182, 76, 0.85),
-    0 0 28px rgba(232, 182, 76, 0.4),
-    0 0 64px rgba(232, 182, 76, 0.18);
+    0 0 10px rgba(var(--cn-gold-rgb), 0.85),
+    0 0 28px rgba(var(--cn-gold-rgb), 0.4),
+    0 0 64px rgba(var(--cn-gold-rgb), 0.18);
 }
 /* inner dashed ring — slow tracking rotation */
 .cnNode[data-gold] .cnDot::before {
   content: "";
   position: absolute;
   inset: -9px;
-  border: 1px dashed rgba(232, 182, 76, 0.8);
+  border: 1px dashed rgba(var(--cn-gold-rgb), 0.8);
   border-radius: 50%;
   animation: wellTrack 26s linear infinite;
 }
@@ -121,13 +161,13 @@
   content: "";
   position: absolute;
   inset: -17px;
-  border: 1px solid rgba(232, 182, 76, 0.35);
+  border: 1px solid rgba(var(--cn-gold-rgb), 0.35);
   border-radius: 50%;
   animation: wellBreathe 6.5s ease-in-out infinite;
 }
 /* the well announces itself — label always on, gold */
 .cnNode[data-gold] .cnLabel {
-  color: #e8b64c;
+  color: var(--cn-gold);
   opacity: 1;
   transform: none;
 }
@@ -152,13 +192,13 @@
   font-family: var(--font-mono, monospace);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
-  color: #f2f4f8;
+  color: var(--cn-label);
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity 0.25s ease, transform 0.25s ease;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.85);
+  text-shadow: 0 0 8px var(--cn-label-halo);
 }
 
 .cnNode:hover .cnLabel,
@@ -168,7 +208,7 @@
 }
 
 .cnNode:focus-visible {
-  outline: 2px solid #f4d29a;
+  outline: 2px solid var(--cn-focus);
   outline-offset: 3px;
 }
 
@@ -209,7 +249,7 @@
     padding: 1rem;
     z-index: 11;
     pointer-events: auto;
-    background: linear-gradient(to top, rgba(11, 13, 18, 0.94), rgba(11, 13, 18, 0));
+    background: linear-gradient(to top, rgba(var(--cn-scrim), 0.94), rgba(var(--cn-scrim), 0));
   }
   .constellationNodes:not(:empty) .cnNode {
     position: static;

@@ -7,6 +7,22 @@ import react from "@astrojs/react";
 // https://astro.build/config
 export default defineConfig({
   site: "https://mazzeleczzare.com",
+
+  // Code blocks used to be a single dark Shiki theme (Astro's github-dark
+  // default), so every <pre class="astro-code"> stayed a black slab in light
+  // mode — six of them on the fortress essay alone, the largest light-mode
+  // leak on the site. Dual themes emit BOTH palettes as --shiki-light-* /
+  // --shiki-dark-* custom properties on each token span; defaultColor:false
+  // means Shiki writes no colour of its own, so the CSS in global.css
+  // ("Shiki dual-theme code blocks") is load-bearing — without it code blocks
+  // render unstyled. Change one, check the other.
+  markdown: {
+    shikiConfig: {
+      themes: { light: "github-light", dark: "github-dark" },
+      defaultColor: false,
+      wrap: false,
+    },
+  },
   trailingSlash: "always",
   output: "static",
   integrations: [
