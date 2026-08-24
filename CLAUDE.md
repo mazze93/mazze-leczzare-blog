@@ -93,6 +93,8 @@ functions/
     share-event.ts    # Cloudflare Pages Function — quote share telemetry
     login.ts          # Cloudflare Pages Function — admin login
     logout.ts         # Cloudflare Pages Function — admin logout
+  utils/
+    webBotAuth.ts      # RFC 9421 Ed25519 request signing (Web Bot Auth) for this site's outbound requests
 
 public/
   _headers            # Cloudflare security headers + agent discovery Link headers
@@ -323,9 +325,14 @@ Runs on every request before any function. Three responsibilities:
 ### `functions/api/contact.ts`
 
 Env vars: `CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`, `CONTACT_WEBHOOK_URL`,
-`CONTACT_WEBHOOK_AUTH_HEADER`. Requires same-origin browser submissions and a configured
-webhook URL. Validates honeypot, timing (≥1500ms), name (2–80), email, message (20–4000).
-Escapes header values and forwards a structured JSON payload to the webhook receiver.
+`CONTACT_WEBHOOK_AUTH_HEADER`, `WEB_BOT_AUTH_PRIVATE_KEY`. Requires same-origin browser
+submissions and a configured webhook URL. Validates honeypot, timing (≥1500ms), name (2–80),
+email, message (20–4000). Escapes header values and forwards a structured JSON payload to the
+webhook receiver. When `WEB_BOT_AUTH_PRIVATE_KEY` is set, the outbound webhook delivery is
+signed per [Web Bot Auth](https://datatracker.ietf.org/wg/webbotauth/about/)
+(`functions/utils/webBotAuth.ts` — RFC 9421 Ed25519 signature, `Signature-Agent`/
+`Signature-Input`/`Signature` headers) against the public key published at
+`/.well-known/http-message-signatures-directory`.
 
 ### `functions/api/share-event.ts`
 
@@ -374,6 +381,7 @@ Copy `.dev.vars.example` to `.dev.vars` for local development.
 | `CONTACT_SUBJECT_PREFIX` | No (wrangler.toml default) | Prefix used when building the webhook payload subject |
 | `CONTACT_WEBHOOK_URL` | Yes | POST validated contact payloads to this webhook |
 | `CONTACT_WEBHOOK_AUTH_HEADER` | No | Authorization header value sent to the webhook |
+| `WEB_BOT_AUTH_PRIVATE_KEY` | No | Ed25519 private scalar (`d`, JWK base64url) signing the contact webhook delivery per Web Bot Auth; matches the public key at `/.well-known/http-message-signatures-directory` |
 | `INGEST_SECRET` | For `/api/ingest` | Bearer secret for machine content ingest |
 | `GITHUB_INGEST_TOKEN` | For `/api/ingest` | Token used to commit ingested files via GitHub Contents API |
 
@@ -392,6 +400,7 @@ The site exposes machine-readable agent discovery files under `public/.well-know
 | ---- | ------- |
 | `mcp/server-card.json` | MCP server card — lists `contact` and `share-event` tools + RSS resource |
 | `agent-card.json` | A2A Agent Card ([A2A Protocol](https://a2a-protocol.org/latest/specification/)) — `supportedInterfaces`, `capabilities`, and `skills` for `contact`/`share-event` |
+| `http-message-signatures-directory` | [Web Bot Auth](https://datatracker.ietf.org/wg/webbotauth/about/) JWKS — public Ed25519 key (`kid` `U5ShJHF6cxHtApznHP-x_P2wpUqEun1_8yvWMRLlwdU`) verifying `Signature`/`Signature-Input` headers this site's own outbound requests (contact webhook) send when `WEB_BOT_AUTH_PRIVATE_KEY` is configured |
 | `agent-skills/index.json` | Agent skills index (agentskills.io schema) |
 | `agent-skills/contact/SKILL.md` | Contact skill instructions for agents |
 | `agent-skills/share-event/SKILL.md` | Share-event skill instructions for agents |

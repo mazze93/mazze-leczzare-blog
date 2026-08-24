@@ -37,3 +37,8 @@
 /.well-known/agent-card.json
   Content-Type: application/json
   Access-Control-Allow-Origin: *
+
+/.well-known/http-message-signatures-directory
+  Content-Type: application/http-message-signatures-directory+json
+  Access-Control-Allow-Origin: *
+  Cache-Control: max-age=3600
