@@ -1,4 +1,4 @@
-name = "mazze-leczzare-blog"
+name = "mazzeleczzare"
 compatibility_date = "2026-03-07"
 
 [vars]
@@ -22,39 +22,24 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 # CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
 
 # ── KV namespaces ─────────────────────────────────────────────────────────────────────
-# Run to create preview namespaces (one-time, per developer):
-#   wrangler kv namespace create --preview "JWT_REVOCATION_LIST"
-#   wrangler kv namespace create --preview "SHARE_ANALYTICS"
-# Then replace the TODO values below.
 
 [[kv_namespaces]]
 binding = "JWT_REVOCATION_LIST"
 id = "23e6e64051784dcca764c94409fec2b4"
-preview_id = "TODO_run_wrangler_kv_namespace_create_preview"
+preview_id = "ade34c029d2b43429144298ff9ade5dc"
 
 [[kv_namespaces]]
 binding = "SHARE_ANALYTICS"
 id = "be4945b2396d4601ba12a645490b3efb"
-preview_id = "TODO_run_wrangler_kv_namespace_create_preview"
+preview_id = "14f4585199524f29bb64cb346f90ebdc"
 
 # ── Rate limiting ────────────────────────────────────────────────────────────────────
-# Pages Functions supports [[ratelimits]] as of 2025.
-# Create namespaces in the Cloudflare dashboard (Manage > Rate Limiting Namespaces)
-# then replace the TODO namespace_id values below.
-#
-# Suggested limits (enforce in the binding handler, not just here):
-#   LOGIN_RATE_LIMIT   —  5 req/min  (brute-force protection)
-#   INGEST_RATE_LIMIT  — 5 req/min  (writes to repo via GITHUB_INGEST_TOKEN)
-#   CONTACT_RATE_LIMIT — 10 req/min (webhook relay)
-
-[[ratelimits]]
-binding = "LOGIN_RATE_LIMIT"
-namespace_id = "TODO_create_in_cloudflare_dashboard"
-
-[[ratelimits]]
-binding = "INGEST_RATE_LIMIT"
-namespace_id = "TODO_create_in_cloudflare_dashboard"
-
-[[ratelimits]]
-binding = "CONTACT_RATE_LIMIT"
-namespace_id = "TODO_create_in_cloudflare_dashboard"
+# Deliberately NOT configured as [[ratelimits]] bindings here. This file
+# previously had three broken [[ratelimits]] blocks (wrong key names —
+# `binding` instead of `name`, missing `simple` — which failed wrangler.toml
+# parsing entirely, silently no-op'ing every `wrangler` command that reads
+# this file). Removed rather than fixed: functions/api/login.ts,
+# functions/api/ingest.ts, and functions/api/contact.ts all already document
+# that route-level rate limiting is enforced as Cloudflare dashboard WAF
+# rules, not wrangler.toml bindings — see those files' header comments for
+# the suggested limits (5/min login, 5/min ingest, 10/min contact).
