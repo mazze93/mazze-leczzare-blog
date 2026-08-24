@@ -1,7 +1,7 @@
 # CHECKPOINT — agent/bot standards compliance sweep + infra/revenue cleanup
 
-**Last updated:** 2026-08-24 (session end — token budget critical, ~86%+ of
-weekly cap consumed; closing out cleanly rather than starting anything new)
+**Last updated:** 2026-08-24 (reopened in the primary checkout after the
+worktree session closed — see "Second pass" below)
 **Branch:** `worktree-luminous-sprouting-acorn` (this session's isolated
 worktree), rebased onto and pushed straight to `origin/main` after each
 phase — no branch protection encountered.
@@ -64,7 +64,8 @@ commit.
   `docs/journal/archive/2026-08-03-design-systems-pass/CHECKPOINT.md` under
   "Next task". Did not attempt given critical budget — a rushed version
   would cost real tokens and still need redoing.
-- **Uncommitted content edits in the primary checkout**
+- ~~**Uncommitted content edits in the primary checkout**~~ **RESOLVED
+  2026-08-24 in `106bd51`** — see "Second pass" above. Original note:
   (`/Users/daedalus/Projects/blog/mazze-leczzare-blog`, *not* this
   worktree) — 10 modified blog posts + an untracked `README.txt`, present
   at this session's start. This worktree-isolated session cannot read or
@@ -98,6 +99,48 @@ secret put` manages, so it won't show in that list). Until that's set, the
 new nav links route interested readers to an interest-list form, not a
 sale. **This is very likely the highest-leverage single action left for
 actual revenue** — higher than any of the code work above.
+
+## Second pass — 2026-08-24, primary checkout
+
+Picked up in `/Users/daedalus/Projects/blog/mazze-leczzare-blog`, which was 37
+commits behind `origin/main` when this leg started. Fast-forwarded, then:
+
+| Commit | What |
+| --- | --- |
+| `106bd51` | The deferred frontmatter backfill, committed (see below) |
+| `311a342` | Light mode repaired end to end — five defects |
+| `d40bb06` | This journal |
+
+**The deferred content edits are resolved.** The item below said they needed
+review from a session actually in that checkout; this was that session. They
+were frontmatter-only — `category`, `tags`, and five `heroImage`/`heroImageAlt`
+pairs across ten posts, no prose touched — not the in-progress prose the
+worktree session reasonably guessed from the outside. Committed with the
+staging note folded into DECISIONS.md.
+
+**Light mode is now verified, not assumed.** A headless sweep over 11 routes ×
+{stored dark, stored light, system dark, system light} is the standing check:
+zero unintended dark surfaces in light mode, correct `theme-color` in both
+themes, live response to an OS theme change, code blocks styled in both. The
+audit script is disposable; the four states it covers are the thing worth
+re-running after any palette work.
+
+**Still deliberately dark, both reported to mazze rather than changed:**
+`/gay-wandering/` (its own `--gw-*` palette) and the `.cg-page` specimen
+ground. Neither is a bug; both are one-decision-away from theme-aware using
+the token pattern now in `BreathingHero.astro`.
+
+**Open and now measured: blog/MDX typography reads flat.** Body is DM Mono
+400, `strong` is DM Mono 500 (that family ships nothing heavier), headings are
+Cormorant Garamond 400 — the whole page is one weight with a single 500
+accent. Authored in `7bc06121`, not a regression, so it was left for mazze's
+call. Cormorant Garamond 600 is imported and unused if a heavier heading is
+wanted.
+
+**Astrolabe chrome: still not started.** Note the brief's input path has
+rotted — `~/Desktop/mazze-fully-cooked-landing.html` moved to
+`~/Desktop/💻 DEV/mazze-fully-cooked-landing.html`. The archived brief and the
+deferred item below both still cite the old path.
 
 ## Non-actions (explicit, from earlier phases — still true)
 
