@@ -58,8 +58,10 @@ commit.
 ## Explicitly deferred — not started, not silently dropped
 
 - **Astrolabe chrome design pass.** Genuinely large (SVG chrome work,
-  external design references at `~/Desktop/mazze-fully-cooked-landing.html`
-  and `~/Public/Design/lightmode-proto.html`, real visual-design judgment).
+  external design references at `~/Desktop/💻 DEV/mazze-fully-cooked-landing.html`
+  — moved out of `~/Desktop/` since the brief was written, path corrected
+  2026-08-24 — and `~/Public/Design/lightmode-proto.html`, real visual-design
+  judgment).
   Full brief preserved at
   `docs/journal/archive/2026-08-03-design-systems-pass/CHECKPOINT.md` under
   "Next task". Did not attempt given critical budget — a rushed version
