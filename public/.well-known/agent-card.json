@@ -1,0 +1,45 @@
+{
+  "name": "Mazze LeCzzare",
+  "description": "Security engineer, content strategist, and founder of Secure Pride. Essays and infrastructure for systems with real human stakes.",
+  "version": "1.0.0",
+  "provider": {
+    "url": "https://mazzeleczzare.com",
+    "organization": "Mazze LeCzzare"
+  },
+  "documentationUrl": "https://mazzeleczzare.com/.well-known/agent-skills/index.json",
+  "iconUrl": "https://mazzeleczzare.com/mazze-leczzare-social-preview.png",
+  "supportedInterfaces": [
+    {
+      "url": "https://mazzeleczzare.com/api",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false
+  },
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json", "text/markdown"],
+  "skills": [
+    {
+      "id": "contact",
+      "name": "Contact",
+      "description": "Send a message to Mazze Leczzare via the site contact form.",
+      "tags": ["contact", "messaging"],
+      "examples": ["Send a message to the author about a collaboration."],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "share-event",
+      "name": "Share Event",
+      "description": "Record a quote-share telemetry event for a blog post paragraph.",
+      "tags": ["telemetry", "analytics"],
+      "examples": ["Record that a reader shared a quoted paragraph from a post."],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    }
+  ]
+}

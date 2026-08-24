@@ -391,6 +391,7 @@ The site exposes machine-readable agent discovery files under `public/.well-know
 | File | Purpose |
 | ---- | ------- |
 | `mcp/server-card.json` | MCP server card — lists `contact` and `share-event` tools + RSS resource |
+| `agent-card.json` | A2A Agent Card ([A2A Protocol](https://a2a-protocol.org/latest/specification/)) — `supportedInterfaces`, `capabilities`, and `skills` for `contact`/`share-event` |
 | `agent-skills/index.json` | Agent skills index (agentskills.io schema) |
 | `agent-skills/contact/SKILL.md` | Contact skill instructions for agents |
 | `agent-skills/share-event/SKILL.md` | Share-event skill instructions for agents |

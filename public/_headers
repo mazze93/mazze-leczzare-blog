@@ -12,6 +12,7 @@
   Link: </rss.xml>; rel="alternate"; type="application/rss+xml"; title="Mazze LeCzzare"
   Link: </.well-known/agent-skills/index.json>; rel="service-doc"
   Link: </.well-known/mcp/server-card.json>; rel="service-desc"
+  Link: </.well-known/agent-card.json>; rel="service-desc"
 
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
@@ -30,5 +31,9 @@
   Access-Control-Allow-Origin: *
 
 /.well-known/mcp/server-card.json
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *
+
+/.well-known/agent-card.json
   Content-Type: application/json
   Access-Control-Allow-Origin: *
