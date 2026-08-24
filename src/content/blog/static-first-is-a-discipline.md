@@ -3,6 +3,8 @@ title: "Static-First Is a Discipline"
 description: "Why I still prefer static publishing for personal infrastructure, even when modern frameworks make dynamic everything easy."
 pubDate: 2026-03-05
 heroImage: "../../assets/images/blog/hero-signal-grid.svg"
+category: "Security"
+tags: ["astro", "cloudflare", "static-first", "local-first", "security"]
 ---
 
 Static-first is not nostalgia.

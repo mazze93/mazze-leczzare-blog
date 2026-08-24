@@ -67,3 +67,56 @@ scanner that tried to use it. Chose honesty over checklist-completeness.
 *How to apply:* if this site ever gains real OAuth dynamic client
 registration for agents, revisit — the omission was a judgment call about
 present reality, not a permanent policy.
+
+---
+
+## 2026-08-24 (later) — resumed in the primary checkout
+
+**2026-08-24 · Committed the 10-file frontmatter backfill that the previous
+session had to defer ·** The `luminous-sprouting-acorn` worktree session
+flagged "uncommitted content edits in the primary checkout — 10 modified blog
+posts + an untracked `README.txt`" and correctly refused to touch them from
+inside a worktree, guessing they were in-progress prose. Read from the
+checkout itself, they are **frontmatter-only**: 20 added lines across 10
+posts — `category`, `tags`, and five `heroImage`/`heroImageAlt` pairs. No
+prose was touched. All five newly-referenced hero images exist in
+`src/assets/images/blog/` and process through Astro's image pipeline; build,
+tsc and the 194-test suite are green with them applied.
+
+Local `main` was 37 commits behind `origin/main` when this session resumed,
+so the edits sat on a stale base. Handled as stash → `merge --ff-only` →
+`stash pop`. Upstream had touched exactly one of the ten files
+(`the-tree-we-didnt-mean-to-build.mdx`, a caption line in the body), so the
+frontmatter-only edits reapplied with no conflict and nothing upstream was
+overwritten. *Reverse:* `git revert` the backfill commit; the hero images it
+references are committed separately and would survive.
+
+**2026-08-24 · Folded `src/content/blog/README.txt` into this log and removed
+it ·** It was the staging note from whoever produced the backfill. Its source
+directory `/tmp/mazze-blog-metadata-fixes` no longer exists, so it pointed at
+nothing — rot by this workspace's definition — and it sat inside a
+glob-loaded content collection directory where it did not belong. Recorded
+verbatim here instead of archived as a file, since its only durable value is
+the exclusion it names. Content:
+
+```
+Corrected blog content files staged in /tmp/mazze-blog-metadata-fixes
+
+Included files:
+- a-fortress-that-forgets.mdx
+- the-tree-we-didnt-mean-to-build.mdx
+- the-circuit-closes.mdx
+- on-decay-rot-and-the-goblin-at-the-gate.mdx
+- the-jingle-of-me.mdx
+- we-all-float-on.mdx
+- welcome-to-the-studio.md
+- static-first-is-a-discipline.md
+- mapping-curiosity.md
+- secure-pride-origin.mdx
+
+Not included: content-strategy-community-practice.mdx (still needs a hero
+image decision).
+```
+
+**Carried forward:** `content-strategy-community-practice.mdx` still has no
+hero image. That is a design decision for mazze, not something to auto-fill.
