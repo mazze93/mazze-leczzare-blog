@@ -1,12 +1,14 @@
-# CHECKPOINT — agent/bot standards compliance sweep
+# CHECKPOINT — agent/bot standards compliance sweep + infra/revenue cleanup
 
-**Last updated:** 2026-08-24
+**Last updated:** 2026-08-24 (session end — token budget critical, ~86%+ of
+weekly cap consumed; closing out cleanly rather than starting anything new)
 **Branch:** `worktree-luminous-sprouting-acorn` (this session's isolated
 worktree), rebased onto and pushed straight to `origin/main` after each
 phase — no branch protection encountered.
 **Predecessor journal** (open, not finished — set aside, not lost):
 `docs/journal/archive/2026-08-03-design-systems-pass/` — next task there was
-"astrolabe chrome over derived geometry".
+"astrolabe chrome over derived geometry". **Still not started this pass —
+see "Explicitly deferred" below.**
 
 ## To resume — read in this order
 
@@ -21,42 +23,86 @@ phase — no branch protection encountered.
 | `8effa58` | `/.well-known/agent-card.json` — A2A Agent Card |
 | `86b510e` | `/.well-known/http-message-signatures-directory` (Web Bot Auth JWKS) + signs the contact webhook |
 | `92c9ae5` | `/auth.md` — Auth.md agent-authentication disclosure |
+| `4e02334` | Journal: archived the interrupted design-systems pass, scaffolded this one |
+| `fc3caaf` | `wrangler.toml` repaired (broken `[[ratelimits]]` parse error, wrong project `name`, both KV `preview_id` TODOs resolved); "Book" link added to main nav + homepage airlock |
+| *(next)* | Stub-comment rename in `about.astro`; this checkpoint update |
 
-All three pushed to `origin/main` and confirmed live (HTTP 200, correct
-content-type, byte-matching JSON/Markdown) via curl against
-`mazzeleczzare.com` after each deploy. `npm run check` and
-`npm run docs:check` both green after every commit.
+All pushed to `origin/main`. Every deploy confirmed live via
+`wrangler pages deployment list` and/or direct curl. `npm run check`,
+`npm test` (194/194), and `npm run docs:check` all green as of the last
+commit.
 
-## Standing state
+## Standing state — confirmed working, no action needed
 
-- `WEB_BOT_AUTH_PRIVATE_KEY` is set as a Cloudflare Pages secret on the
-  `mazzeleczzare` project (confirmed via `wrangler pages secret list`).
-  Contact webhook deliveries should now carry `Signature-Agent`/
-  `Signature-Input`/`Signature` headers — **not yet verified with an actual
-  live contact-form submission**, only with a local Node WebCrypto
-  sign/verify round-trip using the real key material.
-- Two `.well-known` OAuth files (`oauth-authorization-server`,
-  `oauth-protected-resource`) predate this session and describe `/admin`'s
-  real cookie-based login, not an agent-consumable Bearer flow. Left
-  unmodified; `/auth.md` explains the discrepancy rather than the files
-  pretending otherwise. Not a defect introduced this pass — a pre-existing
-  condition, documented not fixed.
+- **CI runs vitest.** `.github/workflows/ci.yml`'s `Test` step is
+  `npm test` (the 194-test vitest suite), placed before build. Confirmed
+  green on the last several pushes via `gh run list`.
+- **Auto-deploy on push to main is real and working**, not assumed —
+  `wrangler pages deployment list --project-name mazzeleczzare` shows a
+  Production deployment for every one of this session's 5 pushes,
+  each within ~90s–2min of the push.
+- **`wrangler.toml` now parses** (it silently didn't before — every
+  `wrangler` invocation was failing config validation, which is *why*
+  `wrangler pages secret put` needed `--project-name` explicitly earlier
+  this session). `name` now matches the real Cloudflare Pages project.
+  Both KV `preview_id` TODOs resolved with real namespaces.
+- `WEB_BOT_AUTH_PRIVATE_KEY` is set as a Cloudflare Pages secret (confirmed
+  via `wrangler pages secret list`). Contact webhook deliveries should now
+  carry `Signature-Agent`/`Signature-Input`/`Signature` headers — **not yet
+  verified with an actual live contact-form submission**, only with a local
+  Node WebCrypto sign/verify round-trip using the real key material.
+- **The book (`/gay-wandering/`) now has a path from the homepage
+  (AirlockStrip) and the main site nav (every full-header page).** It did
+  not before this session.
 
-## Deferred / needs a decision
+## Explicitly deferred — not started, not silently dropped
 
-- **`wrangler.toml`'s `name` field is wrong** (`mazze-leczzare-blog`, should
-  be `mazzeleczzare` to match the real Cloudflare Pages project). Flagged to
-  the user, not changed — confirm no other tooling depends on the current
-  value before renaming.
-- No further agent/bot standard has been requested yet. If one is, resume
-  this same PLAN.md/DECISIONS.md rather than re-scaffolding.
+- **Astrolabe chrome design pass.** Genuinely large (SVG chrome work,
+  external design references at `~/Desktop/mazze-fully-cooked-landing.html`
+  and `~/Public/Design/lightmode-proto.html`, real visual-design judgment).
+  Full brief preserved at
+  `docs/journal/archive/2026-08-03-design-systems-pass/CHECKPOINT.md` under
+  "Next task". Did not attempt given critical budget — a rushed version
+  would cost real tokens and still need redoing.
+- **Uncommitted content edits in the primary checkout**
+  (`/Users/daedalus/Projects/blog/mazze-leczzare-blog`, *not* this
+  worktree) — 10 modified blog posts + an untracked `README.txt`, present
+  at this session's start. This worktree-isolated session cannot read or
+  touch that other working directory (tooling refuses `git -C` against it
+  by design). **Mazze: these need review from a session actually in that
+  checkout, or from you directly** — they read as in-progress prose edits,
+  which per your CREATIVE posture shouldn't be auto-committed by an agent
+  regardless.
+- **Two pre-existing `.well-known` OAuth files**
+  (`oauth-authorization-server`, `oauth-protected-resource`) describe
+  `/admin`'s real cookie-based login, not an agent-consumable Bearer flow.
+  Attempted to delete them (the honest fix, since `/auth.md` already
+  supersedes them) — **blocked by the permission classifier** as a risky
+  deletion of public-facing files. Left as-is; `/auth.md` already discloses
+  the discrepancy. If you want them gone, that now needs your explicit
+  go-ahead on the specific `git rm`.
 
-## Non-actions (explicit)
+## The one blocker only you can clear: the book's real checkout
+
+`/gay-wandering/`'s buy button is driven by
+`PUBLIC_GAY_WANDERING_CHECKOUT_URL` (a build-time env var, read in
+`src/pages/gay-wandering/index.astro`). It is **not set** in Cloudflare
+Pages right now (confirmed — the live button currently falls back to "Join
+the first-edition list" → `/contact/?subject=Gay%20Wandering`, not a real
+Lemon Squeezy checkout). Nothing this session did can fix that — it needs
+your real Lemon Squeezy product checkout URL, set as a **Pages build
+environment variable** (Cloudflare dashboard → mazzeleczzare project →
+Settings → Environment variables → Production; this is a *build-time*
+Astro var, distinct from the Function runtime secrets `wrangler pages
+secret put` manages, so it won't show in that list). Until that's set, the
+new nav links route interested readers to an interest-list form, not a
+sale. **This is very likely the highest-leverage single action left for
+actual revenue** — higher than any of the code work above.
+
+## Non-actions (explicit, from earlier phases — still true)
 
 - Did not sign `functions/api/ingest.ts`'s outbound GitHub Contents API
-  calls with Web Bot Auth — see DECISIONS.md for why (GitHub doesn't verify
-  it; those calls are token-authenticated infra, not agent outreach).
+  calls with Web Bot Auth — GitHub doesn't verify it; those calls are
+  token-authenticated infra, not agent outreach (see DECISIONS.md).
 - Did not add an `agent_auth`/`register_uri` block to `/auth.md` — no real
-  registration endpoint exists to point to; see DECISIONS.md.
-- Did not fix the pre-existing OAuth metadata files or the `wrangler.toml`
-  name mismatch — both flagged, neither touched.
+  registration endpoint exists to point to (see DECISIONS.md).
