@@ -120,3 +120,34 @@ image decision).
 
 **Carried forward:** `content-strategy-community-practice.mdx` still has no
 hero image. That is a design decision for mazze, not something to auto-fill.
+
+**2026-08-24 · Fixed the light-mode failures; left two authored dark surfaces
+alone ·** A headless sweep over 11 routes × 4 theme states found five real
+defects (blank `theme-color`, no OS-change following, the hero's hardcoded
+trail fade, single-theme Shiki, cipher-gothic's literal accents). All five are
+fixed in `311a342` and re-verified by the same sweep.
+
+Two surfaces that stay dark in light mode were **not** touched:
+`/gay-wandering/` declares its own `--gw-*` wine/indigo/gold palette and
+overrides `--bg`/`--text` unconditionally, and `.cg-page` carries a comment
+defending its dark specimen ground. Both are authored single-palette designs
+shipped deliberately — converting either is a design decision for mazze, not a
+bug fix, so they are reported rather than changed. *Reverse:* if mazze wants
+them theme-aware, both follow the same pattern used on the hero here — name a
+local token set, override it under `[data-theme="light"]`.
+
+**2026-08-24 · Did not change blog body typography, despite it being the
+reported symptom ·** "Fonts rendering flat in blogs/mdx" is real and measured:
+`.prose` body is DM Mono 400/16px, `strong` is DM Mono 500 (the heaviest
+weight that family ships — there is no 600/700), and headings are Cormorant
+Garamond 400. Every level of the page sits at 400 with a single 500 accent, so
+there is almost no weight contrast anywhere.
+
+It is **not a regression**: `git log -S` puts the mono body, the 500 bold, and
+the removal of the old `font-weight: 700` all in mazze's own `7bc06121`
+(2026-03-30, "Redesign editorial system with dark-first theme and
+typography"). Re-fonting the reading surface is exactly the authored choice
+the CREATIVE posture says not to sand down, so it is presented as options with
+the measurements rather than changed unilaterally. *To apply later:* the
+levers are the `--font-*` tokens in `global.css` and `strong, b`; Cormorant
+Garamond 600 is already imported and currently unused by anything.
