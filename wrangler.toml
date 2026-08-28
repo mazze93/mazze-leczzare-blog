@@ -1,4 +1,4 @@
-name = "mazze-leczzare-blog"
+name = "mazzeleczzare"
 compatibility_date = "2026-03-07"
 
 [vars]
@@ -24,47 +24,24 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 # CONTACT_WEBHOOK_AUTH_HEADER — Authorization header value for the webhook receiver
 
 # ── KV namespaces ─────────────────────────────────────────────────────────────────────
-# Run to create preview namespaces (one-time, per developer):
-#   wrangler kv namespace create --preview "JWT_REVOCATION_LIST"
-#   wrangler kv namespace create --preview "SHARE_ANALYTICS"
-# Then replace the TODO values below.
 
 [[kv_namespaces]]
 binding = "JWT_REVOCATION_LIST"
 id = "23e6e64051784dcca764c94409fec2b4"
-preview_id = "TODO_run_wrangler_kv_namespace_create_preview"
+preview_id = "ade34c029d2b43429144298ff9ade5dc"
 
 [[kv_namespaces]]
 binding = "SHARE_ANALYTICS"
 id = "be4945b2396d4601ba12a645490b3efb"
-preview_id = "TODO_run_wrangler_kv_namespace_create_preview"
+preview_id = "14f4585199524f29bb64cb346f90ebdc"
 
 # ── Rate limiting ────────────────────────────────────────────────────────────────────
-# Native Workers Rate Limiting binding (GA since 2025-09), not the dashboard WAF rate
-# limiting rules. `namespace_id` is not a provisioned resource — it's just an
-# account-unique string you pick to scope each limiter's counter; nothing to create in
-# the dashboard first. `simple.period` is Cloudflare's binding API and only accepts
-# 10 or 60 (seconds). These bindings are declared but not yet read by any Function —
-# route-level enforcement for /api/login, /api/share-event, and /api/ingest is still
-# managed via Cloudflare dashboard WAF rules per CLAUDE.md; wire `env.<NAME>.limit()`
-# into the relevant handler when ready to switch enforcement to this binding.
-#
-# Suggested limits:
-#   LOGIN_RATE_LIMIT   —  5 req/min  (brute-force protection)
-#   INGEST_RATE_LIMIT  — 5 req/min  (writes to repo via GITHUB_INGEST_TOKEN)
-#   CONTACT_RATE_LIMIT — 10 req/min (webhook relay)
-
-[[ratelimits]]
-name = "LOGIN_RATE_LIMIT"
-namespace_id = "1001"
-simple = { limit = 5, period = 60 }
-
-[[ratelimits]]
-name = "INGEST_RATE_LIMIT"
-namespace_id = "1002"
-simple = { limit = 5, period = 60 }
-
-[[ratelimits]]
-name = "CONTACT_RATE_LIMIT"
-namespace_id = "1003"
-simple = { limit = 10, period = 60 }
+# Deliberately NOT configured as [[ratelimits]] bindings here. This file
+# previously had three broken [[ratelimits]] blocks (wrong key names —
+# `binding` instead of `name`, missing `simple` — which failed wrangler.toml
+# parsing entirely, silently no-op'ing every `wrangler` command that reads
+# this file). Removed rather than fixed: functions/api/login.ts,
+# functions/api/ingest.ts, and functions/api/contact.ts all already document
+# that route-level rate limiting is enforced as Cloudflare dashboard WAF
+# rules, not wrangler.toml bindings — see those files' header comments for
+# the suggested limits (5/min login, 5/min ingest, 10/min contact).

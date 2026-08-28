@@ -12,6 +12,12 @@
   Link: </rss.xml>; rel="alternate"; type="application/rss+xml"; title="Mazze LeCzzare"
   Link: </.well-known/agent-skills/index.json>; rel="service-doc"
   Link: </.well-known/mcp/server-card.json>; rel="service-desc"
+  Link: </.well-known/agent-card.json>; rel="service-desc"
+  Link: </auth.md>; rel="service-doc"; type="text/markdown"
+
+/auth.md
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
 
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
@@ -32,3 +38,12 @@
 /.well-known/mcp/server-card.json
   Content-Type: application/json
   Access-Control-Allow-Origin: *
+
+/.well-known/agent-card.json
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *
+
+/.well-known/http-message-signatures-directory
+  Content-Type: application/http-message-signatures-directory+json
+  Access-Control-Allow-Origin: *
+  Cache-Control: max-age=3600

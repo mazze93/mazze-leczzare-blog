@@ -15,21 +15,31 @@ concurrency:
 
 jobs:
   build:
-    name: Build & type-check
+    name: Test, type-check & build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      # Pinned to full commit SHAs rather than @v7. A tag is mutable and can be
+      # repointed at arbitrary code after review; a SHA cannot.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version-file: .nvmrc
+          cache: npm
 
-      - name: Install dependencies
-        run: |
-          echo "npm version: $(npm --version)"
-          npm install --prefer-offline
-          echo "installed via npm install"
+      # `npm ci`, not `npm install --prefer-offline`. `npm install` is free to
+      # resolve a DIFFERENT tree than package-lock.json, so CI was not testing
+      # the lockfile that review and deploy actually use. `ci` installs the
+      # lockfile exactly and fails loudly if it disagrees with package.json.
+      - name: Install (locked)
+        run: npm ci
+
+      # The 194-test vitest suite. It existed and passed but nothing ran it,
+      # so a logic regression in src/utils could reach main with CI green.
+      # Placed before the build so it fails fast on logic, not after a build.
+      - name: Test
+        run: npm test
 
       - name: Type-check + build
         run: npm run check

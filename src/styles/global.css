@@ -667,6 +667,40 @@ pre > code {
   color: var(--text-dim);
 }
 
+/* ---- Shiki dual-theme code blocks ------------------------------------
+   Paired with markdown.shikiConfig in astro.config.mjs, which sets
+   defaultColor:false and therefore emits NO colour of its own — only
+   --shiki-light* / --shiki-dark* custom properties on <pre.astro-code> and
+   every token <span> inside it. That makes these rules load-bearing: delete
+   them and code blocks render as unstyled text. Dark is the site default, so
+   the dark palette is the base and light is the override.
+
+   Before this, Astro's single github-dark theme meant a code block stayed a
+   black slab on paper in light mode — the biggest remaining light-mode leak
+   on the site (six of them on one essay).
+
+   `pre > code { all: unset }` above strips the inherited colour, so the token
+   spans need the colour applied directly rather than inherited. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+}
+
+.astro-code {
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+[data-theme="light"] .astro-code,
+[data-theme="light"] .astro-code span {
+  color: var(--shiki-light) !important;
+  font-style: var(--shiki-light-font-style) !important;
+}
+
+[data-theme="light"] .astro-code {
+  background-color: var(--shiki-light-bg) !important;
+}
+
 /* ===========================
    Blockquote
    =========================== */

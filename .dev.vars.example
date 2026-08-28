@@ -15,6 +15,12 @@ TURNSTILE_SECRET_KEY=
 CONTACT_WEBHOOK_URL=
 # Full Authorization header value expected by the webhook receiver.
 CONTACT_WEBHOOK_AUTH_HEADER=
+# Ed25519 private scalar ("d", base64url, JWK format) matching the public key
+# published at /.well-known/http-message-signatures-directory (kid
+# U5ShJHF6cxHtApznHP-x_P2wpUqEun1_8yvWMRLlwdU). Signs the contact webhook
+# delivery per the Web Bot Auth protocol (functions/utils/webBotAuth.ts).
+# Omit to send the webhook unsigned.
+WEB_BOT_AUTH_PRIVATE_KEY=
 
 # ── Cloudflare service bindings (not secrets — configure in Cloudflare) ──────
 # KV bindings are configured in `wrangler.toml`.

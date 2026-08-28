@@ -1,9 +1,12 @@
+import { signOutboundRequest } from "../utils/webBotAuth";
+
 interface Env {
   CONTACT_FROM_EMAIL?: string;
   CONTACT_SUBJECT_PREFIX?: string;
   CONTACT_WEBHOOK_URL?: string;
   CONTACT_WEBHOOK_AUTH_HEADER?: string;
   TURNSTILE_SECRET_KEY?: string;
+  WEB_BOT_AUTH_PRIVATE_KEY?: string;
 }
 
 type ContactPayload = {
@@ -132,13 +135,18 @@ async function deliverViaWebhook(
   webhookUrl: string,
   authHeader: string | undefined,
   payload: Record<string, string>,
+  webBotAuthPrivateKey: string | undefined,
 ) {
-  const headers: Record<string, string> = {
+  const headers = new Headers({
     "Content-Type": "application/json; charset=utf-8",
-  };
+  });
 
   if (authHeader) {
-    headers.Authorization = authHeader;
+    headers.set("Authorization", authHeader);
+  }
+
+  if (webBotAuthPrivateKey) {
+    await signOutboundRequest(webhookUrl, headers, webBotAuthPrivateKey);
   }
 
   const response = await fetch(webhookUrl, {
@@ -301,6 +309,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       webhookUrl,
       webhookAuthHeader || undefined,
       deliveryPayload,
+      env.WEB_BOT_AUTH_PRIVATE_KEY,
     );
     return json({
       ok: true,

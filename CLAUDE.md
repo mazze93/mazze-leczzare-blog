@@ -94,6 +94,8 @@ functions/
     share-event.ts    # Cloudflare Pages Function — quote share telemetry
     login.ts          # Cloudflare Pages Function — admin login
     logout.ts         # Cloudflare Pages Function — admin logout
+  utils/
+    webBotAuth.ts      # RFC 9421 Ed25519 request signing (Web Bot Auth) for this site's outbound requests
 
 public/
   _headers            # Cloudflare security headers + agent discovery Link headers
@@ -106,6 +108,14 @@ public/
                       #   Every file here resolves — the two legacy atkinson-*.woff
                       #   orphans were retired 2026-08-03.
   images/blog/        # Static blog images (served directly, no processing)
+  papers/             # Formal-argument PDFs, citable and stable — linked from a post
+                      #   with a "Formal companion" line and cataloged in
+                      #   /writing under "02 — Papers" (see writing/index.astro)
+  social/             # Shareable LinkedIn/social carousel PDFs, one per post that has
+                      #   one — 1080-wide multi-page decks distilling a post's argument,
+                      #   linked from that post with a "Shareable version" line. Not
+                      #   cataloged in /writing (they're derivative collateral, not a
+                      #   primary work). Built via the `carousel` skill.
 
 scripts/ops/          # Local operational scripts (not part of the site build)
 docs/operations/      # Agent operations protocol and memory files
@@ -145,6 +155,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` | Standalone page; ships its own `fonts/` subdirectory |
+| `/auth.md`        | `public/auth.md`                    | [Auth.md](https://auth.md/) agent-authentication disclosure — see Agent Discoverability |
 | `/api/contact`    | `functions/api/contact.ts`          | POST only — form delivery                |
 | `/api/ingest`     | `functions/api/ingest.ts`           | POST only — authenticated content ingest |
 | `/api/share-event`| `functions/api/share-event.ts`      | POST only — quote telemetry              |
@@ -315,12 +326,15 @@ Runs on every request before any function. Three responsibilities:
 
 ### `functions/api/contact.ts`
 
-Env vars: `CONTACT_FROM_EMAIL`, `CONTACT_SUBJECT_PREFIX`, `CONTACT_WEBHOOK_URL`,
-`CONTACT_WEBHOOK_AUTH_HEADER`, `TURNSTILE_SECRET_KEY`. Requires same-origin browser
-submissions, a configured webhook URL, and a configured Turnstile secret key. Validates
-honeypot, timing (≥1500ms), the Turnstile token (via `siteverify`, `remoteip` set from
-`CF-Connecting-IP`), name (2–80), email, message (20–4000). Escapes header values and
-forwards a structured JSON payload to the webhook receiver.
+`CONTACT_WEBHOOK_AUTH_HEADER`, `TURNSTILE_SECRET_KEY`, `WEB_BOT_AUTH_PRIVATE_KEY`. Requires
+same-origin browser submissions, a configured webhook URL, and a configured Turnstile secret
+key. Validates honeypot, timing (≥1500ms), the Turnstile token (via `siteverify`, `remoteip`
+set from `CF-Connecting-IP`), name (2–80), email, message (20–4000). Escapes header values and
+forwards a structured JSON payload to the webhook receiver. When `WEB_BOT_AUTH_PRIVATE_KEY` is
+set, the outbound webhook delivery is signed per
+[Web Bot Auth](https://datatracker.ietf.org/wg/webbotauth/about/) (`functions/utils/webBotAuth.ts`
+— RFC 9421 Ed25519 signature, `Signature-Agent`/`Signature-Input`/`Signature` headers) against
+the public key published at `/.well-known/http-message-signatures-directory`.
 
 **Turnstile**: the widget on `/contact` (`ContactForm.tsx`) is rendered explicitly against
 `TURNSTILE_SITE_KEY` (`src/consts.ts` — site keys are public, unlike the secret key, so
@@ -378,6 +392,7 @@ Copy `.dev.vars.example` to `.dev.vars` for local development.
 | `CONTACT_WEBHOOK_URL` | Yes | POST validated contact payloads to this webhook |
 | `CONTACT_WEBHOOK_AUTH_HEADER` | No | Authorization header value sent to the webhook |
 | `TURNSTILE_SECRET_KEY` | Yes | Verifies Turnstile tokens server-side for `/api/contact` (paired with the public `TURNSTILE_SITE_KEY` in `src/consts.ts`) |
+| `WEB_BOT_AUTH_PRIVATE_KEY` | No | Ed25519 private scalar (`d`, JWK base64url) signing the contact webhook delivery per Web Bot Auth; matches the public key at `/.well-known/http-message-signatures-directory` |
 | `INGEST_SECRET` | For `/api/ingest` | Bearer secret for machine content ingest |
 | `GITHUB_INGEST_TOKEN` | For `/api/ingest` | Token used to commit ingested files via GitHub Contents API |
 
@@ -395,13 +410,23 @@ The site exposes machine-readable agent discovery files under `public/.well-know
 | File | Purpose |
 | ---- | ------- |
 | `mcp/server-card.json` | MCP server card — lists `contact` and `share-event` tools + RSS resource |
+| `agent-card.json` | A2A Agent Card ([A2A Protocol](https://a2a-protocol.org/latest/specification/)) — `supportedInterfaces`, `capabilities`, and `skills` for `contact`/`share-event` |
+| `http-message-signatures-directory` | [Web Bot Auth](https://datatracker.ietf.org/wg/webbotauth/about/) JWKS — public Ed25519 key (`kid` `U5ShJHF6cxHtApznHP-x_P2wpUqEun1_8yvWMRLlwdU`) verifying `Signature`/`Signature-Input` headers this site's own outbound requests (contact webhook) send when `WEB_BOT_AUTH_PRIVATE_KEY` is configured |
 | `agent-skills/index.json` | Agent skills index (agentskills.io schema) |
 | `agent-skills/contact/SKILL.md` | Contact skill instructions for agents |
 | `agent-skills/share-event/SKILL.md` | Share-event skill instructions for agents |
 | `api-catalog` | RFC 9727 linkset API catalog |
 | `oauth-authorization-server` | OAuth AS metadata |
-| `oauth-protected-resource` | OAuth protected resource metadata |
+| `oauth-protected-resource` | OAuth protected resource metadata — describes the `/admin` boundary only; not an agent registration mechanism (see `/auth.md`) |
 | `security.txt` | Security contact information |
+
+`public/auth.md` (served at `/auth.md`, per the [Auth.md](https://auth.md/)
+convention) is the disclosure doc for agents deciding how to authenticate:
+no registration or API-key issuance exists, the public read-only surface
+above needs no credentials, `/api/contact` and `/api/share-event` are
+same-origin-gated (not agent-callable), and `/admin` is a human-only,
+cookie-session area — the OAuth-shaped `.well-known` metadata documents
+that boundary but isn't an invitation to register a client.
 
 Homepage (`/`) sends Link headers for all discovery endpoints via `public/_headers`.
 Middleware serves `text/markdown` content-negotiation for any AI agent that requests it.

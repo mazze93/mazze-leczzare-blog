@@ -169,8 +169,12 @@ import '@fontsource/crimson-pro/600.css';
     --cg-bg-elevated: #0b0f14;
     --cg-surface: #0f141b;
     --cg-border: rgba(255, 255, 255, 0.04);
-    --cg-accent: #5CCFCF;
-    --cg-coral: #F07178;
+    /* Aliases, not copies: these two were literal hexes duplicating --teal and
+       --coral, so a palette change anywhere else silently left the specimen
+       page behind — the exact drift that made /cipher-gothic/ look like a
+       different site. (Deferred item 6 of the design-systems pass.) */
+    --cg-accent: var(--teal);
+    --cg-coral: var(--coral);
     --cg-ink: #f4f5f7;
     --cg-ink-muted: #a0a4b3;
     --cg-sans: "Space Grotesk Variable", "Space Grotesk", system-ui, sans-serif;

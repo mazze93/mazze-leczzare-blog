@@ -103,7 +103,59 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     display: grid;
     align-items: center;
     overflow: hidden;
-    background: #0b0d12;
+    /* Was a hardcoded #0b0d12, which stayed navy under [data-theme="light"]
+       and made the hero a dark slab on Haven paper. --home-bg is already
+       mapped to the Haven surface in the light block of global.css. */
+    background: var(--home-bg);
+
+    /* ---- Hero-local palette -------------------------------------------
+       Everything in this component used to be a dark-only literal: white
+       text, white hairline borders, near-black card fills. Fixing only the
+       section background turned the hero into white text on paper. These
+       tokens carry the dark values as the base (dark is the site default)
+       and are re-pointed under [data-theme="light"] below, so the hero has
+       one palette switch rather than twenty scattered hexes. */
+    --hero-ink:        #f2f4f8;
+    --hero-ink-2:      rgba(242, 244, 248, 0.66);
+    --hero-ink-3:      rgba(242, 244, 248, 0.5);
+    --hero-ink-4:      rgba(242, 244, 248, 0.34);
+    --hero-teal:       #2bd3c6;
+    --hero-teal-hover: #34e8d9;
+    --hero-gold:       #e8b64c;
+    --hero-on-accent:  #0b0d12;
+    --hero-card:       rgba(11, 13, 18, 0.62);
+    --hero-card-hover: rgba(11, 13, 18, 0.78);
+    --hero-card-solid: rgba(11, 13, 18, 0.8);
+    --hero-edge:       rgba(255, 255, 255, 0.09);
+    --hero-edge-hover: rgba(255, 255, 255, 0.18);
+    --hero-edge-cta:   rgba(255, 255, 255, 0.12);
+    --hero-edge-strong:rgba(255, 255, 255, 0.25);
+    --hero-cta-wash:   rgba(255, 255, 255, 0.04);
+    --hero-halo:       rgba(11, 13, 18, 0.9);
+  }
+
+  /* Haven/Ink values for the same slots. The accents go deeper rather than
+     lighter — the dark teal and amber are near-invisible on warm paper, and
+     both carry text (CTA label, gold word, node links), so they need to hold
+     contrast against #f4f0e7 rather than glow against near-black. */
+  :global([data-theme="light"]) .breathing-hero {
+    --hero-ink:        var(--ink);
+    --hero-ink-2:      var(--ink-2);
+    --hero-ink-3:      var(--ink-3);
+    --hero-ink-4:      var(--ink-ghost);
+    --hero-teal:       #10635c;
+    --hero-teal-hover: #0b4a45;
+    --hero-gold:       #7a622c;
+    --hero-on-accent:  #f9f6ee;
+    --hero-card:       rgba(249, 246, 238, 0.72);
+    --hero-card-hover: rgba(249, 246, 238, 0.92);
+    --hero-card-solid: rgba(249, 246, 238, 0.94);
+    --hero-edge:       var(--wash-14);
+    --hero-edge-hover: var(--wash-22);
+    --hero-edge-cta:   var(--wash-14);
+    --hero-edge-strong:var(--wash-38);
+    --hero-cta-wash:   var(--wash-4);
+    --hero-halo:       rgba(244, 240, 231, 0.9);
   }
 
   .breathing-hero__canvas {
@@ -143,18 +195,18 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     font-size: clamp(0.92rem, 1.2vw, 1.05rem);
     line-height: 1.6;
     max-width: 62ch;
-    color: rgba(242, 244, 248, 0.5);
+    color: var(--hero-ink-3);
     margin: 2.25rem 0 0;
     pointer-events: none;
-    text-shadow: 0 1px 18px rgba(11, 13, 18, 0.9);
+    text-shadow: 0 1px 18px var(--hero-halo);
     animation: heroFadeIn 1.2s ease-out both;
   }
   .breathing-hero__orientation a {
-    color: #2bd3c6;
+    color: var(--hero-teal);
     pointer-events: auto;
   }
   .breathing-hero__gold-word {
-    color: #e8b64c;
+    color: var(--hero-gold);
     font-style: normal;
   }
 
@@ -166,7 +218,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     font-size: 0.7rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #2bd3c6;
+    color: var(--hero-teal);
     margin: 0 0 1.1rem;
   }
 
@@ -174,7 +226,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #2bd3c6;
+    background: var(--hero-teal);
     box-shadow: 0 0 0 3px rgba(43, 211, 198, 0.16);
   }
 
@@ -183,7 +235,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     font-size: clamp(1.9rem, 4.4vw, 3.4rem);
     font-weight: 300;
     letter-spacing: -0.01em;
-    color: #f2f4f8;
+    color: var(--hero-ink);
     margin: 0 0 2.75rem;
     line-height: 1.1;
     max-width: 20ch;
@@ -200,9 +252,9 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   .hero-node {
     position: relative;
     padding: 1.6rem 1.5rem 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid var(--hero-edge);
     border-radius: 10px;
-    background: rgba(11, 13, 18, 0.62);
+    background: var(--hero-card);
     backdrop-filter: blur(7px);
     -webkit-backdrop-filter: blur(7px);
     pointer-events: auto;
@@ -211,8 +263,8 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
   /* Each node carries its own accent so the pair never reads as one repeated
      card: Stratum teal (the ledger), Stele amber (the seal). */
-  .hero-node--stratum { --node-accent: #2bd3c6; }
-  .hero-node--stele   { --node-accent: #e8b64c; }
+  .hero-node--stratum { --node-accent: var(--hero-teal); }
+  .hero-node--stele   { --node-accent: var(--hero-gold); }
 
   .hero-node::before {
     content: "";
@@ -226,8 +278,8 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   }
 
   .hero-node:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: rgba(11, 13, 18, 0.78);
+    border-color: var(--hero-edge-hover);
+    background: var(--hero-card-hover);
     transform: translateY(-2px);
   }
 
@@ -241,18 +293,18 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   }
 
   /* Stratum — append-only layers, newest band lit. */
-  .stratum-band { fill: rgba(242, 244, 248, 0.22); }
+  .stratum-band { fill: var(--hero-ink-4); }
   .stratum-band--new { fill: var(--node-accent); }
 
   /* Stele — an inscribed upright slab. */
   .stele-slab {
     fill: none;
-    stroke: rgba(242, 244, 248, 0.34);
+    stroke: var(--hero-ink-4);
     stroke-width: 1.6;
     stroke-linejoin: round;
   }
   .stele-seal {
-    stroke: rgba(242, 244, 248, 0.24);
+    stroke: var(--hero-ink-4);
     stroke-width: 1.6;
     stroke-linecap: round;
   }
@@ -262,7 +314,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     font-family: var(--font-display, Georgia, serif);
     font-size: 1.55rem;
     font-weight: 400;
-    color: #f2f4f8;
+    color: var(--hero-ink);
     margin: 0;
     line-height: 1.1;
   }
@@ -280,7 +332,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     font-family: var(--font-mono, monospace);
     font-size: 0.79rem;
     line-height: 1.65;
-    color: rgba(242, 244, 248, 0.66);
+    color: var(--hero-ink-2);
     margin: 0 0 1rem;
   }
 
@@ -288,7 +340,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     font-family: var(--font-mono, monospace);
     font-size: 0.66rem;
     letter-spacing: 0.03em;
-    color: rgba(242, 244, 248, 0.34);
+    color: var(--hero-ink-4);
     margin: 0 0 1.1rem;
   }
 
@@ -309,7 +361,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
   .hero-node__link:focus-visible,
   .breathing-hero__cta:focus-visible {
-    outline: 2px solid var(--node-accent, #2bd3c6);
+    outline: 2px solid var(--node-accent, var(--hero-teal));
     outline-offset: 3px;
   }
 
@@ -335,26 +387,26 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   }
 
   .breathing-hero__cta:not(.breathing-hero__cta--secondary) {
-    background: #2bd3c6;
-    color: #0b0d12;
+    background: var(--hero-teal);
+    color: var(--hero-on-accent);
   }
 
   .breathing-hero__cta:not(.breathing-hero__cta--secondary):hover {
-    background: #34e8d9;
+    background: var(--hero-teal-hover);
     box-shadow: 0 4px 20px rgba(43, 211, 198, 0.3);
     transform: translateY(-1px);
   }
 
   .breathing-hero__cta--secondary {
     background: transparent;
-    color: rgba(242, 244, 248, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--hero-ink-2);
+    border: 1px solid var(--hero-edge-cta);
   }
 
   .breathing-hero__cta--secondary:hover {
-    color: #f2f4f8;
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.04);
+    color: var(--hero-ink);
+    border-color: var(--hero-edge-strong);
+    background: var(--hero-cta-wash);
   }
 
   @keyframes heroFadeIn {
@@ -364,7 +416,9 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
 
   @media (prefers-reduced-motion: reduce) {
     .breathing-hero {
-      background: linear-gradient(90deg, #0b0d12 0%, #131722 100%);
+      /* Same literal problem as the animated case: reduced-motion visitors on
+         light mode got the navy gradient. --home-bg/--home-surface both flip. */
+      background: linear-gradient(90deg, var(--home-bg) 0%, var(--home-surface) 100%);
     }
     .breathing-hero__canvas {
       display: none;
@@ -397,7 +451,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     .hero-node {
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-      background: rgba(11, 13, 18, 0.8);
+      background: var(--hero-card-solid);
     }
     .breathing-hero__cta {
       flex: 1 1 auto;
@@ -464,8 +518,15 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       nodes: { teal: '43, 211, 198', magenta: '192, 75, 183', amber: '244, 162, 97', white: '242, 244, 248' },
     };
     const LIGHT: Palette = {
-      trailBg: '216, 218, 210',  trailA: 0.30,
-      particle: '36, 44, 54',    shadow: '18, 24, 42',
+      // trailBg has to BE the page ground, not merely a light grey: the trail
+      // fade paints this colour over the whole canvas every frame, so any
+      // mismatch tints the hero away from the rest of the page. '216, 218, 210'
+      // read as a grey-green panel sitting on cream. This is --hv-surface.
+      // trailA also had to come up — at 0.30 the gravity-well shadows never
+      // fully cleared between frames and stacked into grey discs.
+      trailBg: '244, 240, 231',  trailA: 0.46,
+      // Warm ink shadow rather than the old blue-black, to match Haven paper.
+      particle: '36, 44, 54',    shadow: '28, 23, 20',
       c2: '14, 82, 72',          c3: '112, 66, 14',
       nodes: { teal: '14, 82, 72', magenta: '92, 26, 82', amber: '118, 70, 14', white: '172, 162, 144' },
     };
@@ -481,6 +542,15 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     let connections: NodeConnection[] = [];
     let mouse = { x: -999, y: -999 };
     let palette = getPalette();
+
+    // getPalette() was called exactly once at startup, so toggling the theme
+    // with the homepage open left the canvas painted in the outgoing palette
+    // until a reload. data-theme is set on <html> by BaseHead and ThemeToggle.
+    const themeObserver = new MutationObserver(() => { palette = getPalette(); });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
     let animId = 0;
 
     function resize() {
@@ -637,6 +707,11 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       const darknessIntensity = (breathCycle + 1) / 2;
       const rgb = palette.nodes[n.color];
       const isLight = palette === LIGHT;
+      // The gravity-well shadow was tuned against near-black. On Haven paper
+      // the same alphas stack into visible grey discs wherever wells overlap,
+      // so the field is damped rather than dropped — the lensing still reads,
+      // it just stops bruising the page.
+      const fieldScale = isLight ? 0.22 : 1;
 
       // Shadow/void field.
       // Dark mode: shadow pools around the node (darkens local space).
@@ -644,14 +719,14 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
       const fieldGrad = ctx!.createRadialGradient(n.x, n.y, n.size, n.x, n.y, n.darknessRadius);
       if (isLight) {
         fieldGrad.addColorStop(0,    `rgba(${palette.shadow}, 0)`);
-        fieldGrad.addColorStop(0.42, `rgba(${palette.shadow}, ${darknessIntensity * 0.07})`);
-        fieldGrad.addColorStop(0.70, `rgba(${palette.shadow}, ${darknessIntensity * 0.14})`);
-        fieldGrad.addColorStop(1,    `rgba(${palette.shadow}, ${darknessIntensity * 0.21})`);
+        fieldGrad.addColorStop(0.42, `rgba(${palette.shadow}, ${darknessIntensity * 0.07 * fieldScale})`);
+        fieldGrad.addColorStop(0.70, `rgba(${palette.shadow}, ${darknessIntensity * 0.14 * fieldScale})`);
+        fieldGrad.addColorStop(1,    `rgba(${palette.shadow}, ${darknessIntensity * 0.21 * fieldScale})`);
       } else {
         fieldGrad.addColorStop(0,   `rgba(${palette.shadow}, 0)`);
-        fieldGrad.addColorStop(0.3, `rgba(${palette.shadow}, ${darknessIntensity * 0.15})`);
-        fieldGrad.addColorStop(0.6, `rgba(${palette.shadow}, ${darknessIntensity * 0.25})`);
-        fieldGrad.addColorStop(1,   `rgba(${palette.shadow}, ${darknessIntensity * 0.10})`);
+        fieldGrad.addColorStop(0.3, `rgba(${palette.shadow}, ${darknessIntensity * 0.15 * fieldScale})`);
+        fieldGrad.addColorStop(0.6, `rgba(${palette.shadow}, ${darknessIntensity * 0.25 * fieldScale})`);
+        fieldGrad.addColorStop(1,   `rgba(${palette.shadow}, ${darknessIntensity * 0.10 * fieldScale})`);
       }
       ctx!.fillStyle = fieldGrad;
       ctx!.beginPath();
@@ -699,8 +774,13 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     function animate() {
       animId = requestAnimationFrame(animate);
 
-      // Trail fade (instead of clearRect — creates motion blur)
-      ctx!.fillStyle = 'rgba(11, 13, 18, 0.4)';
+      // Trail fade (instead of clearRect — creates motion blur).
+      // This used to be a hardcoded 'rgba(11, 13, 18, 0.4)'. Every other draw
+      // call reads `palette`, and both DARK and LIGHT declare trailBg/trailA —
+      // but nothing ever read them, so this one line repainted the canvas deep
+      // navy on every frame and the hero stayed a dark slab on paper no matter
+      // what the theme was. That was the whole homepage light-mode bug.
+      ctx!.fillStyle = `rgba(${palette.trailBg}, ${palette.trailA})`;
       ctx!.fillRect(0, 0, width, height);
 
       drawGraticule();

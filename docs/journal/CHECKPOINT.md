@@ -1,95 +1,153 @@
-# CHECKPOINT — design-systems pass
+# CHECKPOINT — agent/bot standards compliance sweep + infra/revenue cleanup
 
-**Last updated:** 2026-08-03 (session close — clean handoff to a new session)
-**Branch:** `main`, in sync with `origin/main`. Working tree clean.
-**Predecessor journals** (all closed, all under `docs/journal/archive/`):
-`2026-07-28-cv-work-integration`, `2026-08-02-site-rot-sweep`,
-`2026-08-03-design-sync-css-parity`.
+**Last updated:** 2026-08-24 (reopened in the primary checkout after the
+worktree session closed — see "Second pass" below)
+**Branch:** `worktree-luminous-sprouting-acorn` (this session's isolated
+worktree), rebased onto and pushed straight to `origin/main` after each
+phase — no branch protection encountered.
+**Predecessor journal** (open, not finished — set aside, not lost):
+`docs/journal/archive/2026-08-03-design-systems-pass/` — next task there was
+"astrolabe chrome over derived geometry". **Still not started this pass —
+see "Explicitly deferred" below.**
 
 ## To resume — read in this order
 
 1. This file.
-2. `docs/journal/HANDOFF.md` — the ordered work queue, and this pass's
-   decisions. Items 0 and 1 are closed; item 2 (radiate the seam) is done for
-   SectionBreak / both PullQuotes / AuthorCoda. **The live next task is the
-   astrolabe chrome — item 2 of "Next task" below.**
+2. `PLAN.md` — scope and phase list.
+3. `DECISIONS.md` — why each judgment call was made, in commit order.
 
 ## What shipped this session
 
 | Commit | What |
 | --- | --- |
-| `e0b65d4` | Constellation light mode actually reaches the sky (4 theme-blind literals) |
-| `83b9362` | Brush-stroke seam on SectionBreak; last two CDN fonts self-hosted |
-| `f1991c5` | Seam on both PullQuotes + AuthorCoda; `Seam.astro` extracted |
-| `83e1725` | Swept every stale-palette / dead-fallback site (24 across 14 files) |
-| `3b5d2f1` | Cormorant SC added; editorial.css / SignalHero / Tailwind / atkinson orphans retired |
+| `8effa58` | `/.well-known/agent-card.json` — A2A Agent Card |
+| `86b510e` | `/.well-known/http-message-signatures-directory` (Web Bot Auth JWKS) + signs the contact webhook |
+| `92c9ae5` | `/auth.md` — Auth.md agent-authentication disclosure |
+| `4e02334` | Journal: archived the interrupted design-systems pass, scaffolded this one |
+| `fc3caaf` | `wrangler.toml` repaired (broken `[[ratelimits]]` parse error, wrong project `name`, both KV `preview_id` TODOs resolved); "Book" link added to main nav + homepage airlock |
+| *(next)* | Stub-comment rename in `about.astro`; this checkpoint update |
 
-All pushed. At close: `npm run check` 39 pages · `npm run test` 194 ·
-`npm run docs:check` clean, zero warnings.
+All pushed to `origin/main`. Every deploy confirmed live via
+`wrangler pages deployment list` and/or direct curl. `npm run check`,
+`npm test` (194/194), and `npm run docs:check` all green as of the last
+commit.
 
-## Standing state
+## Standing state — confirmed working, no action needed
 
-- **Three design systems, deliberately.** Kintsugi = site-wide palette
-  (`--teal #5CCFCF`, `--coral #F07178`, `--gold #cda24e`, plus seam tokens).
-  Cipher Gothic = one system deployed here, not the whole site (`--cg-*` type/
-  space/motion + the `/cipher-gothic/` specimen). Haven/Ink = light mode, wired
-  and live. `/artifacts/*` are self-contained and outside all three.
-  **Not yet written into CLAUDE.md** — item 4 of HANDOFF.md.
-- **The seam** lives in `src/components/Seam.astro` — one source for the
-  geometry, `orientation="horizontal|vertical"`. Consumed by `SectionBreak`,
-  both `PullQuote`s, `AuthorCoda`. Reference original: the `.seam` rules in
-  `public/intentional-fragility/index.html`.
-- **Zero third-party font requests** anywhere in `dist/`.
-- **Two standing invariants**, both enforced by `check-docs-drift.sh` (§8, §9):
-  every `url(*.woff2)` resolves, and no CDN font fetch outside `/artifacts/*`.
+- **CI runs vitest.** `.github/workflows/ci.yml`'s `Test` step is
+  `npm test` (the 194-test vitest suite), placed before build. Confirmed
+  green on the last several pushes via `gh run list`.
+- **Auto-deploy on push to main is real and working**, not assumed —
+  `wrangler pages deployment list --project-name mazzeleczzare` shows a
+  Production deployment for every one of this session's 5 pushes,
+  each within ~90s–2min of the push.
+- **`wrangler.toml` now parses** (it silently didn't before — every
+  `wrangler` invocation was failing config validation, which is *why*
+  `wrangler pages secret put` needed `--project-name` explicitly earlier
+  this session). `name` now matches the real Cloudflare Pages project.
+  Both KV `preview_id` TODOs resolved with real namespaces.
+- `WEB_BOT_AUTH_PRIVATE_KEY` is set as a Cloudflare Pages secret (confirmed
+  via `wrangler pages secret list`). Contact webhook deliveries should now
+  carry `Signature-Agent`/`Signature-Input`/`Signature` headers — **not yet
+  verified with an actual live contact-form submission**, only with a local
+  Node WebCrypto sign/verify round-trip using the real key material.
+- **The book (`/gay-wandering/`) now has a path from the homepage
+  (AirlockStrip) and the main site nav (every full-header page).** It did
+  not before this session.
 
-## Next task — astrolabe chrome over derived geometry
+## Explicitly deferred — not started, not silently dropped
 
-Agreed with mazze; not started. **Keep the derived node geometry**
-(`decay.ts`/`layout.ts` — position means something: erasure→signal by age and
-seal state) and adopt the astrolabe's *chrome*: limb, graduated ring, rete
-overlay, labelled ecliptics. Do not replace the constellation with the flat
-astrolabe plate — that swaps meaningful geometry for decorative.
+- **Astrolabe chrome design pass.** Genuinely large (SVG chrome work,
+  external design references at `~/Desktop/💻 DEV/mazze-fully-cooked-landing.html`
+  — moved out of `~/Desktop/` since the brief was written, path corrected
+  2026-08-24 — and `~/Public/Design/lightmode-proto.html`, real visual-design
+  judgment).
+  Full brief preserved at
+  `docs/journal/archive/2026-08-03-design-systems-pass/CHECKPOINT.md` under
+  "Next task". Did not attempt given critical budget — a rushed version
+  would cost real tokens and still need redoing.
+- ~~**Uncommitted content edits in the primary checkout**~~ **RESOLVED
+  2026-08-24 in `106bd51`** — see "Second pass" above. Original note:
+  (`/Users/daedalus/Projects/blog/mazze-leczzare-blog`, *not* this
+  worktree) — 10 modified blog posts + an untracked `README.txt`, present
+  at this session's start. This worktree-isolated session cannot read or
+  touch that other working directory (tooling refuses `git -C` against it
+  by design). **Mazze: these need review from a session actually in that
+  checkout, or from you directly** — they read as in-progress prose edits,
+  which per your CREATIVE posture shouldn't be auto-committed by an agent
+  regardless.
+- **Two pre-existing `.well-known` OAuth files**
+  (`oauth-authorization-server`, `oauth-protected-resource`) describe
+  `/admin`'s real cookie-based login, not an agent-consumable Bearer flow.
+  Attempted to delete them (the honest fix, since `/auth.md` already
+  supersedes them) — **blocked by the permission classifier** as a risky
+  deletion of public-facing files. Left as-is; `/auth.md` already discloses
+  the discrepancy. If you want them gone, that now needs your explicit
+  go-ahead on the specific `git rm`.
 
-Inputs mazze supplied:
-- `~/Desktop/mazze-fully-cooked-landing.html` — the astrolabe markup. Its
-  palette already matches Kintsugi. **Its copy is comp copy and explicitly not
-  in mazze's voice — ship none of it.** It pulls Cormorant SC and Martian Mono
-  from Google Fonts, CSP-blocked outside `/artifacts/*`; Cormorant SC is now
-  self-hosted, Martian Mono is not.
-- A reference image (orbital/gravitational — planets on gold geometry), closer
-  in spirit to the existing gold-gravity-well constellation than to a flat plate.
-- `~/Public/Design/lightmode-proto.html` — the Haven/Ink brush source. Its
-  "instrument module" section (ink axes, waveform curves, ink-wash regions) is
-  the nearest precedent for drawing the chrome.
+## The one blocker only you can clear: the book's real checkout
 
-## Deferred / needs a decision
+`/gay-wandering/`'s buy button is driven by
+`PUBLIC_GAY_WANDERING_CHECKOUT_URL` (a build-time env var, read in
+`src/pages/gay-wandering/index.astro`). It is **not set** in Cloudflare
+Pages right now (confirmed — the live button currently falls back to "Join
+the first-edition list" → `/contact/?subject=Gay%20Wandering`, not a real
+Lemon Squeezy checkout). Nothing this session did can fix that — it needs
+your real Lemon Squeezy product checkout URL, set as a **Pages build
+environment variable** (Cloudflare dashboard → mazzeleczzare project →
+Settings → Environment variables → Production; this is a *build-time*
+Astro var, distinct from the Function runtime secrets `wrangler pages
+secret put` manages, so it won't show in that list). Until that's set, the
+new nav links route interested readers to an interest-list form, not a
+sale. **This is very likely the highest-leverage single action left for
+actual revenue** — higher than any of the code work above.
 
-1. **Design-sync parity is now stale.** The `2026-08-03-design-sync-css-parity`
-   journal closed asserting `uploads/global.css` and `uploads/editorial.css` in
-   the claude.ai/design project matched local. Since then this session rewrote
-   `global.css` substantially and **retired `editorial.css` entirely**. That
-   remote pair is out of date and one of them no longer has a local counterpart.
-   Nothing re-checks this automatically. Re-sync or retire the remote copies.
-2. **Three unused blog components.** `blog/Triptych`, `blog/MentorQuote`,
-   `blog/VerseBlock` are imported by zero posts. Unlike what was retired this
-   session they are *usable library surface*, not rot, so they were left alone —
-   but `blog/Triptych` is the only consumer of `--font-caps`/Cormorant SC. Keep
-   as library, or retire them and the font together.
-3. **Martian Mono** — named by the landing proto, absent from the site.
-4. **`--home-gold` reads circular** in the light block (maps to
-   `--gold-seam-deep`, redefined in the same block). Resolves correctly; worth a
-   comment or a direct hex.
-5. **`docs/mazze-leczzare-cv.pdf`** duplicates `public/mazze-leczzare-cv.pdf`.
-   Only `public/` ships.
-6. **`/cipher-gothic` specimen** should read `var(--teal)`/`var(--coral)` rather
-   than its page-local aliases, so the next palette change reaches it.
+## Second pass — 2026-08-24, primary checkout
 
-## Non-actions (explicit)
+Picked up in `/Users/daedalus/Projects/blog/mazze-leczzare-blog`, which was 37
+commits behind `origin/main` when this leg started. Fast-forwarded, then:
 
-- Nothing deleted this session. Every retirement was a `git mv` into
-  `docs/archive/retired-2026-08-03/`, documented in that directory's README.
-- The three unused `blog/*` components were **not** retired — that is a library
-  decision for mazze, not rot to clear unilaterally.
-- No changes to `functions/`, to content, or to the constellation's derived
-  geometry.
+| Commit | What |
+| --- | --- |
+| `106bd51` | The deferred frontmatter backfill, committed (see below) |
+| `311a342` | Light mode repaired end to end — five defects |
+| `d40bb06` | This journal |
+
+**The deferred content edits are resolved.** The item below said they needed
+review from a session actually in that checkout; this was that session. They
+were frontmatter-only — `category`, `tags`, and five `heroImage`/`heroImageAlt`
+pairs across ten posts, no prose touched — not the in-progress prose the
+worktree session reasonably guessed from the outside. Committed with the
+staging note folded into DECISIONS.md.
+
+**Light mode is now verified, not assumed.** A headless sweep over 11 routes ×
+{stored dark, stored light, system dark, system light} is the standing check:
+zero unintended dark surfaces in light mode, correct `theme-color` in both
+themes, live response to an OS theme change, code blocks styled in both. The
+audit script is disposable; the four states it covers are the thing worth
+re-running after any palette work.
+
+**Still deliberately dark, both reported to mazze rather than changed:**
+`/gay-wandering/` (its own `--gw-*` palette) and the `.cg-page` specimen
+ground. Neither is a bug; both are one-decision-away from theme-aware using
+the token pattern now in `BreathingHero.astro`.
+
+**Open and now measured: blog/MDX typography reads flat.** Body is DM Mono
+400, `strong` is DM Mono 500 (that family ships nothing heavier), headings are
+Cormorant Garamond 400 — the whole page is one weight with a single 500
+accent. Authored in `7bc06121`, not a regression, so it was left for mazze's
+call. Cormorant Garamond 600 is imported and unused if a heavier heading is
+wanted.
+
+**Astrolabe chrome: still not started.** Note the brief's input path has
+rotted — `~/Desktop/mazze-fully-cooked-landing.html` moved to
+`~/Desktop/💻 DEV/mazze-fully-cooked-landing.html`. The archived brief and the
+deferred item below both still cite the old path.
+
+## Non-actions (explicit, from earlier phases — still true)
+
+- Did not sign `functions/api/ingest.ts`'s outbound GitHub Contents API
+  calls with Web Bot Auth — GitHub doesn't verify it; those calls are
+  token-authenticated infra, not agent outreach (see DECISIONS.md).
+- Did not add an `agent_auth`/`register_uri` block to `/auth.md` — no real
+  registration endpoint exists to point to (see DECISIONS.md).

@@ -129,18 +129,40 @@ const personSchema = {
 <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
 <script is:inline data-cfasync="false">
   (() => {
+    // These two hexes duplicate --theme-color-dark / --theme-color-light in
+    // global.css, deliberately. This script has to run before first paint to
+    // set data-theme (that is what prevents the light-mode flash), which means
+    // it runs BEFORE Astro's stylesheet <link>s further down the head. At that
+    // point getComputedStyle(root).getPropertyValue('--theme-color-dark')
+    // returns '' — so the previous version of this block was setting
+    // <meta name="theme-color" content=""> on every page load in both themes,
+    // and mobile browser chrome fell back to its own default instead of the
+    // site's. Reading the tokens is not an option this early; keep these two
+    // literals in sync with global.css by hand if the palette moves.
+    const THEME_COLOR = { dark: '#0f1210', light: '#f5f0e8' };
+
     const root = document.documentElement;
     const metaTheme = document.querySelector('meta[name="theme-color"]');
-    const storedTheme = localStorage.getItem('theme-preference');
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : systemTheme;
-    root.dataset.theme = theme;
-    if (metaTheme) {
-      const styles = getComputedStyle(root);
-      const color = styles.getPropertyValue(
-        theme === 'dark' ? '--theme-color-dark' : '--theme-color-light'
-      ).trim();
-      metaTheme.setAttribute('content', color);
-    }
+
+    const apply = (theme) => {
+      root.dataset.theme = theme;
+      if (metaTheme) metaTheme.setAttribute('content', THEME_COLOR[theme]);
+    };
+
+    const stored = localStorage.getItem('theme-preference');
+    const query = window.matchMedia('(prefers-color-scheme: dark)');
+    const systemTheme = () => (query.matches ? 'dark' : 'light');
+
+    apply(stored === 'light' || stored === 'dark' ? stored : systemTheme());
+
+    // Follow the OS while the visitor has expressed no preference of their own.
+    // Without this, "system" only resolved at load: flipping macOS to light
+    // with a tab already open left the page dark until a manual reload.
+    // A stored preference always wins, so this stops mattering the moment
+    // someone uses the toggle.
+    query.addEventListener('change', () => {
+      if (localStorage.getItem('theme-preference')) return;
+      apply(systemTheme());
+    });
   })();
 </script>
