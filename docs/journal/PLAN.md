@@ -1,40 +1,45 @@
-# PLAN — agent/bot standards compliance sweep
+# PLAN — Cloudflare Access fleet lockout: diagnosis and remediation
 
-**Request:** implement and ship a series of agent-discovery / bot-authentication
-standards for mazzeleczzare.com, one skill/command at a time (`/ship`-driven),
-each validated by hitting `POST https://isitagentready.com/api/scan` in spirit
-(not actually called this session — no outbound scan was run) and by curling
-the live endpoint after each Cloudflare Pages deploy.
+**Request (restated):** every public property on `mazzeleczzare.com` — the apex
+blog, `stratum`, `stele`, `perdurabo`, `fieldnotes`, and the `pages.dev` origin —
+is redirecting unauthenticated visitors to a Cloudflare Access login. Find the
+cause and undo it end-to-end, restoring public access to the whole fleet.
+Mazze has been fighting this alone for a week; speed matters more than ceremony.
 
-**Scope:** `public/.well-known/*`, `public/_headers`, `public/auth.md`,
-`functions/api/contact.ts`, `functions/utils/webBotAuth.ts`, and this repo's
-`CLAUDE.md` (kept in sync in the same commit as each shipped feature, per this
-repo's map-and-territory rule).
+**Scope — what this touches:**
 
-**Not in scope this pass:** the pre-existing `astrolabe chrome` design-system
-task from the previous (now-archived) pass —
-`docs/journal/archive/2026-08-03-design-systems-pass/`. That work is still
-open; it was not touched or lost, just set aside because this session did
-unrelated work instead of resuming it.
+- **Cloudflare account state** (the actual fix): Access applications under
+  `/accounts/$ACCOUNT_ID/access/apps`. Nothing here lives in a repo.
+- `/tmp/cf-access-unlock/` — remediation script + JSON backups (outside the
+  repo on purpose: backups of Access app definitions are account config, and
+  the repo is public).
+- `docs/journal/` — this scaffold.
+- `~/.claude/projects/…/memory/` — two memories written
+  (`proton-pass-cli-credential-retrieval`, `cloudflare-access-fleet-lockout`).
+
+**Not in scope:** no site source changes. The repo is blameless — build,
+194 tests, `docs:check`, and `rot_check` were all green throughout.
 
 ## Phases
 
-1. **A2A Agent Card** — `/.well-known/agent-card.json`. ✅ done, `8effa58`.
-2. **Web Bot Auth** — JWKS directory + outbound request signing. ✅ done,
-   `86b510e`. Deferred: private key handoff to Cloudflare secret (see
-   CHECKPOINT.md).
-3. **Auth.md agent registration discovery** — `/auth.md`. ✅ done, `92c9ae5`.
-4. *(open-ended)* Further standards, if/when the user runs another
-   `/ship <standard>` command in this line of work.
+- [x] **P0 — Diagnose.** Probe every fleet hostname; decode the Access `aud`
+      from redirect JWTs to distinguish one shared app from many.
+- [x] **P1 — Identify root cause.** Confirmed against Cloudflare docs.
+- [x] **P2 — Build the remediation script**, dry-run-first with a backup gate.
+- [x] **P3 — Journal + memory**, incl. the authorization record below.
+- [ ] **P4 — Retrieve credentials** from Proton Pass (`Cloudflare` vault).
+      **BLOCKED** — see CHECKPOINT deferred list.
+- [ ] **P5 — Dry run**: dump all apps, survey Worker-scoped destinations.
+- [ ] **P6 — Delete** the `all_workers` (and `all_preview_workers`) app,
+      backing up each app's JSON first.
+- [ ] **P7 — Verify** unauthenticated 200s across all fleet hostnames.
+- [ ] **P8 — Follow-ups:** `contextsynapse` 522 (dead tunnel); an hourly
+      unauthenticated fleet probe so this can never run dark again.
 
-## Known constraints
+## Constraints
 
-- This is a single-operator personal site — no real OAuth client
-  registration, no agent self-service. Every discovery doc shipped this pass
-  says so honestly rather than fabricating capability (see DECISIONS.md).
-- `wrangler.toml`'s `name` field (`mazze-leczzare-blog`) doesn't match the
-  actual Cloudflare Pages project (`mazzeleczzare`) — flagged as drift, not
-  fixed (see DECISIONS.md and CHECKPOINT.md deferred list).
-- All shipped work went straight to `main` (no branch protection encountered)
-  from the worktree branch `worktree-luminous-sprouting-acorn`, rebasing onto
-  `origin/main` before each push.
+- Delete **only** destination types `all_workers` / `all_preview_workers`.
+  Hostname, SaaS, SSH and self-hosted apps are untouched — `studio` in
+  particular has its own separate hostname app that must survive.
+- Never delete an app before writing its JSON backup.
+- Never echo a retrieved secret into the transcript.
