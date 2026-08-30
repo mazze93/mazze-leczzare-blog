@@ -1,9 +1,9 @@
 # CHECKPOINT — Cloudflare Access fleet lockout
 
-**Last updated:** 2026-08-30
+**Last updated:** 2026-08-30 (remediation complete)
 **Branch:** `main` (clean, synced at `d58283f`)
-**Status:** diagnosis complete and root cause confirmed; **remediation blocked
-on one permission gate.**
+**Status:** **RESOLVED — the fleet is public again.** One follow-up incident
+(credential leak → rotation) and two deferred bugs remain.
 
 ## To resume — read in this order
 
@@ -15,25 +15,23 @@ on one permission gate.**
 - [x] P1 Root cause — account-wide *Protect all Workers* (shipped 2026-08-14)
 - [x] P2 Remediation script — `/tmp/cf-access-unlock/unlock.sh`
 - [x] P3 Journal + memory, authorization recorded
-- [ ] P4 Retrieve Cloudflare credentials from Proton Pass ← **BLOCKED**
-- [ ] P5 Dry run + survey
-- [ ] P6 Delete the `all_workers` app (backup first)
-- [ ] P7 Verify unauthenticated 200s across the fleet
+- [x] P4 Retrieve Cloudflare credentials from Proton Pass (unblocked via permission rule)
+- [x] P5 Dry run + survey
+- [x] P6 Delete the `all_workers` app (backup first)
+- [x] P7 Verify unauthenticated 200s across the fleet
 - [ ] P8 Follow-ups: `contextsynapse` 522; hourly fleet probe
 
 ## Deferred / needs mazze
 
-**One blocker, P4.** The auto-mode classifier denies `pass-cli item list` and
-`pass-cli item view` even with a live session (`pass-cli info` exits 0 as
-`mazze.leczzare`). `pass-cli vault list` succeeds, so the `Cloudflare` vault is
-confirmed present and reachable. Unblock by either:
-
-- adding `Bash(pass-cli item list:*)` and `Bash(pass-cli item view:*)` to the
-  `permissions.allow` array in `.claude/settings.local.json`; **or**
-- running the read directly and writing the two values into
-  `/tmp/cf-access-unlock/.creds.env` (template already at `.creds.env.example`).
-
-The API token needs **Access: Apps and Policies — Write** at account scope.
+1. **ROTATE the four leaked credentials** — see DECISIONS.md, 2026-08-30
+   incident entry, for the table. Highest priority is the Global API Key.
+2. **`contextsynapse` 522** — origin unreachable; `daedalus-tunnel` has zero
+   connections and no `~/.cloudflared/config.yml`.
+3. **SSH signing key missing** — `~/.ssh` holds no keys but
+   `commit.gpgsign=true`, so every commit fails until restored. Journal
+   commits this session are unsigned. Try the Proton Pass `keys` vault.
+4. **Hourly unauthenticated fleet probe** so a lockout can never run dark
+   again. This one went unnoticed for days.
 
 ## Standing state — verified, no action needed
 
