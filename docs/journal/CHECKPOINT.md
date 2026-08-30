@@ -1,6 +1,6 @@
 # CHECKPOINT — Cloudflare Access fleet lockout
 
-**Last updated:** 2026-08-30 (remediation complete)
+**Last updated:** 2026-08-30 (remediation complete; hourly probe wired)
 **Branch:** `main` (clean, synced at `d58283f`)
 **Status:** **RESOLVED — the fleet is public again.** One follow-up incident
 (credential leak → rotation) and two deferred bugs remain.
@@ -19,7 +19,11 @@
 - [x] P5 Dry run + survey
 - [x] P6 Delete the `all_workers` app (backup first)
 - [x] P7 Verify unauthenticated 200s across the fleet
-- [ ] P8 Follow-ups: `contextsynapse` 522; hourly fleet probe
+- [x] P8a Hourly unauthenticated fleet probe — `fleet_heartbeat.sh` now runs
+      hourly via LaunchAgent `com.mazzeleczzare.fleet-heartbeat` (workspace
+      commit `8221cf5`); logs to `~/Library/Logs/fleet-heartbeat.log`,
+      notifies on drift
+- [ ] P8b Follow-up: `contextsynapse` 522
 
 ## Deferred / needs mazze
 
@@ -30,8 +34,8 @@
 3. **SSH signing key missing** — `~/.ssh` holds no keys but
    `commit.gpgsign=true`, so every commit fails until restored. Journal
    commits this session are unsigned. Try the Proton Pass `keys` vault.
-4. **Hourly unauthenticated fleet probe** so a lockout can never run dark
-   again. This one went unnoticed for days.
+   *(Resolved 2026-08-30 — key restored, commit `5e93bf6`.)*
+4. ~~**Hourly unauthenticated fleet probe**~~ — DONE, see P8a above.
 
 ## Standing state — verified, no action needed
 
