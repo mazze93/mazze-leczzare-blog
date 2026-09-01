@@ -1,4 +1,5 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { TURNSTILE_SITE_KEY } from '../consts';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -18,20 +19,111 @@ const initialState: FormState = {
   company: '',
 };
 
+const TURNSTILE_SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          'expired-callback'?: () => void;
+          'error-callback'?: () => void;
+        },
+      ) => string;
+      reset: (widgetId?: string) => void;
+    };
+  }
+}
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+function loadTurnstileScript(): Promise<void> {
+  if (window.turnstile) {
+    return Promise.resolve();
+  }
+
+  if (!turnstileScriptPromise) {
+    turnstileScriptPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector<HTMLScriptElement>(`script[src="${TURNSTILE_SCRIPT_SRC}"]`);
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () => reject(new Error('Failed to load Turnstile script.')));
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = TURNSTILE_SCRIPT_SRC;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load Turnstile script.'));
+      document.head.appendChild(script);
+    });
+  }
+
+  return turnstileScriptPromise;
+}
+
 export default function ContactForm() {
   const [form, setForm] = useState<FormState>(initialState);
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [feedback, setFeedback] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const startedAt = useMemo(() => Date.now(), []);
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadTurnstileScript()
+      .then(() => {
+        if (cancelled || !widgetContainerRef.current || !window.turnstile) {
+          return;
+        }
+
+        widgetIdRef.current = window.turnstile.render(widgetContainerRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (token) => setTurnstileToken(token),
+          'expired-callback': () => setTurnstileToken(''),
+          'error-callback': () => setTurnstileToken(''),
+        });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFeedback('Unable to load the human verification widget. Please refresh and try again.');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function resetTurnstile() {
+    setTurnstileToken('');
+    if (window.turnstile && widgetIdRef.current) {
+      window.turnstile.reset(widgetIdRef.current);
+    }
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (submitState === 'submitting') {
+      return;
+    }
+
+    if (!turnstileToken) {
+      setSubmitState('error');
+      setFeedback('Please complete the verification challenge before sending.');
       return;
     }
 
@@ -47,6 +139,7 @@ export default function ContactForm() {
         body: JSON.stringify({
           ...form,
           startedAt,
+          turnstileToken,
         }),
       });
 
@@ -62,6 +155,8 @@ export default function ContactForm() {
     } catch (error) {
       setSubmitState('error');
       setFeedback(error instanceof Error ? error.message : 'Unable to send your message right now.');
+    } finally {
+      resetTurnstile();
     }
   }
 
@@ -123,8 +218,10 @@ export default function ContactForm() {
         />
       </div>
 
+      <div className="field-group turnstile-widget" ref={widgetContainerRef} />
+
       <div className="form-footer">
-        <button type="submit" disabled={submitState === 'submitting'}>
+        <button type="submit" disabled={submitState === 'submitting' || !turnstileToken}>
           {submitState === 'submitting' ? 'Sending...' : 'Send message'}
         </button>
         <p className="form-note">Messages route privately. Mailbox addresses are not published here.</p>

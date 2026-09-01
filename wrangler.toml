@@ -12,6 +12,8 @@ CONTACT_SUBJECT_PREFIX = "Mazze Contact"
 # ADMIN_PASSWORD          — plain-text password checked by /api/login
 # JWT_SECRET              — signs/verifies admin session JWTs (≥32 random chars)
 # CONTACT_WEBHOOK_URL     — POST validated contact payloads to your webhook receiver
+# TURNSTILE_SECRET_KEY    — verifies Turnstile tokens server-side for /api/contact
+#                           (paired with the public site key in src/consts.ts)
 # INGEST_SECRET           — Bearer token checked by /api/ingest (≥32 random chars)
 # GITHUB_INGEST_TOKEN     — fine-grained GitHub PAT, Contents:read+write on
 #                           mazze93/mazze-leczzare-blog ONLY — no other scopes,

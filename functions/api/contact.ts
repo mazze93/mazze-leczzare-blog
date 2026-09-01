@@ -5,6 +5,7 @@ interface Env {
   CONTACT_SUBJECT_PREFIX?: string;
   CONTACT_WEBHOOK_URL?: string;
   CONTACT_WEBHOOK_AUTH_HEADER?: string;
+  TURNSTILE_SECRET_KEY?: string;
   WEB_BOT_AUTH_PRIVATE_KEY?: string;
 }
 
@@ -14,6 +15,7 @@ type ContactPayload = {
   message?: unknown;
   company?: unknown;
   startedAt?: unknown;
+  turnstileToken?: unknown;
 };
 
 type ParsedContactPayload = {
@@ -22,7 +24,39 @@ type ParsedContactPayload = {
   message: string;
   company: string;
   startedAt: number | null;
+  turnstileToken: string;
 };
+
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
+async function verifyTurnstileToken(
+  secretKey: string,
+  token: string,
+  remoteIp: string | null,
+): Promise<boolean> {
+  const body = new URLSearchParams({ secret: secretKey, response: token });
+  if (remoteIp) {
+    body.set("remoteip", remoteIp);
+  }
+
+  try {
+    const response = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const result = (await response.json()) as { success?: boolean };
+    return result.success === true;
+  } catch (error) {
+    console.error("Turnstile verification request failed", error);
+    return false;
+  }
+}
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -93,6 +127,7 @@ function parseContactPayload(payload: ContactPayload): ParsedContactPayload {
     message: toTrimmedString(payload.message),
     company: toTrimmedString(payload.company),
     startedAt: parseStartedAt(payload.startedAt),
+    turnstileToken: toTrimmedString(payload.turnstileToken),
   };
 }
 
@@ -130,6 +165,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const configuredFromEmail = toTrimmedString(env.CONTACT_FROM_EMAIL);
   const webhookUrl = toTrimmedString(env.CONTACT_WEBHOOK_URL);
   const webhookAuthHeader = toTrimmedString(env.CONTACT_WEBHOOK_AUTH_HEADER);
+  const turnstileSecretKey = toTrimmedString(env.TURNSTILE_SECRET_KEY);
 
   if (!webhookUrl) {
     return json(
@@ -137,6 +173,17 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         ok: false,
         error:
           "Contact delivery is not configured yet. Set CONTACT_WEBHOOK_URL.",
+      },
+      500,
+    );
+  }
+
+  if (!turnstileSecretKey) {
+    return json(
+      {
+        ok: false,
+        error:
+          "Contact delivery is not configured yet. Set TURNSTILE_SECRET_KEY.",
       },
       500,
     );
@@ -161,13 +208,15 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         message: formData.get("message"),
         company: formData.get("company"),
         startedAt: Number(formData.get("startedAt") || 0),
+        turnstileToken:
+          formData.get("turnstileToken") || formData.get("cf-turnstile-response"),
       };
     }
   } catch {
     return json({ ok: false, error: "Invalid request payload." }, 400);
   }
 
-  const { name, email, message, company, startedAt } =
+  const { name, email, message, company, startedAt, turnstileToken } =
     parseContactPayload(payload);
 
   if (company) {
@@ -181,6 +230,32 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         error: "Submission rejected. Please refresh the page and try again.",
       },
       400,
+    );
+  }
+
+  if (!turnstileToken) {
+    return json(
+      {
+        ok: false,
+        error: "Please complete the verification challenge before sending.",
+      },
+      400,
+    );
+  }
+
+  const turnstileValid = await verifyTurnstileToken(
+    turnstileSecretKey,
+    turnstileToken,
+    request.headers.get("CF-Connecting-IP"),
+  );
+
+  if (!turnstileValid) {
+    return json(
+      {
+        ok: false,
+        error: "Verification failed. Please try again.",
+      },
+      403,
     );
   }
 
