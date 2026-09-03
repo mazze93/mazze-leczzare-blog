@@ -26,6 +26,11 @@ preview environments:
 
 ```text
 PUBLIC_GAY_WANDERING_CHECKOUT_URL=https://YOUR-HANDLE.gumroad.com/l/YOUR-PERMALINK
+
+Setting this is optional. `GAY_WANDERING_CHECKOUT_URL` in `src/consts.ts` holds
+the live listing and is used when the env var is absent, so the buy button
+works on a clean checkout; the env var only overrides it (staging, a relaunch,
+a different permalink).
 ```
 
 Rebuild the site. The page then changes both calls to action from the contact list

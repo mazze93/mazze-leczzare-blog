@@ -3,9 +3,15 @@ import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import GoldDust from '../../components/GoldDust.astro';
 import Header from '../../components/Header.astro';
-import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from '../../consts';
+import {
+  GAY_WANDERING_CHECKOUT_URL,
+  SITE_AUTHOR,
+  SITE_TITLE,
+  SITE_URL,
+} from '../../consts';
 
-const checkoutURL = import.meta.env.PUBLIC_GAY_WANDERING_CHECKOUT_URL?.trim();
+const checkoutURL =
+  import.meta.env.PUBLIC_GAY_WANDERING_CHECKOUT_URL?.trim() || GAY_WANDERING_CHECKOUT_URL;
 const checkoutReady = Boolean(checkoutURL);
 const description =
   'Eleven wild, illustrated poems of youth, grief, desire, and ecstatic vision by Mazze LeCzzare Frazer.';

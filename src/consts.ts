@@ -12,3 +12,9 @@ export const COMPASS_LABEL = "Mazze LeCzzare — home";
 // Turnstile site keys are public by design (paired with a server-side secret
 // key that never leaves Cloudflare Functions env vars) — safe to inline here.
 export const TURNSTILE_SITE_KEY = "0x4AAAAAAEYJ6c3cC0X8i_-F";
+
+// The live Gumroad listing for *Gay Wandering — Reader No. 01*. Used as the
+// checkout default so the sale does not depend on a build env var being set;
+// PUBLIC_GAY_WANDERING_CHECKOUT_URL still overrides it.
+export const GAY_WANDERING_CHECKOUT_URL =
+  'https://mazzeleczzare.gumroad.com/l/gay-wandering';
