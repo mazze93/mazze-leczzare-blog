@@ -143,3 +143,58 @@ must be rotated. Listed by location, values deliberately not repeated here.
 
 The account ID also appeared; it is an identifier rather than a secret (it is
 visible in dashboard URLs), so no action beyond awareness.
+
+---
+
+## 2026-09-02 — Gay Wandering ships: Plate III leads, dust goes live, book goes on sale
+
+**Plate III is the hero, not the cover.** `/gay-wandering/` led with the
+watercolor cover; it now leads with Plate III — *The Silent Spider · Transit
+Survey*. The plate's printed web carries the same five stations (Origin,
+Intention, Refraction, Transmission, Return) that the live dust moves through,
+so plate and page read as one system rather than an illustration sitting next
+to an effect. The cover moves down to "the complete object", where it documents
+the edition instead of competing with it.
+
+**Ordinal Dust ported, not reimplemented.** `GoldDust.astro` copies
+`WebOverlay` and `GoldDust` verbatim from the reader's drop-in module
+(`gay-wandering/src/gold-dust-overlay-demo.html` §JS-2/§JS-3) so the two
+surfaces stay in register. The demo's state chip, W/G toggles and persisted
+settings are deliberately not ported — this is page ornament, not a reader
+control surface. Strands spin between eight `[data-anchor]` elements.
+
+**Four bugs found by looking rather than assuming:**
+
+1. `main` painted an opaque field background at `z-index: 3`, hiding both
+   overlay layers completely. Washes moved to the body, `main` transparent.
+2. The checkout markup loaded Lemon Squeezy's overlay script — wrong platform,
+   and `DEFAULT_CSP` permits no third-party script outside `/artifacts/*`, so
+   it would have been blocked at runtime with no build error.
+3. The buy button was gated entirely on `PUBLIC_GAY_WANDERING_CHECKOUT_URL`, a
+   Pages *build* variable that was never set. Every visitor got the interest
+   form and the Book schema carried no offer. `GAY_WANDERING_CHECKOUT_URL` in
+   `src/consts.ts` now holds the live listing as the default; the env var still
+   overrides.
+4. The plate shipped as JPEG. Near-black gradients are exactly where JPEG
+   fails, and the web filaments and station labels came out muddy on a phone.
+   Now WebP with a JPEG fallback through `<picture>` — 95 KB against 153 KB,
+   and better.
+
+**CI red was not ours.** Every commit from `74fbf36` failed while the last
+green run, `1ee2524`, has a byte-identical `package.json` and
+`package-lock.json`. `npm audit` queries the live advisory database, so two
+browserslist advisories published between 09-01 and 09-02 flipped an unchanged
+lockfile. Diffing dependency files against the last green run — rather than
+assuming the new commits caused it — is what made that quick to establish.
+
+**The product is live:** https://mazzeleczzare.gumroad.com/l/gay-wandering.
+Proof carried through: the bytes Gumroad serves are byte-identical to the local
+press (6,699,900 B, single sha256 across both). Two defects were caught before
+publishing — a blank leading page in the archival PDF (present in the
+2026-08-30 press too) and a reading column running under the fixed control bar
+on phones. Details in `creative/gay-wandering/docs/journal/CHECKPOINT.md`.
+
+**Publish gate overridden, on the record.** The 2026-08-09 journal ratified a
+7-step E2E purchase test before going live. It has not been run; mazze directed
+the flip to publish. Recorded rather than quietly skipped — a real purchase is
+still the only proof the delivery path works end to end.
