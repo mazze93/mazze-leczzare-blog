@@ -1,0 +1,405 @@
+---
+/**
+ * GoldDust — Ordinal Dust ported from the Gay Wandering reader.
+ *
+ * Two layers, both decorative and both `aria-hidden`:
+ *   1. a document-space SVG web of strands linking every `[data-anchor]`
+ *      element on the page, and
+ *   2. a viewport-space canvas of gold motes that ride those strands and
+ *      settle where attention lingers.
+ *
+ * The philosophy (codex: `Ordinal Dust — design philosophy`) is that a route
+ * is invisible until something has paid to travel it — so the page never draws
+ * a path, it draws what the path collected. Give a host page some
+ * `data-anchor` elements and the web builds itself around them.
+ *
+ * `WebOverlay` and `GoldDust` below are copied verbatim from the reader's
+ * drop-in module (gay-wandering/src/gold-dust-overlay-demo.html §JS-2/§JS-3)
+ * so the two surfaces stay in register. The demo's state chip, W/G toggles and
+ * persisted settings are deliberately not ported: this is page ornament, not a
+ * reader control surface.
+ *
+ * Honours `prefers-reduced-motion` with a single static render, pauses on tab
+ * hide, and reseeds deterministically on resize (same seed — same web).
+ */
+---
+
+<div class="web-overlay-shell" id="webShell" aria-hidden="true">
+  <svg id="webSvg" preserveAspectRatio="none"></svg>
+</div>
+<canvas class="dust-canvas" id="dustCanvas" aria-hidden="true"></canvas>
+
+<style>
+  .web-overlay-shell {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 100%; /* set in px by JS to scrollHeight */
+    pointer-events: none;
+    z-index: 1;
+  }
+  .web-overlay-shell svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* Dust lives in VIEWPORT space — fixed canvas, window.scrollY offset done in JS. */
+  .dust-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 2;
+  }
+</style>
+
+<script>
+"use strict";
+
+/** Seeded LCG — same pattern as the reader's prng(); resize never reshakes. */
+function makePrng(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+const STATES = ["origin", "intention", "refraction", "transmission", "return"];
+/** Header scroll mapping — identical thresholds to CompassMark.stateForProgress. */
+function stateForProgress(p) {
+  if (p < 0.20) return "origin";
+  if (p < 0.40) return "intention";
+  if (p < 0.60) return "refraction";
+  if (p < 0.80) return "transmission";
+  return "return";
+}
+/** Per-state dust temper: speed multiplier + brightness. One metal, many lights. */
+const STATE_TEMPER = {
+  origin:       { speed: 0.50, glow: 0.55 },
+  intention:    { speed: 0.85, glow: 0.75 },
+  refraction:   { speed: 0.65, glow: 0.90 },
+  transmission: { speed: 1.30, glow: 1.00 },
+  return:       { speed: 0.90, glow: 0.80 }
+};
+
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ===== §JS-2 · WebOverlay — document-space SVG strands =================== */
+/* Mirrors the reader's fixed architecture: absolute shell sized to the
+   document, anchors measured in document coords. */
+class WebOverlay {
+  constructor(shell, svg) {
+    this.shell = shell;
+    this.svg = svg;
+    this.strands = [];   // [{ pts: [{x,y}...], a: anchorIdxA, b: anchorIdxB }]
+    this.anchors = [];   // [{ x, y, el }]
+  }
+
+  measureAnchors() {
+    const els = Array.from(document.querySelectorAll("[data-anchor]"));
+    this.anchors = els.map((el, i) => {
+      const r = el.getBoundingClientRect();
+      const side = i % 2 === 0 ? 0.18 : 0.82;             // alternate margins
+      return {
+        el,
+        x: r.left + window.scrollX + r.width * side,
+        y: r.top + window.scrollY + Math.min(r.height * 0.30, 120)
+      };
+    });
+  }
+
+  build() {
+    this.measureAnchors();
+    const docH = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    const w = document.documentElement.clientWidth;
+    this.shell.style.height = docH + "px";
+    this.svg.setAttribute("viewBox", `0 0 ${w} ${docH}`);
+
+    const prng = makePrng(919);
+    this.strands = [];
+    const link = (ai, bi, slack) => {
+      const A = this.anchors[ai], B = this.anchors[bi];
+      if (!A || !B) return;
+      const pts = [];
+      const N = 26;
+      const mx = (A.x + B.x) / 2 + (prng() - 0.5) * w * 0.30;
+      const my = (A.y + B.y) / 2 + slack * (0.5 + prng() * 0.8);
+      for (let i = 0; i < N; i++) {
+        const t = i / (N - 1);
+        pts.push({
+          x: (1 - t) * (1 - t) * A.x + 2 * (1 - t) * t * mx + t * t * B.x,
+          y: (1 - t) * (1 - t) * A.y + 2 * (1 - t) * t * my + t * t * B.y
+        });
+      }
+      this.strands.push({ pts, a: ai, b: bi });
+    };
+    for (let i = 0; i < this.anchors.length - 1; i++) link(i, i + 1, 140);
+    link(0, 5, 420);   // the spider's music ↔ the crystal eye's constant music
+    link(1, 5, 380);   // riverbank sun ↔ kissed the sun
+    link(2, 7, 460);   // "we are here" ↔ "how long must this distress go on"
+
+    const NS = "http://www.w3.org/2000/svg";
+    this.svg.replaceChildren();
+    for (const s of this.strands) {
+      const path = document.createElementNS(NS, "path");
+      path.setAttribute("d", "M" + s.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" L"));
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "rgba(165,150,168,0.28)");
+      path.setAttribute("stroke-width", "1");
+      this.svg.appendChild(path);
+    }
+    for (const a of this.anchors) {
+      const knot = document.createElementNS(NS, "circle");
+      knot.setAttribute("cx", a.x); knot.setAttribute("cy", a.y); knot.setAttribute("r", 2.4);
+      knot.setAttribute("fill", "rgba(201,169,110,0.45)");
+      this.svg.appendChild(knot);
+    }
+  }
+}
+
+/* ===== §JS-3 · GoldDust — the ornament that rides the routes ============= */
+/* DROP-IN MODULE. Construct after WebOverlay.build():
+     new GoldDust({ canvas, overlay, getProgress })
+   Owns: particle transit, state temper, Return-state settling, viewport
+   culling, DPR, reduced-motion static mode, visibility pause. */
+class GoldDust {
+  constructor({ canvas, overlay, getProgress }) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.overlay = overlay;
+    this.getProgress = getProgress;
+    this.particles = [];
+    this.settled = [];            // motes that stay — the wine-cellar dust
+    this.maxSettled = 240;
+    this.sprite = GoldDust.makeSprite(28);
+    this.running = false;
+    this.lastT = 0;
+    this.resize();
+    this.spawn();
+  }
+
+  /** Pre-rendered additive sprite: one radial gold gradient, blitted always. */
+  static makeSprite(px) {
+    const c = document.createElement("canvas");
+    c.width = c.height = px;
+    const g = c.getContext("2d");
+    const grad = g.createRadialGradient(px/2, px/2, 0, px/2, px/2, px/2);
+    grad.addColorStop(0.00, "rgba(245,231,192,0.95)");
+    grad.addColorStop(0.25, "rgba(212,181,106,0.55)");
+    grad.addColorStop(1.00, "rgba(201,169,110,0)");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, px, px);
+    return c;
+  }
+
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.round(window.innerWidth * dpr);
+    this.canvas.height = Math.round(window.innerHeight * dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  spawn() {
+    const prng = makePrng(1126);
+    const per = Math.max(8, Math.floor(620 / Math.max(1, this.overlay.strands.length)));
+    this.particles = [];
+    this.overlay.strands.forEach((s, si) => {
+      for (let i = 0; i < per; i++) {
+        this.particles.push({
+          si, t: prng(),
+          v: 0.012 + prng() * 0.030,            // strand lengths ≈ screensful; ~30–80 s transit
+          r: 0.8 + prng() * (prng() < 0.06 ? 3.4 : 1.4),
+          tw: prng() * Math.PI * 2
+        });
+      }
+    });
+  }
+
+  posOn(si, t) {
+    const pts = this.overlay.strands[si].pts;
+    const f = t * (pts.length - 1);
+    const i = Math.min(pts.length - 2, Math.floor(f));
+    const k = f - i;
+    return {
+      x: pts[i].x + (pts[i + 1].x - pts[i].x) * k,
+      y: pts[i].y + (pts[i + 1].y - pts[i].y) * k
+    };
+  }
+
+  /** Strand activity: 1 if either anchored poem is on screen, else ambient. */
+  activity(si, visibleSet) {
+    const s = this.overlay.strands[si];
+    return (visibleSet.has(s.a) || visibleSet.has(s.b)) ? 1.0 : 0.35;
+  }
+
+  settle(pos) {
+    if (this.settled.length >= this.maxSettled) return;
+    this.settled.push({
+      x: pos.x + (Math.random() - 0.5) * 14,
+      y: pos.y + (Math.random() - 0.5) * 8 + 4,
+      r: 0.7 + Math.random() * 1.1,
+      tw: Math.random() * Math.PI * 2
+    });
+  }
+
+  /** One frame. now in ms. visibleSet: indices of on-screen anchors. */
+  draw(now, visibleSet) {
+    const ctx = this.ctx;
+    const sy = window.scrollY;
+    const state = stateForProgress(this.getProgress());
+    const temper = STATE_TEMPER[state];
+    const dt = Math.min(48, now - this.lastT || 16) / 1000;
+    this.lastT = now;
+
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.globalCompositeOperation = "lighter";
+
+    for (const p of this.particles) {
+      p.t += p.v * dt * temper.speed * 6;
+      if (p.t >= 1) {
+        const end = this.posOn(p.si, 1);
+        if (state === "return" && Math.random() < 0.16) this.settle(end);
+        p.t -= 1;
+      }
+      const pos = this.posOn(p.si, p.t);
+      const yv = pos.y - sy;
+      if (yv < -80 || yv > window.innerHeight + 80) continue;     // viewport band cull
+      const act = this.activity(p.si, visibleSet);
+      const breathe = 0.72 + 0.28 * Math.sin(p.tw + now * 0.0021);
+      const a = 0.50 * temper.glow * act * breathe;
+      const d = p.r * 6 * breathe;
+      ctx.globalAlpha = a;
+      ctx.drawImage(this.sprite, pos.x - d / 2, yv - d / 2, d, d);
+    }
+
+    /* the dust that stayed — persists through every later state */
+    for (const m of this.settled) {
+      const yv = m.y - sy;
+      if (yv < -40 || yv > window.innerHeight + 40) continue;
+      const tw = 0.55 + 0.20 * Math.sin(m.tw + now * 0.0007);
+      ctx.globalAlpha = 0.42 * tw;
+      const d = m.r * 5;
+      ctx.drawImage(this.sprite, m.x - d / 2, yv - d / 2, d, d);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /** Reduced-motion / fallback: the web already gathered its dust. Static. */
+  drawStatic(visibleSet) {
+    const ctx = this.ctx;
+    const sy = window.scrollY;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.globalCompositeOperation = "lighter";
+    const prng = makePrng(404);
+    this.overlay.strands.forEach((s, si) => {
+      const act = this.activity(si, visibleSet);
+      for (let i = 0; i < 46; i++) {
+        const pos = this.posOn(si, prng());
+        const yv = pos.y - sy + (prng() - 0.5) * 10;
+        if (yv < -40 || yv > window.innerHeight + 40) continue;
+        const r = 0.7 + prng() * 1.6;
+        ctx.globalAlpha = (0.20 + prng() * 0.35) * act;
+        ctx.drawImage(this.sprite, pos.x - r * 3, yv - r * 3, r * 6, r * 6);
+      }
+    });
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ===== §JS-4 · page glue ================================================= */
+const shell = document.getElementById("webShell");
+const svg = document.getElementById("webSvg");
+const canvas = document.getElementById("dustCanvas");
+
+if (shell && svg && canvas && document.querySelectorAll("[data-anchor]").length) {
+  const overlay = new WebOverlay(shell, svg);
+  overlay.build();
+
+  function progress() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  }
+
+  const dust = new GoldDust({ canvas, overlay, getProgress: progress });
+
+  /* Strands brighten near whatever the reader is actually looking at. */
+  const visibleSet = new Set();
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const idx = overlay.anchors.findIndex((a) => a.el === e.target);
+        if (idx === -1) continue;
+        if (e.isIntersecting) visibleSet.add(idx);
+        else visibleSet.delete(idx);
+      }
+    },
+    { rootMargin: "25% 0px 25% 0px" },
+  );
+  overlay.anchors.forEach((a) => io.observe(a.el));
+
+  let rafId = null;
+  function loop(now) {
+    dust.draw(now, visibleSet);
+    rafId = requestAnimationFrame(loop);
+  }
+  function renderStatic() {
+    dust.drawStatic(visibleSet);
+  }
+  function start() {
+    if (reducedMotion) {
+      renderStatic();
+      return;
+    }
+    if (rafId == null) rafId = requestAnimationFrame(loop);
+  }
+  function stop() {
+    if (rafId != null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+  start();
+
+  if (reducedMotion) {
+    let pend = false;
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (pend) return;
+        pend = true;
+        requestAnimationFrame(() => {
+          renderStatic();
+          pend = false;
+        });
+      },
+      { passive: true },
+    );
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else start();
+  });
+
+  /* Late-loading art changes the document height; rebuild once it settles. */
+  window.addEventListener("load", () => {
+    overlay.build();
+    dust.resize();
+    dust.spawn();
+    if (reducedMotion) renderStatic();
+  });
+
+  let rsz;
+  window.addEventListener("resize", () => {
+    clearTimeout(rsz);
+    rsz = setTimeout(() => {
+      overlay.build(); // same seed — same web
+      dust.resize();
+      dust.spawn();
+      if (reducedMotion) renderStatic();
+    }, 180);
+  });
+}
+</script>

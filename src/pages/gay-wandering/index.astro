@@ -1,6 +1,7 @@
 ---
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
+import GoldDust from '../../components/GoldDust.astro';
 import Header from '../../components/Header.astro';
 import { SITE_AUTHOR, SITE_TITLE, SITE_URL } from '../../consts';
 
@@ -42,34 +43,43 @@ const bookSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(bookSchema)} />
   </head>
   <body data-layout="gay-wandering">
+    <GoldDust />
     <Header />
     <main>
       <section class="hero" aria-labelledby="book-title">
-        <div class="cover-stage">
+        <figure class="plate-stage" data-anchor>
           <div class="cover-shadow" aria-hidden="true"></div>
           <img
-            class="cover"
-            src="/gay-wandering/cover.jpg"
-            width="1024"
-            height="1536"
-            alt="Cover of Gay Wandering: a bruised watercolor landscape crossed by a broken gold compass"
+            class="plate"
+            src="/gay-wandering/plate-iii-transit-survey.jpg"
+            srcset="/gay-wandering/plate-iii-transit-survey.jpg 884w, /gay-wandering/plate-iii-transit-survey@2x.jpg 1389w"
+            sizes="(max-width: 900px) 90vw, 30rem"
+            width="884"
+            height="1400"
+            alt="Plate III, The Silent Spider: a Transit Survey. A compass web of pale filaments over a near-black field, its five stations marked Origin, Intention, Refraction, Transmission and Return. Gold dust rides a spiral inward, pours off the lower-left quadrant, and settles into a bright horizontal line at the foot of the plate. One sector of the web is left unrecovered."
             fetchpriority="high"
           />
-          <span class="edition-mark">Reader No. 01</span>
-        </div>
+          <span class="edition-mark">Plate III</span>
+          <figcaption>
+            <strong>The Silent Spider · Transit Survey</strong>
+            Five stations, one open loop. The gold on this plate is the same gold
+            moving across this page — a route is invisible until something has
+            paid to travel it.
+          </figcaption>
+        </figure>
 
         <div class="hero-copy">
           <p class="kicker">Poems from the road · California, seventeen to twenty</p>
-          <h1 id="book-title">Gay<br />Wandering</h1>
+          <h1 id="book-title" data-anchor>Gay<br />Wandering</h1>
           <p class="subtitle">A nonlinear settler myth</p>
           <p class="lede">
             Eleven young poems carried out of hitchhiking, festival stages, West Hollywood,
             dangerous lovers, ancient gods, and the stubborn fact of still being here.
           </p>
-          <div class="purchase-row" id="edition">
+          <div class="purchase-row" id="edition" data-anchor>
             {
               checkoutReady ? (
-                <a class="buy-button lemonsqueezy-button" href={checkoutURL}>
+                <a class="buy-button" href={checkoutURL}>
                   Get the complete reader <span>$15+</span>
                 </a>
               ) : (
@@ -85,7 +95,7 @@ const bookSchema = {
         </div>
       </section>
 
-      <section class="threshold" aria-labelledby="threshold-title">
+      <section class="threshold" aria-labelledby="threshold-title" data-anchor>
         <p class="folio">Selected evidence · I</p>
         <blockquote>
           <p>
@@ -96,7 +106,7 @@ const bookSchema = {
           <cite>— The Riverbank Gods</cite>
         </blockquote>
         <div class="threshold-copy">
-          <h2 id="threshold-title">The poems keep their bruises.</h2>
+          <h2 id="threshold-title" data-anchor>The poems keep their bruises.</h2>
           <p>
             Written between seventeen and twenty, these poems are wild, vain, frightened,
             erotic, grieving, and naïve. This edition repairs the damaged lines without
@@ -108,9 +118,17 @@ const bookSchema = {
       <section class="contents" aria-labelledby="contents-title">
         <div class="contents-heading">
           <p class="folio">The complete object</p>
-          <h2 id="contents-title">One open loop,<br />held offline.</h2>
+          <h2 id="contents-title" data-anchor>One open loop,<br />held offline.</h2>
         </div>
         <div class="edition-details">
+          <img
+            class="cover-inline"
+            src="/gay-wandering/cover.jpg"
+            width="1024"
+            height="1536"
+            alt="Cover of Gay Wandering: a bruised watercolor landscape crossed by a broken gold compass"
+            loading="lazy"
+          />
           <ul>
             <li><span>11</span> complete poems</li>
             <li><span>04</span> full-color plates</li>
@@ -125,7 +143,7 @@ const bookSchema = {
         </div>
       </section>
 
-      <section class="night-poem" aria-label="A second selected poem">
+      <section class="night-poem" aria-label="A second selected poem" data-anchor>
         <p class="folio">Selected evidence · II</p>
         <blockquote>
           <p>
@@ -141,10 +159,10 @@ const bookSchema = {
       <section class="final-door" aria-labelledby="final-door-title">
         <span class="door-orbit" aria-hidden="true"></span>
         <p class="folio">Reader No. 01</p>
-        <h2 id="final-door-title">Enter anywhere.<br />The loop remains open.</h2>
+        <h2 id="final-door-title" data-anchor>Enter anywhere.<br />The loop remains open.</h2>
         {
           checkoutReady ? (
-            <a class="buy-button lemonsqueezy-button" href={checkoutURL}>
+            <a class="buy-button" href={checkoutURL}>
               Get <em>Gay Wandering</em> <span>$15+</span>
             </a>
           ) : (
@@ -160,7 +178,6 @@ const bookSchema = {
       </section>
     </main>
     <Footer />
-    {checkoutReady && <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>}
   </body>
 </html>
 
@@ -173,7 +190,10 @@ const bookSchema = {
     --gw-gold-bright: #f1dfb6;
     --gw-wine: #502838;
     --gw-indigo: #323c5a;
-    background: var(--gw-field);
+    background:
+      radial-gradient(circle at 8% 18%, rgba(80, 40, 56, 0.28), transparent 28rem),
+      radial-gradient(circle at 92% 28%, rgba(50, 60, 90, 0.2), transparent 32rem),
+      var(--gw-field);
     color: var(--gw-paper);
   }
 
@@ -190,15 +210,14 @@ const bookSchema = {
   }
 
   main {
+    position: relative;
+    z-index: 3;
     width: 100%;
     max-width: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background:
-      radial-gradient(circle at 8% 18%, rgba(80, 40, 56, 0.28), transparent 28rem),
-      radial-gradient(circle at 92% 28%, rgba(50, 60, 90, 0.2), transparent 32rem),
-      var(--gw-field);
+    background: transparent;
   }
 
   .hero {
@@ -224,16 +243,37 @@ const bookSchema = {
     pointer-events: none;
   }
 
-  .cover-stage { position: relative; perspective: 1000px; }
+  .plate-stage {
+    position: relative;
+    perspective: 1000px;
+    margin: 0;
+  }
+
+  .plate-stage figcaption {
+    margin: 1.6rem auto 0;
+    max-width: 27rem;
+    font: 400 0.78rem/1.7 var(--font-mono);
+    color: var(--gw-ash);
+  }
+
+  .plate-stage figcaption strong {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.67rem;
+    color: var(--gw-gold);
+  }
   .cover-shadow {
     position: absolute;
     inset: 8% -8% -5% 12%;
-    background: rgba(80, 40, 56, 0.5);
-    filter: blur(45px);
+    background: rgba(80, 40, 56, 0.26);
+    filter: blur(60px);
     transform: rotate(4deg);
   }
 
-  .cover {
+  .plate {
     position: relative;
     display: block;
     width: min(100%, 27rem);
@@ -412,7 +452,7 @@ const bookSchema = {
 
   @media (max-width: 760px) {
     .hero { grid-template-columns: 1fr; width: min(100% - 2rem, 36rem); }
-    .cover { max-width: 20rem; }
+    .plate { max-width: 20rem; }
     .edition-mark { right: 0; }
     h1 { font-size: clamp(5rem, 24vw, 8rem); }
     .threshold, .contents { grid-template-columns: 1fr; }
@@ -430,7 +470,7 @@ const bookSchema = {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .cover-stage { animation: arrive 900ms cubic-bezier(.2,.8,.2,1) both; }
+    .plate-stage { animation: arrive 900ms cubic-bezier(.2,.8,.2,1) both; }
     .hero-copy > * { animation: rise 700ms ease both; }
     .hero-copy > :nth-child(2) { animation-delay: 100ms; }
     .hero-copy > :nth-child(3) { animation-delay: 180ms; }
@@ -439,4 +479,15 @@ const bookSchema = {
   }
   @keyframes arrive { from { opacity: 0; transform: translateY(2rem) rotate(-1deg); } }
   @keyframes rise { from { opacity: 0; transform: translateY(1rem); } }
+</style>
+
+<style>
+  .cover-inline {
+    display: block;
+    width: min(100%, 13rem);
+    height: auto;
+    margin: 0 0 2rem;
+    border: 1px solid rgba(241, 223, 182, 0.22);
+    box-shadow: 0 1.4rem 3.6rem rgba(0, 0, 0, 0.6);
+  }
 </style>
