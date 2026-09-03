@@ -49,6 +49,12 @@ export default defineConfig({
         "https://mazzeleczzare.com/artifacts/tessera-claude-anchor.html",
         "https://mazzeleczzare.com/artifacts/tree-of-knowledge.html",
         "https://mazzeleczzare.com/artifacts/publication-surface-v1.2.2.html",
+        // Added 2026-09-03: on disk since 2026-08-05, added to /writing/ by hand
+        // that same session, but never added here — this file's own comment says
+        // to add a page "in the same commit," and that step was missed. Found by
+        // diffing this list against `find public -name '*.html'`, not by memory.
+        "https://mazzeleczzare.com/blog/architecture-of-forgetting/",
+        "https://mazzeleczzare.com/blog/what-we-dont-know-yet/",
       ],
     }),
     react(),

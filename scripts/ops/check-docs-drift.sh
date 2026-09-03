@@ -471,6 +471,47 @@ fi
 
 echo ""
 
+# ── 11. Every public/**.html page is in the sitemap's customPages ─────────────
+# Added 2026-09-03. Astro's router never sees public/ — the sitemap integration
+# has to be told about each standalone HTML page by hand, in astro.config.mjs's
+# `customPages` array, and that file's own comment says to add a page "in the
+# same commit" it ships. That step was missed for two essays that shipped
+# 2026-08-05: they were added to /writing/ by hand that session, but never to
+# customPages, so they were live, linked from the site, and absent from the one
+# surface (the sitemap) meant to account for everything. §1 above checks that
+# documented pages still exist; nothing checked the reverse — that every real
+# page got documented somewhere. This does, for the sitemap specifically: it is
+# the one surface search engines and any indexing tool actually read, so it is
+# the one worth asserting rather than trusting.
+info "── public/**.html pages are all in astro.config.mjs customPages ──"
+ASTRO_CONFIG="$REPO_ROOT/astro.config.mjs"
+SITEMAP_BAD=0
+SITEMAP_TOTAL=0
+
+if [[ ! -f "$ASTRO_CONFIG" ]]; then
+  fail "astro.config.mjs not found — cannot verify sitemap customPages"
+else
+  while IFS= read -r page; do
+    [[ -z "$page" ]] && continue
+    rel="${page#$REPO_ROOT/public}"
+    SITEMAP_TOTAL=$((SITEMAP_TOTAL + 1))
+    # public/foo/index.html -> /foo/ ; public/foo.html -> /foo.html (kept as-is)
+    if [[ "$rel" == */index.html ]]; then
+      route="${rel%index.html}"
+    else
+      route="$rel"
+    fi
+    if ! grep -qF "mazzeleczzare.com${route}\"" "$ASTRO_CONFIG"; then
+      fail "public${rel} → expected \"…mazzeleczzare.com${route}\" in astro.config.mjs customPages (missing — invisible to the sitemap)"
+      SITEMAP_BAD=$((SITEMAP_BAD + 1))
+    fi
+  done < <(find "$REPO_ROOT/public" -name "*.html" | sort)
+
+  [[ $SITEMAP_BAD -eq 0 ]] && pass "$SITEMAP_TOTAL public/**.html page(s) present in customPages"
+fi
+
+echo ""
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 if [[ $ERRORS -eq 0 ]]; then
   green "=== All documented items verified — no drift detected ==="
