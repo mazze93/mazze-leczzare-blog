@@ -1,7 +1,7 @@
 # Gay Wandering commerce activation
 
 The `/gay-wandering/` page is complete and defaults to a first-edition contact
-link until checkout is activated. Production checkout uses Lemon Squeezy's hosted
+link until checkout is activated. Production checkout uses Gumroad's hosted
 overlay so payment, tax collection, fraud handling, receipts, and signed download
 delivery do not become site infrastructure.
 
@@ -25,11 +25,13 @@ Set this build-time environment variable in the Cloudflare Pages production and
 preview environments:
 
 ```text
-PUBLIC_GAY_WANDERING_CHECKOUT_URL=https://YOUR-STORE.lemonsqueezy.com/buy/YOUR-VARIANT
+PUBLIC_GAY_WANDERING_CHECKOUT_URL=https://YOUR-HANDLE.gumroad.com/l/YOUR-PERMALINK
 ```
 
 Rebuild the site. The page then changes both calls to action from the contact list
-to Lemon Squeezy checkout buttons, loads the official overlay script, and adds the
+to Gumroad checkout links. No overlay script is loaded: DEFAULT_CSP in
+`functions/_middleware.ts` permits no third-party script outside `/artifacts/*`,
+so an overlay would be blocked at runtime with no build error. This also adds the
 live offer to the page's Book schema.
 
 ## Required end-to-end test
