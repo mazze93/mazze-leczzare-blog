@@ -48,17 +48,23 @@ const bookSchema = {
     <main>
       <section class="hero" aria-labelledby="book-title">
         <figure class="plate-stage" data-anchor>
-          <div class="cover-shadow" aria-hidden="true"></div>
-          <img
-            class="plate"
-            src="/gay-wandering/plate-iii-transit-survey.jpg"
-            srcset="/gay-wandering/plate-iii-transit-survey.jpg 884w, /gay-wandering/plate-iii-transit-survey@2x.jpg 1389w"
-            sizes="(max-width: 900px) 90vw, 30rem"
-            width="884"
-            height="1400"
-            alt="Plate III, The Silent Spider: a Transit Survey. A compass web of pale filaments over a near-black field, its five stations marked Origin, Intention, Refraction, Transmission and Return. Gold dust rides a spiral inward, pours off the lower-left quadrant, and settles into a bright horizontal line at the foot of the plate. One sector of the web is left unrecovered."
-            fetchpriority="high"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcset="/gay-wandering/plate-iii-transit-survey.webp 884w, /gay-wandering/plate-iii-transit-survey@2x.webp 1389w"
+              sizes="(max-width: 760px) 90vw, 30rem"
+            />
+            <img
+              class="plate"
+              src="/gay-wandering/plate-iii-transit-survey.jpg"
+              srcset="/gay-wandering/plate-iii-transit-survey.jpg 884w, /gay-wandering/plate-iii-transit-survey@2x.jpg 1389w"
+              sizes="(max-width: 760px) 90vw, 30rem"
+              width="884"
+              height="1400"
+              alt="Plate III, The Silent Spider: a Transit Survey. A compass web of pale filaments over a near-black field, its five stations marked Origin, Intention, Refraction, Transmission and Return. Gold dust rides a spiral inward, pours off the lower-left quadrant, and settles into a bright horizontal line at the foot of the plate. One sector of the web is left unrecovered."
+              fetchpriority="high"
+            />
+          </picture>
           <span class="edition-mark">Plate III</span>
           <figcaption>
             <strong>The Silent Spider · Transit Survey</strong>
@@ -249,6 +255,8 @@ const bookSchema = {
     margin: 0;
   }
 
+  .plate-stage picture { display: block; }
+
   .plate-stage figcaption {
     margin: 1.6rem auto 0;
     max-width: 27rem;
@@ -265,14 +273,6 @@ const bookSchema = {
     font-size: 0.67rem;
     color: var(--gw-gold);
   }
-  .cover-shadow {
-    position: absolute;
-    inset: 8% -8% -5% 12%;
-    background: rgba(80, 40, 56, 0.26);
-    filter: blur(60px);
-    transform: rotate(4deg);
-  }
-
   .plate {
     position: relative;
     display: block;
@@ -451,9 +451,20 @@ const bookSchema = {
   .aftercare { max-width: 37rem; margin: 2rem auto 0; font-size: 0.72rem; }
 
   @media (max-width: 760px) {
-    .hero { grid-template-columns: 1fr; width: min(100% - 2rem, 36rem); }
-    .plate { max-width: 20rem; }
-    .edition-mark { right: 0; }
+    .hero {
+      grid-template-columns: 1fr;
+      width: min(100% - 2rem, 36rem);
+      gap: 2.5rem;
+      padding: 2.5rem 0 4rem;
+      min-height: 0;
+    }
+    /* Cap by height, not width: a 6x9 plate at full column width eats the
+       whole phone screen and pushes the title of the book below the fold. */
+    .plate { max-width: 100%; max-height: 62vh; width: auto; margin-inline: auto; }
+    /* The vertical edition mark sits in the gutter a phone does not have, and
+       it lands on top of the caption. */
+    .edition-mark { display: none; }
+    .plate-stage figcaption { font-size: 0.72rem; max-width: 100%; }
     h1 { font-size: clamp(5rem, 24vw, 8rem); }
     .threshold, .contents { grid-template-columns: 1fr; }
     .threshold .folio { grid-column: 1; }
