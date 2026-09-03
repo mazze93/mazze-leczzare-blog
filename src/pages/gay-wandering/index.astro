@@ -53,32 +53,21 @@ const bookSchema = {
     <Header />
     <main>
       <section class="hero" aria-labelledby="book-title">
-        <figure class="plate-stage" data-anchor>
+        <div class="cover-stage" data-anchor>
+          <div class="cover-shadow" aria-hidden="true"></div>
           <picture>
-            <source
-              type="image/webp"
-              srcset="/gay-wandering/plate-iii-transit-survey.webp 884w, /gay-wandering/plate-iii-transit-survey@2x.webp 1389w"
-              sizes="(max-width: 760px) 90vw, 30rem"
-            />
+            <source type="image/webp" srcset="/gay-wandering/cover.webp" />
             <img
-              class="plate"
-              src="/gay-wandering/plate-iii-transit-survey.jpg"
-              srcset="/gay-wandering/plate-iii-transit-survey.jpg 884w, /gay-wandering/plate-iii-transit-survey@2x.jpg 1389w"
-              sizes="(max-width: 760px) 90vw, 30rem"
-              width="884"
-              height="1400"
-              alt="Plate III, The Silent Spider: a Transit Survey. A compass web of pale filaments over a near-black field, its five stations marked Origin, Intention, Refraction, Transmission and Return. Gold dust rides a spiral inward, pours off the lower-left quadrant, and settles into a bright horizontal line at the foot of the plate. One sector of the web is left unrecovered."
+              class="cover"
+              src="/gay-wandering/cover.jpg"
+              width="1024"
+              height="1536"
+              alt="Cover of Gay Wandering: a bruised watercolor landscape under a gold compass rose, the shoreline falling away into a lit valley"
               fetchpriority="high"
             />
           </picture>
-          <span class="edition-mark">Plate III</span>
-          <figcaption>
-            <strong>The Silent Spider · Transit Survey</strong>
-            Five stations, one open loop. The gold on this plate is the same gold
-            moving across this page — a route is invisible until something has
-            paid to travel it.
-          </figcaption>
-        </figure>
+          <span class="edition-mark">Reader No. 01</span>
+        </div>
 
         <div class="hero-copy">
           <p class="kicker">Poems from the road · California, seventeen to twenty</p>
@@ -133,14 +122,32 @@ const bookSchema = {
           <h2 id="contents-title" data-anchor>One open loop,<br />held offline.</h2>
         </div>
         <div class="edition-details">
-          <img
-            class="cover-inline"
-            src="/gay-wandering/cover.jpg"
-            width="1024"
-            height="1536"
-            alt="Cover of Gay Wandering: a bruised watercolor landscape crossed by a broken gold compass"
-            loading="lazy"
-          />
+        <figure class="plate-stage" data-anchor>
+          <picture>
+            <source
+              type="image/webp"
+              srcset="/gay-wandering/plate-iii-transit-survey.webp 884w, /gay-wandering/plate-iii-transit-survey@2x.webp 1389w"
+              sizes="(max-width: 760px) 90vw, 22rem"
+            />
+            <img
+              class="plate"
+              src="/gay-wandering/plate-iii-transit-survey.jpg"
+              srcset="/gay-wandering/plate-iii-transit-survey.jpg 884w, /gay-wandering/plate-iii-transit-survey@2x.jpg 1389w"
+              sizes="(max-width: 760px) 90vw, 22rem"
+              width="884"
+              height="1400"
+              alt="Plate III, The Silent Spider: a Transit Survey. A compass web of pale filaments over a near-black field, its five stations marked Origin, Intention, Refraction, Transmission and Return. Gold dust rides a spiral inward, pours off the lower-left quadrant, and settles into a bright horizontal line at the foot of the plate. One sector of the web is left unrecovered."
+              loading="lazy"
+            />
+          </picture>
+          <span class="edition-mark">Plate III</span>
+          <figcaption>
+            <strong>The Silent Spider · Transit Survey</strong>
+            Five stations, one open loop. The gold on this plate is the same gold
+            moving across this page — a route is invisible until something has
+            paid to travel it.
+          </figcaption>
+        </figure>
           <ul>
             <li><span>11</span> complete poems</li>
             <li><span>04</span> full-color plates</li>
@@ -255,17 +262,44 @@ const bookSchema = {
     pointer-events: none;
   }
 
+  .cover-stage { position: relative; perspective: 1000px; }
+
+  .cover-shadow {
+    position: absolute;
+    inset: 8% -8% -5% 12%;
+    background: rgba(80, 40, 56, 0.5);
+    filter: blur(45px);
+    transform: rotate(4deg);
+  }
+
+  .cover-stage picture { display: block; }
+
+  .cover {
+    position: relative;
+    display: block;
+    width: min(100%, 27rem);
+    height: auto;
+    margin: 0 auto;
+    border: 1px solid rgba(241, 223, 182, 0.26);
+    box-shadow: 0 2.8rem 7rem rgba(0, 0, 0, 0.66);
+    transform: rotateY(2deg) rotateZ(-0.7deg);
+  }
+
+  /* Plate III now sits inside "the complete object" as the interior preview,
+     so it is sized to the column rather than to the hero. */
   .plate-stage {
     position: relative;
-    perspective: 1000px;
-    margin: 0;
+    /* Shrink to the plate so the absolutely-positioned edition mark hugs its
+       edge instead of stranding itself at the far side of the column. */
+    width: min(100%, 22rem);
+    margin: 0 0 2.5rem;
   }
 
   .plate-stage picture { display: block; }
 
   .plate-stage figcaption {
-    margin: 1.6rem auto 0;
-    max-width: 27rem;
+    margin: 1.2rem 0 0;
+    max-width: 100%;
     font: 400 0.78rem/1.7 var(--font-mono);
     color: var(--gw-ash);
   }
@@ -282,12 +316,11 @@ const bookSchema = {
   .plate {
     position: relative;
     display: block;
-    width: min(100%, 27rem);
+    width: min(100%, 22rem);
     height: auto;
-    margin: 0 auto;
-    border: 1px solid rgba(241, 223, 182, 0.26);
-    box-shadow: 0 2.8rem 7rem rgba(0, 0, 0, 0.66);
-    transform: rotateY(2deg) rotateZ(-0.7deg);
+    margin: 0;
+    border: 1px solid rgba(241, 223, 182, 0.2);
+    box-shadow: 0 1.8rem 4.5rem rgba(0, 0, 0, 0.6);
   }
 
   .edition-mark {
@@ -466,7 +499,8 @@ const bookSchema = {
     }
     /* Cap by height, not width: a 6x9 plate at full column width eats the
        whole phone screen and pushes the title of the book below the fold. */
-    .plate { max-width: 100%; max-height: 62vh; width: auto; margin-inline: auto; }
+    .cover { max-width: 100%; max-height: 62vh; width: auto; margin-inline: auto; }
+    .plate { max-width: 100%; }
     /* The vertical edition mark sits in the gutter a phone does not have, and
        it lands on top of the caption. */
     .edition-mark { display: none; }
@@ -487,7 +521,7 @@ const bookSchema = {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .plate-stage { animation: arrive 900ms cubic-bezier(.2,.8,.2,1) both; }
+    .cover-stage { animation: arrive 900ms cubic-bezier(.2,.8,.2,1) both; }
     .hero-copy > * { animation: rise 700ms ease both; }
     .hero-copy > :nth-child(2) { animation-delay: 100ms; }
     .hero-copy > :nth-child(3) { animation-delay: 180ms; }
@@ -498,13 +532,3 @@ const bookSchema = {
   @keyframes rise { from { opacity: 0; transform: translateY(1rem); } }
 </style>
 
-<style>
-  .cover-inline {
-    display: block;
-    width: min(100%, 13rem);
-    height: auto;
-    margin: 0 0 2rem;
-    border: 1px solid rgba(241, 223, 182, 0.22);
-    box-shadow: 0 1.4rem 3.6rem rgba(0, 0, 0, 0.6);
-  }
-</style>
