@@ -344,6 +344,133 @@ done < <(find "$REPO_ROOT/public" "$REPO_ROOT/src/pages" -name "*.html" 2>/dev/n
 
 echo ""
 
+# ── 10. "Live" tier claims on /work actually resolve ──────────────────────────
+# Added 2026-08-05. /work tiers every claim by evidence grade, and the `live`
+# tier makes a specific promise to the reader: "Deployed and running. Don't
+# take my word — click it." That promise was a hand-authored string in a TS
+# object with nothing checking it, and on the day the page shipped two `live`
+# entries — /blog/what-we-dont-know-yet/ and /blog/architecture-of-forgetting/
+# — pointed at routes that did not exist. Caught by hand, not by the repo.
+# A tier system nothing verifies is prose, not evidence; this makes it an
+# assertion.
+#
+# The list is derived from src/pages/work.astro on every run — the same file
+# the page renders from — so it cannot drift from what is published. Never
+# maintain a second copy of it here: a checker that decides "aligned" by
+# different logic than the writer uses will eventually just lie.
+info "── /work \"Live\" tier claims resolve ──"
+
+WORK_PAGE="$REPO_ROOT/src/pages/work.astro"
+LIVE_TOTAL=0; LIVE_BAD=0; LIVE_UNREACHABLE=0; LIVE_EXT=0
+
+if [[ ! -f "$WORK_PAGE" ]]; then
+  fail "src/pages/work.astro not found — cannot verify tier claims"
+else
+  # Ground truth for internal routes is the build output when it exists.
+  # docs:check does not build (see .github/workflows/docs-integrity.yml), so
+  # fall back to source resolution and say which mode was used — a check that
+  # silently no-ops when it cannot run is worse than one that admits it.
+  if [[ -d "$REPO_ROOT/dist" ]]; then
+    LIVE_MODE="dist/ (build output)"
+  else
+    LIVE_MODE="source (dist/ absent — run a build for ground truth)"
+  fi
+
+  # Resolve an internal route the way Astro publishes it: a static file under
+  # public/, a content-collection entry, or a page route. Draft posts count as
+  # missing, because a draft does not render.
+  resolve_internal() {
+    local path="${1#/}"; path="${path%/}"
+    [[ -z "$path" ]] && return 0                      # "/" always exists
+
+    if [[ -d "$REPO_ROOT/dist" ]]; then
+      [[ -f "$REPO_ROOT/dist/$path" || -f "$REPO_ROOT/dist/$path/index.html" ]] && return 0
+      return 1
+    fi
+
+    # A path whose last segment has an extension is a plain asset.
+    if [[ "${path##*/}" == *.* ]]; then
+      [[ -f "$REPO_ROOT/public/$path" ]] && return 0
+      return 1
+    fi
+
+    [[ -f "$REPO_ROOT/public/$path/index.html" ]] && return 0
+    [[ -f "$REPO_ROOT/src/pages/$path.astro" ]] && return 0
+    [[ -f "$REPO_ROOT/src/pages/$path/index.astro" ]] && return 0
+
+    # Content collections: /<collection>/<slug>/ → src/content/<collection>/<slug>.md|mdx
+    local coll="${path%%/*}" slug="${path#*/}"
+    case "$coll" in
+      blog|signal|tesserae)
+        local f
+        for f in "$REPO_ROOT/src/content/$coll/$slug.md" "$REPO_ROOT/src/content/$coll/$slug.mdx"; do
+          if [[ -f "$f" ]]; then
+            grep -qE '^draft:[[:space:]]*true' "$f" && return 1   # drafts do not render
+            return 0
+          fi
+        done
+        ;;
+    esac
+    return 1
+  }
+
+  while IFS= read -r href; do
+    [[ -z "$href" ]] && continue
+    LIVE_TOTAL=$((LIVE_TOTAL + 1))
+    href="${href%%#*}"                                # strip anchors before resolving
+
+    if [[ "$href" == /* ]]; then
+      if ! resolve_internal "$href"; then
+        fail "work.astro tier:'live' → $href (route does not exist — the page tells the reader to click it)"
+        LIVE_BAD=$((LIVE_BAD + 1))
+      fi
+    else
+      LIVE_EXT=$((LIVE_EXT + 1))
+      # Only a definitive negative from a server is drift. A connection error
+      # means we did not get an answer — that is not evidence the claim is
+      # false, and failing CI on someone else's DNS would be a checker that
+      # lies in the other direction.
+      code="$(curl -sS -L -o /dev/null -w '%{http_code}' \
+                --max-time 12 --retry 1 \
+                -A 'mazzeleczzare-drift-check/1.0' \
+                "$href" 2>/dev/null)" || code=""
+      if [[ -z "$code" || "$code" == "000" ]]; then
+        LIVE_UNREACHABLE=$((LIVE_UNREACHABLE + 1))
+      elif [[ "$code" =~ ^[45] ]]; then
+        fail "work.astro tier:'live' → $href (HTTP $code — claimed deployed and running)"
+        LIVE_BAD=$((LIVE_BAD + 1))
+      fi
+    fi
+  done < <(awk '
+      /^  \{[[:space:]]*$/ { is_live=0; next }
+      /^[[:space:]]*tier:[[:space:]]*.live.,/ { is_live=1; next }
+      is_live && /[[:space:],]href:[[:space:]]*'"'"'/ {
+        line=$0
+        while (match(line, /[[:space:],]href:[[:space:]]*'"'"'[^'"'"']+'"'"'/)) {
+          seg=substr(line, RSTART, RLENGTH)
+          sub(/^.*href:[[:space:]]*'"'"'/, "", seg); sub(/'"'"'$/, "", seg)
+          print seg
+          line=substr(line, RSTART+RLENGTH)
+        }
+      }
+    ' "$WORK_PAGE")
+
+  if [[ $LIVE_TOTAL -eq 0 ]]; then
+    warn "  ? no tier:'live' entries found in work.astro — extractor may have broken"
+  else
+    if [[ $LIVE_UNREACHABLE -gt 0 ]]; then
+      if [[ $LIVE_UNREACHABLE -eq $LIVE_EXT ]]; then
+        warn "  ? all $LIVE_EXT external URL(s) unreachable — no network; external claims UNVERIFIED this run"
+      else
+        warn "  ? $LIVE_UNREACHABLE of $LIVE_EXT external URL(s) did not answer — UNVERIFIED (not counted as drift)"
+      fi
+    fi
+    [[ $LIVE_BAD -eq 0 ]] && pass "$LIVE_TOTAL \"Live\" claim(s) resolve — internal via $LIVE_MODE"
+  fi
+fi
+
+echo ""
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 if [[ $ERRORS -eq 0 ]]; then
   green "=== All documented items verified — no drift detected ==="
