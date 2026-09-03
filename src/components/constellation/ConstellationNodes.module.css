@@ -232,22 +232,29 @@
   .svyHalo { animation: none; }
 }
 
-/* Mobile: degrade the overlay to a legible, tappable list pinned to the
-   bottom of the hero. :not(:empty) so an unfilled container (fetch fail /
-   no nodes) paints nothing and leaves the hero CTAs as the fallback. */
+/* Mobile: degrade the overlay to a legible, tappable list. Was pinned
+   `position: absolute` to the bottom of the 100vh hero at z-index 11 — above
+   the content's z-index 10 — which worked while the hero was short. Once the
+   redesign added the two Stratum/Stele cards, centred content routinely grew
+   tall enough to reach that fixed bottom band, and the node list (still on
+   top) overlaid the CTAs. Same fix already applied to
+   .breathing-hero__orientation for the same reason: out of absolute overlay,
+   into normal flow after the content it used to float over. The section's
+   `min-height: 100vh` is a floor, not a cap, so it grows to fit both.
+   :not(:empty) so an unfilled container (fetch fail / no nodes) paints
+   nothing and leaves the hero CTAs as the fallback. */
 @media (max-width: 768px) {
   /* the list view replaces the sky; survey furniture has nothing to order */
   .cnSurvey { display: none; }
   .constellationNodes:not(:empty) {
-    position: absolute;
-    inset: auto 0 0 0;
+    position: static;
     max-height: 42vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     padding: 1rem;
-    z-index: 11;
+    margin-top: 1.5rem;
     pointer-events: auto;
     background: linear-gradient(to top, rgba(var(--cn-scrim), 0.94), rgba(var(--cn-scrim), 0));
   }
