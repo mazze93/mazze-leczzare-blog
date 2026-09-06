@@ -3,13 +3,13 @@
   "description": "Build a personal website, blog, or portfolio with Astro.",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "7.0.8",
-    "@astrojs/react": "^6.0.4",
+    "@astrojs/mdx": "8.0.0",
+    "@astrojs/react": "^6.0.5",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "@fontsource/crimson-pro": "^5.3.0",
-    "astro": "7.2.9",
+    "astro": "7.3.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "typescript": "7.0.2",
@@ -41,8 +41,8 @@
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/playfair-display": "^5.3.0",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
+    "@types/react-dom": "^19.2.7",
     "playwright": "^1.62.1",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   }
 }
