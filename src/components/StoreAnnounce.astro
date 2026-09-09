@@ -1,0 +1,213 @@
+---
+import { SITE_STORE_URL, STORE_ANNOUNCE_ENABLED } from '../consts';
+
+/**
+ * A one-time, dismissable corner card pointing at the store. Mounted once, in
+ * Footer, so it rides along on every page that has site chrome.
+ *
+ * Non-negotiables:
+ *  - Ships behind STORE_ANNOUNCE_ENABLED (false by default). The <aside> is not
+ *    emitted until that is flipped on — this is visitor-facing. The scoped
+ *    <style>/<script> are always emitted (a few hundred bytes) but inert with
+ *    no element to act on; Astro hoists them, so they can't live inside the
+ *    conditional.
+ *  - Never blocks the page: no overlay, no scroll lock, fixed to a corner.
+ *  - Shows at most once per browser. Dismissal (or a visit to /store) is
+ *    remembered in localStorage under the data-key.
+ *  - Appears only after a short dwell or a little scrolling, so it is never the
+ *    first thing a reader sees.
+ *  - prefers-reduced-motion: no slide, and no auto-appear on dwell — it waits
+ *    until the reader is already scrolling.
+ *  - Vanilla JS, in keeping with the site's islands discipline.
+ */
+const STORE_ANNOUNCE_KEY = 'store-announce-v1';
+---
+
+{STORE_ANNOUNCE_ENABLED && (
+  <aside
+    class="store-announce"
+    id="store-announce"
+    data-store-url={SITE_STORE_URL}
+    data-key={STORE_ANNOUNCE_KEY}
+    aria-label="Store announcement"
+    hidden
+  >
+    <a class="sa-link" href={SITE_STORE_URL} target="_blank" rel="noopener noreferrer">
+      <span class="sa-eyebrow">New · Store</span>
+      <span class="sa-text">Claude Code plugins &amp; skills — the tools behind the work.</span>
+    </a>
+    <button type="button" class="sa-close" aria-label="Dismiss store announcement">
+      <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
+        <path d="M1 1 L11 11 M11 1 L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+    </button>
+  </aside>
+)}
+
+<style>
+  .store-announce {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: var(--z-header, 50);
+    max-width: 280px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.7rem 0.7rem 0.7rem 0.85rem;
+    background: var(--header-bg, #0b0d12);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--teal);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.28s ease, transform 0.28s ease;
+  }
+
+  @supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+    .store-announce {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+  }
+
+  .store-announce[data-visible='true'] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .sa-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-decoration: none;
+    color: var(--text-dim);
+  }
+
+  .sa-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .sa-text {
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text-dim);
+  }
+
+  .sa-link:hover .sa-text {
+    color: var(--text);
+  }
+
+  .sa-close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .sa-close:hover {
+    color: var(--teal);
+    border-color: rgba(var(--accent-rgb), 0.3);
+  }
+
+  .sa-link:focus-visible,
+  .sa-close:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .store-announce {
+      transition: none;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .store-announce {
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: 0.75rem;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const el = document.getElementById('store-announce');
+    if (!el) return;
+
+    const key = el.getAttribute('data-key') || 'store-announce-v1';
+
+    const seen = () => {
+      try {
+        return localStorage.getItem(key) === 'dismissed';
+      } catch {
+        return false;
+      }
+    };
+    const remember = () => {
+      try {
+        localStorage.setItem(key, 'dismissed');
+      } catch {
+        /* storage blocked — the card just reappears next visit; acceptable */
+      }
+    };
+
+    // Already dismissed, or the reader is already on the store landing page.
+    if (seen() || location.pathname.replace(/\/+$/, '') === '/store') {
+      remember();
+      return;
+    }
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let dwell = 0;
+
+    const reveal = () => {
+      if (seen() || !el.hidden) return;
+      el.hidden = false;
+      requestAnimationFrame(() => el.setAttribute('data-visible', 'true'));
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(dwell);
+    };
+
+    const dismiss = () => {
+      remember();
+      el.removeAttribute('data-visible');
+      const done = () => {
+        el.hidden = true;
+        el.removeEventListener('transitionend', done);
+      };
+      if (reduced) done();
+      else el.addEventListener('transitionend', done);
+    };
+
+    // Appear after a short dwell, or once the reader has scrolled a little —
+    // whichever comes first. Under reduced motion, only the scroll trigger.
+    const onScroll = () => {
+      if (window.scrollY > 400) reveal();
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (!reduced) dwell = window.setTimeout(reveal, 6000);
+
+    el.querySelector('.sa-close')?.addEventListener('click', dismiss);
+    el.querySelector('.sa-link')?.addEventListener('click', remember);
+  })();
+</script>

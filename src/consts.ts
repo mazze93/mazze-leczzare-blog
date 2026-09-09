@@ -18,3 +18,14 @@ export const TURNSTILE_SITE_KEY = "0x4AAAAAAEYJ6c3cC0X8i_-F";
 // PUBLIC_GAY_WANDERING_CHECKOUT_URL still overrides it.
 export const GAY_WANDERING_CHECKOUT_URL =
   'https://mazzeleczzare.gumroad.com/l/gay-wandering';
+
+// The skills-and-plugins storefront (Claude Code plugins + skills). A distinct
+// surface from the Gumroad book listing above; `/store` is the on-site writeup
+// that points here.
+export const SITE_STORE_URL = 'https://store.mazzeleczzare.com';
+
+// One-time, dismissable corner announcement for the store (StoreAnnounce.astro,
+// mounted in Footer). Ships OFF — set to true when you want every visitor to
+// see it once. It never blocks the page, honours prefers-reduced-motion, and
+// its dismissal persists in localStorage.
+export const STORE_ANNOUNCE_ENABLED = false;
