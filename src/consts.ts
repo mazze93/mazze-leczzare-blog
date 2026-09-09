@@ -25,7 +25,8 @@ export const GAY_WANDERING_CHECKOUT_URL =
 export const SITE_STORE_URL = 'https://store.mazzeleczzare.com';
 
 // One-time, dismissable corner announcement for the store (StoreAnnounce.astro,
-// mounted in Footer). Ships OFF — set to true when you want every visitor to
-// see it once. It never blocks the page, honours prefers-reduced-motion, and
-// its dismissal persists in localStorage.
-export const STORE_ANNOUNCE_ENABLED = false;
+// mounted in Footer). It never blocks the page, honours prefers-reduced-motion,
+// appears only after dwell/scroll, and its dismissal persists in localStorage.
+// Bump the localStorage key (STORE_ANNOUNCE_KEY in the component) if you want
+// it to re-show to visitors who already dismissed an earlier version.
+export const STORE_ANNOUNCE_ENABLED = true;
