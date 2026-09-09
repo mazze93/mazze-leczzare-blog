@@ -5,6 +5,7 @@ pubDate: "Mar 06 2026"
 category: "Essay"
 tags: ["astro", "cloudflare", "static-first", "building", "essay"]
 heroImage: "../../assets/images/blog/writers-desk-create-hero.jpg"
+project: static-first
 ---
 
 This site is not meant to be a feed mill.

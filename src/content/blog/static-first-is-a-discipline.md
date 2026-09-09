@@ -5,6 +5,7 @@ pubDate: 2026-03-05
 heroImage: "../../assets/images/blog/hero-signal-grid.svg"
 category: "Security"
 tags: ["astro", "cloudflare", "static-first", "local-first", "security"]
+project: static-first
 ---
 
 Static-first is not nostalgia.

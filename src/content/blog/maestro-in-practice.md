@@ -7,6 +7,7 @@ category: "Research"
 tags: ["security", "AI", "agentic AI", "threat modeling", "MAESTRO", "MCP", "multi-agent systems"]
 readingTime: "~7 min"
 contentType: 'artifact'
+project: maestro
 artifactNote: "Full 42-page PDF: 12 case studies, a per-layer threat catalog, comparative insights, and an annotated evidence ledger flagging every quantitative claim's sourcing."
 draft: false
 ---
