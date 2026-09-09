@@ -198,3 +198,38 @@ on phones. Details in `creative/gay-wandering/docs/journal/CHECKPOINT.md`.
 7-step E2E purchase test before going live. It has not been run; mazze directed
 the flip to publish. Recorded rather than quietly skipped — a real purchase is
 still the only proof the delivery path works end to end.
+
+## 2026-09-09 · Dependency security sync + upstream class-closure pass
+
+**What landed.** `npm audit fix` (no `--force`) bumped the two flagged transitive
+deps under `astro@7.2.9` — `svgo` 4.0.2 → 4.1.0 and `js-yaml` 4.3.1 → 4.3.2
+(carrying `sax` 1.5→1.6.1, `css-select` 5→6, `css-what` 6→7). Lockfile-only, no
+`package.json` change, so `astro` itself is untouched. Verified:
+`npm audit --audit-level=high` (0), `npm run check` (44 pages), `npm test`
+(194/194). Commit `b1a3c61`, pushed direct to `main` — same shape and precedent
+as `a5abfec` (browserslist). Clears Dependabot alerts #71/#72; PR #178 redundant.
+
+**CLAUDE.md drift fixed.** Stack table said `Node 22.x`; `.nvmrc` says `24`.
+Corrected. `npm run docs:check` and `scripts/ops/check-docs-drift.sh` both report
+no other drift (incl. the new §10 /work "Live" check).
+
+**Upstream research (separate artifact, not in this repo).** Per mazze's
+direction, ran the Class-Closure / `vuln-disclose` method against the two CVEs
+rather than only bumping past them:
+
+- **svgo `removeScripts` — class NOT closed.** v4.1.0 fixed CVE-2026-84369/84370
+  but only normalized case *inside* `<foreignObject>`. Outside it, element and
+  attribute names are matched case-sensitively, so `<SCRIPT>`, `ONLOAD=`,
+  `<a HREF="javascript:">` etc. all pass through `removeScripts` untouched — and
+  the HTML parser lower-cases them on inline embed, so they execute. Confirmed
+  by probe against the pinned `svgo@4.1.0` install. Draft maintainer report
+  written; **nothing filed** — awaiting mazze's approval + a live-browser PoC.
+
+- **js-yaml GHSA-2883 — class closed at default config.** Reproduced the
+  quadratic empty-merge PoC on 4.3.1 (21ms→236ms for N 2k→8k); 4.3.2 rejects it
+  in <6ms via the hard 100-item `<<` sequence cap (`e54dea3`) plus per-source
+  charging (`6a8e05f`). Variant sweep found no non-closure within defaults. No
+  finding.
+
+Artifact: `~/Inbox/2026-09-09-class-closure-svgo-jsyaml.md`. Proper long-term
+home is `secure-pride` (SENSITIVE — not this container).

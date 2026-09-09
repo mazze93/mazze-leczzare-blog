@@ -21,7 +21,7 @@ Security engineering, technical writing, and essays at the intersection of infra
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |
 | Type checking | TypeScript 7 strict mode + `tsc` via `npm run check` |
 | Deploy CLI | Wrangler 4 (`wrangler.toml` manages Pages/Functions config) |
-| Node | 22.x (`.nvmrc`) |
+| Node | 24.x (`.nvmrc`) |
 
 ## Key Commands
 
