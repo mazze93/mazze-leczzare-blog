@@ -1,0 +1,364 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_REPO_URL } from "../consts";
+import "../styles/constellation-pages.css";
+
+// A single source of truth for the page. Keep it honest: "shipped" means it is
+// live and doing its job; nothing here has a fictional progress bar.
+const UPDATED = "2026-09-09";
+
+type State = "shipped" | "building" | "planned" | "vision";
+
+interface Item {
+  title: string;
+  note: string;
+  state: State;
+}
+
+interface Phase {
+  key: string;
+  heading: string;
+  blurb: string;
+  items: Item[];
+}
+
+const STATE_META: Record<State, { glyph: string; label: string }> = {
+  shipped: { glyph: "◆", label: "shipped" },
+  building: { glyph: "◐", label: "building" },
+  planned: { glyph: "○", label: "planned" },
+  vision: { glyph: "◇", label: "vision" },
+};
+
+const phases: Phase[] = [
+  {
+    key: "foundation",
+    heading: "Foundation — live",
+    blurb: "The studio is built and running. These are load-bearing.",
+    items: [
+      {
+        title: "Cipher Gothic / Kintsugi design system",
+        note: "One hand-authored token set (global.css). Light mode wired site-wide via haven-ink.tokens.css. No Tailwind, no CDN fonts outside /artifacts/.",
+        state: "shipped",
+      },
+      {
+        title: "Constellation engine",
+        note: "Pure, unit-tested decay/layout/nodes math. Feeds the homepage hero, /constellation, /studio, /project/[slug], and /nodes-manifest.json from one node set.",
+        state: "shipped",
+      },
+      {
+        title: "Writing surfaces",
+        note: "/writing catalogue by form, /blog reverse-chron, and the artifact / dispatch / field-note taxonomy behind the sub-listings.",
+        state: "shipped",
+      },
+      {
+        title: "Gay Wandering — Reader No. 01",
+        note: "Shipped on Gumroad with byte-verified delivery; /gay-wandering carries the plates and the buy path.",
+        state: "shipped",
+      },
+      {
+        title: "Agent discoverability",
+        note: "/.well-known MCP card, A2A agent card, Web Bot Auth JWKS, agent-skills; /auth.md; Accept: text/markdown content negotiation in middleware.",
+        state: "shipped",
+      },
+      {
+        title: "Contact + admin + feeds",
+        note: "Turnstile + honeypot + timing + signed webhook on /api/contact. JWT-gated /admin, fail-closed. RSS + auto sitemap.",
+        state: "shipped",
+      },
+      {
+        title: "Store surface",
+        note: "store.mazzeleczzare.com now reachable — /store landing plus Header and Footer links. (Sept 2026.)",
+        state: "shipped",
+      },
+    ],
+  },
+  {
+    key: "in-progress",
+    heading: "In progress",
+    blurb: "Started, not finished. Each has a specific next move.",
+    items: [
+      {
+        title: "Store announcement",
+        note: "One-time dismissable corner card is built and mounted, gated behind STORE_ANNOUNCE_ENABLED (ships false). Next: review the copy, then flip it on.",
+        state: "building",
+      },
+      {
+        title: "svgo removeScripts finding",
+        note: "A bypass class against svgo 4.1.0 confirmed during a dependency upgrade. Coordinated disclosure to the svg/svgo maintainers is in progress; mechanism stays private until it resolves.",
+        state: "building",
+      },
+      {
+        title: "Feed the constellation",
+        note: "The engine runs on four nodes, all sealed into the signal zone — so drift, erasure, and the archive seal never show. Next: tag more work with project:, leave some uncommitted so decay is visible, refresh lastTouched.",
+        state: "building",
+      },
+    ],
+  },
+  {
+    key: "planned",
+    heading: "Planned",
+    blurb: "Known work, not yet started.",
+    items: [
+      {
+        title: "Tesserae — first tiles",
+        note: "The collection is empty and the route renders a placeholder. It needs mosaic fragments written, not more code.",
+        state: "planned",
+      },
+      {
+        title: "Signal — past the first transmission",
+        note: "One entry carries a full nav surface. Either grow the ledger or fold it into Studio.",
+        state: "planned",
+      },
+      {
+        title: "Re-theme /about, /work, /security",
+        note: "The 2026-05 constellation spec left these three on the old grammar pending the token settle. Kintsugi has settled; they haven't moved.",
+        state: "planned",
+      },
+      {
+        title: "Prune the unused component shelf",
+        note: "Three blog/* MDX components and the Cormorant SC faces are imported by zero posts. If the small-caps landing work doesn't land, they go together.",
+        state: "planned",
+      },
+    ],
+  },
+  {
+    key: "vision",
+    heading: "Vision — studio.mazzeleczzare.com as the workbench",
+    blurb: "Direction, not a schedule. The subdomain becomes a working dashboard provisioned with the custom toolchain, with room to grow and a real developer surface.",
+    items: [
+      {
+        title: "Stratum ledger, surfaced live",
+        note: "The append-only epistemic decision log, readable from the dashboard rather than only from disk.",
+        state: "vision",
+      },
+      {
+        title: "Stele — egregore compilation",
+        note: "Compilation and generation of the stele egregore as a first-class panel.",
+        state: "vision",
+      },
+      {
+        title: "Adaptive response plugin",
+        note: "Wired into the workbench as an operable component.",
+        state: "vision",
+      },
+      {
+        title: "MCP gateway",
+        note: "A gateway surface so the workbench's tools are reachable by agents under one authenticated door.",
+        state: "vision",
+      },
+      {
+        title: "Growth + dev surface",
+        note: "Its own repo, an architecture pass, and a Stratum-backed build journal so the thing can be developed autonomously without losing work.",
+        state: "vision",
+      },
+    ],
+  },
+];
+
+const legend = (Object.keys(STATE_META) as State[]).map((s) => ({
+  ...STATE_META[s],
+  state: s,
+}));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Roadmap | ${SITE_TITLE}`}
+      description="What is built on mazzeleczzare.com, what is in progress, what is planned, and where the studio workbench is headed."
+    />
+  </head>
+  <body>
+    <Header />
+    <main class="cn-page rm">
+      <p class="cn-page__label">Roadmap</p>
+      <h1 class="cn-page__title">What's built, what's next</h1>
+      <p class="cn-page__thesis">
+        An honest tracker, not a marketing page. If it says <em>shipped</em>, it
+        is live and doing its job. The rest is ordered by how close it is, not by
+        how much I want it.
+      </p>
+
+      <ul class="rm-legend" role="list">
+        {legend.map((l) => (
+          <li class="rm-legend__item" data-state={l.state}>
+            <span class="rm-glyph" aria-hidden="true">{l.glyph}</span>
+            {l.label}
+          </li>
+        ))}
+      </ul>
+
+      {phases.map((phase) => (
+        <section class="rm-phase" aria-labelledby={`ph-${phase.key}`}>
+          <div class="rm-seam" aria-hidden="true"></div>
+          <h2 class="rm-phase__heading" id={`ph-${phase.key}`}>{phase.heading}</h2>
+          <p class="rm-phase__blurb">{phase.blurb}</p>
+          <ul class="rm-items" role="list">
+            {phase.items.map((item) => (
+              <li class="rm-item" data-state={item.state}>
+                <span class="rm-glyph" aria-hidden="true">{STATE_META[item.state].glyph}</span>
+                <span class="rm-item__body">
+                  <span class="rm-item__title">{item.title}</span>
+                  <span class="rm-item__note">{item.note}</span>
+                </span>
+                <span class="sr-only">({STATE_META[item.state].label})</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <p class="rm-foot">
+        Last updated {UPDATED}. This page is generated from a single list in its
+        own source — <a href={`${SITE_REPO_URL}/blob/main/src/pages/roadmap.astro`} target="_blank" rel="noopener noreferrer">roadmap.astro</a>.
+      </p>
+    </main>
+    <Footer />
+
+    <style>
+      .rm-legend {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4em 1.25em;
+        margin: 1.75em 0 0;
+        padding: 0;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+      }
+      .rm-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45em;
+      }
+
+      .rm-glyph {
+        font-size: 0.8em;
+        line-height: 1;
+      }
+      [data-state="shipped"] .rm-glyph,
+      .rm-legend__item[data-state="shipped"] .rm-glyph { color: var(--teal); }
+      [data-state="building"] .rm-glyph,
+      .rm-legend__item[data-state="building"] .rm-glyph { color: var(--gold-seam); }
+      [data-state="planned"] .rm-glyph,
+      .rm-legend__item[data-state="planned"] .rm-glyph { color: var(--text-faint); }
+      [data-state="vision"] .rm-glyph,
+      .rm-legend__item[data-state="vision"] .rm-glyph { color: var(--coral-dim); }
+
+      .rm-phase {
+        margin-top: 3.25em;
+      }
+
+      /* the kintsugi seam — a hairline break with a gold node, echoing the
+         site's core motif, set at the head of each phase */
+      .rm-seam {
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold-seam-deep) 12%,
+          var(--gold-seam) 50%,
+          var(--gold-seam-deep) 88%,
+          transparent
+        );
+        opacity: 0.5;
+        margin-bottom: 1.5em;
+      }
+
+      .rm-phase__heading {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+        color: var(--text);
+        margin: 0 0 0.3em;
+        letter-spacing: 0.01em;
+      }
+
+      .rm-phase__blurb {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        line-height: 1.6;
+        color: var(--text-dim);
+        margin: 0 0 1.5em;
+      }
+
+      .rm-items {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .rm-item {
+        display: grid;
+        grid-template-columns: 1.4em 1fr;
+        gap: 0 0.75em;
+        padding: 0.95em 0;
+        border-bottom: 1px solid var(--rule);
+      }
+      .rm-item:last-child {
+        border-bottom: 0;
+      }
+
+      .rm-item .rm-glyph {
+        font-size: 0.9em;
+        padding-top: 0.15em;
+      }
+
+      .rm-item__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3em;
+      }
+
+      .rm-item__title {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        color: var(--text);
+      }
+      .rm-item[data-state="vision"] .rm-item__title {
+        color: var(--text-dim);
+      }
+
+      .rm-item__note {
+        font-family: var(--font-sans);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--text-dim);
+      }
+
+      .rm-foot {
+        margin-top: 3.5em;
+        padding-top: 1.5em;
+        border-top: 1px solid var(--rule);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        line-height: 1.7;
+        color: var(--text-faint);
+      }
+      .rm-foot a {
+        color: var(--teal-dim);
+      }
+      .rm-foot a:hover {
+        color: var(--teal);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </body>
+</html>

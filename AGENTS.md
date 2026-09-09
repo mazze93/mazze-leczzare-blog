@@ -48,7 +48,7 @@ npm run test       # vitest run — unit tests for src/**/*.test.ts
 | `/about`           | `src/pages/about.astro`               |
 | `/work`            | `src/pages/work.astro`              |
 | `/security`        | `src/pages/security.astro`          |
-| `/roadmap`         | `src/pages/roadmap.md`              |
+| `/roadmap`         | `src/pages/roadmap.astro`           |
 | `/login`           | `src/pages/login.astro`             |
 | `/admin`           | `src/pages/admin/index.astro`       |
 | `/writing/`        | `src/pages/writing/index.astro` (publication catalogue) |

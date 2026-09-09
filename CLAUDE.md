@@ -139,7 +139,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |
 | `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
 | `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
-| `/roadmap`        | `src/pages/roadmap.md`              | Markdown page via BlogPost layout        |
+| `/roadmap`        | `src/pages/roadmap.astro`           | Designed status page — phases generated from one in-file list; linked from Footer |
 | `/login`          | `src/pages/login.astro`             | Admin login page                         |
 | `/admin`          | `src/pages/admin/index.astro`       | Admin dashboard (JWT auth-gated)         |
 | `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                        |
@@ -282,7 +282,7 @@ Read source for full detail — these are the non-obvious points:
 
 **Navigation:**
 - **`Header.astro`** — masthead. `minimal` prop drops the nav links entirely (used by the homepage, where `AirlockStrip` is the door). The full nav is `Work · Writing · Book · Store · About · Studio ▾ · │ · Stratum● · Stele●`, where the teal dot marks running software rather than another essay. `Book` → `/gay-wandering/`, `Store` → `/store/` (the on-site landing for `store.mazzeleczzare.com`). **Studio is a disclosure parent, not a peer link:** it opens a menu holding The bench (`/studio/`), Signal, and Tesserae. Those two are thin fragment surfaces, and giving each a top-level slot spent nav width out of proportion to their content — Tesserae had no link at all and was an unreachable route. Implemented as a `<button aria-expanded>` + `hidden` `<ul>`, not a CSS hover menu (hover menus are unreachable by keyboard and unusable on touch); Escape returns focus to the trigger, `focusin`/click outside closes, ArrowDown opens onto the first item. The toggle is vanilla JS in the component's existing `<script>` block — deliberately not a React island, per Key Constraints. That script also listens for `compass:state` to refract the brand compass.
-- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, and `/tesserae/` as siblings, so the nested surfaces stay one click away from any page. Also the single mount point for `<StoreAnnounce />`.
+- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, `/tesserae/`, and `/roadmap/` as siblings, so the nested and meta surfaces stay one click away from any page. "Writing" points at `/writing/` to match the header (not `/blog/`). Also the single mount point for `<StoreAnnounce />`.
 - **`StoreAnnounce.astro`** — one-time, dismissable corner card pointing at `store.mazzeleczzare.com`. Gated on `STORE_ANNOUNCE_ENABLED` in `src/consts.ts` (**ships `false`** — the `<aside>` isn't emitted until flipped on); the scoped `<style>`/`<script>` are always emitted but inert without the element. Never blocks the page, appears only after dwell/scroll, honours `prefers-reduced-motion`, remembers dismissal in `localStorage['store-announce-v1']`. Vanilla JS, not a React island (per Key Constraints).
 
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.

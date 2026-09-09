@@ -32,7 +32,7 @@ DOCUMENTED_PAGES=(
   "src/pages/about.astro"
   "src/pages/work.astro"
   "src/pages/security.astro"
-  "src/pages/roadmap.md"
+  "src/pages/roadmap.astro"
   "src/pages/login.astro"
   "src/pages/admin/index.astro"
   "src/pages/writing/index.astro"

@@ -23,14 +23,16 @@
       hourly via LaunchAgent `com.mazzeleczzare.fleet-heartbeat` (workspace
       commit `8221cf5`); logs to `~/Library/Logs/fleet-heartbeat.log`,
       notifies on drift
-- [ ] P8b Follow-up: `contextsynapse` 522
+- [x] P8b Follow-up: `contextsynapse` 522 — **RESOLVED.** As of 2026-09-09 the
+      whole fleet returns 200 to unauthenticated requests: `contextsynapse`,
+      `store`, `fieldnotes`, `perdurabo`, `stratum`, `stele`. Origin is
+      reachable again; no further action.
 
 ## Deferred / needs mazze
 
 1. **ROTATE the four leaked credentials** — see DECISIONS.md, 2026-08-30
    incident entry, for the table. Highest priority is the Global API Key.
-2. **`contextsynapse` 522** — origin unreachable; `daedalus-tunnel` has zero
-   connections and no `~/.cloudflared/config.yml`.
+2. ~~**`contextsynapse` 522**~~ — RESOLVED 2026-09-09; whole fleet is 200. See P8b.
 3. **SSH signing key missing** — `~/.ssh` holds no keys but
    `commit.gpgsign=true`, so every commit fails until restored. Journal
    commits this session are unsigned. Try the Proton Pass `keys` vault.
