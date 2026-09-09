@@ -229,3 +229,56 @@ bumping past them:
 
 Artifact: `~/Inbox/2026-09-09-class-closure-svgo-jsyaml.md` (local only; proper
 long-term home is `secure-pride`).
+
+## 2026-09-09 · Store surface + roadmap rebuild + fleet-follow-up close
+
+Same session as the dependency sync above; three user-directed pieces shipped
+direct to `main`, each verified before push.
+
+**Store surface (`ae5e586`).** `store.mazzeleczzare.com` (Claude Code
+plugins/skills) had zero paths from the site. Added `src/pages/store.astro` —
+a short landing that says what it is and links out, distinct from the Gumroad
+book — plus a "Store" link in the Header atlas nav and the Footer. New
+`StoreAnnounce.astro`: a one-time, dismissable, dwell/scroll-gated corner card
+mounted once in `Footer`, `prefers-reduced-motion` aware, vanilla JS, dismissal
+in `localStorage`. **Gated behind `STORE_ANNOUNCE_ENABLED` in `consts.ts`,
+ships `false`** — the `<aside>` is not emitted until mazze flips it on, since a
+site-wide announcement is visitor-facing. `consts.ts` gains `SITE_STORE_URL`.
+
+**Roadmap rebuilt (`837aff9`).** `src/pages/roadmap.md` was orphaned (linked
+nowhere), stale since April 2026, had broken `[x ]` checkbox syntax, and listed
+shipped features as unbuilt. Deleted. New `roadmap.astro` is a designed page in
+the Kintsugi grammar — a gold seam heads each phase, mono eyebrows, Cormorant
+headings, a four-state legend (shipped / building / planned / vision) with the
+glyph colour carrying state. Phases render from one typed array in the file's
+frontmatter. Content folded in: everything shipped; in-progress (store announce
+toggle, svgo coordinated disclosure, feeding the constellation — which runs on
+4 nodes all sealed to the signal zone); planned (tesserae tiles, signal,
+re-theme /about+/work+/security, prune unused blog/* components + Cormorant SC);
+and the studio.mazzeleczzare.com workbench vision (Stratum ledger, Stele
+egregore compilation, adaptive response plugin, MCP gateway, dev surface).
+Linked from the Footer.
+
+**Footer corrections (same commit).** "Writing" pointed at `/blog/` while the
+header points at `/writing/` — two links, one label, different pages. Footer
+now matches the header. Added Book (`/gay-wandering/`) and Roadmap
+(`/roadmap/`).
+
+**Journal close.** CHECKPOINT.md P8b (`contextsynapse` 522) marked resolved —
+the whole fleet (`contextsynapse`, `store`, `fieldnotes`, `perdurabo`,
+`stratum`, `stele`) returns 200 as of today.
+
+**Map followed territory in each commit:** `CLAUDE.md` + `AGENTS.md` route
+tables (`.md` → `.astro`), the Header/Footer/component descriptions, and
+`scripts/ops/check-docs-drift.sh`'s expected-pages list.
+
+**Verified end-to-end.** `npm run check` (45 pages), `npm test` (194/194),
+`npm run docs:check`, `npm audit` (0) green at each step; `/roadmap` driven in a
+browser on the dev server; and after deploy, `https://mazzeleczzare.com/store/`
+and `/roadmap/` both return 200 with the expected `<title>`, the homepage
+carries the `/store/` nav link, and `/roadmap/` is in the live sitemap.
+
+**Outstanding (tracked on `/roadmap` itself):** svgo advisory still needs a
+manual private submit to svg/svgo; `STORE_ANNOUNCE_ENABLED` still `false`
+pending a copy review; the `53e6318` history exposure of the svgo mechanism
+can't be force-scrubbed (branch protection).
