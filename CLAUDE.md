@@ -120,6 +120,8 @@ public/
 scripts/ops/          # Local operational scripts (not part of the site build)
 docs/operations/      # Agent operations protocol and memory files
 docs/journal/         # Live session journal (PLAN/DECISIONS/CHECKPOINT); archive/ holds closed ones
+BUILD_JOURNAL.md      # Burst-workflow operating manual + Stratum ledger discipline (root)
+.stratum-log          # Single line: this repo's Stratum decision-log id (mazze-leczzare-blog)
 docs/archive/         # Files pulled out of a build path but kept in git — see its README
 files/                # HTML prototypes and design notes (not deployed; gitignored)
 ```
@@ -457,6 +459,10 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
 
 `scripts/bootstrap-dev-toolbelt.sh` — one-time developer environment bootstrap (separate from ops).
+
+`scripts/burst-summary.sh` (read-only, no network) and `scripts/stratum-link.sh`
+(one explicit live Stratum call) correlate git history with this repo's Stratum
+decision log on demand — see **`BUILD_JOURNAL.md`** below.
 
 ## CI / GitHub Workflows
 
