@@ -19,9 +19,19 @@ export interface ExternalPiece {
 export const PROJECT_THESES: Record<string, string> = {
   "intentional-fragility":
     "A system should be built to break in the right places — and the break is the record, not the failure. Context should cost something to keep; protection should be earned, not granted; the gap between what a system expected and what happened is the signal worth keeping. One idea, instantiated across essays, a formal paper, and two live instruments.",
+  "context-synapse":
+    "A local-first context-orchestration engine that models — on-device — what a system has learned about you over time, and lets you interrogate and correct it. Lighthouse anchors hold the thread, a context-rot score names the drift, and Edgar watches it. Research project and privacy commitment in one codebase.",
 };
 
 export const PROJECT_PIECES: Record<string, ExternalPiece[]> = {
+  "context-synapse": [
+    {
+      title: "ContextSynapse — the project site",
+      kind: "spine",
+      href: "https://contextsynapse.mazzeleczzare.com/",
+      desc: "Local-first Bayesian prompt orchestration: lighthouse anchors, context-rot scoring, and Edgar — the raven that watches your drift.",
+    },
+  ],
   "intentional-fragility": [
     {
       title: "Intentional Fragility — the spine",
