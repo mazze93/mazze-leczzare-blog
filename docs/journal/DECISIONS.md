@@ -213,23 +213,19 @@ as `a5abfec` (browserslist). Clears Dependabot alerts #71/#72; PR #178 redundant
 Corrected. `npm run docs:check` and `scripts/ops/check-docs-drift.sh` both report
 no other drift (incl. the new §10 /work "Live" check).
 
-**Upstream research (separate artifact, not in this repo).** Per mazze's
-direction, ran the Class-Closure / `vuln-disclose` method against the two CVEs
-rather than only bumping past them:
+**Upstream research (held private).** Per mazze's direction, ran the
+Class-Closure / `vuln-disclose` method against the two CVEs rather than only
+bumping past them:
 
-- **svgo `removeScripts` — class NOT closed.** v4.1.0 fixed CVE-2026-84369/84370
-  but only normalized case *inside* `<foreignObject>`. Outside it, element and
-  attribute names are matched case-sensitively, so `<SCRIPT>`, `ONLOAD=`,
-  `<a HREF="javascript:">` etc. all pass through `removeScripts` untouched — and
-  the HTML parser lower-cases them on inline embed, so they execute. Confirmed
-  by probe against the pinned `svgo@4.1.0` install. Draft maintainer report
-  written; **nothing filed** — awaiting mazze's approval + a live-browser PoC.
+- **svgo `removeScripts`** — a candidate finding against v4.1.0 is going through
+  coordinated disclosure with the maintainers under mazze's name. Mechanism and
+  PoC are held in the local artifact until that resolves; they do not belong in
+  a public repo.
 
 - **js-yaml GHSA-2883 — class closed at default config.** Reproduced the
-  quadratic empty-merge PoC on 4.3.1 (21ms→236ms for N 2k→8k); 4.3.2 rejects it
-  in <6ms via the hard 100-item `<<` sequence cap (`e54dea3`) plus per-source
-  charging (`6a8e05f`). Variant sweep found no non-closure within defaults. No
-  finding.
+  quadratic empty-merge PoC on 4.3.1 (21ms->236ms for N 2k->8k); 4.3.2 rejects
+  it in <6ms via the hard 100-item `<<` merge-sequence cap plus per-source
+  charging. Variant sweep found no non-closure within defaults. No finding.
 
-Artifact: `~/Inbox/2026-09-09-class-closure-svgo-jsyaml.md`. Proper long-term
-home is `secure-pride` (SENSITIVE — not this container).
+Artifact: `~/Inbox/2026-09-09-class-closure-svgo-jsyaml.md` (local only; proper
+long-term home is `secure-pride`).
