@@ -361,7 +361,8 @@ echo ""
 info "── /work \"Live\" tier claims resolve ──"
 
 WORK_PAGE="$REPO_ROOT/src/pages/work.astro"
-LIVE_TOTAL=0; LIVE_BAD=0; LIVE_UNREACHABLE=0; LIVE_EXT=0
+LIVE_TOTAL=0; LIVE_BAD=0; LIVE_UNREACHABLE=0; LIVE_EXT=0; LIVE_REFUSED=0
+LIVE_NOANSWER_LIST=(); LIVE_REFUSED_LIST=()
 
 if [[ ! -f "$WORK_PAGE" ]]; then
   fail "src/pages/work.astro not found — cannot verify tier claims"
@@ -426,16 +427,39 @@ else
       fi
     else
       LIVE_EXT=$((LIVE_EXT + 1))
-      # Only a definitive negative from a server is drift. A connection error
-      # means we did not get an answer — that is not evidence the claim is
-      # false, and failing CI on someone else's DNS would be a checker that
-      # lies in the other direction.
+      # Only a definitive negative from a server is drift, and there are two
+      # distinct ways to fail to get one.
+      #
+      #   no answer  — a connection error. We never reached anything. Not
+      #                evidence the claim is false; failing CI on someone
+      #                else's DNS would be a checker that lies the other way.
+      #
+      #   refused    — 401/403/429. We DID reach the server and it refused
+      #                *this client*. That is a fact about the requester, not
+      #                about whether the thing is deployed.
+      #
+      # Added 2026-09-17. Both zones run Cloudflare Bot Fight Mode, which 403s
+      # datacenter ASNs and, on the Free plan, sits ahead of the WAF and cannot
+      # be skipped by a custom rule. So an external claim pointing at one of
+      # those zones is refused from a GitHub Actions runner while resolving 200
+      # from a browser — four green sites reported as four drift errors.
+      #
+      # The tier promises "a reader can click it". A 403 aimed at a CI runner
+      # does not break that promise; a 403 aimed at everyone would — and from
+      # inside CI the two are indistinguishable. So a refusal is reported as
+      # UNVERIFIED, by name and out loud, and never folded silently into a pass.
+      # 404/410 and 5xx stay hard drift: there the server is answering about
+      # the resource itself, which is exactly the claim under test.
       code="$(curl -sS -L -o /dev/null -w '%{http_code}' \
                 --max-time 12 --retry 1 \
                 -A 'mazzeleczzare-drift-check/1.0' \
                 "$href" 2>/dev/null)" || code=""
       if [[ -z "$code" || "$code" == "000" ]]; then
         LIVE_UNREACHABLE=$((LIVE_UNREACHABLE + 1))
+        LIVE_NOANSWER_LIST+=("$href")
+      elif [[ "$code" == "401" || "$code" == "403" || "$code" == "429" ]]; then
+        LIVE_REFUSED=$((LIVE_REFUSED + 1))
+        LIVE_REFUSED_LIST+=("$href (HTTP $code)")
       elif [[ "$code" =~ ^[45] ]]; then
         fail "work.astro tier:'live' → $href (HTTP $code — claimed deployed and running)"
         LIVE_BAD=$((LIVE_BAD + 1))
@@ -464,8 +488,31 @@ else
       else
         warn "  ? $LIVE_UNREACHABLE of $LIVE_EXT external URL(s) did not answer — UNVERIFIED (not counted as drift)"
       fi
+      for u in "${LIVE_NOANSWER_LIST[@]}"; do
+        warn "      no answer: $u"
+      done
     fi
-    [[ $LIVE_BAD -eq 0 ]] && pass "$LIVE_TOTAL \"Live\" claim(s) resolve — internal via $LIVE_MODE"
+    if [[ $LIVE_REFUSED -gt 0 ]]; then
+      warn "  ? $LIVE_REFUSED of $LIVE_EXT external URL(s) refused the checker — UNVERIFIED, NOT confirmed live:"
+      for u in "${LIVE_REFUSED_LIST[@]}"; do
+        warn "      refused: $u"
+      done
+      warn "      An access response means the server refused this client. It is not"
+      warn "      evidence the site is down, and it is not evidence the site is up."
+      warn "      Cloudflare Bot Fight Mode 403s datacenter IPs, so expect this in CI"
+      warn "      and treat it as a real signal from a browser or a home network."
+      warn "      To actually verify: run this script from a non-datacenter network."
+    fi
+    if [[ $LIVE_BAD -eq 0 ]]; then
+      if [[ $((LIVE_REFUSED + LIVE_UNREACHABLE)) -gt 0 ]]; then
+        # Never let the summary line claim more than was actually checked: if
+        # any external claim went unverified, the count says so here, not only
+        # in the warning above.
+        pass "$LIVE_TOTAL \"Live\" claim(s): internal resolve via $LIVE_MODE — external $((LIVE_EXT - LIVE_REFUSED - LIVE_UNREACHABLE))/$LIVE_EXT verified, $((LIVE_REFUSED + LIVE_UNREACHABLE)) UNVERIFIED (above)"
+      else
+        pass "$LIVE_TOTAL \"Live\" claim(s) resolve — internal via $LIVE_MODE"
+      fi
+    fi
   fi
 fi
 
