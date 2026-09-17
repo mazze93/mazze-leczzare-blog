@@ -504,8 +504,11 @@ else
       warn "      To actually verify: run this script from a non-datacenter network."
     fi
     if [[ $LIVE_BAD -eq 0 ]]; then
-      if [[ $LIVE_EXT -gt 0 && $((LIVE_REFUSED + LIVE_UNREACHABLE)) -eq $LIVE_EXT ]]; then
-        pass "$LIVE_TOTAL \"Live\" claim(s): internal resolve via $LIVE_MODE — all $LIVE_EXT external UNVERIFIED (above)"
+      if [[ $((LIVE_REFUSED + LIVE_UNREACHABLE)) -gt 0 ]]; then
+        # Never let the summary line claim more than was actually checked: if
+        # any external claim went unverified, the count says so here, not only
+        # in the warning above.
+        pass "$LIVE_TOTAL \"Live\" claim(s): internal resolve via $LIVE_MODE — external $((LIVE_EXT - LIVE_REFUSED - LIVE_UNREACHABLE))/$LIVE_EXT verified, $((LIVE_REFUSED + LIVE_UNREACHABLE)) UNVERIFIED (above)"
       else
         pass "$LIVE_TOTAL \"Live\" claim(s) resolve — internal via $LIVE_MODE"
       fi
