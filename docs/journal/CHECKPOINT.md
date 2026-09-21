@@ -1,10 +1,13 @@
 # CHECKPOINT — current resume point
 
 **Last updated:** 2026-09-21
-**Branch:** `main`, clean, in sync with `origin/main` at `1119b57`.
-**Standing checks, all green as of this update:** `npm run check` (48 pages),
-`npm test` (194/194), `npm run docs:check`, `scripts/ops/check-docs-drift.sh`
-("no drift detected").
+**Branch:** `main`, clean, in sync with `origin/main` at `0d50dcf` (parent
+`03b96db`).
+**Standing checks, all green as of this update, re-run after `npm ci` on the
+current lockfile:** `npm run check` (48 pages), `npm test` (194/194),
+`npm run docs:check`, `scripts/ops/check-docs-drift.sh` ("no drift detected" —
+10 `/work` Live claims, 7 of them external, **0 unverified** from this home
+network; expect refusals instead in CI, where Bot Fight Mode 403s datacenter IPs).
 
 ## To resume — read in this order
 
@@ -22,6 +25,15 @@ entries; that gap is what this update closes (see `DECISIONS.md`, 2026-09-21).
 | `1eaae77` | 2026-09-09 | `STORE_ANNOUNCE_ENABLED` flipped **true**, announce + roadmap copy tightened |
 | `92553cd` | 2026-09-09 | `/work` links the live `contextsynapse.mazzeleczzare.com` |
 | `1119b57` | 2026-09-09 | Stratum build-journal workflow scaffolded (`BUILD_JOURNAL.md`, `.stratum-log`, `scripts/burst-summary.sh`, `scripts/stratum-link.sh`) |
+
+**Six more commits landed on the remote while this update was being written**
+and were absorbed by rebase, not by a merge: `da09cff`, `6216ea6`, `7f978fb`,
+`03b96db` (dependabot — `smol-toml`, `devalue`, two `npm_and_yarn` groups) plus
+two ops fixes to `scripts/ops/check-docs-drift.sh` — `46715bb` (a bot-blocked
+401/403/429 on an external Live claim is no longer called drift, because a
+refusal is evidence of neither up nor down) and `6d5b28c` (the summary line now
+states how many Live claims went unverified, so "green" can't overclaim). The
+checks above were re-run against that state.
 
 ## Earlier journals still holding open items
 

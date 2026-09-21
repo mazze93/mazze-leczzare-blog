@@ -327,3 +327,25 @@ ledger decision id — the git half of `BUILD_JOURNAL.md` carried it. The
 untracked 3.1 MB `x-banner.png` in `creative/gay-wandering` was left in place:
 unreferenced, unexplained, and a binary in history is only reversible by
 force-push, so keep-or-drop is mazze's call.
+
+**Follow-up, same day — six commits absorbed by rebase.** The push of the entry
+above was rejected: `origin/main` had moved from `1119b57` to `03b96db` while
+this pass ran. Four dependabot bumps (`da09cff`, `6216ea6`, `7f978fb`,
+`03b96db`) and two ops fixes landed. Rebased rather than merged — a docs-only
+commit with no overlapping files earns a linear history, not a merge bubble —
+then `npm ci` and all four standing checks re-run green on the new lockfile.
+The first CHECKPOINT this pass shipped said "in sync at `1119b57`", which was
+six commits stale within minutes: the same defect this burst existed to fix,
+caught on review and corrected in the follow-up commit.
+
+**The drift checker's definition of green changed underneath us.** `46715bb`
+stops treating a 401/403/429 on an external `/work` Live claim as drift — a
+refusal is evidence neither that a site is up nor that it is down, and
+Cloudflare Bot Fight Mode 403s datacenter IPs, so CI was failing on a
+non-signal. `6d5b28c` then makes the summary line print how many Live claims
+went unverified, so a pass can no longer claim more than was actually checked.
+Read together: green now means "nothing contradicted", not "everything
+confirmed". From this home network the run is unambiguous — 10 Live claims, 7
+external, 0 unverified. From CI expect refusals, and read the count, not the
+tick. This matters because nothing else re-checks a Live tier claim and two
+have 404'd in the past.
