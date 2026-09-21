@@ -46,11 +46,30 @@ seeded in `localStorage` **before** load (setting it after is overwritten by
 | --- | --- |
 | Landscape dark | Limb, scale, arcs and rule all read; gold arm to the well |
 | Landscape light | Inverts correctly on Haven paper — no literal left behind |
-| Portrait | Vertical limb, labels rotated in the left band, arcs bow across |
+| Portrait | Vertical limb, labels rotated in the left band, arcs bow across — **verified by forcing `.sky--portrait` to display, not by a real portrait viewport.** `resize_window` did not change the captured viewport, so the `(orientation: portrait) and (max-width: 820px)` query was never actually matched. The markup and the rotated label transforms are proven; the media query is not. |
+
+**The arcs were probed, not eyeballed.** Looking at a curve cannot tell you
+whether it encodes anything. A script re-derived `computeZone` → `nodePosition`
+for the real manifest and for the band extremes, and checked each node's axis
+position falls inside the arc pair bracketing its drift ratio:
+
+```
+decision-telemetry   drift=0.572  x=43.77  band=[33.14, 44.28]  INSIDE
+synthetic d=0.10  base 40/66 → 38.80 / 62.20   band=[38.80, 62.20]  INSIDE
+synthetic d=0.25  base 40/66 → 37.00 / 56.50   band=[37.00, 56.50]  INSIDE
+synthetic d=0.50  base 40/66 → 34.00 / 47.00   band=[34.00, 47.00]  INSIDE
+synthetic d=0.75  base 40/66 → 31.00 / 37.50   band=[31.00, 37.50]  INSIDE
+synthetic d=0.90  base 40/66 → 29.20 / 31.80   band=[29.20, 31.80]  INSIDE
+```
+
+Only one node is currently drifting, so the real-data half of that is thin —
+the synthetic sweep covers the corridor the manifest doesn't.
 
 ## Next, if mazze approves the direction
 
-1. Consume the same component in `BreathingHero.astro` (the homepage hero has
+1. Give the hero the `--c-*` token set (dark + Haven light), which both fixes
+   the literal above and is a precondition for the chrome rendering correctly
+   there, then consume the same component in `BreathingHero.astro` (the homepage hero has
    its own survey furniture already — captions, isolines, asterism, callsign —
    so the chrome should extend that vocabulary, not duplicate it).
 2. Decide the open fork below.
@@ -64,6 +83,22 @@ even scale (every 10%, unlabelled), which is quieter but says nothing. The
 brief's thesis — meaningful geometry over decoration — points at the first, so
 that is what is built; say the word if the plate reads too busy and the
 decorative version is wanted instead.
+
+## Outstanding — found in this pass, not fixed
+
+**The homepage hero has a theme-blind gold literal.**
+`ConstellationNodes.tsx` builds its `cn-well-glow` radial gradient from three
+`stopColor="#e8b64c"` literals. `/constellation` draws the same gradient from
+`var(--c-gold)`; the hero does not, so its gold bloom stays dark-mode-coloured
+on Haven paper — the exact bug class `e0b65d4` fixed on the sky and that
+`CLAUDE.md` now warns about.
+
+It is **not a one-line fix**, which is why it is named here rather than
+patched: the `--c-*` tokens are declared only on
+`body[data-layout="constellation"]` and `.cn-page`, and the hero lives on `/`
+under `data-layout="homepage"`, where `var(--c-gold)` resolves to nothing. The
+honest fix is to give the hero the token set, which is increment 2's work
+anyway — it is listed there.
 
 ## Not done
 
