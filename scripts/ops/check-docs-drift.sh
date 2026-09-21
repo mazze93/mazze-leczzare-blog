@@ -145,6 +145,7 @@ DOCUMENTED_COMPONENTS=(
   "src/components/Compass.astro"
   "src/components/CompassLink.astro"
   "src/components/SectionBreak.astro"
+  "src/components/Seam.astro"
   "src/components/TransmissionFeed.astro"
   "src/components/constellation/AirlockStrip.astro"
   "src/components/constellation/ConstellationNodes.tsx"

@@ -52,7 +52,9 @@ overlay, labelled ecliptics. Do not replace the constellation with the flat
 astrolabe plate — that swaps meaningful geometry for decorative.
 
 Inputs mazze supplied:
-- `~/Desktop/mazze-fully-cooked-landing.html` — the astrolabe markup. Its
+- `~/Desktop/💻 DEV/mazze-fully-cooked-landing.html` — the astrolabe markup.
+  (Moved there after this brief was written; the old path `~/Desktop/💻 DEV/mazze-fully-cooked-landing.html`
+  is dead. Path corrected 2026-09-21, verified with `stat`.) Its
   palette already matches Kintsugi. **Its copy is comp copy and explicitly not
   in mazze's voice — ship none of it.** It pulls Cormorant SC and Martian Mono
   from Google Fonts, CSP-blocked outside `/artifacts/*`; Cormorant SC is now

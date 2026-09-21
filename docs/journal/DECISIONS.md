@@ -349,3 +349,43 @@ confirmed". From this home network the run is unambiguous — 10 Live claims, 7
 external, 0 unverified. From CI expect refusals, and read the count, not the
 tick. This matters because nothing else re-checks a Live tier claim and two
 have 404'd in the past.
+
+---
+
+## 2026-09-21 — the three design systems are documented (HANDOFF item 4)
+
+**Closed an item open since 2026-08-02.** `CLAUDE.md` now has a
+`## Design Systems` section: Kintsugi (site-wide palette + seam), Cipher Gothic
+(82 `--cg-*` type/space/motion tokens, `/cipher-gothic/` only), Haven/Ink
+(light mode), each with what it is, where it applies, and its source of truth.
+The opening line of `CLAUDE.md` said "the Cipher Gothic design system" —
+singular, and naming the *specimen* system as the site's — which is the exact
+misreading item 4 existed to prevent. Corrected in the same commit.
+
+**Rewrote the brief's table rather than pasting it.** The 2026-08-03 version got
+two things imprecise, both verified against `global.css` before writing:
+Haven/Ink doesn't only map `--home-*` and the sky, it also **re-tunes the
+Kintsugi accents** inside `[data-theme="light"]` (`--teal #186058`,
+`--coral #b02818`, `--gold #8a6a3a`, lines ~434–438 — confirmed enclosed by the
+`[data-theme="light"] {` at line 423); and `--cg-*` is a type/space/motion
+system of 82 tokens, not a palette.
+
+**Recorded the three surfaces that are outside all three systems** —
+`/artifacts/*` (own palette, only path with `ARTIFACT_CSP`), `/gay-wandering/`
+(`--gw-*`), and the `.cg-page` specimen ground. They were reported to mazze on
+2026-08-24 as deliberate; undocumented, each one reads as a theme bug to the
+next agent, and "fixing" it would be the actual defect.
+
+**Found and fixed adjacent rot in the same pass.** `Seam.astro` — the single
+source of the seam geometry, imported by four components — appeared in neither
+`CLAUDE.md` nor `check-docs-drift.sh`'s `DOCUMENTED_COMPONENTS`, so nothing
+would have caught its deletion. Both fixed. Verified the consumer list by
+resolving imports, not by grepping the word "seam": `ConstellationNodes`'
+`.svySeam` matches that grep and is unrelated — it is survey furniture on the
+node plate. That distinction is now written down.
+
+**And in the archived brief.** The astrolabe brief's input path
+`~/Desktop/mazze-fully-cooked-landing.html` has been dead since roughly
+2026-08-24 (the file moved to `~/Desktop/💻 DEV/`). The 08-24 session
+noticed and moved on; this pass corrected the path in the archived CHECKPOINT
+after `stat`-ing both, because the next item is the task that reads that brief.

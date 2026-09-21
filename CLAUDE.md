@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > Local: `~/Projects/blog/mazze-leczzare-blog` (alias `~/Code/blog/…`) · Repo: `mazze93/mazze-leczzare-blog` · Domain: `mazzeleczzare.com`
 
-Security engineering, technical writing, and essays at the intersection of infrastructure and story. The site is a "static-first working studio" for public-facing work, field notes, and the Cipher Gothic design system.
+Security engineering, technical writing, and essays at the intersection of infrastructure and story. The site is a "static-first working studio" for public-facing work, field notes, and three design systems — Kintsugi, Cipher Gothic, and Haven/Ink (see Design Systems below).
 
 ## Stack
 
@@ -280,6 +280,9 @@ Read source for full detail — these are the non-obvious points:
 - **`Compass.astro`** — hand-coded SVG brand mark. Pure presentational; 5 `state` values (`idle`/`hover`/`focus`/`engaged`/`complete`) × 5 size buckets.
 - **`CompassLink.astro`** — `Compass` wrapped in an anchor. Pure CSS state machine (`:hover`/`:focus-visible` cascading through custom properties) — no JS, no client directive. Use this, not `Compass`, whenever the mark is interactive.
 
+**Seam / dividers:**
+- **`Seam.astro`** — the one source for the Kintsugi gold-seam geometry (see Design Systems). Presentational, no client directive; `orientation="horizontal"|"vertical"`. Imported by `SectionBreak`, both `PullQuote`s and `AuthorCoda` — import it rather than re-authoring the path.
+
 **Also MDX-mountable:** `SectionBreak.astro` (decorative in-prose divider, `aria-hidden`), `blog/ArtifactEmbed.astro` (iframes a `public/artifacts/*.html` file with caption + fullscreen link).
 
 **Navigation:**
@@ -288,6 +291,39 @@ Read source for full detail — these are the non-obvious points:
 - **`StoreAnnounce.astro`** — one-time, dismissable corner card pointing at `store.mazzeleczzare.com`. Gated on `STORE_ANNOUNCE_ENABLED` in `src/consts.ts` (**enabled** since 2026-09-09; set `false` to pull it); when off, the `<aside>` isn't emitted and the scoped `<style>`/`<script>` are inert. Never blocks the page, appears only after dwell/scroll, honours `prefers-reduced-motion`, remembers dismissal in `localStorage['store-announce-v1']` (bump `STORE_ANNOUNCE_KEY` to re-show after a copy change). Vanilla JS, not a React island (per Key Constraints).
 
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
+
+## Design Systems
+
+**Three, deliberately** — they are not variants of one thing, and a change to
+one does not propagate to the others. Agreed with mazze during the 2026-08-03
+design-systems pass; written here 2026-09-21 (that pass's `HANDOFF.md` item 4).
+
+| System | What it is | Applies to | Source of truth |
+| --- | --- | --- | --- |
+| **Kintsugi** | Site-wide palette + the gold seam. `--teal #5CCFCF`, `--coral #F07178`, `--gold #cda24e`, plus `--gold-seam` / `--gold-seam-bright` / `--gold-seam-deep` and `--hairline` / `--hairline-soft` | Every Astro page (dark mode values) | `src/styles/global.css` `:root` (lines ~63–79); visual reference `public/intentional-fragility/index.html` (`.seam` rules) |
+| **Cipher Gothic** | A type/space/motion system — 82 `--cg-*` tokens — plus its own specimen page. **One system deployed here, not the be-all for the site** (mazze's framing; the page should read that way) | `/cipher-gothic/` only. `--cg-font-serif`/`--cg-font-mono` alias the site families; Space Grotesk + Crimson Pro load on this route alone | The Cipher Gothic block in `src/styles/global.css` (~lines 180–240) |
+| **Haven / Ink** | The light-mode palette — cool periphery → warm centre, ink on paper. Defines tokens only, sets no rules | All non-artifact pages in `[data-theme="light"]`. Maps onto the `--home-*` homepage surface, the constellation sky (`--c-*`), **and re-tunes the Kintsugi accents** (`--teal #186058`, `--coral #b02818`, `--gold #8a6a3a` — `global.css` ~434–438, inside `[data-theme="light"]`) | `src/styles/haven-ink.tokens.css` (tokens) + the `[data-theme="light"]` blocks in `global.css` (mappings — **edit the mappings there, not in the tokens file**) |
+
+**Outside all three, on purpose:**
+
+- `/artifacts/*` — self-contained HTML that owns its own palette and is the only
+  path granted `ARTIFACT_CSP`. Don't token-ise them.
+- `/gay-wandering/` — its own `--gw-*` palette, deliberately dark in both themes.
+- The `.cg-page` specimen ground on `/cipher-gothic/` — also deliberately dark.
+  Both are one decision away from theme-aware via the token pattern in
+  `BreathingHero.astro`; neither is a bug (reported to mazze 2026-08-24).
+
+**The seam is a component, not a copied snippet.** `src/components/Seam.astro`
+is the single source for the gold-crack geometry (`orientation="horizontal"` |
+`"vertical"`), imported by `SectionBreak.astro`, `PullQuote.astro`,
+`blog/PullQuote.astro` and `AuthorCoda.astro`. Add a consumer by importing it;
+never re-author the path. (`ConstellationNodes.tsx`'s `.svySeam` is unrelated —
+that is survey furniture on the node plate, not the Kintsugi seam.)
+
+**A dark-palette hex written as a literal is invisible to all of this.** Tokens
+invert; literals don't. Four such literals kept light mode out of the
+constellation sky until `e0b65d4`. Style with `var(--…)`; if you need a new
+colour, add the token and its light-mode override in the same commit.
 
 ## Styles
 

@@ -9,10 +9,13 @@ enough to finish and checkpoint on its own per `BUILD_JOURNAL.md`.
 
 ## Unblocked — pick one and make it a burst
 
-1. **Document the three design systems in `CLAUDE.md`** — carried open from the
-   2026-08-08 nav burst (HANDOFF item 4).
-2. **Astrolabe chrome** — the live next task of the design-systems pass; see
-   the 2026-08-09 burst's notes on the design-systems HANDOFF.
+1. ~~**Document the three design systems in `CLAUDE.md`**~~ — **DONE 2026-09-21.**
+   `CLAUDE.md` carries a `## Design Systems` section; the design-systems
+   HANDOFF item 4 is closed in place.
+2. **Astrolabe chrome** — **IN PROGRESS 2026-09-21**, journalled in
+   `docs/journal/2026-09-21-astrolabe-chrome/`. Built on a branch, not `main`:
+   it is visible design on a HIGH-posture public surface, so it waits on mazze
+   liking the render before it merges.
 3. **Journal hygiene for the two older burst dirs** — each still owns real open
    items, so they stay live until those items land or move; revisit once one of
    the threads above closes.

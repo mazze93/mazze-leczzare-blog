@@ -182,10 +182,24 @@ the comment at the top of its `<style is:global>` block now says so. Still open:
 
 ---
 
-## 4. Document the design systems in CLAUDE.md
+## 4. Document the design systems in CLAUDE.md — ✅ DONE (2026-09-21)
 
-Not started. CLAUDE.md still implies one design system. It should name three
-and say where each applies:
+**Closed.** `CLAUDE.md` now carries a `## Design Systems` section naming all
+three, with what each is, where it applies, and its source of truth — plus the
+three surfaces deliberately outside all of them (`/artifacts/*`,
+`/gay-wandering/`, the `.cg-page` ground), `Seam.astro` as the single seam
+source, and the literals-don't-invert rule. The opening line of `CLAUDE.md`,
+which said "the Cipher Gothic design system" (singular), was corrected in the
+same commit. `Seam.astro` was also undocumented and missing from
+`check-docs-drift.sh`'s `DOCUMENTED_COMPONENTS`; both fixed.
+
+The table below is the original brief. It is superseded by the one in
+`CLAUDE.md`, which corrects two things this one got imprecise: Haven/Ink also
+re-tunes the Kintsugi accents inside `[data-theme="light"]` (it is not only a
+`--home-*`/sky mapping), and the `--cg-*` block is a type/space/motion system of
+82 tokens, not a palette.
+
+Original brief:
 
 | System | Applies to | Source of truth |
 | --- | --- | --- |
