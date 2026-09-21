@@ -560,6 +560,41 @@ fi
 
 echo ""
 
+# ── 10. Skill copies (this repo's copy vs the skills repo's source) ───────────
+# .claude/skills/run-mazze-leczzare-blog/ is a COPY of the skill published from
+# ~/Projects/skills/claude-code-skills. Two tracked copies in two repos is a
+# drift generator: on 2026-09-21 the published one had rotted into naming a
+# macOS user that doesn't exist here, a framework major two behind, and a
+# nine-entry route map for a fifty-page site. Nothing compared them, so nothing
+# caught it. This does — when the source repo is present. When it isn't (CI, a
+# fresh clone), it says so rather than passing silently.
+info "── Skill copies vs their source repo ──"
+SKILLS_SRC="${SKILLS_REPO:-$HOME/Projects/skills/claude-code-skills/skills}"
+SKILL_PAIRS=0
+SKILL_BAD=0
+if [[ ! -d "$SKILLS_SRC" ]]; then
+  warn "  ? skills source repo not found at $SKILLS_SRC — copies UNVERIFIED this run"
+  warn "      (set SKILLS_REPO=<path>/skills to check them)"
+else
+  while IFS= read -r local_skill; do
+    name="$(basename "$(dirname "$local_skill")")"
+    src="$SKILLS_SRC/$name/$(basename "$local_skill")"
+    [[ -f "$src" ]] || continue
+    SKILL_PAIRS=$((SKILL_PAIRS + 1))
+    if ! cmp -s "$local_skill" "$src"; then
+      fail ".claude/skills/$name/$(basename "$local_skill") differs from $src — the two copies have drifted"
+      SKILL_BAD=$((SKILL_BAD + 1))
+    fi
+  done < <(find "$REPO_ROOT/.claude/skills" -type f \( -name "SKILL.md" -o -name "*.cjs" \) | sort)
+  if [[ $SKILL_PAIRS -eq 0 ]]; then
+    warn "  ? no skill file in .claude/skills/ has a counterpart in the source repo"
+  elif [[ $SKILL_BAD -eq 0 ]]; then
+    pass "$SKILL_PAIRS skill file(s) identical to the skills repo"
+  fi
+fi
+
+echo ""
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 if [[ $ERRORS -eq 0 ]]; then
   green "=== All documented items verified — no drift detected ==="
