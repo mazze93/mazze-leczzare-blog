@@ -1,45 +1,33 @@
-# PLAN — Cloudflare Access fleet lockout: diagnosis and remediation
+# PLAN — open threads
 
-**Request (restated):** every public property on `mazzeleczzare.com` — the apex
-blog, `stratum`, `stele`, `perdurabo`, `fieldnotes`, and the `pages.dev` origin —
-is redirecting unauthenticated visitors to a Cloudflare Access login. Find the
-cause and undo it end-to-end, restoring public access to the whole fleet.
-Mazze has been fighting this alone for a week; speed matters more than ceremony.
+**Rewritten 2026-09-21.** The previous `PLAN.md` was the 2026-08-30 Cloudflare
+Access lockout plan; it closed and moved to
+`docs/journal/archive/2026-08-30-cloudflare-access-lockout/`.
 
-**Scope — what this touches:**
+No burst is open. These are the threads a next burst can pick up, each small
+enough to finish and checkpoint on its own per `BUILD_JOURNAL.md`.
 
-- **Cloudflare account state** (the actual fix): Access applications under
-  `/accounts/$ACCOUNT_ID/access/apps`. Nothing here lives in a repo.
-- `/tmp/cf-access-unlock/` — remediation script + JSON backups (outside the
-  repo on purpose: backups of Access app definitions are account config, and
-  the repo is public).
-- `docs/journal/` — this scaffold.
-- `~/.claude/projects/…/memory/` — two memories written
-  (`proton-pass-cli-credential-retrieval`, `cloudflare-access-fleet-lockout`).
+## Unblocked — pick one and make it a burst
 
-**Not in scope:** no site source changes. The repo is blameless — build,
-194 tests, `docs:check`, and `rot_check` were all green throughout.
+1. **Document the three design systems in `CLAUDE.md`** — carried open from the
+   2026-08-08 nav burst (HANDOFF item 4).
+2. **Astrolabe chrome** — the live next task of the design-systems pass; see
+   the 2026-08-09 burst's notes on the design-systems HANDOFF.
+3. **Journal hygiene for the two older burst dirs** — each still owns real open
+   items, so they stay live until those items land or move; revisit once one of
+   the threads above closes.
 
-## Phases
+## Blocked — see `CHECKPOINT.md` "Deferred / needs Mazze"
 
-- [x] **P0 — Diagnose.** Probe every fleet hostname; decode the Access `aud`
-      from redirect JWTs to distinguish one shared app from many.
-- [x] **P1 — Identify root cause.** Confirmed against Cloudflare docs.
-- [x] **P2 — Build the remediation script**, dry-run-first with a backup gate.
-- [x] **P3 — Journal + memory**, incl. the authorization record below.
-- [ ] **P4 — Retrieve credentials** from Proton Pass (`Cloudflare` vault).
-      **BLOCKED** — see CHECKPOINT deferred list.
-- [ ] **P5 — Dry run**: dump all apps, survey Worker-scoped destinations.
-- [ ] **P6 — Delete** the `all_workers` (and `all_preview_workers`) app,
-      backing up each app's JSON first.
-- [ ] **P7 — Verify** unauthenticated 200s across all fleet hostnames.
-- [ ] **P8 — Follow-ups:** `contextsynapse` 522 (dead tunnel); an hourly
-      unauthenticated fleet probe so this can never run dark again.
+Stratum activation token · the 7-step E2E purchase test · the svgo private
+submit · the untracked `x-banner.png` · the macOS account merger.
 
-## Constraints
+## Standing constraints for any burst here
 
-- Delete **only** destination types `all_workers` / `all_preview_workers`.
-  Hostname, SaaS, SSH and self-hosted apps are untouched — `studio` in
-  particular has its own separate hostname app that must survive.
-- Never delete an app before writing its JSON backup.
-- Never echo a retrieved secret into the transcript.
+- `npm run check` (48 pages), `npm test` (194), `npm run docs:check`, and
+  `scripts/ops/check-docs-drift.sh` must be green before a commit.
+- Touch the map when you touch the territory: any structural change updates
+  `CLAUDE.md`/`AGENTS.md` route tables and `check-docs-drift.sh` in the same commit.
+- Resolve file references against their base and `stat` them; never conclude
+  from a grep substring.
+- Commit and push together.

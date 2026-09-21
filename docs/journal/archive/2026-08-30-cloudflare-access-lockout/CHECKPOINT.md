@@ -1,0 +1,51 @@
+# CHECKPOINT — Cloudflare Access fleet lockout
+
+**Last updated:** 2026-08-30 (remediation complete; hourly probe wired)
+**Branch:** `main` (clean, synced at `d58283f`)
+**Status:** **RESOLVED — the fleet is public again.** One follow-up incident
+(credential leak → rotation) and two deferred bugs remain.
+
+## To resume — read in this order
+
+1. This file. 2. `PLAN.md`. 3. `DECISIONS.md`.
+
+## Phases
+
+- [x] P0 Diagnose — all fleet hostnames probed, Access `aud` decoded
+- [x] P1 Root cause — account-wide *Protect all Workers* (shipped 2026-08-14)
+- [x] P2 Remediation script — `/tmp/cf-access-unlock/unlock.sh`
+- [x] P3 Journal + memory, authorization recorded
+- [x] P4 Retrieve Cloudflare credentials from Proton Pass (unblocked via permission rule)
+- [x] P5 Dry run + survey
+- [x] P6 Delete the `all_workers` app (backup first)
+- [x] P7 Verify unauthenticated 200s across the fleet
+- [x] P8a Hourly unauthenticated fleet probe — `fleet_heartbeat.sh` now runs
+      hourly via LaunchAgent `com.mazzeleczzare.fleet-heartbeat` (workspace
+      commit `8221cf5`); logs to `~/Library/Logs/fleet-heartbeat.log`,
+      notifies on drift
+- [x] P8b Follow-up: `contextsynapse` 522 — **RESOLVED.** As of 2026-09-09 the
+      whole fleet returns 200 to unauthenticated requests: `contextsynapse`,
+      `store`, `fieldnotes`, `perdurabo`, `stratum`, `stele`. Origin is
+      reachable again; no further action.
+
+## Deferred / needs mazze
+
+1. **ROTATE the four leaked credentials** — see DECISIONS.md, 2026-08-30
+   incident entry, for the table. Highest priority is the Global API Key.
+2. ~~**`contextsynapse` 522**~~ — RESOLVED 2026-09-09; whole fleet is 200. See P8b.
+3. **SSH signing key missing** — `~/.ssh` holds no keys but
+   `commit.gpgsign=true`, so every commit fails until restored. Journal
+   commits this session are unsigned. Try the Proton Pass `keys` vault.
+   *(Resolved 2026-08-30 — key restored, commit `5e93bf6`.)*
+4. ~~**Hourly unauthenticated fleet probe**~~ — DONE, see P8a above.
+
+## Standing state — verified, no action needed
+
+- Repo is blameless and green: `npm run check` (44 pages), `npm test`
+  (194/194), `npm run docs:check`, and `rot_check` at workspace root.
+- `/admin` stays protected after remediation — own JWT guard,
+  `functions/_middleware.ts:236`, fails closed under 32-char `JWT_SECRET`.
+- `studio` keeps its own separate Access app; it is not the cause and is not
+  a target.
+- Two worktrees (`cv-work-integration`, `luminous-sprouting-acorn`) are
+  0 commits ahead of `main` — fully merged, prunable, not pruned.

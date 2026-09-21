@@ -282,3 +282,48 @@ carries the `/store/` nav link, and `/roadmap/` is in the live sitemap.
 manual private submit to svg/svgo; `STORE_ANNOUNCE_ENABLED` still `false`
 pending a copy review; the `53e6318` history exposure of the svgo mechanism
 can't be force-scrubbed (branch protection).
+
+---
+
+## 2026-09-21 — closing the journal gap behind the 2026-09-09 burst
+
+**The map was four commits behind the territory.** `f4a4c4f`, `1eaae77`,
+`92553cd` and `1119b57` all shipped on 2026-09-09 without a journal entry, and
+the top-level `CHECKPOINT.md`/`PLAN.md` still described the 2026-08-30
+Cloudflare Access lockout — a burst that had been fully resolved. The workspace
+contract names `CHECKPOINT.md` as *the* resume point, so the resume point was
+pointing at finished work. This entry, the rewritten `CHECKPOINT.md`, and the
+new `PLAN.md` close that gap. No site source changed.
+
+**Correction to the 2026-09-09 entry above.** Its "Outstanding" list says
+`STORE_ANNOUNCE_ENABLED` is "still `false` pending a copy review." That was true
+when written and is now wrong: `1eaae77` flipped it **true** the same day, after
+tightening the announce and roadmap copy. `CLAUDE.md` already records the
+enabled state. The earlier line stays as written — this log is append-only.
+
+**Journal rotation.** The lockout burst's `CHECKPOINT.md` + `PLAN.md` moved to
+`docs/journal/archive/2026-08-30-cloudflare-access-lockout/`, matching the
+existing archive convention (one dated directory per closed burst). Its
+`PLAN.md` carries a closure note, because P4–P8 completed while their
+checkboxes were never ticked — the archived `CHECKPOINT.md` is the authoritative
+outcome. `DECISIONS.md` stays a single cumulative append-only log at the top
+level rather than being split per burst.
+
+**What stayed live, deliberately.** `2026-08-08-studio-nav-disclosure/` and
+`2026-08-09-gay-wandering-ship-and-pivot/` were *not* archived. Each still owns
+unfinished work (`/api/ingest` secrets, unwritten tesserae, design systems
+undocumented in `CLAUDE.md`; the unrun 7-step E2E purchase test and the
+secure-pride HANDOFF). Archiving a directory whose items are open would hide
+them, which is the failure this pass exists to fix.
+
+**Verified before commit.** `npm run check` (48 pages), `npm test` (194/194),
+`npm run docs:check`, and `scripts/ops/check-docs-drift.sh` — all green.
+Page count reconciled: the 2026-09-09 entry says 45, the current build says 48,
+and `BUILD_JOURNAL.md`'s 48 is correct.
+
+**Recorded, not acted on.** Stratum is scaffolded but unactivated on this
+machine (no config, `decide` returns unauthorized), so this burst has no
+ledger decision id — the git half of `BUILD_JOURNAL.md` carried it. The
+untracked 3.1 MB `x-banner.png` in `creative/gay-wandering` was left in place:
+unreferenced, unexplained, and a binary in history is only reversible by
+force-push, so keep-or-drop is mazze's call.

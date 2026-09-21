@@ -1,51 +1,59 @@
-# CHECKPOINT — Cloudflare Access fleet lockout
+# CHECKPOINT — current resume point
 
-**Last updated:** 2026-08-30 (remediation complete; hourly probe wired)
-**Branch:** `main` (clean, synced at `d58283f`)
-**Status:** **RESOLVED — the fleet is public again.** One follow-up incident
-(credential leak → rotation) and two deferred bugs remain.
+**Last updated:** 2026-09-21
+**Branch:** `main`, clean, in sync with `origin/main` at `1119b57`.
+**Standing checks, all green as of this update:** `npm run check` (48 pages),
+`npm test` (194/194), `npm run docs:check`, `scripts/ops/check-docs-drift.sh`
+("no drift detected").
 
 ## To resume — read in this order
 
-1. This file. 2. `PLAN.md`. 3. `DECISIONS.md`.
+1. This file. 2. `PLAN.md` (open threads). 3. `DECISIONS.md` (append-only, newest
+   at the bottom). 4. `BUILD_JOURNAL.md` at the repo root for the burst workflow.
 
-## Phases
+## There is no open burst
 
-- [x] P0 Diagnose — all fleet hostnames probed, Access `aud` decoded
-- [x] P1 Root cause — account-wide *Protect all Workers* (shipped 2026-08-14)
-- [x] P2 Remediation script — `/tmp/cf-access-unlock/unlock.sh`
-- [x] P3 Journal + memory, authorization recorded
-- [x] P4 Retrieve Cloudflare credentials from Proton Pass (unblocked via permission rule)
-- [x] P5 Dry run + survey
-- [x] P6 Delete the `all_workers` app (backup first)
-- [x] P7 Verify unauthenticated 200s across the fleet
-- [x] P8a Hourly unauthenticated fleet probe — `fleet_heartbeat.sh` now runs
-      hourly via LaunchAgent `com.mazzeleczzare.fleet-heartbeat` (workspace
-      commit `8221cf5`); logs to `~/Library/Logs/fleet-heartbeat.log`,
-      notifies on drift
-- [x] P8b Follow-up: `contextsynapse` 522 — **RESOLVED.** As of 2026-09-09 the
-      whole fleet returns 200 to unauthenticated requests: `contextsynapse`,
-      `store`, `fieldnotes`, `perdurabo`, `stratum`, `stele`. Origin is
-      reachable again; no further action.
+The last four commits shipped and were verified, but closed without journal
+entries; that gap is what this update closes (see `DECISIONS.md`, 2026-09-21).
 
-## Deferred / needs mazze
+| Commit | Date | What shipped |
+| --- | --- | --- |
+| `f4a4c4f` | 2026-09-09 | Constellation graph fed — `project`/`committed` frontmatter on 5 posts so the node field spans every zone |
+| `1eaae77` | 2026-09-09 | `STORE_ANNOUNCE_ENABLED` flipped **true**, announce + roadmap copy tightened |
+| `92553cd` | 2026-09-09 | `/work` links the live `contextsynapse.mazzeleczzare.com` |
+| `1119b57` | 2026-09-09 | Stratum build-journal workflow scaffolded (`BUILD_JOURNAL.md`, `.stratum-log`, `scripts/burst-summary.sh`, `scripts/stratum-link.sh`) |
 
-1. **ROTATE the four leaked credentials** — see DECISIONS.md, 2026-08-30
-   incident entry, for the table. Highest priority is the Global API Key.
-2. ~~**`contextsynapse` 522**~~ — RESOLVED 2026-09-09; whole fleet is 200. See P8b.
-3. **SSH signing key missing** — `~/.ssh` holds no keys but
-   `commit.gpgsign=true`, so every commit fails until restored. Journal
-   commits this session are unsigned. Try the Proton Pass `keys` vault.
-   *(Resolved 2026-08-30 — key restored, commit `5e93bf6`.)*
-4. ~~**Hourly unauthenticated fleet probe**~~ — DONE, see P8a above.
+## Earlier journals still holding open items
 
-## Standing state — verified, no action needed
+Neither is archived, because each still owns work:
 
-- Repo is blameless and green: `npm run check` (44 pages), `npm test`
-  (194/194), `npm run docs:check`, and `rot_check` at workspace root.
-- `/admin` stays protected after remediation — own JWT guard,
-  `functions/_middleware.ts:236`, fails closed under 32-char `JWT_SECRET`.
-- `studio` keeps its own separate Access app; it is not the cause and is not
-  a target.
-- Two worktrees (`cv-work-integration`, `luminous-sprouting-acorn`) are
-  0 commits ahead of `main` — fully merged, prunable, not pruned.
+- `docs/journal/2026-08-09-gay-wandering-ship-and-pivot/` — the 7-step E2E
+  purchase test (still unrun) and the secure-pride pivot HANDOFF.
+- `docs/journal/2026-08-08-studio-nav-disclosure/` — `/api/ingest` secrets not
+  configured in Cloudflare Pages; first tesserae tiles unwritten; the three
+  design systems still absent from `CLAUDE.md`.
+
+The 2026-08-30 Cloudflare Access lockout burst is **closed** and archived to
+`docs/journal/archive/2026-08-30-cloudflare-access-lockout/`. Outcome: the fleet
+is public again, an hourly unauthenticated probe runs via LaunchAgent, and the
+`contextsynapse` 522 resolved 2026-09-09.
+
+## Deferred / needs Mazze
+
+1. **Stratum is scaffolded but not activated** — no `~/.config/stratum/config.json`
+   on this machine, so `stratum decide` / `tessera` return `✗ unauthorized`.
+   One-time: `stratum init --token <TOKEN> --log mazze-leczzare-blog --agent claude`,
+   then the genesis decision at the bottom of `BUILD_JOURNAL.md`. Until then the
+   git half of the burst workflow works and the ledger half does not.
+2. **Gay Wandering 7-step E2E purchase test** — a real transaction, so it is
+   mazze's to run. Byte-verified delivery is not a completed purchase.
+3. **svgo advisory** still needs a manual private submit to svg/svgo; the
+   `53e6318` history exposure of the mechanism can't be scrubbed under branch
+   protection.
+4. **`launch/_design/png/x-banner.png`** sits untracked in the
+   `creative/gay-wandering` repo (2146×733, 3.1 MB, created 2026-09-10, nothing
+   references it). Left in place — keep/commit/relocate is mazze's call, since a
+   3 MB binary in history is only reversible by force-push.
+5. **Account merger (`daedalus` + `mazze` macOS accounts)** — named in the
+   gay-wandering journal as the next highest order of business. Sensitive and
+   destructive-adjacent; not started.
