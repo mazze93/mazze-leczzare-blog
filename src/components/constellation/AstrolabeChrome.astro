@@ -1,0 +1,290 @@
+---
+// ── AstrolabeChrome — instrument chrome over derived geometry ────────────────
+// The astrolabe's *chrome* (limb, graduated scale, ecliptic arcs, alhidade),
+// laid over the constellation plate WITHOUT touching the node geometry. The
+// node positions still come from src/utils/layout.ts — position means erasure→
+// signal by age and seal state — and nothing here moves a node or invents one.
+// Replacing the plate with a flat astrolabe disc would trade meaningful
+// geometry for decoration; this only *reads* the geometry already there.
+//
+// Everything drawn here is derived from the real decay constants, never chosen
+// to look good:
+//   · x = 13%      the archive seam (resolved work holds 7–12%)
+//   · x = 28%      exactly where a node lands at full drift — ERASURE_DAYS 180
+//   · x = 40–66%   the fresh-experiment band — a node under DRIFT_START_DAYS 30
+//   · x = 78%      the signal band — committed, sealed, ageless
+// A drifting node travels from its own base (40–66) toward 28 in proportion to
+// driftRatio, so a graduation at a given drift fraction is a *band*, not a
+// line: its width is the spread of possible bases at that fraction. The arcs
+// are drawn at their true width rather than as a crisp line that would lie
+// about the instrument's precision.
+//
+// Consumed by /constellation (both static views). Pure SVG, aria-hidden, no
+// hydration, no motion — the shadow index remains the legible equivalent.
+// Colours are --c-* tokens only: a hex literal here would not invert into
+// Haven/Ink light mode (see CLAUDE.md → Design Systems).
+import { DRIFT_START_DAYS, ERASURE_DAYS } from "../../utils/decay";
+
+interface Props {
+  /** viewBox width of the plate this chrome overlays */
+  w: number;
+  /** viewBox height of the plate this chrome overlays */
+  h: number;
+  /** portrait runs the erasure→signal axis down the height instead of across */
+  portrait?: boolean;
+  /** the gravity well, in plate coordinates — the alhidade points at it */
+  gold?: { x: number; y: number } | null;
+}
+
+const { w, h, portrait = false, gold = null } = Astro.props;
+
+/** Axis percent (erasure→signal) → px along the plate's axis. */
+const axis = (pct: number): number => (pct / 100) * (portrait ? h : w);
+/** Cross-axis percent → px across the plate. */
+const cross = (pct: number): number => (pct / 100) * (portrait ? w : h);
+
+/** A point on the plate from (axis%, cross%), whichever way the plate runs. */
+function pt(axisPct: number, crossPct: number): { x: number; y: number } {
+  return portrait
+    ? { x: cross(crossPct), y: axis(axisPct) }
+    : { x: axis(axisPct), y: cross(crossPct) };
+}
+
+// ── the limb: a graduated band inset from the plate edge ─────────────────────
+const LIMB_OUT = 10;
+const LIMB_IN = 26;
+
+// Major graduations — each one is a real threshold, labelled with what it is.
+// The plate already captions ARCHIVE / ERASURE / EMERGENCE / SIGNAL along the
+// bottom, so the limb adds only what those captions can't say: the two day
+// thresholds the zones are actually computed from. Labels sit *inside* the limb
+// band, where a real instrument puts them — and, on this plate, the one strip
+// the orientation copy doesn't overlay.
+const MAJORS: { at: number; label: string | null }[] = [
+  { at: 13, label: null },
+  { at: 28, label: `${ERASURE_DAYS} D` },
+  { at: 66, label: `${DRIFT_START_DAYS} D` },
+  { at: 78, label: null },
+];
+const BAND_MID = (LIMB_OUT + LIMB_IN) / 2;
+
+// Minor graduations across the drift corridor, every 5% of axis, skipping the
+// majors — the plain tick rhythm of a limb, with nothing invented between.
+const MINORS = Array.from({ length: 19 }, (_, i) => 5 + i * 5).filter(
+  (at) => !MAJORS.some((m) => Math.abs(m.at - at) < 2.5),
+);
+
+// ── ecliptic arcs: constant-drift bands across the corridor ──────────────────
+// A node at drift fraction d sits at base − d·(base − 28) for base ∈ [40, 66],
+// so constant d spans [40 − d·12, 66 − d·38]. Drawn as a bowed band between
+// those two axis positions — the instrument showing its own resolution.
+const DRIFTS = [0.25, 0.5, 0.75];
+const ecliptics = DRIFTS.map((d) => {
+  const lo = 40 - d * 12;
+  const hi = 66 - d * 38;
+  // bow the arc gently across the cross-axis, like a plate's ecliptic
+  const a = pt(lo, 8);
+  const b = pt(hi, 92);
+  const ctrl = pt(lo + (hi - lo) * 0.5 - 6, 50);
+  // The label goes on the limb, not on the plate. Two earlier placements
+  // failed against real content: the three arc midpoints sit within a few
+  // percent of each other and stacked into one illegible row, and the arc ends
+  // land in the node field (nodes occupy 12–88% of the cross-axis), where a
+  // label lands on top of a project. The limb band is the only strip on this
+  // plate that is guaranteed empty, and graduations belong on a limb anyway.
+  return {
+    d: `M ${a.x} ${a.y} Q ${ctrl.x} ${ctrl.y} ${b.x} ${b.y}`,
+    label: `${Math.round(d * 100)}%`,
+    at: hi,
+  };
+});
+
+// ── alhidade: the rule, pointed at the measured thing ────────────────────────
+// An astrolabe's rule is turned to the body being read. Here it is aimed at
+// the gravity well — the heaviest live signal node, itself derived — so the
+// arm is a reading, not an ornament.
+const centre = { x: w / 2, y: h / 2 };
+const arm = gold
+  ? (() => {
+      const dx = gold.x - centre.x;
+      const dy = gold.y - centre.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
+      // stop short of the node so the well's own isolines stay readable
+      return {
+        x1: centre.x - ux * 46,
+        y1: centre.y - uy * 46,
+        x2: gold.x - ux * 34,
+        y2: gold.y - uy * 34,
+      };
+    })()
+  : null;
+---
+
+<g class="astro-chrome" aria-hidden="true">
+  <!-- limb: outer rule, inner rule, the band between them is the scale -->
+  <rect
+    class="lb-ring"
+    x={LIMB_OUT}
+    y={LIMB_OUT}
+    width={w - LIMB_OUT * 2}
+    height={h - LIMB_OUT * 2}
+    rx="18"
+  />
+  <rect
+    class="lb-ring lb-ring--inner"
+    x={LIMB_IN}
+    y={LIMB_IN}
+    width={w - LIMB_IN * 2}
+    height={h - LIMB_IN * 2}
+    rx="10"
+  />
+
+  <!-- graduations, on both limb edges that the axis runs along -->
+  <g class="lb-ticks">
+    {MINORS.map((at) => {
+      const a = axis(at);
+      return portrait ? (
+        <>
+          <line x1={LIMB_OUT} y1={a} x2={LIMB_IN} y2={a} />
+          <line x1={w - LIMB_OUT} y1={a} x2={w - LIMB_IN} y2={a} />
+        </>
+      ) : (
+        <>
+          <line x1={a} y1={LIMB_OUT} x2={a} y2={LIMB_IN} />
+          <line x1={a} y1={h - LIMB_OUT} x2={a} y2={h - LIMB_IN} />
+        </>
+      );
+    })}
+  </g>
+
+  <g class="lb-majors">
+    {MAJORS.map(({ at, label }) => {
+      const a = axis(at);
+      return portrait ? (
+        <>
+          <line x1={LIMB_OUT} y1={a} x2={LIMB_IN + 8} y2={a} />
+          <line x1={w - LIMB_OUT} y1={a} x2={w - LIMB_IN - 8} y2={a} />
+          {label && (
+            <text transform={`translate(${BAND_MID} ${a + 6}) rotate(-90)`} text-anchor="start">{label}</text>
+          )}
+        </>
+      ) : (
+        <>
+          <line x1={a} y1={LIMB_OUT} x2={a} y2={LIMB_IN + 8} />
+          <line x1={a} y1={h - LIMB_OUT} x2={a} y2={h - LIMB_IN - 8} />
+          {label && <text x={a + 6} y={BAND_MID + 3} text-anchor="start">{label}</text>}
+        </>
+      );
+    })}
+  </g>
+
+  <!-- ecliptics: constant-drift bands, bowed across the plate -->
+  <g class="lb-ecliptics">
+    {ecliptics.map((e) => <path d={e.d} />)}
+  </g>
+  <g class="lb-ecliptic-labels">
+    {ecliptics.map((e) => {
+      const a = axis(e.at);
+      return portrait ? (
+        <>
+          <line x1={LIMB_OUT + 4} y1={a} x2={LIMB_IN} y2={a} />
+          <text transform={`translate(${BAND_MID} ${a + 6}) rotate(-90)`} text-anchor="start">{e.label}</text>
+        </>
+      ) : (
+        <>
+          <line x1={a} y1={LIMB_OUT + 4} x2={a} y2={LIMB_IN} />
+          <text x={a + 6} y={BAND_MID + 3} text-anchor="start">{e.label}</text>
+        </>
+      );
+    })}
+  </g>
+
+  <!-- alhidade: the rule, turned to the gravity well -->
+  {arm && (
+    <g class="lb-rule">
+      <circle class="lb-mater" cx={centre.x} cy={centre.y} r="4" />
+      <circle class="lb-mater-ring" cx={centre.x} cy={centre.y} r="13" />
+      <line x1={arm.x1} y1={arm.y1} x2={arm.x2} y2={arm.y2} />
+    </g>
+  )}
+</g>
+
+<style>
+  /* Every value below is a token. A literal here would stay dark-coloured on
+     Haven paper — the exact bug that kept light mode out of this sky until
+     e0b65d4. */
+  .lb-ring {
+    fill: none;
+    stroke: var(--c-trace);
+    stroke-width: 1;
+    stroke-opacity: 0.55;
+  }
+  .lb-ring--inner {
+    stroke: var(--c-gold);
+    stroke-opacity: 0.18;
+  }
+
+  .lb-ticks line {
+    stroke: var(--c-trace);
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+  }
+
+  .lb-majors line {
+    stroke: var(--c-gold);
+    stroke-width: 1.2;
+    stroke-opacity: 0.5;
+  }
+  .lb-majors text,
+  .lb-ecliptic-labels text {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    fill: var(--c-dim);
+  }
+
+  .lb-ecliptics path {
+    fill: none;
+    stroke: var(--c-gold);
+    stroke-width: 1;
+    stroke-opacity: 0.26;
+    stroke-dasharray: 2 6;
+  }
+  .lb-ecliptic-labels text {
+    fill: var(--c-trace);
+    letter-spacing: 0.18em;
+  }
+  .lb-ecliptic-labels line {
+    stroke: var(--c-gold);
+    stroke-width: 1;
+    stroke-opacity: 0.3;
+  }
+
+  .lb-rule line {
+    stroke: var(--c-gold);
+    stroke-width: 1.1;
+    stroke-opacity: 0.4;
+    stroke-linecap: round;
+  }
+  .lb-mater {
+    fill: var(--c-gold);
+    fill-opacity: 0.55;
+  }
+  .lb-mater-ring {
+    fill: none;
+    stroke: var(--c-gold);
+    stroke-width: 1;
+    stroke-opacity: 0.28;
+  }
+
+  /* Phone-width plates are already dense; drop the finest graduations and the
+     ecliptic labels rather than stacking unreadable 10px type. */
+  @media (max-width: 640px) {
+    .lb-ticks,
+    .lb-ecliptic-labels {
+      display: none;
+    }
+  }
+</style>

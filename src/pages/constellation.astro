@@ -17,6 +17,7 @@ import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import AirlockStrip from "../components/constellation/AirlockStrip.astro";
+import AstrolabeChrome from "../components/constellation/AstrolabeChrome.astro";
 import { SITE_TITLE } from "../consts";
 import { collectAllNodes } from "../utils/collectNodes";
 import { computeZone } from "../utils/decay";
@@ -236,6 +237,15 @@ const indexSorted = placedAll
             ) : (
               <line class="archive-rule" x1={view.W * 0.13} y1={view.H * 0.08} x2={view.W * 0.13} y2={view.H * 0.9} aria-hidden="true" />
             )}
+
+            {/* astrolabe chrome — limb, graduations, ecliptics, the rule.
+                Reads the geometry above; never moves it. */}
+            <AstrolabeChrome
+              w={view.W}
+              h={view.H}
+              portrait={portrait}
+              gold={g.gold ? { x: g.gold.x, y: g.gold.y } : null}
+            />
 
             {g.gold && (
               <g class="isolines" aria-hidden="true">

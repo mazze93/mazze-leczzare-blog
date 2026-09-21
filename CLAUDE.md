@@ -149,7 +149,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/tesserae`, `/tesserae/[slug]/` | `src/pages/tesserae/`| Mosaic tiles (tesserae collection)       |
 | `/writing`        | `src/pages/writing/index.astro`     | The catalogue — all published work by form |
 | `/studio`         | `src/pages/studio.astro`            | The bench — projects by activity + decay proximity |
-| `/constellation`  | `src/pages/constellation.astro`     | Full-bleed sky view — same node geometry as the homepage hero, plus a flattened shadow index; static, no hydration |
+| `/constellation`  | `src/pages/constellation.astro`     | Full-bleed sky view — same node geometry as the homepage hero, wrapped in `AstrolabeChrome`, plus a flattened shadow index; static, no hydration |
 | `/project/[slug]/`| `src/pages/project/[slug].astro`    | Pieces belonging to one project node     |
 | `/support`        | `src/pages/support.astro`           | Support page                             |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
@@ -256,6 +256,7 @@ Read source for full detail — these are the non-obvious points:
 - **`BlogPost.astro`** (layout) — mounts `<AuthorCoda>` then `<PostQuoteShare client:load>` after `.prose`. All quote-share CSS lives here as scoped `:global()` rules.
 - **`HomepageLayout.astro`** — sets `data-layout="homepage"` on body; editorial deep-navy palette via `src/styles/homepage.css`.
 - **`AuthorCoda.astro`** — author byline + headshot + condensed bio rendered at the end of every post. Headshot path defaults to `/mazze-headshot.jpg`; hides gracefully if image is missing.
+- **`constellation/AstrolabeChrome.astro`** — instrument chrome over the constellation plate: limb, graduated scale, constant-drift ecliptic arcs, and the alhidade (the rule) aimed at the gravity well. Pure SVG, `aria-hidden`, zero hydration, no motion. **It reads the geometry; it never moves it** — node positions stay derived from `decay.ts`/`layout.ts`, and every graduation is a real threshold (`ERASURE_DAYS`, `DRIFT_START_DAYS`, the zone bands), not a chosen interval. All type sits in the limb band, the one strip of the plate the orientation copy and the node field both leave empty. Colours are `--c-*` tokens only.
 - **`constellation/AirlockStrip.astro`** — plain-language orientation strip shown before the `/constellation` sky view (for visitors arriving from a CV/talk/LinkedIn link). Zero hydration.
 
 **Interactive islands (React):**
