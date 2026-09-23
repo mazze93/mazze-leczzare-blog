@@ -523,6 +523,21 @@ body[data-layout="homepage"] {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Gravity-pull view transition (src/transitions/gravityPull.ts). Named here,
+   not in a component <style>, because Astro scopes/hashes component keyframe
+   names — the transition:animate name string has to resolve on BOTH pages of
+   a navigation (a constellation node's page and the project page it lands
+   on), so it has to live in an unscoped stylesheet both pages already import
+   via BaseHead. The pair captures a node collapsing toward its own centre as
+   it leaves, and the target page's title erupting from that same point —
+   the embodied "drawn in by gravity" clicking a node was missing before. */
+@keyframes gravity-collapse {
+  to { transform: scale(0.1); opacity: 0; }
+}
+@keyframes gravity-emerge {
+  from { transform: scale(0.1); opacity: 0; }
+}
+
 /* ===========================
    Base Styles
    =========================== */

@@ -2,6 +2,7 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import displayFontUrl from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
 import {
   SITE_AUTHOR,
@@ -87,6 +88,16 @@ const personSchema = {
 <link rel="mask-icon" href="/favicon.svg" color="#5CCFCF" />
 <meta name="generator" content={Astro.generator} />
 
+<!-- Site-wide View Transitions. A hard navigation between static pages was
+     the "no transitions clicking through the pages" mazze flagged — this
+     gives every link a same-document swap (default crossfade) instead of a
+     blank-flash reload, and lets specific elements (a constellation node →
+     its project page's <h1>, matched by view-transition-name) declare a
+     custom transition:animate — see src/transitions/gravityPull.ts. Astro's
+     router honours prefers-reduced-motion itself (falls back to instant
+     navigation); no extra handling needed here. -->
+<ClientRouter />
+
 <!-- Theme color (default: dark; updated immediately by inline script below) -->
 <meta name="theme-color" content="#0f1210" />
 <meta name="color-scheme" content="light dark" />
@@ -142,18 +153,26 @@ const personSchema = {
     const THEME_COLOR = { dark: '#0f1210', light: '#f5f0e8' };
 
     const root = document.documentElement;
-    const metaTheme = document.querySelector('meta[name="theme-color"]');
 
     const apply = (theme) => {
       root.dataset.theme = theme;
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
       if (metaTheme) metaTheme.setAttribute('content', THEME_COLOR[theme]);
     };
 
-    const stored = localStorage.getItem('theme-preference');
+    // Read live, not captured once: a mid-session toggle (ThemeToggle.tsx)
+    // writes localStorage, and currentTheme() is called again on every
+    // transition swap (below) — a captured value would replay whatever
+    // theme was active at the *first* hard load, silently undoing the
+    // toggle on the next navigation.
     const query = window.matchMedia('(prefers-color-scheme: dark)');
     const systemTheme = () => (query.matches ? 'dark' : 'light');
+    const currentTheme = () => {
+      const stored = localStorage.getItem('theme-preference');
+      return stored === 'light' || stored === 'dark' ? stored : systemTheme();
+    };
 
-    apply(stored === 'light' || stored === 'dark' ? stored : systemTheme());
+    apply(currentTheme());
 
     // Follow the OS while the visitor has expressed no preference of their own.
     // Without this, "system" only resolved at load: flipping macOS to light
@@ -164,5 +183,32 @@ const personSchema = {
       if (localStorage.getItem('theme-preference')) return;
       apply(systemTheme());
     });
+
+    // View Transitions (ClientRouter, added alongside this) call
+    // swapRootAttributes on every navigation, which *replaces* <html>'s
+    // attribute set wholesale with the incoming page's raw (always
+    // data-theme-less, since it's only ever set by this script) attributes.
+    // Two separate fixes, at two different points in the swap, because they
+    // fix two different symptoms:
+    //
+    // astro:before-swap fires with the *incoming* document still off-screen,
+    // before swapRootAttributes runs — set data-theme there and the value
+    // this script would have applied anyway is just already present when the
+    // attribute copy happens, so <html> is never actually themeless. Skipping
+    // this step (setting data-theme only after-swap, as an earlier version of
+    // this script did) leaves a real themeless frame during the transition
+    // animation itself — a visible flash to the default theme, not merely a
+    // stale value corrected a tick later.
+    //
+    // astro:after-swap fires once the new <body>/<head> are live — that's
+    // when the <meta name="theme-color"> element (a *new* DOM node from the
+    // swap, not the one this script mutated earlier) needs its content
+    // attribute set; there's no equivalent "incoming meta tag" to pre-set
+    // before-swap, since document.head is diffed, not wholesale-replaced,
+    // the way documentElement's attributes are.
+    document.addEventListener('astro:before-swap', (e) => {
+      e.newDocument.documentElement.dataset.theme = currentTheme();
+    });
+    document.addEventListener('astro:after-swap', () => apply(currentTheme()));
   })();
 </script>

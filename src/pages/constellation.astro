@@ -22,6 +22,7 @@ import { SITE_TITLE } from "../consts";
 import { collectAllNodes } from "../utils/collectNodes";
 import { computeZone } from "../utils/decay";
 import { nodePosition, nodeStyle } from "../utils/layout";
+import { gravityPull } from "../transitions/gravityPull";
 
 interface PlacedNode {
   slug: string;
@@ -261,7 +262,13 @@ const indexSorted = placedAll
             </g>
 
             {g.placed.map((p, i) => (
-              <a href={`/project/${p.slug}/`} class="node-link" aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}>
+              <a
+                href={`/project/${p.slug}/`}
+                class="node-link"
+                aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}
+                transition:name={`node-${p.slug}`}
+                transition:animate={gravityPull}
+              >
                 <g
                   class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living }]}
                   style={`--i:${i}; --o:${p.opacity}`}
@@ -333,14 +340,29 @@ const indexSorted = placedAll
     <script>
       // The plate speaks to the brand compass like the living field does
       // (Header listens; ConstellationNodes.tsx defines the contract).
-      const send = (state: "idle" | "focus" | "engaged") =>
-        window.dispatchEvent(new CustomEvent("compass:state", { detail: { state } }));
-      document.querySelectorAll<SVGAElement>(".node-link").forEach((link) => {
-        link.addEventListener("mouseenter", () => send("focus"));
-        link.addEventListener("mouseleave", () => send("idle"));
-        link.addEventListener("focus", () => send("focus"));
-        link.addEventListener("blur", () => send("idle"));
-        link.addEventListener("click", () => send("engaged"));
+      //
+      // Wrapped in astro:page-load, not run at top level: a processed
+      // (non-inline) Astro script is a hoisted, content-hashed module, so
+      // ClientRouter dedupes it by URL — navigate away from /constellation
+      // and back, and the *same* bundled script is "already executed" and
+      // silently skipped, leaving every node-link without its listeners.
+      // astro:page-load fires once after the initial load and again after
+      // every subsequent swap that lands on this page, so this attaches
+      // exactly once per real arrival either way. (An earlier attempt fixed
+      // this with a bare `data-astro-rerun` attribute on the tag instead —
+      // wrong tool: any attribute other than `src` makes Astro treat a
+      // <script> as is:inline, which ships this file's TypeScript to the
+      // browser unprocessed. It shipped as a live SyntaxError; reverted.)
+      document.addEventListener("astro:page-load", () => {
+        const send = (state: "idle" | "focus" | "engaged") =>
+          window.dispatchEvent(new CustomEvent("compass:state", { detail: { state } }));
+        document.querySelectorAll<SVGAElement>(".node-link").forEach((link) => {
+          link.addEventListener("mouseenter", () => send("focus"));
+          link.addEventListener("mouseleave", () => send("idle"));
+          link.addEventListener("focus", () => send("focus"));
+          link.addEventListener("blur", () => send("idle"));
+          link.addEventListener("click", () => send("engaged"));
+        });
       });
     </script>
   </body>
@@ -535,6 +557,34 @@ const indexSorted = placedAll
   .node-link:focus .node circle,
   .node-link:focus .node rect { stroke: var(--c-emerge); stroke-width: 2; }
 
+  /* Reactivity before the click: a node grows toward the cursor rather than
+     sitting dead until navigation. Scales the <g>, not the circle/rect —
+     those already carry the infinite nodeBreathe transform animation, and an
+     animation re-sets transform every frame, silently eating any transition
+     set on the same property. The <g> only animates opacity (arrive), so a
+     transform transition here has nothing to fight. Because the browser
+     snapshots whatever is on screen the instant a click starts the view
+     transition, a node already swollen from hover collapses from that larger
+     size — the hover-grow and the click-collapse below read as one
+     continuous pull, not two unrelated effects. */
+  .node {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .node-link:hover .node,
+  .node-link:focus-visible .node {
+    transform: scale(1.24);
+  }
+  .node-link:hover .node.gold,
+  .node-link:focus-visible .node.gold {
+    transform: scale(1.14); /* already the largest node on the plate */
+  }
+  .node-link:hover .node circle,
+  .node-link:focus-visible .node circle {
+    filter: brightness(1.25);
+  }
+
   /* under a thumb there is no hover: living nodes keep their labels */
   @media (hover: none) {
     .node.living .node-label { opacity: 1; }
@@ -557,9 +607,15 @@ const indexSorted = placedAll
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .node { animation: none; opacity: 1; }
+    .node { animation: none; opacity: 1; transition: none; }
     .node circle, .dust circle, .well-halo { animation: none; }
     .node.gold .tele-ring { animation: none; }
+    .node-link:hover .node,
+    .node-link:focus-visible .node,
+    .node-link:hover .node.gold,
+    .node-link:focus-visible .node.gold {
+      transform: none;
+    }
   }
 
   .shadow-index {

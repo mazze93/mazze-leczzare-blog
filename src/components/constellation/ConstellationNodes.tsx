@@ -236,9 +236,21 @@ export default function ConstellationNodes() {
           ...(n.delay !== null ? { "--delay": `${n.delay}ms` } : {}),
         } as CSSProperties;
         const pieceWord = n.count === 1 ? "piece" : "pieces";
+        // Same view-transition-name as /constellation's node-link and
+        // project/[slug]'s <h1> (src/transitions/gravityPull.ts), so clicking
+        // a node from the homepage hero also morphs into the project page
+        // instead of hard-reloading — set via ref rather than the `style`
+        // prop because `transition:animate`'s custom easing is an Astro
+        // compile-time directive with no JSX equivalent; the browser's own
+        // default crossfade-resize still applies to a matched
+        // view-transition-name, which is the fix that matters here.
+        const setTransitionName = (el: HTMLAnchorElement | null) => {
+          el?.style.setProperty("view-transition-name", `node-${n.slug}`);
+        };
         return (
           <a
             key={n.slug}
+            ref={setTransitionName}
             className={styles.cnNode}
             href={`/project/${n.slug}/`}
             data-zone={n.zone}
