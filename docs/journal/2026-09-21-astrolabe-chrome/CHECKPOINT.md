@@ -65,6 +65,62 @@ synthetic d=0.90  base 40/66 → 29.20 / 31.80   band=[29.20, 31.80]  INSIDE
 Only one node is currently drifting, so the real-data half of that is thin —
 the synthetic sweep covers the corridor the manifest doesn't.
 
+## Increment 1.5 — materiality rebuild (2026-09-23), still on the branch
+
+**Mazze's read on increment 1's render:** liked the direction, not the
+execution — "amateur," "childish," "lacking in design," reads as a prototype,
+none of the editorial polish the rest of the site (and `BreathingHero`
+specifically) carries. Diagnosed as a materiality problem, not a geometry
+one — the derived positions were always correct; the chrome drawing them was
+flat 1px strokes at uniform low opacity, a dashed-line boundary (the web's
+default "here's an edge" affordance), and an 18px/10px card-radius limb that
+matched no other radius on the site (`--radius-sm` is 3px, `global.css:124`).
+Loaded `distinctive-frontend-design` before touching it.
+
+Rebuilt on the same untouched geometry, borrowing techniques already proven
+elsewhere on the site rather than inventing a fourth design system:
+
+- **Gold gradient, not flat gold** — the majors, arcs, and alhidade now paint
+  from the site-wide `--gold-seam-deep/bright/deep` ramp (`global.css`), the
+  same stops `Seam.astro` paints the kintsugi crack with. Already carries its
+  own light-mode override, so this ties the chrome's gold into the same gold
+  as the rest of the site instead of a second, unrelated one.
+- **Ecliptic arcs are solid with a glow underlayer**, not dashed — a dashed
+  stroke is the single most generic "boundary" tell in web design. Each arc is
+  now two paths: a wide blurred glow copy (`feGaussianBlur`) under a crisp
+  gradient-stroked line.
+- **The alhidade is a filled tapered blade**, not a stroked `<line>` — a
+  straight-sided polygon, wide at the mater and filed to a point at the
+  sighted end, deliberately geometric (as opposed to `Seam.astro`'s organic
+  bezier taper: a ruled edge is machined, a seam is brushed). A faceted
+  diamond pivot sits in a radial glow (`ConstellationNodes`' own
+  `cn-well-glow` technique, reused) with a small sighting vane at the tip — the
+  diamond motif repeats at both ends so the rule reads as one drafted object.
+- **Sharp 3px corners with drafted register marks**, not an 18px card radius —
+  `--radius-sm` value, plus small L-shaped crop-mark brackets at the four
+  limb corners, the fastest legible signal that this frame was drafted rather
+  than boxed.
+- **Type hierarchy** — major labels bumped to 10.5px/500-weight with a
+  stroke-based halo (`paint-order: stroke`, matching `.svyReadout`'s existing
+  technique) so they hold against the busier arcs and star field; minor ticks
+  thinned to 0.6px/0.4 opacity so they recede rather than compete.
+
+**Not changed:** node geometry, the open fork below, increment 2's scope.
+This is purely how increment 1's chrome is drawn.
+
+**Verified:** `npm run check` (48 pages, tsc clean) · `npm test` (194/194) ·
+`npm run docs:check` · `check-docs-drift.sh` — all green. Screenshotted via
+`chrome-devtools` MCP (the `claude-in-chrome` extension would not return a
+screenshot for this tab in this session — navigated fine, screenshot calls
+errored "couldn't determine which page this action targets" across two fresh
+tabs; switched tool rather than burn more turns on it) at 1400×900 landscape
+and 500×1000 with `.sky--portrait` forced visible, both themes. Confirmed: no
+dashing anywhere, gradient/glow render in both themes (no dark-literal
+leftover), alhidade sight vane lands precisely on the gold node, portrait
+labels rotate and hold their halo, and the `@media (max-width: 640px)`
+declutter rule still fires (ecliptic labels and fine ticks drop at phone
+width; major labels and the rule stay).
+
 ## Next, if mazze approves the direction
 
 1. Give the hero the `--c-*` token set (dark + Haven light), which both fixes

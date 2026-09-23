@@ -19,10 +19,28 @@
 // are drawn at their true width rather than as a crisp line that would lie
 // about the instrument's precision.
 //
+// v2 (2026-09-23) rebuilds the *materiality* after the first pass read as a
+// spec diagram rather than an instrument: dashed lines (the web's default
+// "boundary" affordance), flat 1px strokes with no weight hierarchy, and an
+// 18px/10px card-radius limb that matched no other radius on the site
+// (--radius-sm is 3px — global.css:124). Nothing below is decorative filler;
+// each change borrows a technique already established elsewhere on the site
+// rather than inventing a fourth design system:
+//   · gold gradient   — the site-wide --gold-seam-deep/bright/deep stops
+//                        (global.css), the same ramp Seam.astro paints with.
+//   · tapered blade    — Seam.astro's out-and-back-bezier taper, translated
+//                        from an organic brush stroke to a machined straight
+//                        edge (a rule is filed, not painted — the geometric
+//                        taper is the deliberate opposite of the seam's).
+//   · glow + halo type — ConstellationNodes' own vocabulary (cn-well-glow
+//                        radial gradient, box-shadow rings, stroke-haloed
+//                        readout text) extended to the chrome instead of
+//                        left unused beside it.
+//
 // Consumed by /constellation (both static views). Pure SVG, aria-hidden, no
 // hydration, no motion — the shadow index remains the legible equivalent.
-// Colours are --c-* tokens only: a hex literal here would not invert into
-// Haven/Ink light mode (see CLAUDE.md → Design Systems).
+// Colours are --c-*/--gold-seam-* tokens only: a hex literal here would not
+// invert into Haven/Ink light mode (see CLAUDE.md → Design Systems).
 import { DRIFT_START_DAYS, ERASURE_DAYS } from "../../utils/decay";
 
 interface Props {
@@ -37,6 +55,13 @@ interface Props {
 }
 
 const { w, h, portrait = false, gold = null } = Astro.props;
+
+// Mounted twice per page (landscape + portrait static views) — defs need a
+// per-instance id or the second mount's gradient/filter silently wins both.
+const uid = crypto.randomUUID().slice(0, 8);
+const gradId = `astro-gold-${uid}`;
+const glowId = `astro-glow-${uid}`;
+const materGlowId = `astro-mater-glow-${uid}`;
 
 /** Axis percent (erasure→signal) → px along the plate's axis. */
 const axis = (pct: number): number => (pct / 100) * (portrait ? h : w);
@@ -53,6 +78,25 @@ function pt(axisPct: number, crossPct: number): { x: number; y: number } {
 // ── the limb: a graduated band inset from the plate edge ─────────────────────
 const LIMB_OUT = 10;
 const LIMB_IN = 26;
+// Sharp instrument corner, not a card radius — matches --radius-sm (3px),
+// the site's actual smallest radius, rather than the 18px/10px this
+// component invented in v1.
+const LIMB_RX = 3;
+
+// Register-mark brackets at the four corners of the outer ring — the crop
+// marks of an engraved plate, and the fastest legible signal that this frame
+// was drafted rather than laid out with a CSS border-radius.
+const REG = 14;
+function registerMarks(): string[] {
+  const x0 = LIMB_OUT, y0 = LIMB_OUT, x1 = w - LIMB_OUT, y1 = h - LIMB_OUT;
+  return [
+    `M ${x0} ${y0 + REG} L ${x0} ${y0} L ${x0 + REG} ${y0}`,
+    `M ${x1 - REG} ${y0} L ${x1} ${y0} L ${x1} ${y0 + REG}`,
+    `M ${x1} ${y1 - REG} L ${x1} ${y1} L ${x1 - REG} ${y1}`,
+    `M ${x0 + REG} ${y1} L ${x0} ${y1} L ${x0} ${y1 - REG}`,
+  ];
+}
+const registers = registerMarks();
 
 // Major graduations — each one is a real threshold, labelled with what it is.
 // The plate already captions ARCHIVE / ERASURE / EMERGENCE / SIGNAL along the
@@ -112,25 +156,66 @@ const arm = gold
       const ux = dx / len;
       const uy = dy / len;
       // stop short of the node so the well's own isolines stay readable
+      const x1 = centre.x - ux * 46;
+      const y1 = centre.y - uy * 46;
+      const x2 = gold.x - ux * 34;
+      const y2 = gold.y - uy * 34;
+      // Perpendicular half-widths for a machined taper: wide at the mater
+      // end, filed down to a point at the sighted end — a filled quad, not
+      // a stroked line. (Straight taper, deliberately not a bezier: this is
+      // a ruled edge, the geometric opposite of Seam.astro's brushed curve.)
+      const px = -uy, py = ux;
+      const wRoot = 2.4, wTip = 0.4;
       return {
-        x1: centre.x - ux * 46,
-        y1: centre.y - uy * 46,
-        x2: gold.x - ux * 34,
-        y2: gold.y - uy * 34,
+        x1, y1, x2, y2,
+        blade: [
+          `M ${x1 + px * wRoot} ${y1 + py * wRoot}`,
+          `L ${x2 + px * wTip} ${y2 + py * wTip}`,
+          `L ${x2 - px * wTip} ${y2 - py * wTip}`,
+          `L ${x1 - px * wRoot} ${y1 - py * wRoot}`,
+          "Z",
+        ].join(" "),
+        // a small sighting vane at the tip — the diamond motif repeats from
+        // the mater, so the two ends of the rule read as one drafted object
+        sight: [
+          `M ${x2 + ux * 6} ${y2 + uy * 6}`,
+          `L ${x2 + px * 3} ${y2 + py * 3}`,
+          `L ${x2 - ux * 4} ${y2 - uy * 4}`,
+          `L ${x2 - px * 3} ${y2 - py * 3}`,
+          "Z",
+        ].join(" "),
       };
     })()
   : null;
 ---
 
 <g class="astro-chrome" aria-hidden="true">
-  <!-- limb: outer rule, inner rule, the band between them is the scale -->
+  <defs>
+    <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--gold-seam-deep)" />
+      <stop offset="0.5" stop-color="var(--gold-seam-bright)" />
+      <stop offset="1" stop-color="var(--gold-seam-deep)" />
+    </linearGradient>
+    <radialGradient id={materGlowId} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--gold-seam-bright)" stop-opacity="0.55" />
+      <stop offset="55%" stop-color="var(--gold-seam)" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="var(--gold-seam)" stop-opacity="0" />
+    </radialGradient>
+    <filter id={glowId} x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4" />
+    </filter>
+  </defs>
+
+  <!-- limb: outer rule, inner hairline, register marks at the four corners —
+       the band between the two rules is the scale. Sharp radius (--radius-sm,
+       not a card's) and drafted corner brackets read as engraved, not boxed. -->
   <rect
     class="lb-ring"
     x={LIMB_OUT}
     y={LIMB_OUT}
     width={w - LIMB_OUT * 2}
     height={h - LIMB_OUT * 2}
-    rx="18"
+    rx={LIMB_RX}
   />
   <rect
     class="lb-ring lb-ring--inner"
@@ -138,8 +223,12 @@ const arm = gold
     y={LIMB_IN}
     width={w - LIMB_IN * 2}
     height={h - LIMB_IN * 2}
-    rx="10"
+    rx={LIMB_RX}
+    stroke={`url(#${gradId})`}
   />
+  <g class="lb-register">
+    {registers.map((d) => <path d={d} />)}
+  </g>
 
   <!-- graduations, on both limb edges that the axis runs along -->
   <g class="lb-ticks">
@@ -147,13 +236,13 @@ const arm = gold
       const a = axis(at);
       return portrait ? (
         <>
-          <line x1={LIMB_OUT} y1={a} x2={LIMB_IN} y2={a} />
-          <line x1={w - LIMB_OUT} y1={a} x2={w - LIMB_IN} y2={a} />
+          <line x1={LIMB_OUT + 2} y1={a} x2={LIMB_IN - 4} y2={a} />
+          <line x1={w - LIMB_OUT - 2} y1={a} x2={w - LIMB_IN + 4} y2={a} />
         </>
       ) : (
         <>
-          <line x1={a} y1={LIMB_OUT} x2={a} y2={LIMB_IN} />
-          <line x1={a} y1={h - LIMB_OUT} x2={a} y2={h - LIMB_IN} />
+          <line x1={a} y1={LIMB_OUT + 2} x2={a} y2={LIMB_IN - 4} />
+          <line x1={a} y1={h - LIMB_OUT - 2} x2={a} y2={h - LIMB_IN + 4} />
         </>
       );
     })}
@@ -164,25 +253,31 @@ const arm = gold
       const a = axis(at);
       return portrait ? (
         <>
-          <line x1={LIMB_OUT} y1={a} x2={LIMB_IN + 8} y2={a} />
-          <line x1={w - LIMB_OUT} y1={a} x2={w - LIMB_IN - 8} y2={a} />
+          <line x1={LIMB_OUT} y1={a} x2={LIMB_IN + 8} y2={a} stroke={`url(#${gradId})`} />
+          <line x1={w - LIMB_OUT} y1={a} x2={w - LIMB_IN - 8} y2={a} stroke={`url(#${gradId})`} />
+          <circle class="lb-major-dot" cx={LIMB_IN + 8} cy={a} r="1.3" />
           {label && (
-            <text transform={`translate(${BAND_MID} ${a + 6}) rotate(-90)`} text-anchor="start">{label}</text>
+            <text class="lb-major-label" transform={`translate(${BAND_MID} ${a + 6}) rotate(-90)`} text-anchor="start">{label}</text>
           )}
         </>
       ) : (
         <>
-          <line x1={a} y1={LIMB_OUT} x2={a} y2={LIMB_IN + 8} />
-          <line x1={a} y1={h - LIMB_OUT} x2={a} y2={h - LIMB_IN - 8} />
-          {label && <text x={a + 6} y={BAND_MID + 3} text-anchor="start">{label}</text>}
+          <line x1={a} y1={LIMB_OUT} x2={a} y2={LIMB_IN + 8} stroke={`url(#${gradId})`} />
+          <line x1={a} y1={h - LIMB_OUT} x2={a} y2={h - LIMB_IN - 8} stroke={`url(#${gradId})`} />
+          <circle class="lb-major-dot" cx={a} cy={LIMB_IN + 8} r="1.3" />
+          {label && <text class="lb-major-label" x={a + 7} y={BAND_MID + 3} text-anchor="start">{label}</text>}
         </>
       );
     })}
   </g>
 
-  <!-- ecliptics: constant-drift bands, bowed across the plate -->
+  <!-- ecliptics: constant-drift bands, bowed across the plate. Solid, with a
+       soft blurred underlayer standing in for the dashed line v1 used — a
+       dashed stroke is the default web "boundary" affordance; an engraved
+       instrument's arcs are cut, not dotted. -->
   <g class="lb-ecliptics">
-    {ecliptics.map((e) => <path d={e.d} />)}
+    {ecliptics.map((e) => <path class="lb-ecliptic-glow" d={e.d} filter={`url(#${glowId})`} />)}
+    {ecliptics.map((e) => <path class="lb-ecliptic-line" d={e.d} stroke={`url(#${gradId})`} />)}
   </g>
   <g class="lb-ecliptic-labels">
     {ecliptics.map((e) => {
@@ -195,92 +290,142 @@ const arm = gold
       ) : (
         <>
           <line x1={a} y1={LIMB_OUT + 4} x2={a} y2={LIMB_IN} />
-          <text x={a + 6} y={BAND_MID + 3} text-anchor="start">{e.label}</text>
+          <text x={a + 7} y={BAND_MID + 3} text-anchor="start">{e.label}</text>
         </>
       );
     })}
   </g>
 
-  <!-- alhidade: the rule, turned to the gravity well -->
+  <!-- alhidade: the rule, turned to the gravity well. A filled tapered blade
+       and a faceted, glowing pivot — replacing v1's stroked line and flat dot,
+       the single change that did the most to move this from diagram to
+       instrument. -->
   {arm && (
     <g class="lb-rule">
-      <circle class="lb-mater" cx={centre.x} cy={centre.y} r="4" />
+      <circle class="lb-mater-glow" cx={centre.x} cy={centre.y} r="26" fill={`url(#${materGlowId})`} />
       <circle class="lb-mater-ring" cx={centre.x} cy={centre.y} r="13" />
-      <line x1={arm.x1} y1={arm.y1} x2={arm.x2} y2={arm.y2} />
+      <circle class="lb-mater-ring lb-mater-ring--inner" cx={centre.x} cy={centre.y} r="8" />
+      <path class="lb-blade" d={arm.blade} fill={`url(#${gradId})`} />
+      <rect
+        class="lb-mater-facet"
+        x={centre.x - 3.4} y={centre.y - 3.4} width="6.8" height="6.8"
+        transform={`rotate(45 ${centre.x} ${centre.y})`}
+        fill={`url(#${gradId})`}
+      />
+      <path class="lb-sight" d={arm.sight} fill={`url(#${gradId})`} />
     </g>
   )}
 </g>
 
 <style>
-  /* Every value below is a token. A literal here would stay dark-coloured on
-     Haven paper — the exact bug that kept light mode out of this sky until
-     e0b65d4. */
+  /* Every colour below is a token or a token-built gradient. A literal here
+     would stay dark-coloured on Haven paper — the exact bug that kept light
+     mode out of this sky until e0b65d4. --gold-seam-* is the sitewide
+     Kintsugi ramp (global.css); it already carries its own light-mode
+     override, so reusing it here ties the chrome into the same gold as the
+     seam rather than a second, unrelated gold. */
   .lb-ring {
     fill: none;
     stroke: var(--c-trace);
-    stroke-width: 1;
-    stroke-opacity: 0.55;
+    stroke-width: 1.25;
+    stroke-opacity: 0.65;
   }
   .lb-ring--inner {
-    stroke: var(--c-gold);
-    stroke-opacity: 0.18;
+    stroke-opacity: 0.38;
+    stroke-width: 0.75;
+  }
+
+  .lb-register path {
+    fill: none;
+    stroke: var(--c-trace);
+    stroke-width: 1.5;
+    stroke-opacity: 0.7;
+    stroke-linecap: square;
   }
 
   .lb-ticks line {
     stroke: var(--c-trace);
-    stroke-width: 1;
-    stroke-opacity: 0.5;
+    stroke-width: 0.6;
+    stroke-opacity: 0.4;
   }
 
   .lb-majors line {
-    stroke: var(--c-gold);
-    stroke-width: 1.2;
-    stroke-opacity: 0.5;
+    stroke-width: 1.4;
+    stroke-opacity: 0.75;
   }
-  .lb-majors text,
+  .lb-major-dot {
+    fill: var(--c-gold);
+    fill-opacity: 0.85;
+  }
+  .lb-major-label,
   .lb-ecliptic-labels text {
     font-family: "DM Mono", ui-monospace, monospace;
-    font-size: 9px;
-    letter-spacing: 0.22em;
-    fill: var(--c-dim);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+  }
+  .lb-major-label {
+    fill: var(--c-gold);
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 3px;
+    stroke-linejoin: round;
   }
 
-  .lb-ecliptics path {
+  .lb-ecliptic-glow {
     fill: none;
     stroke: var(--c-gold);
+    stroke-width: 3.5;
+    stroke-opacity: 0.22;
+  }
+  .lb-ecliptic-line {
+    fill: none;
     stroke-width: 1;
-    stroke-opacity: 0.26;
-    stroke-dasharray: 2 6;
+    stroke-opacity: 0.55;
   }
   .lb-ecliptic-labels text {
-    fill: var(--c-trace);
-    letter-spacing: 0.18em;
+    fill: var(--c-dim);
+    font-size: 9.5px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 3px;
+    stroke-linejoin: round;
   }
   .lb-ecliptic-labels line {
     stroke: var(--c-gold);
     stroke-width: 1;
-    stroke-opacity: 0.3;
+    stroke-opacity: 0.4;
   }
 
-  .lb-rule line {
-    stroke: var(--c-gold);
-    stroke-width: 1.1;
-    stroke-opacity: 0.4;
-    stroke-linecap: round;
+  .lb-blade {
+    opacity: 0.85;
   }
-  .lb-mater {
-    fill: var(--c-gold);
-    fill-opacity: 0.55;
+  .lb-sight {
+    opacity: 0.9;
+  }
+  .lb-mater-glow {
+    opacity: 0.9;
   }
   .lb-mater-ring {
     fill: none;
     stroke: var(--c-gold);
     stroke-width: 1;
-    stroke-opacity: 0.28;
+    stroke-opacity: 0.35;
+  }
+  .lb-mater-ring--inner {
+    stroke-opacity: 0.5;
+    stroke-width: 0.75;
+  }
+  .lb-mater-facet {
+    stroke: var(--c-void);
+    stroke-width: 0.75;
+    stroke-opacity: 0.4;
   }
 
   /* Phone-width plates are already dense; drop the finest graduations and the
-     ecliptic labels rather than stacking unreadable 10px type. */
+     ecliptic labels rather than stacking unreadable 9–10px type. */
   @media (max-width: 640px) {
     .lb-ticks,
     .lb-ecliptic-labels {
