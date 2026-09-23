@@ -200,6 +200,58 @@ surface (React, not inline SVG) — a separate change, not a dropped thread.
 fresh after each fix, not just once. Both commits (`217d27a` interaction
 layer, `86a62cc` node glyphs) pushed to the branch.
 
+## Increment 3 — earn the floor (2026-09-23), still on the branch
+
+Mazze pasted the live text of `the-lighthouse-earns-its-floor.md` with no
+instruction, then, after I'd read and discussed it, asked me to actually
+*look* at the plate the way I'd just read the essay — not trust the last
+three increments' own "verified, green."
+
+Looking honestly found two real problems:
+
+1. **The instrument outweighed the substance.** The alhidade rule and the
+   ecliptic arcs were the boldest things on the plate at normal viewport
+   size; the nodes — the actual pieces of work — were the least present
+   thing on it. Backwards from the essay's own argument (attention goes to
+   what earned it, not to the bookkeeping).
+2. **A real regression**, caught by reading the CSS rather than assuming
+   increment 2's compass-mark swap preserved it: `--o` (a node's derived
+   decay opacity) was declared but nothing consumed it once the primary
+   mark stopped being a plain circle — every node has been rendering at
+   full opacity regardless of actual decay state since `86a62cc`. Fixed at
+   the real cause (the `arrive` keyframe's hardcoded `opacity: 1`
+   endpoint), including the identical bug in the reduced-motion fallback.
+
+Then built what the essay's central argument had *no visual form* at all:
+a floor that must be continuously re-earned, never granted permanently.
+
+- `AstrolabeChrome` takes a `confidence` prop — `(lead − runner-up) / lead`
+  among live signal nodes, real mass. The rule's width and opacity scale
+  off it. Verified via computed style: confidence 0.33 (Secure Pride's
+  real 3-vs-2 margin) → blade opacity 0.47, down from a flat 0.85.
+- `CompassNode`'s glyph scale increased (r/22 → r/15) without moving `r`
+  itself, so telemetry-ring/tick geometry is unmoved.
+- A genuinely new signal, `overclaim`: a node with a lot of claimed mass
+  that's currently drifting despite the claim — the essay's "overconfident
+  and useless" case, which decay-fade alone can't catch. Normalized
+  against the still-decaying population only (a committed node left the
+  decay economy, so its mass isn't a fair yardstick). Visualized on
+  Compass.astro's own "outer broken ring" layer — literalized, not a new
+  glyph. Verified against real data (Decision Telemetry, drifting 58% at
+  real mass, correctly flags; Maestro, drifting 1%, correctly doesn't).
+
+**Caught mid-review, worth recording as a method note:** a full-page
+screenshot made every node look near-invisible — read at first like the
+size fix hadn't worked. It was the screenshot tool compressing a 4090px
+page into a thumbnail, not the page itself. Re-checked at a realistic
+viewport before concluding anything. "Look at it" has to mean checking the
+look, not trusting the first impression of a look.
+
+Verified: `npm run check` (48 pages, tsc clean), `npm test` (194/194),
+`docs:check`, `check-docs-drift.sh` — green. Both themes, realistic
+viewport, confirmed via screenshot and via computed-style DOM queries
+(not just eyeballing). Pushed: `075c470`.
+
 ## Next, if mazze approves the direction
 
 1. Give the hero the `--c-*` token set (dark + Haven light), which both fixes
