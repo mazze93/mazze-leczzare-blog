@@ -52,9 +52,18 @@ interface Props {
   portrait?: boolean;
   /** the gravity well, in plate coordinates — the alhidade points at it */
   gold?: { x: number; y: number } | null;
+  /**
+   * How decisively the well actually leads the runner-up (0–1), derived by
+   * the caller from real mass, not chosen to look good. v2 drew the rule at
+   * one fixed boldness regardless of the evidence behind the reading — a
+   * permanent floor rendered as an instrument. The rule's opacity and width
+   * are this value now: a marginal well reads as a marginal claim, a
+   * decisive one reads as a decisive claim.
+   */
+  confidence?: number;
 }
 
-const { w, h, portrait = false, gold = null } = Astro.props;
+const { w, h, portrait = false, gold = null, confidence = 1 } = Astro.props;
 
 // Mounted twice per page (landscape + portrait static views) — defs need a
 // per-instance id or the second mount's gradient/filter silently wins both.
@@ -165,7 +174,11 @@ const arm = gold
       // a stroked line. (Straight taper, deliberately not a bezier: this is
       // a ruled edge, the geometric opposite of Seam.astro's brushed curve.)
       const px = -uy, py = ux;
-      const wRoot = 2.4, wTip = 0.4;
+      // A thinner blade reads as a more tentative reading — never below 55%
+      // width, so even a marginal well stays legible as a reading rather
+      // than vanishing into ambiguity.
+      const wScale = 0.55 + confidence * 0.45;
+      const wRoot = 2.4 * wScale, wTip = 0.4 * wScale;
       return {
         x1, y1, x2, y2,
         blade: [
@@ -301,7 +314,7 @@ const arm = gold
        the single change that did the most to move this from diagram to
        instrument. -->
   {arm && (
-    <g class="lb-rule">
+    <g class="lb-rule" style={`--confidence: ${confidence}`}>
       <circle class="lb-mater-glow" cx={centre.x} cy={centre.y} r="26" fill={`url(#${materGlowId})`} />
       <circle class="lb-mater-ring" cx={centre.x} cy={centre.y} r="13" />
       <circle class="lb-mater-ring lb-mater-ring--inner" cx={centre.x} cy={centre.y} r="8" />
@@ -376,12 +389,12 @@ const arm = gold
     fill: none;
     stroke: var(--c-gold);
     stroke-width: 3.5;
-    stroke-opacity: 0.22;
+    stroke-opacity: 0.14;
   }
   .lb-ecliptic-line {
     fill: none;
     stroke-width: 1;
-    stroke-opacity: 0.55;
+    stroke-opacity: 0.38;
   }
   .lb-ecliptic-labels text {
     fill: var(--c-dim);
@@ -399,14 +412,21 @@ const arm = gold
     stroke-opacity: 0.4;
   }
 
+  /* Opacity here reads the same --confidence the blade's own width is built
+     from (AstrolabeChrome's frontmatter) — the rule's whole presence scales
+     with the evidence behind the reading, floored so a marginal well is
+     visibly less certain rather than gone. */
+  .lb-rule {
+    --rule-strength: calc(0.5 + var(--confidence, 1) * 0.5);
+  }
   .lb-blade {
-    opacity: 0.85;
+    opacity: calc(var(--rule-strength) * 0.7);
   }
   .lb-sight {
-    opacity: 0.9;
+    opacity: calc(var(--rule-strength) * 0.75);
   }
   .lb-mater-glow {
-    opacity: 0.9;
+    opacity: calc(var(--rule-strength) * 0.75);
   }
   .lb-mater-ring {
     fill: none;

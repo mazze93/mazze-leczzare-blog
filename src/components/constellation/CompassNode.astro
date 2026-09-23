@@ -52,7 +52,14 @@ const { cx, cy, r, zone, gold = false, class: className = "" } = Astro.props;
 const state: CompassState = gold ? "engaged" : ZONE_STATE[zone];
 // The mark's visually "full" extent (outer ring) is ~28 units from centre
 // in its own 64×64 box; scale so that maps onto the plate's own radius.
-const scale = r / 22;
+// r/22 (the mark's true "full extent" fit) read as near-illegible specks
+// at normal page zoom — the astrolabe's own instrument chrome was reading
+// as more present than the actual pieces of work it exists to measure.
+// r/15 doesn't touch r itself (the telemetry ring/ticks/well-ring below
+// are still positioned off the real r, so nothing about the derived
+// geometry moves), it just lets the glyph itself claim more of the space
+// its own footprint already reserves.
+const scale = r / 15;
 const bucket = r > 16 ? 64 : 32; // thicker relative stroke on small nodes
 ---
 

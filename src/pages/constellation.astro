@@ -39,6 +39,18 @@ interface PlacedNode {
   resolved: boolean;
   living: boolean; // signal/emergence — label shown persistently on touch
   lastTouched: string;
+  driftRatio: number;
+  /**
+   * A real "surprise" signal, not decay — decay.ts's own words for it,
+   * repurposed structurally: a node that has claimed a lot of weight
+   * (mass — pieces published) and is *currently* drifting despite that
+   * claim is exactly the essay's "overconfident and useless" case, the
+   * one a memory system should catch first and a fixed decay-fade alone
+   * cannot: two nodes at the same driftRatio look identical under fade,
+   * even though one of them asserted far more importance while going
+   * quiet. Derived from real fields (count, driftRatio), not a fixed flag.
+   */
+  overclaim: boolean;
   tele: { dash: string; rot: number; tickLen: number; code: string; mass: number };
 }
 
@@ -96,15 +108,43 @@ const placedAll: PlacedNode[] = nodes.map((n) => {
     resolved: state.zone === "resolved",
     living: state.zone === "signal" || state.zone === "experiment",
     lastTouched: n.lastTouched.slice(0, 10),
+    driftRatio: state.driftRatio,
+    overclaim: false, // set below, once the set's own mass scale is known
     tele: telemetry(n.slug, n.count),
   };
 });
+
+// overclaim needs to know what "a lot of mass" means for *this* manifest,
+// not an arbitrary constant — the same discipline the astrolabe's rule
+// confidence uses just above. Normalized against the still-decaying
+// population only (experiment + undefined), not signal — a committed node
+// was given a floor and left the decay economy entirely, so its mass isn't
+// a fair yardstick for "how much is a drifting node claiming."
+const decayingCounts = placedAll
+  .filter((p) => p.zone === "experiment" || p.zone === "undefined")
+  .map((p) => p.count);
+const maxDecayingCount = Math.max(...decayingCounts, 1);
+for (const p of placedAll) {
+  p.overclaim = p.zone === "experiment" && (p.count / maxDecayingCount) * p.driftRatio > 0.22;
+}
 
 // Gravity well: heaviest live committed node; recency breaks ties.
 const liveSignal = placedAll
   .filter((p) => p.zone === "signal")
   .sort((a, b) => b.count - a.count || b.lastTouched.localeCompare(a.lastTouched));
 if (liveSignal.length > 0) liveSignal[0].gold = true;
+
+// The rule's confidence — how decisively the well actually leads, not a
+// fixed boldness drawn once and left alone. A well that edges out the
+// runner-up by one piece is a different claim than one that leads by ten;
+// the astrolabe's rule should look as certain as the evidence actually is,
+// not more. 0 when there's no second-place node to be uncertain against
+// (the reading is trivially correct — nothing else was in contention) or
+// a real, derivable margin otherwise: (lead − runner-up) / lead.
+const wellConfidence =
+  liveSignal.length < 2 || liveSignal[0].count === 0
+    ? 1
+    : Math.max(0, Math.min(1, (liveSignal[0].count - liveSignal[1].count) / liveSignal[0].count));
 
 // ── two views over one placement ─────────────────────────────────────────────
 interface ViewSpec {
@@ -315,6 +355,7 @@ const indexSorted = placedAll
               h={view.H}
               portrait={portrait}
               gold={g.gold ? { x: g.gold.x, y: g.gold.y } : null}
+              confidence={wellConfidence}
             />
 
             {g.gold && (
@@ -339,7 +380,7 @@ const indexSorted = placedAll
                 transition:animate={gravityPull}
               >
                 <g
-                  class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living }]}
+                  class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living, overclaim: p.overclaim }]}
                   style={`--i:${i}; --o:${p.opacity}`}
                 >
                   <CompassNode cx={p.x} cy={p.y} r={p.r} zone={p.zone} gold={p.gold} />
@@ -554,6 +595,13 @@ const indexSorted = placedAll
 
   .asterism line { stroke: var(--c-gold); stroke-opacity: 0.18; stroke-width: 1; }
 
+  /* --o (a node's derived decay opacity — faint in erasure, full in signal)
+     was declared on this element but nothing consumed it once the primary
+     mark stopped being a plain circle: every node has been rendering at
+     full opacity regardless of actual decay state since the compass-mark
+     swap. The arrive keyframe below is what actually sets the resting
+     value (its `forwards` fill wins over a static opacity declaration),
+     so the fix lives there, not here. */
   .node { opacity: 0; animation: arrive 240ms ease-out forwards; animation-delay: calc(var(--i) * 60ms); }
 
   /* The node mark is CompassNode.astro now (the brand mark, not a circle/
@@ -572,6 +620,31 @@ const indexSorted = placedAll
      same specificity, later in source order, but stated explicitly rather
      than leaned on, since that's easy to break by reordering. */
   .node.gold :global(.compass) { color: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
+
+  /* Overclaim (PlacedNode.overclaim, computed above from real mass vs.
+     drift — see the frontmatter comment) — a node that claimed a lot of
+     weight and is currently going quiet despite that claim. The plate's own
+     decay-fade already dims it; this is a different signal layered on top,
+     because two nodes at the same driftRatio can carry very different
+     amounts of unconfirmed claim, and fade alone can't tell them apart.
+     Visualized on the layer Compass.astro's own comment already calls the
+     "outer broken ring" — literalizing "broken" rather than inventing a new
+     glyph: an irregular dash rhythm replacing the ring's normal unbroken
+     arc, and a faster, uneven flicker standing in for the steady 60s
+     ambient breath every other node gets. */
+  .node.overclaim :global([data-layer="ring-outer"]) {
+    stroke-dasharray: 3 2 1 4;
+    animation: compass-breath 60s linear infinite, overclaimFlicker 2.6s ease-in-out infinite;
+  }
+  @keyframes overclaimFlicker {
+    0%, 100% { opacity: 1; }
+    38% { opacity: 0.55; }
+    52% { opacity: 0.9; }
+    71% { opacity: 0.4; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .node.overclaim :global([data-layer="ring-outer"]) { animation: none; opacity: 0.6; }
+  }
 
   .tele-ring {
     fill: none;
@@ -672,7 +745,7 @@ const indexSorted = placedAll
      currentColor, which the fill attribute here never actually sets. */
   .dust circle.dust-bright { filter: drop-shadow(0 0 3px var(--c-dust)); }
 
-  @keyframes arrive { to { opacity: 1; } }
+  @keyframes arrive { to { opacity: var(--o, 1); } }
   @keyframes breathe {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.06); opacity: 0.85; }
@@ -683,7 +756,7 @@ const indexSorted = placedAll
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .node { animation: none; opacity: 1; transition: none; }
+    .node { animation: none; opacity: var(--o, 1); transition: none; }
     .node circle, .dust circle, .well-halo { animation: none; }
     .node.gold .tele-ring { animation: none; }
     .node-link:hover .node,
