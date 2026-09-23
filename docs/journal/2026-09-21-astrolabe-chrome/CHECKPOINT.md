@@ -121,6 +121,85 @@ labels rotate and hold their halo, and the `@media (max-width: 640px)`
 declutter rule still fires (ecliptic labels and fine ticks drop at phone
 width; major labels and the rule stay).
 
+## Increment 2 — interaction + node glyph rebuild (2026-09-23), still on the branch
+
+Two more rounds of direct feedback on the same render, in sequence:
+
+1. **"no reactivity, no movement, no polish... dead... powerpoint slide with
+   no transitions clicking through the pages."** Every navigation was a hard
+   reload. Fix: `<ClientRouter />` (Astro View Transitions) added sitewide
+   via `BaseHead.astro`, plus a `gravityPull` custom transition
+   (`src/transitions/gravityPull.ts`) — a constellation node and its landing
+   project page's `<h1>` share a `view-transition-name` and collapse/emerge
+   through their own centre instead of the default crossfade. Nodes also
+   grow and brighten on hover/focus now, so a node reads as reactive before
+   the click. Verified with `document.getAnimations()` in a real browser
+   that `::view-transition-new(node-maestro)` actually runs the custom
+   `gravity-emerge` keyframe, not just Astro's default fade.
+
+   **A real regression shipped internally before this was caught.** The
+   first attempt to make `/constellation`'s own compass-dispatch script
+   re-run on every SPA arrival added a bare `data-astro-rerun` attribute to
+   eight component/page `<script>` tags. Any attribute other than `src`
+   makes Astro treat a `<script>` as `is:inline` (unprocessed) — this shipped
+   raw TypeScript straight into `dist/index.html` (`interface NoiseParticle`,
+   `querySelector<HTMLElement>`, literally present in the built HTML) and
+   broke the homepage breathing canvas and the header compass on every page.
+   advisor() caught it before commit by reasoning from the exact console
+   error (`SyntaxError ... replaceWith ... Unexpected token ':'`) back to its
+   cause, rather than accepting my own read of it as devtools/tooling noise
+   (which I'd talked myself into after it reproduced on totally vanilla,
+   unrelated navigations — true, but for the wrong reason: Header is on
+   every page, so "vanilla" navigations were never actually vanilla once
+   Header's script was broken). Reverted all eight; the one script that
+   genuinely needed to re-run (`/constellation`'s) was fixed the idiomatic
+   way instead — wrapped in `document.addEventListener('astro:page-load', …)`.
+   Confirmed via `grep` that no raw-TS markers remain in `dist/`, and via a
+   real browser check that the homepage canvas repaints and the compass
+   mounts again. Committed only after that was green (`217d27a`).
+
+   Also fixed in the same pass, both surfaced by ClientRouter's
+   `swapRootAttributes` (which replaces `<html>`'s whole attribute set on
+   every navigation): a themeless flash mid-transition (`data-theme` set on
+   the *incoming* document in `astro:before-swap`, not only reapplied
+   after), and a stale-`localStorage`-read bug that would have silently
+   replayed a mid-session theme toggle backward on the next navigation.
+
+2. **"these basic circles for nodes have no depth or character. why not use
+   the wealth of svg compass mark components i already built... youre not
+   thinking with enough creativity."** `/constellation`'s nodes now render as
+   the brand mark itself — `CompassMark.astro` (the seven glyph layers,
+   extracted out of `Compass.astro` so there's one source, not a second
+   hand-copied one) placed via `constellation/CompassNode.astro`, styled by
+   the SAME `compass.css` state choreography the header mark uses. Zone →
+   compass state is a real correspondence read off compass.css's own written
+   meaning, not chosen to look good: `undefined`→`idle`, `experiment`→`focus`,
+   `signal`→`engaged`, `resolved`→`complete` ("beam becomes dashed trail,
+   pattern persists" — literally what an archive is). Resolved nodes no
+   longer need a separate rect/diamond shape; the `complete` state carries
+   that meaning on the same glyph now.
+
+   **Also caught before shipping:** the zone-colour overrides and hover/focus
+   rules initially did nothing — Astro scopes component `<style>` blocks per
+   file, and a selector written in `constellation.astro` never matches an
+   element rendered by `CompassNode.astro` (a different component) without
+   `:global()`. Screenshotted before the fix (every node gold regardless of
+   zone) and after (trace/teal/cream/gold correctly distinct, both themes)
+   rather than assuming the CSS "obviously" worked because it built clean.
+
+**Not done, scoped out on purpose:** the homepage hero (`ConstellationNodes.tsx`)
+still draws nodes as plain CSS-circle `<span>`s and hard-navigates without
+the gravity-pull morph on the SVG-name side (it does get `view-transition-name`
+and so the browser's *default* crossfade-resize, just not the custom easing —
+`transition:animate`'s custom keyframe pairing is an Astro compile-time
+directive with no JSX/React equivalent). Same fix as increment 1, different
+surface (React, not inline SVG) — a separate change, not a dropped thread.
+
+**Verified, this increment:** `npm run check` (48 pages, tsc clean),
+`npm test` (194/194), `docs:check`, `check-docs-drift.sh` — all green, checked
+fresh after each fix, not just once. Both commits (`217d27a` interaction
+layer, `86a62cc` node glyphs) pushed to the branch.
+
 ## Next, if mazze approves the direction
 
 1. Give the hero the `--c-*` token set (dark + Haven light), which both fixes
