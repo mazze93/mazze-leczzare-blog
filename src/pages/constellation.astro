@@ -136,13 +136,35 @@ function viewGeometry(view: ViewSpec) {
   const gold = placed.find((p) => p.gold);
   const signal = placed.filter((p) => p.zone === "signal" && !p.gold);
   const asterism = gold ? signal.map((p) => ({ x1: gold.x, y1: gold.y, x2: p.x, y2: p.y })) : [];
-  const dust = Array.from({ length: 130 }, (_, i) => ({
-    x: Math.round(hash01(`dust-${i}`, 3) * view.W),
-    y: Math.round(hash01(`dust-${i}`, 5) * view.H),
-    r: 0.6 + hash01(`dust-${i}`, 9) * 1.1,
-    o: 0.1 + hash01(`dust-${i}`, 11) * 0.22,
-  }));
-  return { placed, gold, asterism, dust };
+  // Real sky photographs (the reference mazze sent) read as dense and
+  // textured, not a scatter of same-size same-colour dots at one opacity —
+  // three populations instead of one: common dim dust, a small warm
+  // fraction (tinted toward the signal gold, not a new colour), and a
+  // rarer bright population that gets its own soft glow.
+  const dust = Array.from({ length: 190 }, (_, i) => {
+    const sizeRoll = hash01(`dust-${i}`, 13);
+    const bright = sizeRoll > 0.95; // ~5%
+    const warm = !bright && hash01(`dust-${i}`, 17) > 0.86; // ~10% of the rest
+    return {
+      x: Math.round(hash01(`dust-${i}`, 3) * view.W),
+      y: Math.round(hash01(`dust-${i}`, 5) * view.H),
+      r: bright ? 1.8 + hash01(`dust-${i}`, 9) * 1.3 : 0.5 + hash01(`dust-${i}`, 9) * 1.1,
+      o: bright ? 0.55 + hash01(`dust-${i}`, 11) * 0.35 : 0.08 + hash01(`dust-${i}`, 11) * 0.24,
+      bright,
+      warm,
+    };
+  });
+  // Milky Way band — a soft luminous swath along the same erasure→signal
+  // diagonal the astrolabe's ecliptic arcs already trace (AstrolabeChrome),
+  // so the atmosphere and the instrument read the same axis rather than two
+  // unrelated diagonals fighting on one plate.
+  const bandFrom = view.toXY({ xPct: 8, yPct: 14 } as PlacedNode);
+  const bandTo = view.toXY({ xPct: 92, yPct: 86 } as PlacedNode);
+  const bandAngle = (Math.atan2(bandTo.y - bandFrom.y, bandTo.x - bandFrom.x) * 180) / Math.PI;
+  const bandCx = (bandFrom.x + bandTo.x) / 2;
+  const bandCy = (bandFrom.y + bandTo.y) / 2;
+  const bandLen = Math.hypot(bandTo.x - bandFrom.x, bandTo.y - bandFrom.y) * 1.05;
+  return { placed, gold, asterism, dust, band: { cx: bandCx, cy: bandCy, len: bandLen, angle: bandAngle } };
 }
 
 const isolineRadii = [46, 84, 130, 184];
@@ -198,14 +220,60 @@ const indexSorted = placedAll
                 <stop offset="62%" stop-color="var(--c-zone-emerge)" stop-opacity="0.08" />
                 <stop offset="100%" stop-color="var(--c-zone-signal)" stop-opacity="0.16" />
               </linearGradient>
+              {/* Milky Way band — an elongated, blurred, tapered gradient
+                  rather than a flat tint: real bands have a bright core and
+                  a soft fall-off, not a hard edge. */}
+              <linearGradient id={`band-${view.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="var(--c-emerge)" stop-opacity="0" />
+                <stop offset="30%" stop-color="var(--c-emerge)" stop-opacity="0.16" />
+                <stop offset="50%" stop-color="var(--c-dust)" stop-opacity="0.22" />
+                <stop offset="72%" stop-color="var(--c-gold)" stop-opacity="0.15" />
+                <stop offset="100%" stop-color="var(--c-gold)" stop-opacity="0" />
+              </linearGradient>
+              <filter id={`soft-${view.id}`} x="-40%" y="-150%" width="180%" height="400%">
+                <feGaussianBlur stdDeviation="26" />
+              </filter>
+              <filter id={`bloom-${view.id}`} x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="60" />
+              </filter>
             </defs>
 
             <rect width={view.W} height={view.H} fill={`url(#field-${view.id})`} />
             <rect width={view.W} height={view.H} fill={`url(#zones-${view.id})`} aria-hidden="true" />
 
+            {/* Nebulosity — two soft blooms at the emergence and signal ends,
+                the plate's own teal/gold, not new colours invented for this. */}
+            <g class="nebula" aria-hidden="true" filter={`url(#bloom-${view.id})`}>
+              <ellipse
+                cx={portrait ? view.W * 0.5 : view.W * 0.42} cy={portrait ? view.H * 0.45 : view.H * 0.4}
+                rx={view.W * 0.22} ry={view.H * 0.22} fill="var(--c-emerge)" opacity="0.10"
+              />
+              <ellipse
+                cx={portrait ? view.W * 0.65 : view.W * 0.84} cy={portrait ? view.H * 0.78 : view.H * 0.35}
+                rx={view.W * 0.16} ry={view.H * 0.18} fill="var(--c-gold)" opacity="0.09"
+              />
+            </g>
+
+            {/* the band itself, laid along the erasure→signal diagonal */}
+            <rect
+              class="milky-band"
+              x={g.band.cx - g.band.len / 2} y={g.band.cy - view.H * 0.22}
+              width={g.band.len} height={view.H * 0.44}
+              fill={`url(#band-${view.id})`}
+              filter={`url(#soft-${view.id})`}
+              transform={`rotate(${g.band.angle} ${g.band.cx} ${g.band.cy})`}
+              aria-hidden="true"
+            />
+
             <g class="dust" aria-hidden="true">
               {g.dust.map((d, i) => (
-                <circle cx={d.x} cy={d.y} r={d.r} fill="var(--c-dust)" opacity={d.o} style={`--i:${i % 9}`} />
+                <circle
+                  cx={d.x} cy={d.y} r={d.r}
+                  fill={d.warm ? "var(--c-gold)" : "var(--c-dust)"}
+                  opacity={d.o}
+                  class:list={[{ "dust-bright": d.bright }]}
+                  style={`--i:${i % 9}`}
+                />
               ))}
             </g>
 
@@ -598,6 +666,11 @@ const indexSorted = placedAll
   }
 
   .dust circle { animation: twinkle 9s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 1s); }
+  /* bright and warm are mutually exclusive in the generator (warm is only
+     rolled for non-bright stars), so every .dust-bright circle's fill is
+     always --c-dust — safe to glow with the same token rather than
+     currentColor, which the fill attribute here never actually sets. */
+  .dust circle.dust-bright { filter: drop-shadow(0 0 3px var(--c-dust)); }
 
   @keyframes arrive { to { opacity: 1; } }
   @keyframes breathe {
