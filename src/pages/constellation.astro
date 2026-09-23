@@ -20,14 +20,15 @@ import AirlockStrip from "../components/constellation/AirlockStrip.astro";
 import AstrolabeChrome from "../components/constellation/AstrolabeChrome.astro";
 import { SITE_TITLE } from "../consts";
 import { collectAllNodes } from "../utils/collectNodes";
-import { computeZone } from "../utils/decay";
+import { computeZone, type Zone } from "../utils/decay";
+import CompassNode from "../components/constellation/CompassNode.astro";
 import { nodePosition, nodeStyle } from "../utils/layout";
 import { gravityPull } from "../transitions/gravityPull";
 
 interface PlacedNode {
   slug: string;
   title: string;
-  zone: string;
+  zone: Zone;
   status: string;
   count: number;
   xPct: number; // 0–100 along the erasure→signal axis
@@ -273,15 +274,7 @@ const indexSorted = placedAll
                   class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living }]}
                   style={`--i:${i}; --o:${p.opacity}`}
                 >
-                  {p.resolved ? (
-                    <rect
-                      x={p.x - p.r * 0.9} y={p.y - p.r * 0.9}
-                      width={p.r * 1.8} height={p.r * 1.8}
-                      transform={`rotate(45 ${p.x} ${p.y})`}
-                    />
-                  ) : (
-                    <circle cx={p.x} cy={p.y} r={p.r} />
-                  )}
+                  <CompassNode cx={p.x} cy={p.y} r={p.r} zone={p.zone} gold={p.gold} />
                   {/* telemetry ring — unique dash rhythm + rotation per node */}
                   {!p.resolved && (
                     <circle
@@ -494,17 +487,23 @@ const indexSorted = placedAll
   .asterism line { stroke: var(--c-gold); stroke-opacity: 0.18; stroke-width: 1; }
 
   .node { opacity: 0; animation: arrive 240ms ease-out forwards; animation-delay: calc(var(--i) * 60ms); }
-  .node circle, .node rect {
-    opacity: var(--o, 1);
-    transform-box: fill-box;
-    transform-origin: center;
-  }
-  .node circle { animation: nodeBreathe 6.5s ease-in-out infinite; animation-delay: calc(var(--i) * 900ms); }
-  .node.signal circle { fill: var(--c-signal-node); }
-  .node.gold circle { fill: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
-  .node.experiment circle { fill: var(--c-emerge); }
-  .node.undefined circle { fill: var(--c-trace); }
-  .node.resolved rect { fill: none; stroke: var(--c-ink); stroke-width: 1.5; }
+
+  /* The node mark is CompassNode.astro now (the brand mark, not a circle/
+     rect) — compass.css already owns its state choreography (beam/sparkle/
+     trail) sitewide. These four rules are the only thing this page adds:
+     the zone colour vocabulary compass.css's own `color: var(--gold)`
+     default doesn't know about — erasure fades to trace, an emerging
+     project reads teal, resolved work cools to ink. Gold zone nodes need no
+     override; compass.css's engaged-state gold is already the plate's gold. */
+  .node.undefined :global(.compass) { color: var(--c-trace); }
+  .node.experiment :global(.compass) { color: var(--c-emerge); }
+  .node.signal :global(.compass) { color: var(--c-signal-node); }
+  .node.resolved :global(.compass) { color: var(--c-ink); }
+  /* The well is also .node.signal (p.zone is "signal" for the gold node
+     too), so this has to out-rank .node.signal .compass's colour above —
+     same specificity, later in source order, but stated explicitly rather
+     than leaned on, since that's easy to break by reordering. */
+  .node.gold :global(.compass) { color: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
 
   .tele-ring {
     fill: none;
@@ -554,8 +553,9 @@ const indexSorted = placedAll
   .node-link:hover .node-label,
   .node-link:focus .node-label { opacity: 1; }
   .node-link:focus { outline: none; }
-  .node-link:focus .node circle,
-  .node-link:focus .node rect { stroke: var(--c-emerge); stroke-width: 2; }
+  .node-link:focus-visible :global(.compass) {
+    filter: drop-shadow(0 0 6px var(--c-emerge));
+  }
 
   /* Reactivity before the click: a node grows toward the cursor rather than
      sitting dead until navigation. Scales the <g>, not the circle/rect —
@@ -580,9 +580,16 @@ const indexSorted = placedAll
   .node-link:focus-visible .node.gold {
     transform: scale(1.14); /* already the largest node on the plate */
   }
-  .node-link:hover .node circle,
-  .node-link:focus-visible .node circle {
+  .node-link:hover :global(.compass),
+  .node-link:focus-visible :global(.compass) {
     filter: brightness(1.25);
+  }
+  /* filter doesn't compose across rules — this would otherwise replace,
+     not add to, .node.gold .compass's own drop-shadow glow on hover. More
+     specific and later, so the well keeps its bloom and gets brighter. */
+  .node-link:hover .node.gold :global(.compass),
+  .node-link:focus-visible .node.gold :global(.compass) {
+    filter: brightness(1.15) drop-shadow(0 0 18px var(--c-gold-glow));
   }
 
   /* under a thumb there is no hover: living nodes keep their labels */
@@ -596,10 +603,6 @@ const indexSorted = placedAll
   @keyframes breathe {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.06); opacity: 0.85; }
-  }
-  @keyframes nodeBreathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
   }
   @keyframes twinkle {
     0%, 100% { opacity: 1; }
