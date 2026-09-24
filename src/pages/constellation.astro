@@ -239,9 +239,24 @@ const indexSorted = placedAll
             class={`sky sky--${view.id}`}
             viewBox={`0 0 ${view.W} ${view.H}`}
             preserveAspectRatio="xMidYMid meet"
-            role="img"
-            aria-label={`Constellation map of all projects, arranged from erasure ${portrait ? "at the top to signal at the bottom" : "on the left to signal on the right"}. An equivalent text index follows.`}
+            role="group"
+            aria-label={`Constellation map of all projects, arranged from erasure ${portrait ? "at the top to signal at the bottom" : "on the left to signal on the right"}`}
           >
+            {/* role="group", not role="img": img prunes the ENTIRE subtree
+                from the accessibility tree per the ARIA spec, which is what
+                this was before — the seven .node-link anchors below are
+                real, keyboard-focusable <a> elements (confirmed reachable
+                by Tab in a real browser), but a screen reader could not
+                perceive or announce them at all while their container
+                claimed to be one flat image. group keeps the same
+                contextual label without pruning children — the real fix,
+                not a smaller aria-label change, because the earlier "an
+                equivalent text index follows" comment was this file
+                explicitly choosing the shadow index as the ONLY accessible
+                interface and writing the SVG off as decorative, which was
+                still true when nodes were plain circles but stopped being
+                true the moment they became real hover/focus/gravity
+                interactive targets. */}
             <defs>
               <radialGradient id={`well-glow-${view.id}`} cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stop-color="var(--c-gold)" stop-opacity="0.55" />
@@ -371,18 +386,44 @@ const indexSorted = placedAll
               {g.asterism.map((l) => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
             </g>
 
-            {g.placed.map((p, i) => (
+            {g.placed.map((p, i) => {
+              // Info card geometry — DM Mono is monospace, so character
+              // count is a reliable width estimate without a JS text-measure
+              // pass. Real background plate (not a stroke halo) because a
+              // stroke halo was reading as noise against the busier arcs/
+              // field, not a legible surface.
+              const metaText = `${p.status} · ${p.count} ${p.count === 1 ? "piece" : "pieces"}`;
+              const cardW = Math.max(p.title.length * 10.2, metaText.length * 7.2) + 28;
+              // Flip below the node when there isn't room above — a label
+              // that clips off the top of the plate is not "surfaced," it's
+              // gone. Same relative line layout either way (title, then the
+              // meta tspan 15 below it); only the anchor Y moves.
+              const flipBelow = p.y - p.r < 64;
+              const labelY = flipBelow ? p.y + p.r + 34 : p.y - p.r - 24;
+              return (
               <a
                 href={`/project/${p.slug}/`}
                 class="node-link"
                 aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}
+                data-x={p.x}
+                data-y={p.y}
                 transition:name={`node-${p.slug}`}
                 transition:animate={gravityPull}
               >
                 <g
                   class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living, overclaim: p.overclaim }]}
                   style={`--i:${i}; --o:${p.opacity}`}
+                  aria-hidden="true"
                 >
+                  {/* Generous, invisible, and moves WITH the node (it's inside
+                      .node, so a gravity-pulled node keeps a hit-area under
+                      the cursor rather than leaving one behind at rest) —
+                      real hover instability came from scaling the visible
+                      glyph on :hover, not from the hit area being too small,
+                      but a fixed >=44px target is still the right minimum
+                      regardless. */}
+                  <circle class="node-hit" cx={p.x} cy={p.y} r={Math.max(p.r + 14, 22)} fill="none" />
+                  <circle class="node-focus-ring" cx={p.x} cy={p.y} r={Math.max(p.r + 14, 22)} />
                   <CompassNode cx={p.x} cy={p.y} r={p.r} zone={p.zone} gold={p.gold} />
                   {/* telemetry ring — unique dash rhythm + rotation per node */}
                   {!p.resolved && (
@@ -415,13 +456,22 @@ const indexSorted = placedAll
                       </text>
                     </>
                   )}
-                  <text class="node-label" x={p.x} y={p.y - p.r - 24} text-anchor="middle">
-                    {p.title}
-                    <tspan class="node-meta" x={p.x} dy="15">{p.status} · {p.count}</tspan>
-                  </text>
+                  <g class="node-info">
+                    <rect
+                      class="node-info-bg"
+                      x={p.x - cardW / 2} y={labelY - 16}
+                      width={cardW} height="46"
+                      rx="4"
+                    />
+                    <text class="node-label" x={p.x} y={labelY} text-anchor="middle">
+                      {p.title}
+                      <tspan class="node-meta" x={p.x} dy="16">{metaText}</tspan>
+                    </text>
+                  </g>
                 </g>
               </a>
-            ))}
+              );
+            })}
           </svg>
         );
       })}
@@ -465,6 +515,108 @@ const indexSorted = placedAll
           link.addEventListener("blur", () => send("idle"));
           link.addEventListener("click", () => send("engaged"));
         });
+
+        // Cursor gravity — the same field BreathingHero.astro's canvas and
+        // ConstellationNodes.tsx already give the homepage, ported
+        // constant-for-constant (dist<150 → force=(150-dist)/150, pull
+        // 0.03/frame, decay 0.97/frame) rather than approximated, so
+        // clicking into a node feels like the same instrument on both
+        // surfaces. /constellation stays hydration-free (this is a plain
+        // script, not a React island) — the "static, no hydration" note
+        // atop this file was about avoiding a framework, not about the
+        // plate never moving.
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        interface GravityNode {
+          link: SVGAElement;
+          baseX: number;
+          baseY: number;
+          gx: number;
+          gy: number;
+          mouse: { x: number; y: number };
+        }
+        const nodes: GravityNode[] = [];
+        const cleanups: Array<() => void> = [];
+
+        document.querySelectorAll<SVGSVGElement>(".sky").forEach((svg) => {
+          const links = Array.from(svg.querySelectorAll<SVGAElement>(".node-link"));
+          if (links.length === 0) return;
+
+          // Every node-link on this <svg> shares one mouse reading — a
+          // hidden (display:none) view never receives mousemove at all, so
+          // its nodes simply sit at rest, which costs nothing to compute.
+          const mouse = { x: -9999, y: -9999 };
+          const svgPoint = svg.createSVGPoint();
+
+          // clientX/clientY → this plate's own user-space units, accounting
+          // for however the viewBox is currently scaled to fit the page —
+          // a raw pixel distance would mean something different on a phone
+          // preview than on a wide desktop plate; a distance in the plate's
+          // own coordinate space (the same space p.x/p.y already live in)
+          // does not.
+          const toLocal = (clientX: number, clientY: number) => {
+            const ctm = svg.getScreenCTM();
+            if (!ctm) return null;
+            svgPoint.x = clientX;
+            svgPoint.y = clientY;
+            return svgPoint.matrixTransform(ctm.inverse());
+          };
+          const onMove = (e: MouseEvent) => {
+            const p = toLocal(e.clientX, e.clientY);
+            if (p) { mouse.x = p.x; mouse.y = p.y; }
+          };
+          const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+          svg.addEventListener("mousemove", onMove);
+          svg.addEventListener("mouseleave", onLeave);
+          cleanups.push(() => {
+            svg.removeEventListener("mousemove", onMove);
+            svg.removeEventListener("mouseleave", onLeave);
+          });
+
+          links.forEach((link) => {
+            nodes.push({
+              link,
+              baseX: Number(link.dataset.x ?? 0),
+              baseY: Number(link.dataset.y ?? 0),
+              gx: 0,
+              gy: 0,
+              mouse,
+            });
+          });
+        });
+
+        let rafId = 0;
+        const tick = () => {
+          for (const n of nodes) {
+            const dx = n.mouse.x - (n.baseX + n.gx);
+            const dy = n.mouse.y - (n.baseY + n.gy);
+            const dist = Math.hypot(dx, dy);
+            if (dist < 150 && dist > 0.001) {
+              const force = (150 - dist) / 150;
+              n.gx += dx * force * 0.03;
+              n.gy += dy * force * 0.03;
+            }
+            n.gx *= 0.97;
+            n.gy *= 0.97;
+            n.link.style.setProperty("--gx", `${n.gx.toFixed(2)}px`);
+            n.link.style.setProperty("--gy", `${n.gy.toFixed(2)}px`);
+          }
+          rafId = requestAnimationFrame(tick);
+        };
+        if (nodes.length > 0) tick();
+
+        // Each SPA arrival at /constellation re-runs this whole handler
+        // (astro:page-load), starting a fresh rAF loop — without this, the
+        // previous arrival's loop would keep running forever underneath it,
+        // one more loop per visit.
+        document.addEventListener(
+          "astro:before-swap",
+          () => {
+            cancelAnimationFrame(rafId);
+            cleanups.forEach((fn) => fn());
+          },
+          { once: true },
+        );
       });
     </script>
   </body>
@@ -679,48 +831,55 @@ const indexSorted = placedAll
 
   @keyframes teleTrack { to { transform: rotate(360deg); } }
 
+  /* Real info surface, not a stroke-halo hack: a background plate under the
+     title + status line, sized from character count (DM Mono is monospace,
+     so this is a reliable estimate without a JS text-measure pass — see the
+     frontmatter above). A stroke halo read as noise against the busier arcs
+     and star field; this reads as a card. */
+  .node-info { opacity: 0; transition: opacity 120ms ease; pointer-events: none; }
+  .node-info-bg {
+    fill: var(--c-void);
+    fill-opacity: 0.82;
+    stroke: var(--c-dim);
+    stroke-opacity: 0.35;
+    stroke-width: 1;
+  }
   .node-label {
     fill: var(--c-ink);
     font-size: 17px;
-    opacity: 0;
-    transition: opacity 120ms ease;
-    pointer-events: none;
-    paint-order: stroke;
-    stroke: var(--c-void);
-    stroke-width: 4px;
-    stroke-linejoin: round;
   }
   .node-meta { fill: var(--c-dim); font-size: 12px; letter-spacing: 0.08em; }
-  .node-link:hover .node-label,
-  .node-link:focus .node-label { opacity: 1; }
+  .node-link:hover .node-info,
+  .node-link:focus-visible .node-info { opacity: 1; }
   .node-link:focus { outline: none; }
-  .node-link:focus-visible :global(.compass) {
-    filter: drop-shadow(0 0 6px var(--c-emerge));
-  }
 
-  /* Reactivity before the click: a node grows toward the cursor rather than
-     sitting dead until navigation. Scales the <g>, not the circle/rect —
-     those already carry the infinite nodeBreathe transform animation, and an
-     animation re-sets transform every frame, silently eating any transition
-     set on the same property. The <g> only animates opacity (arrive), so a
-     transform transition here has nothing to fight. Because the browser
-     snapshots whatever is on screen the instant a click starts the view
-     transition, a node already swollen from hover collapses from that larger
-     size — the hover-grow and the click-collapse below read as one
-     continuous pull, not two unrelated effects. */
-  .node {
-    transform-box: fill-box;
-    transform-origin: center;
-    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Hit area: generous, invisible, and moves with the node (it's a child of
+     .node, not a sibling, so it stays aligned through the gravity pull
+     below). pointer-events: all makes a fill:none shape still register the
+     hover/click that hit-tests off it, without drawing anything. */
+  .node-hit { pointer-events: all; }
+
+  /* A real, WCAG-legible focus indicator — a ring, not a colour nudge on
+     the mark itself. This replaced a transform: scale() on both :hover and
+     :focus-visible that looked identical for both states and, on :hover,
+     was the actual cause of the reported cursor/node instability: .node's
+     fill-box bounding box spans every child (the telemetry readout, the
+     label, both often positioned well off the visual glyph), so
+     transform-origin: center scaled around a centroid that did not match
+     what the eye reads as "the node" — the glyph visibly jumped on
+     hover-in, which could carry it out from under the cursor and immediately
+     re-trigger :hover, the enter/leave loop reported as jitter. Removed
+     rather than tuned, because the geometry that caused it (an off-centre
+     fill-box) isn't something an easing curve fixes. */
+  .node-focus-ring {
+    fill: none;
+    stroke: var(--c-emerge);
+    stroke-width: 1.5;
+    opacity: 0;
+    transition: opacity 120ms ease;
   }
-  .node-link:hover .node,
-  .node-link:focus-visible .node {
-    transform: scale(1.24);
-  }
-  .node-link:hover .node.gold,
-  .node-link:focus-visible .node.gold {
-    transform: scale(1.14); /* already the largest node on the plate */
-  }
+  .node-link:focus-visible .node-focus-ring { opacity: 0.9; }
+
   .node-link:hover :global(.compass),
   .node-link:focus-visible :global(.compass) {
     filter: brightness(1.25);
@@ -733,9 +892,25 @@ const indexSorted = placedAll
     filter: brightness(1.15) drop-shadow(0 0 18px var(--c-gold-glow));
   }
 
-  /* under a thumb there is no hover: living nodes keep their labels */
+  /* Cursor gravity — the same field the homepage hero and its living
+     constellation already have (BreathingHero.astro's canvas nodes,
+     ConstellationNodes.tsx's cnNode: dist<150 → force=(150-dist)/150,
+     pull 0.03/frame, decay 0.97/frame), ported here rather than
+     approximated, so clicking into a node from either surface feels like
+     the same instrument. --gx/--gy are written every frame by the script
+     below; .node has no other transform now, and no transition — the
+     per-frame JS update IS the animation, a CSS transition would only add
+     lag chasing it. */
+  .node {
+    transform: translate(var(--gx, 0px), var(--gy, 0px));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .node { transform: none; }
+  }
+
+  /* under a thumb there is no hover: living nodes keep their info visible */
   @media (hover: none) {
-    .node.living .node-label { opacity: 1; }
+    .node.living .node-info { opacity: 1; }
   }
 
   .dust circle { animation: twinkle 9s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 1s); }
@@ -759,12 +934,6 @@ const indexSorted = placedAll
     .node { animation: none; opacity: var(--o, 1); transition: none; }
     .node circle, .dust circle, .well-halo { animation: none; }
     .node.gold .tele-ring { animation: none; }
-    .node-link:hover .node,
-    .node-link:focus-visible .node,
-    .node-link:hover .node.gold,
-    .node-link:focus-visible .node.gold {
-      transform: none;
-    }
   }
 
   .shadow-index {
