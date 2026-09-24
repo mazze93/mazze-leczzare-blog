@@ -138,17 +138,39 @@ function routesFromPages(pagesDir) {
 
 const distDir = path.join(ROOT, "dist");
 const pagesDir = path.join(ROOT, "src", "pages");
+
+function discoverRoutes() {
+  let r = [];
+  let src = "none";
+  if (fs.existsSync(distDir)) {
+    r = routesFromDist(distDir);
+    src = "dist/ — built output, dynamic routes included";
+  }
+  if (r.length === 0 && fs.existsSync(pagesDir)) {
+    r = routesFromPages(pagesDir);
+    src = "src/pages/ — no dist/, so dynamic routes are NOT covered; build for full coverage";
+  }
+  return { r: [...new Set(r)].sort(), src };
+}
+
 let routes = [];
 let routeSource = "none";
-if (fs.existsSync(distDir)) {
-  routes = routesFromDist(distDir);
-  routeSource = "dist/ — built output, dynamic routes included";
+// `--start` (dev mode) never builds, so an unrelated dist/ left over from an
+// earlier --preview run is not "the current truth" — it's whatever the last
+// build happened to contain, which can add routes since deleted or miss ones
+// added since. Route discovery has to match what's actually being served:
+// dev mode always serves src/pages/ directly, so that's the only honest
+// source for it, dist/ or no dist/. --preview mode legitimately prefers
+// dist/ (below), because by the time routes are read for it, startServer()
+// has already rebuilt — see the re-discovery call right after that build.
+if (!WANT_PREVIEW) {
+  if (fs.existsSync(pagesDir)) {
+    routes = routesFromPages(pagesDir);
+    routeSource = "src/pages/ — dev server, dynamic routes NOT covered; use --preview for full coverage";
+  }
+} else {
+  ({ r: routes, src: routeSource } = discoverRoutes());
 }
-if (routes.length === 0 && fs.existsSync(pagesDir)) {
-  routes = routesFromPages(pagesDir);
-  routeSource = "src/pages/ — no dist/, so dynamic routes are NOT covered; build for full coverage";
-}
-routes = [...new Set(routes)].sort();
 
 // ── http ─────────────────────────────────────────────────────────────────────
 function getOnce(url) {
@@ -401,6 +423,14 @@ process.on("SIGINT", () => {
   }
 
   if (WANT_START) startServer();
+  // startServer() just built fresh (WANT_PREVIEW's branch of it runs
+  // `npm run build` before starting the preview server) — re-read dist/
+  // now, not the pre-build snapshot discoverRoutes() took above, or a
+  // route added or removed in this same invocation goes unprobed.
+  if (WANT_START && WANT_PREVIEW) {
+    ({ r: routes, src: routeSource } = discoverRoutes());
+    log(`  routes    ${routes.length} from ${routeSource} (rebuilt)`);
+  }
 
   try {
     await waitForServer(WANT_START ? 90000 : 10000);
