@@ -351,47 +351,69 @@ nav {
   // Studio disclosure. A button rather than a hover target so it is operable by
   // keyboard and on touch; `hidden` is toggled alongside aria-expanded so the
   // menu is genuinely absent from the a11y tree when closed, not just invisible.
-  const studioToggle = document.querySelector<HTMLButtonElement>("#studio-toggle");
-  const studioMenu = document.querySelector<HTMLElement>("#studio-menu");
+  //
+  // This script runs as a module, so with ClientRouter enabled it only
+  // *executes* once — the browser caches the module by URL and won't re-run
+  // it after an internal navigation swaps the Header's DOM. Every listener
+  // below is therefore bound to `document` (which survives the swap) and
+  // re-queries #studio-toggle/#studio-menu at event time instead of closing
+  // over the elements present at script-init time, so it keeps working
+  // against whichever Header the router just swapped in.
+  const getStudioEls = () => ({
+    toggle: document.querySelector<HTMLButtonElement>("#studio-toggle"),
+    menu: document.querySelector<HTMLElement>("#studio-menu"),
+  });
 
-  if (studioToggle && studioMenu) {
-    const setOpen = (open: boolean) => {
-      studioToggle.setAttribute("aria-expanded", String(open));
-      studioMenu.hidden = !open;
-    };
+  const setStudioOpen = (open: boolean) => {
+    const { toggle, menu } = getStudioEls();
+    if (!toggle || !menu) return;
+    toggle.setAttribute("aria-expanded", String(open));
+    menu.hidden = !open;
+  };
 
-    const close = (returnFocus = false) => {
-      if (studioMenu.hidden) return;
-      setOpen(false);
-      if (returnFocus) studioToggle.focus();
-    };
+  const closeStudio = (returnFocus = false) => {
+    const { toggle, menu } = getStudioEls();
+    if (!toggle || !menu || menu.hidden) return;
+    setStudioOpen(false);
+    if (returnFocus) toggle.focus();
+  };
 
-    studioToggle.addEventListener("click", () => {
-      setOpen(studioMenu.hidden);
-    });
+  document.addEventListener("click", (event) => {
+    const target = event.target as Node | null;
+    const { toggle, menu } = getStudioEls();
+    if (!toggle || !menu || !target) return;
 
-    // ArrowDown opens and lands on the first item, matching menu-button convention.
-    studioToggle.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowDown") return;
+    if (toggle.contains(target)) {
+      setStudioOpen(menu.hidden);
+      return;
+    }
+
+    // Any click outside the group closes it.
+    if (!toggle.closest(".nav-group")?.contains(target)) closeStudio();
+  });
+
+  // ArrowDown opens and lands on the first item, matching menu-button convention.
+  document.addEventListener("keydown", (event) => {
+    const { toggle, menu } = getStudioEls();
+    if (!toggle || !menu) return;
+
+    if (event.key === "Escape") {
+      closeStudio(true);
+      return;
+    }
+
+    if (event.key === "ArrowDown" && event.target === toggle) {
       event.preventDefault();
-      setOpen(true);
-      studioMenu.querySelector("a")?.focus();
-    });
+      setStudioOpen(true);
+      menu.querySelector("a")?.focus();
+    }
+  });
 
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") close(true);
-    });
-
-    // Any click outside the group closes it. Focus leaving the group does too,
-    // which covers Tab-out without trapping focus inside the menu.
-    document.addEventListener("click", (event) => {
-      const target = event.target as Node | null;
-      if (target && !studioToggle.closest(".nav-group")?.contains(target)) close();
-    });
-
-    document.addEventListener("focusin", (event) => {
-      const target = event.target as Node | null;
-      if (target && !studioToggle.closest(".nav-group")?.contains(target)) close();
-    });
-  }
+  // Focus leaving the group closes it too, covering Tab-out without trapping
+  // focus inside the menu.
+  document.addEventListener("focusin", (event) => {
+    const target = event.target as Node | null;
+    const { toggle } = getStudioEls();
+    if (target && toggle && !toggle.closest(".nav-group")?.contains(target)) closeStudio();
+  });
 </script>

@@ -55,6 +55,11 @@ export default defineConfig({
         // diffing this list against `find public -name '*.html'`, not by memory.
         "https://mazzeleczzare.com/blog/architecture-of-forgetting/",
         "https://mazzeleczzare.com/blog/what-we-dont-know-yet/",
+        // Added 2026-09-23: standalone spine page for the Cognitive Topology
+        // white paper (own fonts/, OG image, 34-page PDF) — found untracked on
+        // disk, verified complete, tracked and registered in the same commit
+        // per this file's own rule above.
+        "https://mazzeleczzare.com/cognitive-topology/",
       ],
     }),
     react(),

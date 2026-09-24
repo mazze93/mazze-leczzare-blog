@@ -79,6 +79,28 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
           Open Stele <span aria-hidden="true">↗</span>
         </a>
       </article>
+
+      <article class="hero-node hero-node--context-synapse">
+        <svg class="hero-node__glyph" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <circle class="synapse-node" cx="10" cy="29" r="4" />
+          <circle class="synapse-node" cx="30" cy="11" r="4" />
+          <path class="synapse-link" d="M13 26 Q 20 20 27 14" />
+          <circle class="synapse-pulse" cx="20" cy="20" r="1.4" />
+        </svg>
+        <h2 class="hero-node__name">Context Synapse</h2>
+        <p class="hero-node__role">local-first context orchestration</p>
+        <p class="hero-node__desc">
+          Probabilistic modeling of what a system has learned about you over
+          time, entirely on-device, with interfaces for interrogating and
+          correcting what it thinks it knows. The site runs the live
+          mechanics — lighthouse anchors, context-rot scoring, a drift
+          watcher; the underlying framework is still in development.
+        </p>
+        <p class="hero-node__stack">Swift · on-device · in development</p>
+        <a class="hero-node__link" href="https://contextsynapse.mazzeleczzare.com/" target="_blank" rel="noopener noreferrer">
+          Open Context Synapse <span aria-hidden="true">↗</span>
+        </a>
+      </article>
     </div>
 
     <div class="breathing-hero__actions">
@@ -122,6 +144,10 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     --hero-teal:       #2bd3c6;
     --hero-teal-hover: #34e8d9;
     --hero-gold:       #e8b64c;
+    /* the sky's third accent (--coral in global.css) tuned the same way the
+       other two are for this dark backdrop, not a colour invented for a
+       third card. */
+    --hero-coral:      #e8735c;
     --hero-on-accent:  #0b0d12;
     --hero-card:       rgba(11, 13, 18, 0.62);
     --hero-card-hover: rgba(11, 13, 18, 0.78);
@@ -146,6 +172,7 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     --hero-teal:       #10635c;
     --hero-teal-hover: #0b4a45;
     --hero-gold:       #7a622c;
+    --hero-coral:      #a8402c;
     --hero-on-accent:  #f9f6ee;
     --hero-card:       rgba(249, 246, 238, 0.72);
     --hero-card-hover: rgba(249, 246, 238, 0.92);
@@ -244,9 +271,18 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
   /* ── The two product nodes ── */
   .hero-nodes {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;
     margin-bottom: 2.5rem;
+  }
+
+  /* Three cards is tight before the 768px full collapse — fall back to a
+     2-up grid (Context Synapse wraps to its own row) rather than squeezing
+     three columns onto a tablet-width hero. */
+  @media (max-width: 1024px) {
+    .hero-nodes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .hero-node {
@@ -261,10 +297,12 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
   }
 
-  /* Each node carries its own accent so the pair never reads as one repeated
-     card: Stratum teal (the ledger), Stele amber (the seal). */
-  .hero-node--stratum { --node-accent: var(--hero-teal); }
-  .hero-node--stele   { --node-accent: var(--hero-gold); }
+  /* Each node carries its own accent so they never read as one repeated
+     card: Stratum teal (the ledger), Stele amber (the seal), Context
+     Synapse coral (the negotiation) — the sky's own three-colour set. */
+  .hero-node--stratum         { --node-accent: var(--hero-teal); }
+  .hero-node--stele           { --node-accent: var(--hero-gold); }
+  .hero-node--context-synapse { --node-accent: var(--hero-coral); }
 
   .hero-node::before {
     content: "";
@@ -309,6 +347,20 @@ import ConstellationNodes from "./constellation/ConstellationNodes";
     stroke-linecap: round;
   }
   .stele-seal--lit { stroke: var(--node-accent); }
+
+  /* Context Synapse — two nodes across a negotiated link, a pulse where
+     they meet. */
+  .synapse-node {
+    fill: none;
+    stroke: var(--hero-ink-4);
+    stroke-width: 1.6;
+  }
+  .synapse-link {
+    fill: none;
+    stroke: var(--node-accent);
+    stroke-width: 1.4;
+  }
+  .synapse-pulse { fill: var(--node-accent); }
 
   .hero-node__name {
     font-family: var(--font-display, Georgia, serif);

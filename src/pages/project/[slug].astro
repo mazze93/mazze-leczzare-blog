@@ -6,6 +6,7 @@ import Footer from "../../components/Footer.astro";
 import { collectAllNodes } from "../../utils/collectNodes";
 import { PROJECT_PIECES, PROJECT_THESES } from "../../data/projectPieces";
 import { computeZone, decayStatus } from "../../utils/decay";
+import { gravityPull } from "../../transitions/gravityPull";
 import "../../styles/constellation-pages.css";
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -33,7 +34,9 @@ const external = PROJECT_PIECES[node.slug] ?? [];
       <p class="cn-page__label">
         Project · <span class="cn-zone-badge" data-zone={state.zone}>{state.zone}</span> · {status}
       </p>
-      <h1 class="cn-page__title">{node.title}</h1>
+      <h1 class="cn-page__title" transition:name={`node-${node.slug}`} transition:animate={gravityPull}>
+        {node.title}
+      </h1>
       {thesis && <p class="cn-page__thesis">{thesis}</p>}
       {external.length > 0 && (
         <ul class="cn-pieces cn-pieces--external" role="list">

@@ -1,0 +1,73 @@
+---
+// CompassNode — a project node drawn as the brand mark itself, not a
+// generic circle. Reuses Compass.astro's real geometry (CompassMark.astro)
+// and its real behavior CSS (compass.css, already loaded sitewide via
+// global.css) rather than approximating the look with a plain shape: the
+// outer broken ring, inner orbital arc, cardinal star, and beam/sparkle/
+// trail choreography are the SAME rules the header brand mark uses, so a
+// project node and the mark in the header read as one system, not two.
+//
+// Zone → compass state is a real correspondence, not decoration — each
+// state's own written meaning (compass.css's comment block) already
+// matches a zone:
+//   undefined (erasure)      → idle     — "system at rest"
+//   experiment (emerging)    → focus    — "full beam visible, glow blooms"
+//   signal (sealed)          → engaged  — "sparkle active at convergence"
+//   resolved (archived)      → complete — "beam becomes dashed trail,
+//                                          pattern persists" — literally
+//                                          what an archive is.
+// The gravity well (gold) is `engaged` too, at the largest size bucket;
+// its extra presence comes from the plate's existing isolines/well-halo/
+// tele-well-ring, not from a sixth compass state that doesn't exist.
+//
+// compass.css's own `color: var(--gold)` default would flatten every zone
+// to the same hue, losing the plate's existing colour vocabulary (trace/
+// emerge/signal/ink) — see the `.node .compass` colour overrides in
+// constellation.astro's <style>, which sit on top of this without touching
+// compass.css itself.
+import CompassMark from "../CompassMark.astro";
+
+type Zone = "undefined" | "experiment" | "signal" | "resolved";
+type CompassState = "idle" | "focus" | "engaged" | "complete";
+
+const ZONE_STATE: Record<Zone, CompassState> = {
+  undefined: "idle",
+  experiment: "focus",
+  signal: "engaged",
+  resolved: "complete",
+};
+
+interface Props {
+  cx: number;
+  cy: number;
+  /** the plate's own node radius (PlacedNode.r) — sets the mark's scale */
+  r: number;
+  zone: Zone;
+  gold?: boolean;
+  class?: string;
+}
+
+const { cx, cy, r, zone, gold = false, class: className = "" } = Astro.props;
+
+const state: CompassState = gold ? "engaged" : ZONE_STATE[zone];
+// The mark's visually "full" extent (outer ring) is ~28 units from centre
+// in its own 64×64 box; scale so that maps onto the plate's own radius.
+// r/22 (the mark's true "full extent" fit) read as near-illegible specks
+// at normal page zoom — the astrolabe's own instrument chrome was reading
+// as more present than the actual pieces of work it exists to measure.
+// r/15 doesn't touch r itself (the telemetry ring/ticks/well-ring below
+// are still positioned off the real r, so nothing about the derived
+// geometry moves), it just lets the glyph itself claim more of the space
+// its own footprint already reserves.
+const scale = r / 15;
+const bucket = r > 16 ? 64 : 32; // thicker relative stroke on small nodes
+---
+
+<g
+  class:list={["compass", className]}
+  data-state={state}
+  data-size-bucket={bucket}
+  transform={`translate(${cx} ${cy}) scale(${scale}) translate(-32 -32)`}
+>
+  <CompassMark />
+</g>

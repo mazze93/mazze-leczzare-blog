@@ -1,0 +1,455 @@
+---
+// ── AstrolabeChrome — instrument chrome over derived geometry ────────────────
+// The astrolabe's *chrome* (limb, graduated scale, ecliptic arcs, alhidade),
+// laid over the constellation plate WITHOUT touching the node geometry. The
+// node positions still come from src/utils/layout.ts — position means erasure→
+// signal by age and seal state — and nothing here moves a node or invents one.
+// Replacing the plate with a flat astrolabe disc would trade meaningful
+// geometry for decoration; this only *reads* the geometry already there.
+//
+// Everything drawn here is derived from the real decay constants, never chosen
+// to look good:
+//   · x = 13%      the archive seam (resolved work holds 7–12%)
+//   · x = 28%      exactly where a node lands at full drift — ERASURE_DAYS 180
+//   · x = 40–66%   the fresh-experiment band — a node under DRIFT_START_DAYS 30
+//   · x = 78%      the signal band — committed, sealed, ageless
+// A drifting node travels from its own base (40–66) toward 28 in proportion to
+// driftRatio, so a graduation at a given drift fraction is a *band*, not a
+// line: its width is the spread of possible bases at that fraction. The arcs
+// are drawn at their true width rather than as a crisp line that would lie
+// about the instrument's precision.
+//
+// v2 (2026-09-23) rebuilds the *materiality* after the first pass read as a
+// spec diagram rather than an instrument: dashed lines (the web's default
+// "boundary" affordance), flat 1px strokes with no weight hierarchy, and an
+// 18px/10px card-radius limb that matched no other radius on the site
+// (--radius-sm is 3px — global.css:124). Nothing below is decorative filler;
+// each change borrows a technique already established elsewhere on the site
+// rather than inventing a fourth design system:
+//   · gold gradient   — the site-wide --gold-seam-deep/bright/deep stops
+//                        (global.css), the same ramp Seam.astro paints with.
+//   · tapered blade    — Seam.astro's out-and-back-bezier taper, translated
+//                        from an organic brush stroke to a machined straight
+//                        edge (a rule is filed, not painted — the geometric
+//                        taper is the deliberate opposite of the seam's).
+//   · glow + halo type — ConstellationNodes' own vocabulary (cn-well-glow
+//                        radial gradient, box-shadow rings, stroke-haloed
+//                        readout text) extended to the chrome instead of
+//                        left unused beside it.
+//
+// Consumed by /constellation (both static views). Pure SVG, aria-hidden, no
+// hydration, no motion — the shadow index remains the legible equivalent.
+// Colours are --c-*/--gold-seam-* tokens only: a hex literal here would not
+// invert into Haven/Ink light mode (see CLAUDE.md → Design Systems).
+import { DRIFT_START_DAYS, ERASURE_DAYS } from "../../utils/decay";
+
+interface Props {
+  /** viewBox width of the plate this chrome overlays */
+  w: number;
+  /** viewBox height of the plate this chrome overlays */
+  h: number;
+  /** portrait runs the erasure→signal axis down the height instead of across */
+  portrait?: boolean;
+  /** the gravity well, in plate coordinates — the alhidade points at it */
+  gold?: { x: number; y: number } | null;
+  /**
+   * How decisively the well actually leads the runner-up (0–1), derived by
+   * the caller from real mass, not chosen to look good. v2 drew the rule at
+   * one fixed boldness regardless of the evidence behind the reading — a
+   * permanent floor rendered as an instrument. The rule's opacity and width
+   * are this value now: a marginal well reads as a marginal claim, a
+   * decisive one reads as a decisive claim.
+   */
+  confidence?: number;
+}
+
+const { w, h, portrait = false, gold = null, confidence = 1 } = Astro.props;
+
+// Mounted twice per page (landscape + portrait static views) — defs need a
+// per-instance id or the second mount's gradient/filter silently wins both.
+const uid = crypto.randomUUID().slice(0, 8);
+const gradId = `astro-gold-${uid}`;
+const glowId = `astro-glow-${uid}`;
+const materGlowId = `astro-mater-glow-${uid}`;
+
+/** Axis percent (erasure→signal) → px along the plate's axis. */
+const axis = (pct: number): number => (pct / 100) * (portrait ? h : w);
+/** Cross-axis percent → px across the plate. */
+const cross = (pct: number): number => (pct / 100) * (portrait ? w : h);
+
+/** A point on the plate from (axis%, cross%), whichever way the plate runs. */
+function pt(axisPct: number, crossPct: number): { x: number; y: number } {
+  return portrait
+    ? { x: cross(crossPct), y: axis(axisPct) }
+    : { x: axis(axisPct), y: cross(crossPct) };
+}
+
+// ── the limb: a graduated band inset from the plate edge ─────────────────────
+const LIMB_OUT = 10;
+const LIMB_IN = 26;
+// Sharp instrument corner, not a card radius — matches --radius-sm (3px),
+// the site's actual smallest radius, rather than the 18px/10px this
+// component invented in v1.
+const LIMB_RX = 3;
+
+// Register-mark brackets at the four corners of the outer ring — the crop
+// marks of an engraved plate, and the fastest legible signal that this frame
+// was drafted rather than laid out with a CSS border-radius.
+const REG = 14;
+function registerMarks(): string[] {
+  const x0 = LIMB_OUT, y0 = LIMB_OUT, x1 = w - LIMB_OUT, y1 = h - LIMB_OUT;
+  return [
+    `M ${x0} ${y0 + REG} L ${x0} ${y0} L ${x0 + REG} ${y0}`,
+    `M ${x1 - REG} ${y0} L ${x1} ${y0} L ${x1} ${y0 + REG}`,
+    `M ${x1} ${y1 - REG} L ${x1} ${y1} L ${x1 - REG} ${y1}`,
+    `M ${x0 + REG} ${y1} L ${x0} ${y1} L ${x0} ${y1 - REG}`,
+  ];
+}
+const registers = registerMarks();
+
+// Major graduations — each one is a real threshold, labelled with what it is.
+// The plate already captions ARCHIVE / ERASURE / EMERGENCE / SIGNAL along the
+// bottom, so the limb adds only what those captions can't say: the two day
+// thresholds the zones are actually computed from. Labels sit *inside* the limb
+// band, where a real instrument puts them — and, on this plate, the one strip
+// the orientation copy doesn't overlay.
+const MAJORS: { at: number; label: string | null }[] = [
+  { at: 13, label: null },
+  { at: 28, label: `${ERASURE_DAYS} D` },
+  { at: 66, label: `${DRIFT_START_DAYS} D` },
+  { at: 78, label: null },
+];
+const BAND_MID = (LIMB_OUT + LIMB_IN) / 2;
+
+// Minor graduations across the drift corridor, every 5% of axis, skipping the
+// majors — the plain tick rhythm of a limb, with nothing invented between.
+const MINORS = Array.from({ length: 19 }, (_, i) => 5 + i * 5).filter(
+  (at) => !MAJORS.some((m) => Math.abs(m.at - at) < 2.5),
+);
+
+// ── ecliptic arcs: constant-drift bands across the corridor ──────────────────
+// A node at drift fraction d sits at base − d·(base − 28) for base ∈ [40, 66],
+// so constant d spans [40 − d·12, 66 − d·38]. Drawn as a bowed band between
+// those two axis positions — the instrument showing its own resolution.
+const DRIFTS = [0.25, 0.5, 0.75];
+const ecliptics = DRIFTS.map((d) => {
+  const lo = 40 - d * 12;
+  const hi = 66 - d * 38;
+  // bow the arc gently across the cross-axis, like a plate's ecliptic
+  const a = pt(lo, 8);
+  const b = pt(hi, 92);
+  const ctrl = pt(lo + (hi - lo) * 0.5 - 6, 50);
+  // The label goes on the limb, not on the plate. Two earlier placements
+  // failed against real content: the three arc midpoints sit within a few
+  // percent of each other and stacked into one illegible row, and the arc ends
+  // land in the node field (nodes occupy 12–88% of the cross-axis), where a
+  // label lands on top of a project. The limb band is the only strip on this
+  // plate that is guaranteed empty, and graduations belong on a limb anyway.
+  return {
+    d: `M ${a.x} ${a.y} Q ${ctrl.x} ${ctrl.y} ${b.x} ${b.y}`,
+    label: `${Math.round(d * 100)}%`,
+    at: hi,
+  };
+});
+
+// ── alhidade: the rule, pointed at the measured thing ────────────────────────
+// An astrolabe's rule is turned to the body being read. Here it is aimed at
+// the gravity well — the heaviest live signal node, itself derived — so the
+// arm is a reading, not an ornament.
+const centre = { x: w / 2, y: h / 2 };
+const arm = gold
+  ? (() => {
+      const dx = gold.x - centre.x;
+      const dy = gold.y - centre.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
+      // stop short of the node so the well's own isolines stay readable
+      const x1 = centre.x - ux * 46;
+      const y1 = centre.y - uy * 46;
+      const x2 = gold.x - ux * 34;
+      const y2 = gold.y - uy * 34;
+      // Perpendicular half-widths for a machined taper: wide at the mater
+      // end, filed down to a point at the sighted end — a filled quad, not
+      // a stroked line. (Straight taper, deliberately not a bezier: this is
+      // a ruled edge, the geometric opposite of Seam.astro's brushed curve.)
+      const px = -uy, py = ux;
+      // A thinner blade reads as a more tentative reading — never below 55%
+      // width, so even a marginal well stays legible as a reading rather
+      // than vanishing into ambiguity.
+      const wScale = 0.55 + confidence * 0.45;
+      const wRoot = 2.4 * wScale, wTip = 0.4 * wScale;
+      return {
+        x1, y1, x2, y2,
+        blade: [
+          `M ${x1 + px * wRoot} ${y1 + py * wRoot}`,
+          `L ${x2 + px * wTip} ${y2 + py * wTip}`,
+          `L ${x2 - px * wTip} ${y2 - py * wTip}`,
+          `L ${x1 - px * wRoot} ${y1 - py * wRoot}`,
+          "Z",
+        ].join(" "),
+        // a small sighting vane at the tip — the diamond motif repeats from
+        // the mater, so the two ends of the rule read as one drafted object
+        sight: [
+          `M ${x2 + ux * 6} ${y2 + uy * 6}`,
+          `L ${x2 + px * 3} ${y2 + py * 3}`,
+          `L ${x2 - ux * 4} ${y2 - uy * 4}`,
+          `L ${x2 - px * 3} ${y2 - py * 3}`,
+          "Z",
+        ].join(" "),
+      };
+    })()
+  : null;
+---
+
+<g class="astro-chrome" aria-hidden="true">
+  <defs>
+    <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--gold-seam-deep)" />
+      <stop offset="0.5" stop-color="var(--gold-seam-bright)" />
+      <stop offset="1" stop-color="var(--gold-seam-deep)" />
+    </linearGradient>
+    <radialGradient id={materGlowId} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--gold-seam-bright)" stop-opacity="0.55" />
+      <stop offset="55%" stop-color="var(--gold-seam)" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="var(--gold-seam)" stop-opacity="0" />
+    </radialGradient>
+    <filter id={glowId} x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4" />
+    </filter>
+  </defs>
+
+  <!-- limb: outer rule, inner hairline, register marks at the four corners —
+       the band between the two rules is the scale. Sharp radius (--radius-sm,
+       not a card's) and drafted corner brackets read as engraved, not boxed. -->
+  <rect
+    class="lb-ring"
+    x={LIMB_OUT}
+    y={LIMB_OUT}
+    width={w - LIMB_OUT * 2}
+    height={h - LIMB_OUT * 2}
+    rx={LIMB_RX}
+  />
+  <rect
+    class="lb-ring lb-ring--inner"
+    x={LIMB_IN}
+    y={LIMB_IN}
+    width={w - LIMB_IN * 2}
+    height={h - LIMB_IN * 2}
+    rx={LIMB_RX}
+    stroke={`url(#${gradId})`}
+  />
+  <g class="lb-register">
+    {registers.map((d) => <path d={d} />)}
+  </g>
+
+  <!-- graduations, on both limb edges that the axis runs along -->
+  <g class="lb-ticks">
+    {MINORS.map((at) => {
+      const a = axis(at);
+      return portrait ? (
+        <>
+          <line x1={LIMB_OUT + 2} y1={a} x2={LIMB_IN - 4} y2={a} />
+          <line x1={w - LIMB_OUT - 2} y1={a} x2={w - LIMB_IN + 4} y2={a} />
+        </>
+      ) : (
+        <>
+          <line x1={a} y1={LIMB_OUT + 2} x2={a} y2={LIMB_IN - 4} />
+          <line x1={a} y1={h - LIMB_OUT - 2} x2={a} y2={h - LIMB_IN + 4} />
+        </>
+      );
+    })}
+  </g>
+
+  <g class="lb-majors">
+    {MAJORS.map(({ at, label }) => {
+      const a = axis(at);
+      return portrait ? (
+        <>
+          <line x1={LIMB_OUT} y1={a} x2={LIMB_IN + 8} y2={a} stroke={`url(#${gradId})`} />
+          <line x1={w - LIMB_OUT} y1={a} x2={w - LIMB_IN - 8} y2={a} stroke={`url(#${gradId})`} />
+          <circle class="lb-major-dot" cx={LIMB_IN + 8} cy={a} r="1.3" />
+          {label && (
+            <text class="lb-major-label" transform={`translate(${BAND_MID} ${a + 6}) rotate(-90)`} text-anchor="start">{label}</text>
+          )}
+        </>
+      ) : (
+        <>
+          <line x1={a} y1={LIMB_OUT} x2={a} y2={LIMB_IN + 8} stroke={`url(#${gradId})`} />
+          <line x1={a} y1={h - LIMB_OUT} x2={a} y2={h - LIMB_IN - 8} stroke={`url(#${gradId})`} />
+          <circle class="lb-major-dot" cx={a} cy={LIMB_IN + 8} r="1.3" />
+          {label && <text class="lb-major-label" x={a + 7} y={BAND_MID + 3} text-anchor="start">{label}</text>}
+        </>
+      );
+    })}
+  </g>
+
+  <!-- ecliptics: constant-drift bands, bowed across the plate. Solid, with a
+       soft blurred underlayer standing in for the dashed line v1 used — a
+       dashed stroke is the default web "boundary" affordance; an engraved
+       instrument's arcs are cut, not dotted. -->
+  <g class="lb-ecliptics">
+    {ecliptics.map((e) => <path class="lb-ecliptic-glow" d={e.d} filter={`url(#${glowId})`} />)}
+    {ecliptics.map((e) => <path class="lb-ecliptic-line" d={e.d} stroke={`url(#${gradId})`} />)}
+  </g>
+  <g class="lb-ecliptic-labels">
+    {ecliptics.map((e) => {
+      const a = axis(e.at);
+      return portrait ? (
+        <>
+          <line x1={LIMB_OUT + 4} y1={a} x2={LIMB_IN} y2={a} />
+          <text transform={`translate(${BAND_MID} ${a + 6}) rotate(-90)`} text-anchor="start">{e.label}</text>
+        </>
+      ) : (
+        <>
+          <line x1={a} y1={LIMB_OUT + 4} x2={a} y2={LIMB_IN} />
+          <text x={a + 7} y={BAND_MID + 3} text-anchor="start">{e.label}</text>
+        </>
+      );
+    })}
+  </g>
+
+  <!-- alhidade: the rule, turned to the gravity well. A filled tapered blade
+       and a faceted, glowing pivot — replacing v1's stroked line and flat dot,
+       the single change that did the most to move this from diagram to
+       instrument. -->
+  {arm && (
+    <g class="lb-rule" style={`--confidence: ${confidence}`}>
+      <circle class="lb-mater-glow" cx={centre.x} cy={centre.y} r="26" fill={`url(#${materGlowId})`} />
+      <circle class="lb-mater-ring" cx={centre.x} cy={centre.y} r="13" />
+      <circle class="lb-mater-ring lb-mater-ring--inner" cx={centre.x} cy={centre.y} r="8" />
+      <path class="lb-blade" d={arm.blade} fill={`url(#${gradId})`} />
+      <rect
+        class="lb-mater-facet"
+        x={centre.x - 3.4} y={centre.y - 3.4} width="6.8" height="6.8"
+        transform={`rotate(45 ${centre.x} ${centre.y})`}
+        fill={`url(#${gradId})`}
+      />
+      <path class="lb-sight" d={arm.sight} fill={`url(#${gradId})`} />
+    </g>
+  )}
+</g>
+
+<style>
+  /* Every colour below is a token or a token-built gradient. A literal here
+     would stay dark-coloured on Haven paper — the exact bug that kept light
+     mode out of this sky until e0b65d4. --gold-seam-* is the sitewide
+     Kintsugi ramp (global.css); it already carries its own light-mode
+     override, so reusing it here ties the chrome into the same gold as the
+     seam rather than a second, unrelated gold. */
+  .lb-ring {
+    fill: none;
+    stroke: var(--c-trace);
+    stroke-width: 1.25;
+    stroke-opacity: 0.65;
+  }
+  .lb-ring--inner {
+    stroke-opacity: 0.38;
+    stroke-width: 0.75;
+  }
+
+  .lb-register path {
+    fill: none;
+    stroke: var(--c-trace);
+    stroke-width: 1.5;
+    stroke-opacity: 0.7;
+    stroke-linecap: square;
+  }
+
+  .lb-ticks line {
+    stroke: var(--c-trace);
+    stroke-width: 0.6;
+    stroke-opacity: 0.4;
+  }
+
+  .lb-majors line {
+    stroke-width: 1.4;
+    stroke-opacity: 0.75;
+  }
+  .lb-major-dot {
+    fill: var(--c-gold);
+    fill-opacity: 0.85;
+  }
+  .lb-major-label,
+  .lb-ecliptic-labels text {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+  }
+  .lb-major-label {
+    fill: var(--c-gold);
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+
+  .lb-ecliptic-glow {
+    fill: none;
+    stroke: var(--c-gold);
+    stroke-width: 3.5;
+    stroke-opacity: 0.14;
+  }
+  .lb-ecliptic-line {
+    fill: none;
+    stroke-width: 1;
+    stroke-opacity: 0.38;
+  }
+  .lb-ecliptic-labels text {
+    fill: var(--c-dim);
+    font-size: 9.5px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    paint-order: stroke;
+    stroke: var(--c-void);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+  .lb-ecliptic-labels line {
+    stroke: var(--c-gold);
+    stroke-width: 1;
+    stroke-opacity: 0.4;
+  }
+
+  /* Opacity here reads the same --confidence the blade's own width is built
+     from (AstrolabeChrome's frontmatter) — the rule's whole presence scales
+     with the evidence behind the reading, floored so a marginal well is
+     visibly less certain rather than gone. */
+  .lb-rule {
+    --rule-strength: calc(0.5 + var(--confidence, 1) * 0.5);
+  }
+  .lb-blade {
+    opacity: calc(var(--rule-strength) * 0.7);
+  }
+  .lb-sight {
+    opacity: calc(var(--rule-strength) * 0.75);
+  }
+  .lb-mater-glow {
+    opacity: calc(var(--rule-strength) * 0.75);
+  }
+  .lb-mater-ring {
+    fill: none;
+    stroke: var(--c-gold);
+    stroke-width: 1;
+    stroke-opacity: 0.35;
+  }
+  .lb-mater-ring--inner {
+    stroke-opacity: 0.5;
+    stroke-width: 0.75;
+  }
+  .lb-mater-facet {
+    stroke: var(--c-void);
+    stroke-width: 0.75;
+    stroke-opacity: 0.4;
+  }
+
+  /* Phone-width plates are already dense; drop the finest graduations and the
+     ecliptic labels rather than stacking unreadable 9–10px type. */
+  @media (max-width: 640px) {
+    .lb-ticks,
+    .lb-ecliptic-labels {
+      display: none;
+    }
+  }
+</style>

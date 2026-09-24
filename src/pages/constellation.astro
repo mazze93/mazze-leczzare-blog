@@ -17,15 +17,18 @@ import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import AirlockStrip from "../components/constellation/AirlockStrip.astro";
+import AstrolabeChrome from "../components/constellation/AstrolabeChrome.astro";
 import { SITE_TITLE } from "../consts";
 import { collectAllNodes } from "../utils/collectNodes";
-import { computeZone } from "../utils/decay";
+import { computeZone, type Zone } from "../utils/decay";
+import CompassNode from "../components/constellation/CompassNode.astro";
 import { nodePosition, nodeStyle } from "../utils/layout";
+import { gravityPull } from "../transitions/gravityPull";
 
 interface PlacedNode {
   slug: string;
   title: string;
-  zone: string;
+  zone: Zone;
   status: string;
   count: number;
   xPct: number; // 0–100 along the erasure→signal axis
@@ -36,6 +39,18 @@ interface PlacedNode {
   resolved: boolean;
   living: boolean; // signal/emergence — label shown persistently on touch
   lastTouched: string;
+  driftRatio: number;
+  /**
+   * A real "surprise" signal, not decay — decay.ts's own words for it,
+   * repurposed structurally: a node that has claimed a lot of weight
+   * (mass — pieces published) and is *currently* drifting despite that
+   * claim is exactly the essay's "overconfident and useless" case, the
+   * one a memory system should catch first and a fixed decay-fade alone
+   * cannot: two nodes at the same driftRatio look identical under fade,
+   * even though one of them asserted far more importance while going
+   * quiet. Derived from real fields (count, driftRatio), not a fixed flag.
+   */
+  overclaim: boolean;
   tele: { dash: string; rot: number; tickLen: number; code: string; mass: number };
 }
 
@@ -93,15 +108,43 @@ const placedAll: PlacedNode[] = nodes.map((n) => {
     resolved: state.zone === "resolved",
     living: state.zone === "signal" || state.zone === "experiment",
     lastTouched: n.lastTouched.slice(0, 10),
+    driftRatio: state.driftRatio,
+    overclaim: false, // set below, once the set's own mass scale is known
     tele: telemetry(n.slug, n.count),
   };
 });
+
+// overclaim needs to know what "a lot of mass" means for *this* manifest,
+// not an arbitrary constant — the same discipline the astrolabe's rule
+// confidence uses just above. Normalized against the still-decaying
+// population only (experiment + undefined), not signal — a committed node
+// was given a floor and left the decay economy entirely, so its mass isn't
+// a fair yardstick for "how much is a drifting node claiming."
+const decayingCounts = placedAll
+  .filter((p) => p.zone === "experiment" || p.zone === "undefined")
+  .map((p) => p.count);
+const maxDecayingCount = Math.max(...decayingCounts, 1);
+for (const p of placedAll) {
+  p.overclaim = p.zone === "experiment" && (p.count / maxDecayingCount) * p.driftRatio > 0.22;
+}
 
 // Gravity well: heaviest live committed node; recency breaks ties.
 const liveSignal = placedAll
   .filter((p) => p.zone === "signal")
   .sort((a, b) => b.count - a.count || b.lastTouched.localeCompare(a.lastTouched));
 if (liveSignal.length > 0) liveSignal[0].gold = true;
+
+// The rule's confidence — how decisively the well actually leads, not a
+// fixed boldness drawn once and left alone. A well that edges out the
+// runner-up by one piece is a different claim than one that leads by ten;
+// the astrolabe's rule should look as certain as the evidence actually is,
+// not more. 0 when there's no second-place node to be uncertain against
+// (the reading is trivially correct — nothing else was in contention) or
+// a real, derivable margin otherwise: (lead − runner-up) / lead.
+const wellConfidence =
+  liveSignal.length < 2 || liveSignal[0].count === 0
+    ? 1
+    : Math.max(0, Math.min(1, (liveSignal[0].count - liveSignal[1].count) / liveSignal[0].count));
 
 // ── two views over one placement ─────────────────────────────────────────────
 interface ViewSpec {
@@ -133,13 +176,35 @@ function viewGeometry(view: ViewSpec) {
   const gold = placed.find((p) => p.gold);
   const signal = placed.filter((p) => p.zone === "signal" && !p.gold);
   const asterism = gold ? signal.map((p) => ({ x1: gold.x, y1: gold.y, x2: p.x, y2: p.y })) : [];
-  const dust = Array.from({ length: 130 }, (_, i) => ({
-    x: Math.round(hash01(`dust-${i}`, 3) * view.W),
-    y: Math.round(hash01(`dust-${i}`, 5) * view.H),
-    r: 0.6 + hash01(`dust-${i}`, 9) * 1.1,
-    o: 0.1 + hash01(`dust-${i}`, 11) * 0.22,
-  }));
-  return { placed, gold, asterism, dust };
+  // Real sky photographs (the reference mazze sent) read as dense and
+  // textured, not a scatter of same-size same-colour dots at one opacity —
+  // three populations instead of one: common dim dust, a small warm
+  // fraction (tinted toward the signal gold, not a new colour), and a
+  // rarer bright population that gets its own soft glow.
+  const dust = Array.from({ length: 190 }, (_, i) => {
+    const sizeRoll = hash01(`dust-${i}`, 13);
+    const bright = sizeRoll > 0.95; // ~5%
+    const warm = !bright && hash01(`dust-${i}`, 17) > 0.86; // ~10% of the rest
+    return {
+      x: Math.round(hash01(`dust-${i}`, 3) * view.W),
+      y: Math.round(hash01(`dust-${i}`, 5) * view.H),
+      r: bright ? 1.8 + hash01(`dust-${i}`, 9) * 1.3 : 0.5 + hash01(`dust-${i}`, 9) * 1.1,
+      o: bright ? 0.55 + hash01(`dust-${i}`, 11) * 0.35 : 0.08 + hash01(`dust-${i}`, 11) * 0.24,
+      bright,
+      warm,
+    };
+  });
+  // Milky Way band — a soft luminous swath along the same erasure→signal
+  // diagonal the astrolabe's ecliptic arcs already trace (AstrolabeChrome),
+  // so the atmosphere and the instrument read the same axis rather than two
+  // unrelated diagonals fighting on one plate.
+  const bandFrom = view.toXY({ xPct: 8, yPct: 14 } as PlacedNode);
+  const bandTo = view.toXY({ xPct: 92, yPct: 86 } as PlacedNode);
+  const bandAngle = (Math.atan2(bandTo.y - bandFrom.y, bandTo.x - bandFrom.x) * 180) / Math.PI;
+  const bandCx = (bandFrom.x + bandTo.x) / 2;
+  const bandCy = (bandFrom.y + bandTo.y) / 2;
+  const bandLen = Math.hypot(bandTo.x - bandFrom.x, bandTo.y - bandFrom.y) * 1.05;
+  return { placed, gold, asterism, dust, band: { cx: bandCx, cy: bandCy, len: bandLen, angle: bandAngle } };
 }
 
 const isolineRadii = [46, 84, 130, 184];
@@ -174,9 +239,24 @@ const indexSorted = placedAll
             class={`sky sky--${view.id}`}
             viewBox={`0 0 ${view.W} ${view.H}`}
             preserveAspectRatio="xMidYMid meet"
-            role="img"
-            aria-label={`Constellation map of all projects, arranged from erasure ${portrait ? "at the top to signal at the bottom" : "on the left to signal on the right"}. An equivalent text index follows.`}
+            role="group"
+            aria-label={`Constellation map of all projects, arranged from erasure ${portrait ? "at the top to signal at the bottom" : "on the left to signal on the right"}`}
           >
+            {/* role="group", not role="img": img prunes the ENTIRE subtree
+                from the accessibility tree per the ARIA spec, which is what
+                this was before — the seven .node-link anchors below are
+                real, keyboard-focusable <a> elements (confirmed reachable
+                by Tab in a real browser), but a screen reader could not
+                perceive or announce them at all while their container
+                claimed to be one flat image. group keeps the same
+                contextual label without pruning children — the real fix,
+                not a smaller aria-label change, because the earlier "an
+                equivalent text index follows" comment was this file
+                explicitly choosing the shadow index as the ONLY accessible
+                interface and writing the SVG off as decorative, which was
+                still true when nodes were plain circles but stopped being
+                true the moment they became real hover/focus/gravity
+                interactive targets. */}
             <defs>
               <radialGradient id={`well-glow-${view.id}`} cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stop-color="var(--c-gold)" stop-opacity="0.55" />
@@ -195,14 +275,60 @@ const indexSorted = placedAll
                 <stop offset="62%" stop-color="var(--c-zone-emerge)" stop-opacity="0.08" />
                 <stop offset="100%" stop-color="var(--c-zone-signal)" stop-opacity="0.16" />
               </linearGradient>
+              {/* Milky Way band — an elongated, blurred, tapered gradient
+                  rather than a flat tint: real bands have a bright core and
+                  a soft fall-off, not a hard edge. */}
+              <linearGradient id={`band-${view.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="var(--c-emerge)" stop-opacity="0" />
+                <stop offset="30%" stop-color="var(--c-emerge)" stop-opacity="0.16" />
+                <stop offset="50%" stop-color="var(--c-dust)" stop-opacity="0.22" />
+                <stop offset="72%" stop-color="var(--c-gold)" stop-opacity="0.15" />
+                <stop offset="100%" stop-color="var(--c-gold)" stop-opacity="0" />
+              </linearGradient>
+              <filter id={`soft-${view.id}`} x="-40%" y="-150%" width="180%" height="400%">
+                <feGaussianBlur stdDeviation="26" />
+              </filter>
+              <filter id={`bloom-${view.id}`} x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="60" />
+              </filter>
             </defs>
 
             <rect width={view.W} height={view.H} fill={`url(#field-${view.id})`} />
             <rect width={view.W} height={view.H} fill={`url(#zones-${view.id})`} aria-hidden="true" />
 
+            {/* Nebulosity — two soft blooms at the emergence and signal ends,
+                the plate's own teal/gold, not new colours invented for this. */}
+            <g class="nebula" aria-hidden="true" filter={`url(#bloom-${view.id})`}>
+              <ellipse
+                cx={portrait ? view.W * 0.5 : view.W * 0.42} cy={portrait ? view.H * 0.45 : view.H * 0.4}
+                rx={view.W * 0.22} ry={view.H * 0.22} fill="var(--c-emerge)" opacity="0.10"
+              />
+              <ellipse
+                cx={portrait ? view.W * 0.65 : view.W * 0.84} cy={portrait ? view.H * 0.78 : view.H * 0.35}
+                rx={view.W * 0.16} ry={view.H * 0.18} fill="var(--c-gold)" opacity="0.09"
+              />
+            </g>
+
+            {/* the band itself, laid along the erasure→signal diagonal */}
+            <rect
+              class="milky-band"
+              x={g.band.cx - g.band.len / 2} y={g.band.cy - view.H * 0.22}
+              width={g.band.len} height={view.H * 0.44}
+              fill={`url(#band-${view.id})`}
+              filter={`url(#soft-${view.id})`}
+              transform={`rotate(${g.band.angle} ${g.band.cx} ${g.band.cy})`}
+              aria-hidden="true"
+            />
+
             <g class="dust" aria-hidden="true">
               {g.dust.map((d, i) => (
-                <circle cx={d.x} cy={d.y} r={d.r} fill="var(--c-dust)" opacity={d.o} style={`--i:${i % 9}`} />
+                <circle
+                  cx={d.x} cy={d.y} r={d.r}
+                  fill={d.warm ? "var(--c-gold)" : "var(--c-dust)"}
+                  opacity={d.o}
+                  class:list={[{ "dust-bright": d.bright }]}
+                  style={`--i:${i % 9}`}
+                />
               ))}
             </g>
 
@@ -237,6 +363,16 @@ const indexSorted = placedAll
               <line class="archive-rule" x1={view.W * 0.13} y1={view.H * 0.08} x2={view.W * 0.13} y2={view.H * 0.9} aria-hidden="true" />
             )}
 
+            {/* astrolabe chrome — limb, graduations, ecliptics, the rule.
+                Reads the geometry above; never moves it. */}
+            <AstrolabeChrome
+              w={view.W}
+              h={view.H}
+              portrait={portrait}
+              gold={g.gold ? { x: g.gold.x, y: g.gold.y } : null}
+              confidence={wellConfidence}
+            />
+
             {g.gold && (
               <g class="isolines" aria-hidden="true">
                 {isolineRadii.map((r) => (
@@ -250,21 +386,45 @@ const indexSorted = placedAll
               {g.asterism.map((l) => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
             </g>
 
-            {g.placed.map((p, i) => (
-              <a href={`/project/${p.slug}/`} class="node-link" aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}>
+            {g.placed.map((p, i) => {
+              // Info card geometry — DM Mono is monospace, so character
+              // count is a reliable width estimate without a JS text-measure
+              // pass. Real background plate (not a stroke halo) because a
+              // stroke halo was reading as noise against the busier arcs/
+              // field, not a legible surface.
+              const metaText = `${p.status} · ${p.count} ${p.count === 1 ? "piece" : "pieces"}`;
+              const cardW = Math.max(p.title.length * 10.2, metaText.length * 7.2) + 28;
+              // Flip below the node when there isn't room above — a label
+              // that clips off the top of the plate is not "surfaced," it's
+              // gone. Same relative line layout either way (title, then the
+              // meta tspan 15 below it); only the anchor Y moves.
+              const flipBelow = p.y - p.r < 64;
+              const labelY = flipBelow ? p.y + p.r + 34 : p.y - p.r - 24;
+              return (
+              <a
+                href={`/project/${p.slug}/`}
+                class="node-link"
+                aria-label={`${p.title} — ${p.status}, ${p.count} ${p.count === 1 ? "piece" : "pieces"}`}
+                data-x={p.x}
+                data-y={p.y}
+                transition:name={`node-${p.slug}`}
+                transition:animate={gravityPull}
+              >
                 <g
-                  class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living }]}
+                  class:list={["node", p.zone, { gold: p.gold, resolved: p.resolved, living: p.living, overclaim: p.overclaim }]}
                   style={`--i:${i}; --o:${p.opacity}`}
+                  aria-hidden="true"
                 >
-                  {p.resolved ? (
-                    <rect
-                      x={p.x - p.r * 0.9} y={p.y - p.r * 0.9}
-                      width={p.r * 1.8} height={p.r * 1.8}
-                      transform={`rotate(45 ${p.x} ${p.y})`}
-                    />
-                  ) : (
-                    <circle cx={p.x} cy={p.y} r={p.r} />
-                  )}
+                  {/* Generous, invisible, and moves WITH the node (it's inside
+                      .node, so a gravity-pulled node keeps a hit-area under
+                      the cursor rather than leaving one behind at rest) —
+                      real hover instability came from scaling the visible
+                      glyph on :hover, not from the hit area being too small,
+                      but a fixed >=44px target is still the right minimum
+                      regardless. */}
+                  <circle class="node-hit" cx={p.x} cy={p.y} r={Math.max(p.r + 14, 22)} fill="none" />
+                  <circle class="node-focus-ring" cx={p.x} cy={p.y} r={Math.max(p.r + 14, 22)} />
+                  <CompassNode cx={p.x} cy={p.y} r={p.r} zone={p.zone} gold={p.gold} />
                   {/* telemetry ring — unique dash rhythm + rotation per node */}
                   {!p.resolved && (
                     <circle
@@ -296,13 +456,22 @@ const indexSorted = placedAll
                       </text>
                     </>
                   )}
-                  <text class="node-label" x={p.x} y={p.y - p.r - 24} text-anchor="middle">
-                    {p.title}
-                    <tspan class="node-meta" x={p.x} dy="15">{p.status} · {p.count}</tspan>
-                  </text>
+                  <g class="node-info">
+                    <rect
+                      class="node-info-bg"
+                      x={p.x - cardW / 2} y={labelY - 16}
+                      width={cardW} height="46"
+                      rx="4"
+                    />
+                    <text class="node-label" x={p.x} y={labelY} text-anchor="middle">
+                      {p.title}
+                      <tspan class="node-meta" x={p.x} dy="16">{metaText}</tspan>
+                    </text>
+                  </g>
                 </g>
               </a>
-            ))}
+              );
+            })}
           </svg>
         );
       })}
@@ -323,14 +492,131 @@ const indexSorted = placedAll
     <script>
       // The plate speaks to the brand compass like the living field does
       // (Header listens; ConstellationNodes.tsx defines the contract).
-      const send = (state: "idle" | "focus" | "engaged") =>
-        window.dispatchEvent(new CustomEvent("compass:state", { detail: { state } }));
-      document.querySelectorAll<SVGAElement>(".node-link").forEach((link) => {
-        link.addEventListener("mouseenter", () => send("focus"));
-        link.addEventListener("mouseleave", () => send("idle"));
-        link.addEventListener("focus", () => send("focus"));
-        link.addEventListener("blur", () => send("idle"));
-        link.addEventListener("click", () => send("engaged"));
+      //
+      // Wrapped in astro:page-load, not run at top level: a processed
+      // (non-inline) Astro script is a hoisted, content-hashed module, so
+      // ClientRouter dedupes it by URL — navigate away from /constellation
+      // and back, and the *same* bundled script is "already executed" and
+      // silently skipped, leaving every node-link without its listeners.
+      // astro:page-load fires once after the initial load and again after
+      // every subsequent swap that lands on this page, so this attaches
+      // exactly once per real arrival either way. (An earlier attempt fixed
+      // this with a bare `data-astro-rerun` attribute on the tag instead —
+      // wrong tool: any attribute other than `src` makes Astro treat a
+      // <script> as is:inline, which ships this file's TypeScript to the
+      // browser unprocessed. It shipped as a live SyntaxError; reverted.)
+      document.addEventListener("astro:page-load", () => {
+        const send = (state: "idle" | "focus" | "engaged") =>
+          window.dispatchEvent(new CustomEvent("compass:state", { detail: { state } }));
+        document.querySelectorAll<SVGAElement>(".node-link").forEach((link) => {
+          link.addEventListener("mouseenter", () => send("focus"));
+          link.addEventListener("mouseleave", () => send("idle"));
+          link.addEventListener("focus", () => send("focus"));
+          link.addEventListener("blur", () => send("idle"));
+          link.addEventListener("click", () => send("engaged"));
+        });
+
+        // Cursor gravity — the same field BreathingHero.astro's canvas and
+        // ConstellationNodes.tsx already give the homepage, ported
+        // constant-for-constant (dist<150 → force=(150-dist)/150, pull
+        // 0.03/frame, decay 0.97/frame) rather than approximated, so
+        // clicking into a node feels like the same instrument on both
+        // surfaces. /constellation stays hydration-free (this is a plain
+        // script, not a React island) — the "static, no hydration" note
+        // atop this file was about avoiding a framework, not about the
+        // plate never moving.
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        interface GravityNode {
+          link: SVGAElement;
+          baseX: number;
+          baseY: number;
+          gx: number;
+          gy: number;
+          mouse: { x: number; y: number };
+        }
+        const nodes: GravityNode[] = [];
+        const cleanups: Array<() => void> = [];
+
+        document.querySelectorAll<SVGSVGElement>(".sky").forEach((svg) => {
+          const links = Array.from(svg.querySelectorAll<SVGAElement>(".node-link"));
+          if (links.length === 0) return;
+
+          // Every node-link on this <svg> shares one mouse reading — a
+          // hidden (display:none) view never receives mousemove at all, so
+          // its nodes simply sit at rest, which costs nothing to compute.
+          const mouse = { x: -9999, y: -9999 };
+          const svgPoint = svg.createSVGPoint();
+
+          // clientX/clientY → this plate's own user-space units, accounting
+          // for however the viewBox is currently scaled to fit the page —
+          // a raw pixel distance would mean something different on a phone
+          // preview than on a wide desktop plate; a distance in the plate's
+          // own coordinate space (the same space p.x/p.y already live in)
+          // does not.
+          const toLocal = (clientX: number, clientY: number) => {
+            const ctm = svg.getScreenCTM();
+            if (!ctm) return null;
+            svgPoint.x = clientX;
+            svgPoint.y = clientY;
+            return svgPoint.matrixTransform(ctm.inverse());
+          };
+          const onMove = (e: MouseEvent) => {
+            const p = toLocal(e.clientX, e.clientY);
+            if (p) { mouse.x = p.x; mouse.y = p.y; }
+          };
+          const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+          svg.addEventListener("mousemove", onMove);
+          svg.addEventListener("mouseleave", onLeave);
+          cleanups.push(() => {
+            svg.removeEventListener("mousemove", onMove);
+            svg.removeEventListener("mouseleave", onLeave);
+          });
+
+          links.forEach((link) => {
+            nodes.push({
+              link,
+              baseX: Number(link.dataset.x ?? 0),
+              baseY: Number(link.dataset.y ?? 0),
+              gx: 0,
+              gy: 0,
+              mouse,
+            });
+          });
+        });
+
+        let rafId = 0;
+        const tick = () => {
+          for (const n of nodes) {
+            const dx = n.mouse.x - (n.baseX + n.gx);
+            const dy = n.mouse.y - (n.baseY + n.gy);
+            const dist = Math.hypot(dx, dy);
+            if (dist < 150 && dist > 0.001) {
+              const force = (150 - dist) / 150;
+              n.gx += dx * force * 0.03;
+              n.gy += dy * force * 0.03;
+            }
+            n.gx *= 0.97;
+            n.gy *= 0.97;
+            n.link.style.setProperty("--gx", `${n.gx.toFixed(2)}px`);
+            n.link.style.setProperty("--gy", `${n.gy.toFixed(2)}px`);
+          }
+          rafId = requestAnimationFrame(tick);
+        };
+        if (nodes.length > 0) tick();
+
+        // Each SPA arrival at /constellation re-runs this whole handler
+        // (astro:page-load), starting a fresh rAF loop — without this, the
+        // previous arrival's loop would keep running forever underneath it,
+        // one more loop per visit.
+        document.addEventListener(
+          "astro:before-swap",
+          () => {
+            cancelAnimationFrame(rafId);
+            cleanups.forEach((fn) => fn());
+          },
+          { once: true },
+        );
       });
     </script>
   </body>
@@ -461,18 +747,56 @@ const indexSorted = placedAll
 
   .asterism line { stroke: var(--c-gold); stroke-opacity: 0.18; stroke-width: 1; }
 
+  /* --o (a node's derived decay opacity — faint in erasure, full in signal)
+     was declared on this element but nothing consumed it once the primary
+     mark stopped being a plain circle: every node has been rendering at
+     full opacity regardless of actual decay state since the compass-mark
+     swap. The arrive keyframe below is what actually sets the resting
+     value (its `forwards` fill wins over a static opacity declaration),
+     so the fix lives there, not here. */
   .node { opacity: 0; animation: arrive 240ms ease-out forwards; animation-delay: calc(var(--i) * 60ms); }
-  .node circle, .node rect {
-    opacity: var(--o, 1);
-    transform-box: fill-box;
-    transform-origin: center;
+
+  /* The node mark is CompassNode.astro now (the brand mark, not a circle/
+     rect) — compass.css already owns its state choreography (beam/sparkle/
+     trail) sitewide. These four rules are the only thing this page adds:
+     the zone colour vocabulary compass.css's own `color: var(--gold)`
+     default doesn't know about — erasure fades to trace, an emerging
+     project reads teal, resolved work cools to ink. Gold zone nodes need no
+     override; compass.css's engaged-state gold is already the plate's gold. */
+  .node.undefined :global(.compass) { color: var(--c-trace); }
+  .node.experiment :global(.compass) { color: var(--c-emerge); }
+  .node.signal :global(.compass) { color: var(--c-signal-node); }
+  .node.resolved :global(.compass) { color: var(--c-ink); }
+  /* The well is also .node.signal (p.zone is "signal" for the gold node
+     too), so this has to out-rank .node.signal .compass's colour above —
+     same specificity, later in source order, but stated explicitly rather
+     than leaned on, since that's easy to break by reordering. */
+  .node.gold :global(.compass) { color: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
+
+  /* Overclaim (PlacedNode.overclaim, computed above from real mass vs.
+     drift — see the frontmatter comment) — a node that claimed a lot of
+     weight and is currently going quiet despite that claim. The plate's own
+     decay-fade already dims it; this is a different signal layered on top,
+     because two nodes at the same driftRatio can carry very different
+     amounts of unconfirmed claim, and fade alone can't tell them apart.
+     Visualized on the layer Compass.astro's own comment already calls the
+     "outer broken ring" — literalizing "broken" rather than inventing a new
+     glyph: an irregular dash rhythm replacing the ring's normal unbroken
+     arc, and a faster, uneven flicker standing in for the steady 60s
+     ambient breath every other node gets. */
+  .node.overclaim :global([data-layer="ring-outer"]) {
+    stroke-dasharray: 3 2 1 4;
+    animation: compass-breath 60s linear infinite, overclaimFlicker 2.6s ease-in-out infinite;
   }
-  .node circle { animation: nodeBreathe 6.5s ease-in-out infinite; animation-delay: calc(var(--i) * 900ms); }
-  .node.signal circle { fill: var(--c-signal-node); }
-  .node.gold circle { fill: var(--c-gold); filter: drop-shadow(0 0 14px var(--c-gold-glow)); }
-  .node.experiment circle { fill: var(--c-emerge); }
-  .node.undefined circle { fill: var(--c-trace); }
-  .node.resolved rect { fill: none; stroke: var(--c-ink); stroke-width: 1.5; }
+  @keyframes overclaimFlicker {
+    0%, 100% { opacity: 1; }
+    38% { opacity: 0.55; }
+    52% { opacity: 0.9; }
+    71% { opacity: 0.4; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .node.overclaim :global([data-layer="ring-outer"]) { animation: none; opacity: 0.6; }
+  }
 
   .tele-ring {
     fill: none;
@@ -507,39 +831,99 @@ const indexSorted = placedAll
 
   @keyframes teleTrack { to { transform: rotate(360deg); } }
 
+  /* Real info surface, not a stroke-halo hack: a background plate under the
+     title + status line, sized from character count (DM Mono is monospace,
+     so this is a reliable estimate without a JS text-measure pass — see the
+     frontmatter above). A stroke halo read as noise against the busier arcs
+     and star field; this reads as a card. */
+  .node-info { opacity: 0; transition: opacity 120ms ease; pointer-events: none; }
+  .node-info-bg {
+    fill: var(--c-void);
+    fill-opacity: 0.82;
+    stroke: var(--c-dim);
+    stroke-opacity: 0.35;
+    stroke-width: 1;
+  }
   .node-label {
     fill: var(--c-ink);
     font-size: 17px;
-    opacity: 0;
-    transition: opacity 120ms ease;
-    pointer-events: none;
-    paint-order: stroke;
-    stroke: var(--c-void);
-    stroke-width: 4px;
-    stroke-linejoin: round;
   }
   .node-meta { fill: var(--c-dim); font-size: 12px; letter-spacing: 0.08em; }
-  .node-link:hover .node-label,
-  .node-link:focus .node-label { opacity: 1; }
+  .node-link:hover .node-info,
+  .node-link:focus-visible .node-info { opacity: 1; }
   .node-link:focus { outline: none; }
-  .node-link:focus .node circle,
-  .node-link:focus .node rect { stroke: var(--c-emerge); stroke-width: 2; }
 
-  /* under a thumb there is no hover: living nodes keep their labels */
+  /* Hit area: generous, invisible, and moves with the node (it's a child of
+     .node, not a sibling, so it stays aligned through the gravity pull
+     below). pointer-events: all makes a fill:none shape still register the
+     hover/click that hit-tests off it, without drawing anything. */
+  .node-hit { pointer-events: all; }
+
+  /* A real, WCAG-legible focus indicator — a ring, not a colour nudge on
+     the mark itself. This replaced a transform: scale() on both :hover and
+     :focus-visible that looked identical for both states and, on :hover,
+     was the actual cause of the reported cursor/node instability: .node's
+     fill-box bounding box spans every child (the telemetry readout, the
+     label, both often positioned well off the visual glyph), so
+     transform-origin: center scaled around a centroid that did not match
+     what the eye reads as "the node" — the glyph visibly jumped on
+     hover-in, which could carry it out from under the cursor and immediately
+     re-trigger :hover, the enter/leave loop reported as jitter. Removed
+     rather than tuned, because the geometry that caused it (an off-centre
+     fill-box) isn't something an easing curve fixes. */
+  .node-focus-ring {
+    fill: none;
+    stroke: var(--c-emerge);
+    stroke-width: 1.5;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+  .node-link:focus-visible .node-focus-ring { opacity: 0.9; }
+
+  .node-link:hover :global(.compass),
+  .node-link:focus-visible :global(.compass) {
+    filter: brightness(1.25);
+  }
+  /* filter doesn't compose across rules — this would otherwise replace,
+     not add to, .node.gold .compass's own drop-shadow glow on hover. More
+     specific and later, so the well keeps its bloom and gets brighter. */
+  .node-link:hover .node.gold :global(.compass),
+  .node-link:focus-visible .node.gold :global(.compass) {
+    filter: brightness(1.15) drop-shadow(0 0 18px var(--c-gold-glow));
+  }
+
+  /* Cursor gravity — the same field the homepage hero and its living
+     constellation already have (BreathingHero.astro's canvas nodes,
+     ConstellationNodes.tsx's cnNode: dist<150 → force=(150-dist)/150,
+     pull 0.03/frame, decay 0.97/frame), ported here rather than
+     approximated, so clicking into a node from either surface feels like
+     the same instrument. --gx/--gy are written every frame by the script
+     below; .node has no other transform now, and no transition — the
+     per-frame JS update IS the animation, a CSS transition would only add
+     lag chasing it. */
+  .node {
+    transform: translate(var(--gx, 0px), var(--gy, 0px));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .node { transform: none; }
+  }
+
+  /* under a thumb there is no hover: living nodes keep their info visible */
   @media (hover: none) {
-    .node.living .node-label { opacity: 1; }
+    .node.living .node-info { opacity: 1; }
   }
 
   .dust circle { animation: twinkle 9s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 1s); }
+  /* bright and warm are mutually exclusive in the generator (warm is only
+     rolled for non-bright stars), so every .dust-bright circle's fill is
+     always --c-dust — safe to glow with the same token rather than
+     currentColor, which the fill attribute here never actually sets. */
+  .dust circle.dust-bright { filter: drop-shadow(0 0 3px var(--c-dust)); }
 
-  @keyframes arrive { to { opacity: 1; } }
+  @keyframes arrive { to { opacity: var(--o, 1); } }
   @keyframes breathe {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.06); opacity: 0.85; }
-  }
-  @keyframes nodeBreathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
   }
   @keyframes twinkle {
     0%, 100% { opacity: 1; }
@@ -547,7 +931,7 @@ const indexSorted = placedAll
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .node { animation: none; opacity: 1; }
+    .node { animation: none; opacity: var(--o, 1); transition: none; }
     .node circle, .dust circle, .well-halo { animation: none; }
     .node.gold .tele-ring { animation: none; }
   }

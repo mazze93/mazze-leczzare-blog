@@ -148,6 +148,7 @@ DOCUMENTED_COMPONENTS=(
   "src/components/Seam.astro"
   "src/components/TransmissionFeed.astro"
   "src/components/constellation/AirlockStrip.astro"
+  "src/components/constellation/AstrolabeChrome.astro"
   "src/components/constellation/ConstellationNodes.tsx"
 )
 for f in "${DOCUMENTED_COMPONENTS[@]}"; do
