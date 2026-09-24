@@ -277,13 +277,15 @@ const provenance: Entry[] = [
   {
     idx: '17 · OSS',
     tier: 'acknowledged',
-    title: 'Security Advisory Credit',
-    subtitle: 'js-yaml',
+    title: 'Vulnerability Research',
+    subtitle: 'js-yaml merge-key denial-of-service',
     body: [
-      'A GitHub security advisory credit on js-yaml — small, verifiable, and the correct genre: the fix is in the record, not the résumé.',
+      'Two denial-of-service vulnerabilities found and reported in js-yaml&rsquo;s merge-key handling, plus a credited analysis contribution to a related disclosure — verified via GitHub Security Advisories, not self-reported. All three are the same class of bug: quadratic CPU consumption from chained or repeated-alias merge keys, the kind of finding that only surfaces from reading a parser&rsquo;s edge cases adversarially.',
     ],
     evidence: [
-      { label: 'Profile', title: 'github.com/mazze93', href: 'https://github.com/mazze93', external: true },
+      { label: 'CVE-2026-59869', title: 'High 7.5 — quadratic CPU via chained merge keys, js-yaml 3.x/4.x', href: 'https://github.com/advisories/GHSA-52cp-r559-cp3m', external: true },
+      { label: 'CVE-2026-59868', title: 'Moderate 5.3 — quadratic CPU via merge-key chains, js-yaml 5.x', href: 'https://github.com/advisories/GHSA-g796-fgmg-93mv', external: true },
+      { label: 'CVE-2026-53550', title: 'Moderate 5.3 — repeated-alias merge-key DoS, credited alongside five other researchers', href: 'https://github.com/advisories/GHSA-h67p-54hq-rp68', external: true },
     ],
   },
   {
