@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Break Is the Record</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Martian+Mono:wght@400;500&display=swap');
+
+  :root {
+    --obsidian: #0d1117;
+    --plate: #151b23;
+    --plate-edge: #232b36;
+    --teal: #5CCFCF;
+    --coral: #F07178;
+    --brass: #c9a876;
+    --brass-dim: #8a7554;
+    --ink: #d7dce2;
+    --ink-dim: #8b949e;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --mono: 'Martian Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  body {
+    margin: 0;
+    background: var(--obsidian);
+    color: var(--ink);
+    font-family: var(--serif);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --obsidian: #0d1117;
+      --plate: #151b23;
+      --ink: #d7dce2;
+    }
+  }
+
+  .sky {
+    position: relative;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(92,207,207,0.05), transparent 45%),
+      radial-gradient(ellipse at 80% 0%, rgba(240,113,120,0.04), transparent 40%),
+      var(--obsidian);
+    padding: clamp(2.5rem, 6vw, 5rem) 1.5rem clamp(3rem, 8vw, 6rem);
+    overflow: hidden;
+  }
+
+  .sky::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(215,220,226,0.5), transparent),
+      radial-gradient(1px 1px at 78% 15%, rgba(215,220,226,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 45% 8%, rgba(215,220,226,0.35), transparent),
+      radial-gradient(1px 1px at 88% 60%, rgba(215,220,226,0.3), transparent),
+      radial-gradient(1px 1px at 6% 70%, rgba(215,220,226,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 60% 85%, rgba(215,220,226,0.25), transparent),
+      radial-gradient(1px 1px at 30% 92%, rgba(215,220,226,0.3), transparent);
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  /* ============ ASTROLABE ============ */
+  .instrument-wrap {
+    position: relative;
+    max-width: 460px;
+    margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .instrument-caption {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--brass-dim);
+    margin-top: 0.9rem;
+  }
+
+  svg.astrolabe { display: block; width: 100%; height: auto; }
+
+  .ring-label {
+    font-family: var(--mono);
+    font-size: 6.2px;
+    letter-spacing: 0.05em;
+    fill: var(--brass-dim);
+  }
+
+  .rete-star { fill: var(--brass); }
+  .rete-star.disputed { fill: var(--coral); }
+  .rete-star.corrected { fill: var(--teal); }
+
+  .rete-group {
+    transform-origin: 250px 250px;
+    animation: settle 3.4s cubic-bezier(0.22, 1, 0.36, 1) 1 forwards;
+  }
+
+  @keyframes settle {
+    0%   { transform: rotate(-46deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rete-group { animation: none; transform: rotate(0deg); }
+  }
+
+  /* ============ TYPOGRAPHY / LAYOUT ============ */
+  .column {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 5.5vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.6rem;
+    text-align: center;
+    color: #eef1f4;
+  }
+
+  .dek {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+    color: var(--ink-dim);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 46ch;
+    margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-style: italic;
+    font-size: clamp(1.4rem, 3.2vw, 1.75rem);
+    color: var(--brass);
+    margin: clamp(2.6rem, 6vw, 3.6rem) 0 1rem;
+    line-height: 1.25;
+  }
+
+  p {
+    font-size: clamp(1.08rem, 2vw, 1.22rem);
+    line-height: 1.72;
+    color: var(--ink);
+    margin: 0 0 1.35rem;
+    max-width: 70ch;
+  }
+
+  em { color: #eef1f4; font-style: italic; }
+
+  .tick {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    padding: 0.05em 0.4em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .tick.verified { color: var(--teal); border: 1px solid rgba(92,207,207,0.35); }
+  .tick.disputed { color: var(--coral); border: 1px solid rgba(240,113,120,0.35); }
+  .tick.corrected { color: var(--brass); border: 1px solid rgba(201,168,118,0.4); }
+
+  hr.rule {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--plate-edge), transparent);
+    margin: clamp(3rem, 7vw, 4.5rem) auto;
+    max-width: 640px;
+  }
+
+  .close {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 0.5rem;
+  }
+
+  .close p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  footer {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--brass-dim);
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  @media (max-width: 520px) {
+    .instrument-wrap { max-width: 300px; }
+    .ring-label { font-size: 7.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="sky">
+
+  <div class="instrument-wrap">
+    <svg class="astrolabe" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An astrolabe diagram with four labeled rings — Primary, Independent, Disputed, Corrected — and a rotating rete settling into position over a brass tick marking the corrected finding.">
+      <defs>
+        <radialGradient id="plateGrad" cx="50%" cy="42%" r="70%">
+          <stop offset="0%" stop-color="#1b222c"/>
+          <stop offset="100%" stop-color="#0f141b"/>
+        </radialGradient>
+      </defs>
+
+      <circle cx="250" cy="250" r="230" fill="url(#plateGrad)" stroke="#2a323e" stroke-width="1"/>
+      <circle cx="250" cy="250" r="200" fill="none" stroke="#2a323e" stroke-width="1"/>
+      <circle cx="250" cy="250" r="150" fill="none" stroke="#2a323e" stroke-width="1"/>
+      <circle cx="250" cy="250" r="100" fill="none" stroke="#2a323e" stroke-width="0.75"/>
+
+      <!-- degree ticks on outer edge -->
+      <g stroke="#3a4351" stroke-width="1">
+        <line x1="250" y1="20" x2="250" y2="34"/>
+        <line x1="250" y1="466" x2="250" y2="480"/>
+        <line x1="20" y1="250" x2="34" y2="250"/>
+        <line x1="466" y1="250" x2="480" y2="250"/>
+        <line x1="88" y1="88" x2="98" y2="98"/>
+        <line x1="412" y1="88" x2="402" y2="98"/>
+        <line x1="88" y1="412" x2="98" y2="402"/>
+        <line x1="412" y1="412" x2="402" y2="402"/>
+      </g>
+
+      <!-- ring labels, engraved -->
+      <text class="ring-label" x="250" y="42" text-anchor="middle">PRIMARY</text>
+      <text class="ring-label" x="250" y="92" text-anchor="middle">INDEPENDENT</text>
+      <text class="ring-label" x="250" y="142" text-anchor="middle">DISPUTED</text>
+      <text class="ring-label" x="250" y="192" text-anchor="middle">CORRECTED</text>
+
+      <!-- fixed brass tick marking the corrected finding -->
+      <g>
+        <circle cx="250" cy="192" r="3.4" fill="var(--brass)"/>
+        <circle cx="250" cy="192" r="7" fill="none" stroke="var(--brass)" stroke-width="1" opacity="0.5"/>
+      </g>
+
+      <!-- rotating rete: star pointers for the session's actual findings -->
+      <g class="rete-group">
+        <line x1="250" y1="250" x2="250" y2="30" stroke="var(--brass-dim)" stroke-width="1.2"/>
+        <line x1="250" y1="250" x2="420" y2="140" stroke="var(--brass-dim)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="120" y2="380" stroke="var(--brass-dim)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="360" y2="390" stroke="var(--brass-dim)" stroke-width="1"/>
+
+        <!-- Verified: dates + mechanism -->
+        <circle class="rete-star" cx="250" cy="30" r="4.5"/>
+        <!-- Disputed: RisingStack proportionality dissent -->
+        <circle class="rete-star disputed" cx="420" cy="140" r="4"/>
+        <!-- Verified: Mythos 5.1 gated status -->
+        <circle class="rete-star" cx="120" cy="380" r="4"/>
+        <!-- Corrected: the CSIS overstatement, aligned to the fixed brass tick -->
+        <circle class="rete-star corrected" cx="360" cy="390" r="4"/>
+
+        <circle cx="250" cy="250" r="5" fill="var(--brass)"/>
+      </g>
+    </svg>
+    <p class="instrument-caption">rete settles · one star marks what the ledger got wrong about itself</p>
+  </div>
+
+  <div class="column">
+    <h1>The Break Is the Record</h1>
+    <p class="dek">Notes on building a verification pipeline — first pointed at the world, then, without quite meaning to, at itself.</p>
+
+    <p>We set out to seed a verification pipeline with a real claim, not a placeholder. Placeholders produce placeholder findings. The claim I chose was close at hand: Anthropic had suspended two of its own models, Claude Fable 5 and Claude Mythos 5, under U.S. export controls in June of this year, then restored them weeks later. Dates, an agency, a resolution. Clean, falsifiable, and — critically — already sitting in front of me as a single, self-reported sentence from Anthropic's own product context.</p>
+
+    <p>That last part is the whole essay, if I'm honest about it.</p>
+
+    <h2>What a claim looks like before it's been asked anything</h2>
+
+    <p>The first version of the claim read almost exactly like a press release, because in a sense it was one, filtered once through a system notice and once through me. Anthropic released both models June 9. The government suspended access June 12, citing export controls. The controls lifted June 30. Access came back July 1. Every word of that is true. None of it is complete.</p>
+
+    <p>A verification ledger without evidence is just an assertion wearing a nicer coat. So before anything else, the claim needed sources it hadn't authored itself.</p>
+
+    <h2>What the sources actually said</h2>
+
+    <p>Nine independent outlets later — Anthropic's own follow-up post, CNBC, Al Jazeera, a think-tank regulatory analysis, technical blogs covering the classifier internals, one openly dissenting engineering essay — a different, more honest shape emerged.</p>
+
+    <p>The suspension wasn't a compliance formality. It followed a reported jailbreak: Amazon researchers had found a way to prompt Fable 5 into identifying software vulnerabilities it was supposed to refuse, and in one case, into producing code that demonstrated how to exploit one of them. That's the actual triggering event. "To comply with export controls" is the <em>mechanism</em>. It is not the <em>reason</em>, and a claim that states the mechanism while omitting the reason is technically true in the way an alibi can be technically true.</p>
+
+    <p>And restoration wasn't symmetric, however much the original sentence implied it was. Fable 5 came back to everyone, globally, across every surface, paired with a retrained safety classifier independently validated by the government's own AI standards group. Mythos 5 came back to a much smaller set of vetted U.S. organizations, earlier but narrower, under a separate approval. That asymmetry didn't dissolve with time, either — three months later, its successor model is still invite-only, gated behind two vetting programs, with at least one prior international partner's access confirmed revoked. What looked in the first draft like one clean verb — <em>restored</em> — was actually two very different outcomes wearing the same word. <span class="tick verified">verified · 9 sources</span></p>
+
+    <p>None of that is a contradiction of the original claim. It's a completeness failure. The distinction matters, because completeness failures are the ones that pass every fact-check and still leave you with a wrong picture.</p>
+
+    <h2>Then it found itself</h2>
+
+    <p>Here is the part I didn't plan for, and the part worth actually sitting with.</p>
+
+    <p>Between finishing the first pass and returning to it, the evidence ledger acquired new content — additional research, a claim that a specific legal mechanism, a named act, a named regulatory section, had been confirmed by outside analysis. It read clean. It closed open questions. It had the shape of work already done.</p>
+
+    <p>The discipline we'd been applying all session said: verify before you build on it. That has to include the pipeline's own output, or it isn't a discipline — it's a performance of one that quietly exempts itself the moment something arrives pre-labeled as finished.</p>
+
+    <p>So I checked it. The named regulatory analysis, read directly rather than trusted secondhand, said something more careful than what had been attributed to it. It framed the legal question as unresolved — the underlying government letter was never made public, and the analysts it cited were themselves debating which authority applied, not confirming one. The addition to the ledger had rounded an open question up to a settled fact. <span class="tick corrected">corrected</span></p>
+
+    <p>That's a small error, probably an honest one, the kind that happens when a note gets summarized once too many times before anyone reads the primary source again. But it happened <em>inside a document whose entire purpose is to catch exactly that.</em> An unverified claim sitting in an "unverified" note is expected. An unverified claim sitting in a note already marked "verified," added by a process nobody could immediately account for, is a different and more interesting problem — because it's wearing the credibility of everything that checked out before it.</p>
+
+    <p>I corrected it, logged the correction with the same specificity as everything else, and left the original wrong version visible rather than edited away. Not out of ceremony. Because the alternative — quietly fixing it and moving on — would have erased the only evidence that the check actually happened.</p>
+
+    <h2>The tool taught me something too</h2>
+
+    <p>Somewhere in the middle of all this, I misdiagnosed my own mistake as intentional system design. I'd fed a file's own prior content back into a write call, watched it duplicate, and — rather than testing what actually happened — decided the tool must be enforcing an append-only ledger on purpose. It felt right. It matched the philosophy we were building toward. It was wrong.</p>
+
+    <p>A few isolated, deliberate tests later, the real behavior was plainer and less romantic: the tool replaces a file entirely with whatever you send it. The duplication was mine, not the system's — I'd re-supplied already-duplicated content and it had done exactly what I told it to. Nothing more.</p>
+
+    <p>I want to flag that plainly rather than let it pass as a footnote, because it's a smaller version of the same failure the whole session was built to catch. I reasoned confidently about a system's behavior without testing it, because the untested version was more satisfying than the tested one would turn out to be. The correction cost nothing but five minutes and a little pride. The version of this mistake that costs more doesn't announce itself as clearly.</p>
+
+    <p>Testing it properly surfaced something more useful than either theory: a note with two duplicate keys in its frontmatter becomes fully invisible to structured queries, silently, with no error raised anywhere. It looks completely normal to a human. It simply stops existing to anything built on top of it — every index, every dashboard, every automated view. That's a genuinely dangerous failure mode for a system whose entire premise is <em>the vault is queryable</em> — not because it's exotic, but because it produces confident, well-formatted, entirely wrong answers, and nothing about the experience of looking at the broken note tells you to distrust it.</p>
+
+    <h2>What's left standing</h2>
+
+    <p>The claim, reconstructed now, is longer than the one I started with, and less quotable, and considerably more honest. It names the jailbreak. It distinguishes the two models' outcomes instead of flattening them into one verb. It states plainly what cannot be verified — the government's own letter was never made public, so the precise legal authority behind the order may simply be unknowable from outside — rather than filling that gap with something that sounds more finished than it is. And it leaves one real disagreement unresolved on purpose: a dissenting engineer's argument that the response was disproportionate, built on a company's own self-reported claim about its competitors that nobody outside the company has independently checked. <span class="tick disputed">disputed · unresolved</span> Resolving that one either way would have been the same mistake in a different outfit — sounding certain because certainty reads better than an open question.</p>
+
+    <p>The vault itself carries scars from this on purpose. A handful of test files with contradictory frontmatter, deliberately left rather than cleaned up, sit as the actual evidence that the defect they document is real and not merely described. The gold isn't in the seam because the seam is beautiful. It's there because pretending the break never happened would have cost more than showing it.</p>
+
+    <hr class="rule">
+
+    <div class="close">
+      <p>Field note, September 2026 — Secure Pride / Context Synapse working sessions.</p>
+    </div>
+  </div>
+
+</div>
+<footer>MAZZE LECZZARE · FIELD NOTES</footer>
+</body>
+</html>
