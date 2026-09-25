@@ -205,6 +205,10 @@ const SECTIONS = [
 
 <style>
   .catalogue {
+    /* global.css gives <main> a fixed width: 720px and relies on
+       max-width: calc(100% - 2em) to shrink it; overriding max-width alone left
+       the fixed width in force, so this page ran 345px past a 375px phone. */
+    width: auto;
     max-width: 720px;
     margin: 0 auto;
     padding: 4rem 1.5rem 6rem;
