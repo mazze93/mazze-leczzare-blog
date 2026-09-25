@@ -1,0 +1,82 @@
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An astrolabe diagram — concentric rings labeled Primary, Independent, Disputed, and Corrected — with a rete showing four findings: three verified, one corrected, over a star field on a dark background.">
+  <defs>
+    <radialGradient id="heroPlateGrad" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#1b222c"/>
+      <stop offset="100%" stop-color="#0f141b"/>
+    </radialGradient>
+    <!-- gradientUnits userSpaceOnUse with an explicit circular radius in px,
+         centered on the instrument, so the fade is a true circle regardless
+         of the canvas's 16:9 aspect ratio -->
+    <radialGradient id="heroFade" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="420">
+      <stop offset="0%" stop-color="#0d1117" stop-opacity="0"/>
+      <stop offset="65%" stop-color="#0d1117" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0d1117" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="#0d1117"/>
+
+  <!-- star field, denser and brighter than the first attempt -->
+  <g fill="#d7dce2">
+    <circle cx="120" cy="90" r="1.3" opacity="0.7"/>
+    <circle cx="1480" cy="60" r="1.2" opacity="0.6"/>
+    <circle cx="1520" cy="200" r="1.5" opacity="0.65"/>
+    <circle cx="90" cy="700" r="1.3" opacity="0.6"/>
+    <circle cx="1450" cy="780" r="1.2" opacity="0.55"/>
+    <circle cx="200" cy="820" r="1.4" opacity="0.6"/>
+    <circle cx="1380" cy="140" r="1" opacity="0.5"/>
+    <circle cx="70" cy="400" r="1.2" opacity="0.55"/>
+    <circle cx="260" cy="200" r="1" opacity="0.45"/>
+    <circle cx="1340" cy="640" r="1.1" opacity="0.5"/>
+    <circle cx="1180" cy="120" r="0.9" opacity="0.4"/>
+    <circle cx="400" cy="770" r="1" opacity="0.45"/>
+    <circle cx="1550" cy="450" r="1.1" opacity="0.5"/>
+    <circle cx="50" cy="500" r="1" opacity="0.45"/>
+    <circle cx="1100" cy="800" r="0.9" opacity="0.4"/>
+    <circle cx="500" cy="60" r="1" opacity="0.4"/>
+  </g>
+
+  <!-- instrument, centered on the canvas at (800, 450) -->
+  <g transform="translate(800,450)">
+    <circle cx="0" cy="0" r="230" fill="url(#heroPlateGrad)" stroke="#2a323e" stroke-width="1"/>
+    <circle cx="0" cy="0" r="200" fill="none" stroke="#2a323e" stroke-width="1"/>
+    <circle cx="0" cy="0" r="150" fill="none" stroke="#2a323e" stroke-width="1"/>
+    <circle cx="0" cy="0" r="100" fill="none" stroke="#2a323e" stroke-width="0.75"/>
+
+    <g stroke="#3a4351" stroke-width="1">
+      <line x1="0" y1="-230" x2="0" y2="-216"/>
+      <line x1="0" y1="216" x2="0" y2="230"/>
+      <line x1="-230" y1="0" x2="-216" y2="0"/>
+      <line x1="216" y1="0" x2="230" y2="0"/>
+      <line x1="-162" y1="-162" x2="-152" y2="-152"/>
+      <line x1="162" y1="-162" x2="152" y2="-152"/>
+      <line x1="-162" y1="162" x2="-152" y2="152"/>
+      <line x1="162" y1="162" x2="152" y2="152"/>
+    </g>
+
+    <text x="0" y="-208" text-anchor="middle" font-family="'DM Mono','Courier New',monospace" font-size="10" letter-spacing="0.5" fill="#8a7554">PRIMARY</text>
+    <text x="0" y="-158" text-anchor="middle" font-family="'DM Mono','Courier New',monospace" font-size="10" letter-spacing="0.5" fill="#8a7554">INDEPENDENT</text>
+    <text x="0" y="-108" text-anchor="middle" font-family="'DM Mono','Courier New',monospace" font-size="10" letter-spacing="0.5" fill="#8a7554">DISPUTED</text>
+    <!-- moved off the vertical spine, matching the fix already applied to the live artifact -->
+    <text x="-118" y="-58" text-anchor="middle" font-family="'DM Mono','Courier New',monospace" font-size="10" letter-spacing="0.5" fill="#8a7554">CORRECTED</text>
+
+    <circle cx="0" cy="-58" r="3.4" fill="#c9a876"/>
+    <circle cx="0" cy="-58" r="7" fill="none" stroke="#c9a876" stroke-width="1" opacity="0.5"/>
+
+    <g>
+      <line x1="0" y1="0" x2="0" y2="-220" stroke="#8a7554" stroke-width="1.2"/>
+      <line x1="0" y1="0" x2="170" y2="-110" stroke="#8a7554" stroke-width="1"/>
+      <line x1="0" y1="0" x2="-130" y2="130" stroke="#8a7554" stroke-width="1"/>
+      <line x1="0" y1="0" x2="110" y2="140" stroke="#8a7554" stroke-width="1"/>
+
+      <circle cx="0" cy="-220" r="4.5" fill="#c9a876"/>
+      <circle cx="170" cy="-110" r="4" fill="#F07178"/>
+      <circle cx="-130" cy="130" r="4" fill="#c9a876"/>
+      <circle cx="110" cy="140" r="4" fill="#5CCFCF"/>
+
+      <circle cx="0" cy="0" r="5" fill="#c9a876"/>
+    </g>
+  </g>
+
+  <rect width="1600" height="900" fill="url(#heroFade)"/>
+</svg>
