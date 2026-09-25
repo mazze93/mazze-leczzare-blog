@@ -308,30 +308,62 @@ nav {
   border-radius: var(--radius-sm);
 }
 
+/* Two-row masthead below 1000px.
+   The full nav (brand + nine links + GitHub + theme toggle) needs ~910px on one
+   line. Previously nothing wrapped between 641px and ~960px, and below 640px the
+   nav wrapped but .nav-links did not, so the links row ran ~500px wide on a
+   375px phone: the whole page scrolled sideways and Stratum/Stele sat off-screen.
+   Fix: brand + utilities stay on row one; the links drop to their own
+   full-width row and wrap within it, so no viewport width can overflow.
+   1000px (not the measured ~960px) leaves headroom for font-metric variance.
+   If a link is added to the nav, re-check that one row still fits at 1001px. */
+@media (max-width: 1000px) {
+  nav {
+    flex-wrap: wrap;
+    column-gap: 1em;
+    row-gap: 0;
+  }
+  .nav-util { order: 2; }
+  .nav-links {
+    order: 3;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    min-width: 0;
+    /* Pull the first link's padding back so its text aligns with the brand. */
+    margin-left: -0.7em;
+    padding-bottom: 0.35em;
+  }
+  /* The divider only reads as a divider on a single line; wrapped, it strands. */
+  .nav-rule { display: none; }
+}
+
 @media (max-width: 640px) {
   nav {
-    gap: 1em;
     padding: 0 1em;
     min-height: 48px;
-    flex-wrap: wrap;
-  }
-  .nav-util {
-    display: flex;
-    margin-left: auto;
   }
   .util-link { display: none; }
   :global(.theme-toggle) { display: inline-flex; }
-  /* Wrap, don't overflow: at 390px the single row of nine items ran ~114px
-     past the viewport and gave every page a horizontal scroll. Wrapping (not
-     overflow-x: auto) so the absolutely-positioned Studio menu isn't clipped. */
-  .nav-links { flex-wrap: wrap; flex-basis: 100%; min-width: 0; row-gap: 0; order: 2; }
+  /* Two-row wrapping now comes from the 1000px rule above (wrap, don't
+     overflow-x: auto, so the absolutely-positioned Studio menu isn't clipped);
+     here only the phone-size tightening remains. */
+  .nav-links { margin-left: -0.5em; row-gap: 0; order: 2; }
   /* Theme toggle rides on the brand row instead of taking a row of its own. */
   .nav-util { order: 1; }
   .nav-links a { padding: 0.3em 0.5em; }
   .nav-disclosure { padding: 0.3em 0.5em; }
-  /* The nav wraps at this width, so an absolutely-positioned menu can hang off
-     the right edge. Pin it to the left of the viewport-side instead. */
-  .nav-menu { left: auto; right: 0; }
+  /* Where Studio lands depends on how the links wrap, so a menu anchored to
+     the button can hang off either edge (it overflowed at 375–414px). On
+     phones, anchor it to the header instead: .nav-group goes static, so the
+     sticky <header> becomes the containing block and the menu opens as an
+     inset panel directly beneath it. */
+  .nav-group { position: static; }
+  .nav-menu {
+    top: 100%;
+    left: 1em;
+    right: 1em;
+    min-width: 0;
+  }
 }
 </style>
 
