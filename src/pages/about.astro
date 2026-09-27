@@ -1,19 +1,21 @@
 ---
 /**
- * /about — the quiet ledger.
+ * /about — the quiet ledger, researcher-first.
  *
- * Label | content rows, a dated record, one portrait, and nothing selling.
+ * Label | content rows, one portrait, nothing selling. The information
+ * architecture is deliberately conventional — it answers, in order: who is
+ * this researcher, what do they study, what is running now, what methods,
+ * what is published, where did they come from, how to collaborate, how to
+ * cite. The artistic language (seam, cursor, grain) stays around it.
  * The layout is borrowed from a plain editorial "about" pattern (big image,
  * then Info / Experience / record as two-column rows); what makes it this
  * site's is the seam: every break between chapters of the record is drawn as
  * the kintsugi gold line (Seam.astro), laid down as it scrolls into view.
  * The pivots are shown, mended, not smoothed over — the break is the record.
  *
- * Sourcing rule (carried over from the previous version of this page):
- * every date and claim below already exists on /work or in the CV PDF.
- * This page restates; it never introduces a fact. If a line here needs a
- * count or a status to work, it belongs on /work, where claims carry their
- * evidence tier. Dates are past tense and durable; no counts that go stale.
+ * Content lives in src/data/about.ts (one responsibility per file); its
+ * docblock carries the sourcing rule and the sources read. This file only
+ * lays it out.
  *
  * Interaction: <SeamCursor /> (dot + spring-lagged gold ring) mounts here
  * only. It self-gates on fine pointer / reduced motion / forced colours.
@@ -25,88 +27,15 @@ import Footer from '../components/Footer.astro';
 import Seam from '../components/Seam.astro';
 import SeamCursor from '../components/SeamCursor.astro';
 import { SITE_EMAIL, SITE_GITHUB_URL } from '../consts';
+import {
+  PROGRAM, PROPOSITION, QUESTIONS, CURRENT_STUDY, INSTRUMENTS,
+  METHODS, PUBLICATIONS, ROLES, CITATION,
+} from '../data/about';
 // Imported from public/ (the same file AuthorCoda uses) so astro:assets can
 // optimise it without committing a second copy of the binary.
 import portrait from '../../public/mazze-headshot.jpg';
 
 const securityEmail = SITE_EMAIL.replace('mailto:', '');
-
-// ── The record ────────────────────────────────────────────────────────────
-// Newest first. `years` omitted = an ongoing practice with no start date on
-// the record (the CV dates Secure Pride, not the independent practice).
-interface Role {
-  org: string;
-  role: string;
-  years?: string;
-  href?: string;
-  /** Authored here, not user input — set:html so a phrase can carry <em>. */
-  body: string[];
-}
-
-const roles: Role[] = [
-  {
-    org: 'Secure Pride',
-    role: 'Founder & Executive Director',
-    years: '2026 — Today',
-    href: 'https://securepride.org',
-    body: [
-      'Secure Pride is a privacy-first cybersecurity nonprofit for LGBTQ+ and other at-risk civil-society organizations.',
-      'I founded it and work on it as executive director and security engineer: a CLI-first audit suite, the Stonewall Standard DPA — a data-processing agreement published in both legal and plain English — and a threat toolkit for groups that have no security team. The rule under all of it: privacy has to be <em>enforced by the architecture</em>, not promised in a contract.',
-    ],
-  },
-  {
-    org: 'Independent',
-    role: 'Security engineering & research',
-    body: [
-      'I build tools that can’t hide their own state. <a href="https://stratum.mazzeleczzare.com/">Stratum</a> is an append-only ledger that keeps evidence and claims apart. <a href="https://stele.mazzeleczzare.com/">STELE</a> compiles standing directives into constraints an AI session can’t quietly drift from. <a href="https://fieldnotes.mazzeleczzare.com/">Field Notes</a> is a gallery of small working instruments, one idea each.',
-      'Alongside that, I take on client work: threat modeling, security architecture, and documentation that matches how a system actually behaves.',
-    ],
-  },
-  {
-    org: 'mudstack',
-    role: 'Content & Community',
-    years: '2022 — 2024',
-    body: [
-      'I was mudstack’s whole content function — technical posts, webinars, documentation, and <em>Clear as Mud</em>, a long-form interview podcast with studio directors, technical designers and founders about the parts of the work that don’t make the press release.',
-    ],
-  },
-  {
-    org: 'UC Davis · Luck Lab',
-    role: 'Research & Lab Operations',
-    years: '2018 — 2020',
-    body: [
-      'The Luck Lab at the Center for Mind & Brain is one of the defining EEG/ERP labs in cognitive neuroscience.',
-      'I ran data collection for a counterfeit-banknote authentication program — EEG, eye-tracking and behavioral testing with community volunteers — and managed lab operations: participant pipelines, rig upkeep, data-integrity standards, and training new researchers to meet them. B.S. in Quantitative Psychology & Neuroscience, 2020; Regents Scholar.',
-    ],
-  },
-  {
-    org: 'Butte College',
-    role: 'EOPS Tutor & Instructor · Founding Editor, Bloom',
-    years: '2015 — 2018',
-    body: [
-      'I tutored re-entry students and taught math, science, English and history to students with learning and developmental disabilities — students the standard explanation had already failed once, which is the only real test of an explanation.',
-      'I also founded <em>Bloom Magazine</em> as its first editor-in-chief, and wrote the grants that funded it.',
-    ],
-  },
-];
-
-// ── On the record ─────────────────────────────────────────────────────────
-// Third-party acknowledgement only — the "Clients" row, for someone whose
-// record lives in advisories, journals and trade press.
-const onRecord: { what: string; where: string; href: string }[] = [
-  { what: 'Acknowledged contributor', where: 'Dodgson & Raymond, Scientific Reports 12:2076 (2022)', href: 'https://doi.org/10.1038/s41598-022-05972-8' },
-  { what: 'CVE-2026-59869', where: 'js-yaml — reported, high severity', href: 'https://github.com/advisories/GHSA-52cp-r559-cp3m' },
-  { what: 'CVE-2026-59868', where: 'js-yaml — reported', href: 'https://github.com/advisories/GHSA-g796-fgmg-93mv' },
-  { what: 'CVE-2026-53550', where: 'js-yaml — credited analysis', href: 'https://github.com/advisories/GHSA-h67p-54hq-rp68' },
-  { what: '80 Level', where: 'Networking at GDC 2023', href: 'https://80.lv/articles/networking-at-gdc-2023-tips-for-artists-game-developers-and-industry-leaders' },
-  { what: 'Intentional Fragility', where: 'Accountable Forgetting in Local-First AI (paper)', href: '/papers/intentional-fragility.pdf' },
-];
-
-const engagements: { name: string; detail: string }[] = [
-  { name: 'Security architecture sprint', detail: '2–6 weeks. Threat modeling, control design, and incident runbooks for one critical system — for small teams pre-SOC 2, post-incident, or handling sensitive identity or health data.' },
-  { name: 'Narrative & documentation', detail: 'Project-based or ongoing. Positioning, technical docs, and security pages that reflect how your system actually behaves.' },
-  { name: 'Ongoing advisory', detail: 'Monthly or quarterly. Infrastructure review, content audit, and AI-governance check-ins with an explicit human-risk lens.' },
-];
 ---
 
 <!doctype html>
@@ -114,14 +43,15 @@ const engagements: { name: string; detail: string }[] = [
   <head>
     <BaseHead
       title="About — Mazze LeCzzare"
-      description="Mazze LeCzzare is a security engineer and writer in Durham, NC, and the founder of Secure Pride, a privacy-first cybersecurity nonprofit. Available for consulting."
+      description="Mazze LeCzzare is an independent AI security researcher in Durham, NC, studying how to keep authority boundaries verifiable as autonomous AI systems generate, persist, and act on their own state."
     />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Person",
         "name": "Mazze LeCzzare",
-        "description": "Security engineer and writer; founder of Secure Pride, a privacy-first cybersecurity nonprofit.",
+        "alternateName": "Mazze LeCzzare Frazer",
+        "description": "Independent AI security researcher studying verifiable authority boundaries in autonomous AI systems; founder of Secure Pride.",
         "url": "https://mazzeleczzare.com",
         "image": "https://mazzeleczzare.com/mazze-headshot.jpg",
         "sameAs": [
@@ -129,10 +59,10 @@ const engagements: { name: string; detail: string }[] = [
           "https://securepride.org",
           "https://linkedin.com/in/mazze-leczzare"
         ],
-        "jobTitle": "Security engineer",
+        "jobTitle": "Independent researcher, AI security",
         "worksFor": { "@type": "Organization", "name": "Secure Pride" },
         "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of California, Davis" },
-        "knowsAbout": ["Cybersecurity", "Threat modeling", "AI safety and privacy", "Technical writing", "Cognitive neuroscience"],
+        "knowsAbout": ["AI security", "Agentic systems", "Prompt injection", "Provenance", "Research methodology", "Cognitive neuroscience"],
         "address": { "@type": "PostalAddress", "addressLocality": "Durham", "addressRegion": "NC", "addressCountry": "US" }
       }
     </script>
@@ -154,13 +84,12 @@ const engagements: { name: string; detail: string }[] = [
         <p class="ab-strip__who">
           <span class="ab-strip__name">Mazze LeCzzare</span>
           <span class="ab-strip__where">
-            Durham, NC&nbsp;<span aria-hidden="true">—</span>&nbsp;
-            <time class="ab-clock" data-ab-clock>Eastern Time</time>
+            Independent researcher · Durham, NC&nbsp;<span aria-hidden="true">—</span>&nbsp;<time class="ab-clock" data-ab-clock>Eastern Time</time>
           </span>
         </p>
         <p class="ab-strip__status">
           <span class="ab-strip__dot" aria-hidden="true"></span>
-          Available for consulting
+          Open to research collaboration
         </p>
       </div>
 
@@ -183,26 +112,111 @@ const engagements: { name: string; detail: string }[] = [
 
       <h1 class="visually-hidden">About Mazze LeCzzare</h1>
 
-      <!-- ── Info ── -->
+      <!-- ── Info: who ── -->
       <section class="ab-row ab-enter" style="--i:3" aria-labelledby="ab-info">
         <h2 class="ab-row__label" id="ab-info">Info</h2>
         <div class="ab-row__body ab-prose">
-          <p class="ab-lede">I’m Mazze LeCzzare, a security engineer and writer based in Durham, North Carolina.</p>
-          <p>I run <a href="https://securepride.org">Secure Pride</a>, a privacy-first cybersecurity nonprofit for LGBTQ+ clinics, mutual aid groups and health services — people for whom a breach isn’t an inconvenience but an outing.</p>
-          <p>I came to security from a neuroscience lab, by way of content and community work. I left the lab after years of measuring cognitive decline in aged macaques: the work produced clean numbers, and a gap between the data and the animals that I couldn’t live with.</p>
-          <p>Everything since has been a way of answering the same three questions: who is this for, what can it see, and what happens when it fails them?</p>
-          <p class="ab-coda">I build systems that break in the right places — and I’d rather show you the seam than hide it.</p>
+          <p class="ab-lede">I’m Mazze LeCzzare, an independent researcher in AI security, based in Durham, North Carolina.</p>
+          <p>I study {PROGRAM.charAt(0).toLowerCase() + PROGRAM.slice(1)}</p>
+          <p>I came to this from cognitive neuroscience. At UC Davis I measured where human detection of a security feature succeeds and fails against real counterfeit currency; the work I do now asks the same question of machine detectors, and of the state they leave behind. I left the lab after years of measuring cognitive decline in aged macaques: the work produced clean numbers, and a gap between the data and the animals that I couldn’t live with.</p>
+          <p>I also run <a href="https://securepride.org">Secure Pride</a>, a privacy-first cybersecurity nonprofit for LGBTQ+ and other at-risk civil-society organizations — the people for whom a breach isn’t an inconvenience but an outing.</p>
         </div>
       </section>
 
-      <!-- ── Work experience ── -->
+      <!-- ── Research: what questions ── -->
+      <section class="ab-row" aria-labelledby="ab-research">
+        <div class="ab-row__label">
+          <h2 id="ab-research">Research</h2>
+          <p class="ab-row__note">One proposition, tested from different sides.</p>
+        </div>
+        <div class="ab-row__body">
+          <p class="ab-thesis">{PROPOSITION}</p>
+          <ol class="ab-questions">
+            {QUESTIONS.map((q, i) => (
+              <li>
+                <span class="ab-questions__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <p class="ab-questions__text">{q.text}</p>
+                <p class="ab-questions__where">{q.where}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- ── Current study ── -->
+      <section class="ab-row" aria-labelledby="ab-study">
+        <div class="ab-row__label">
+          <h2 id="ab-study">Current Study</h2>
+          <p class="ab-row__note">{CURRENT_STUDY.id} · {CURRENT_STUDY.status}</p>
+        </div>
+        <article class="ab-row__body ab-study">
+          <h3 class="ab-study__title">{CURRENT_STUDY.title}</h3>
+          <p class="ab-study__subtitle">{CURRENT_STUDY.subtitle}</p>
+          <p class="ab-study__q"><span class="ab-kicker">Question</span>{CURRENT_STUDY.question}</p>
+          {CURRENT_STUDY.design.map((p) => <p class="ab-role__body" set:html={p} />)}
+          <ul class="ab-links">
+            {CURRENT_STUDY.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </article>
+      </section>
+
+      <!-- ── Methods & instruments ── -->
+      <section class="ab-row" aria-labelledby="ab-methods">
+        <div class="ab-row__label">
+          <h2 id="ab-methods">Methods</h2>
+          <p class="ab-row__note">Everything below is open source and runs from its README. Each tool states what it does not guarantee.</p>
+        </div>
+        <div class="ab-row__body">
+          <dl class="ab-engage">
+            {METHODS.map((m) => (
+              <div class="ab-engage__item">
+                <dt>{m.name}</dt>
+                <dd>{m.detail}</dd>
+              </div>
+            ))}
+          </dl>
+          <h3 class="ab-subhead">Instruments</h3>
+          <p class="ab-subnote">Bound into one loop by Temenos: signal → gate → policy → ledger → human review.</p>
+          <ul class="ab-cites ab-cites--tools">
+            {INSTRUMENTS.map((t) => (
+              <li>
+                <a href={t.href}>
+                  <span class="ab-cites__what">{t.name}</span>
+                  <span class="ab-cites__where">{t.role}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Publications ── -->
+      <section class="ab-row" aria-labelledby="ab-pubs">
+        <div class="ab-row__label">
+          <h2 id="ab-pubs">Publications</h2>
+          <p class="ab-row__note">Not yet peer-reviewed except where a journal is named. <a href="/work/">/work</a> grades every claim by its evidence.</p>
+        </div>
+        <ul class="ab-row__body ab-pubs">
+          {PUBLICATIONS.map((pub) => (
+            <li>
+              <a href={pub.href}>
+                <span class="ab-pubs__year">{pub.year}</span>
+                <span class="ab-pubs__title">{pub.title}</span>
+                <span class="ab-pubs__kind">{pub.kind}{pub.note && <> — {pub.note}</>}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- ── Background (dated, seams between chapters) ── -->
       <section class="ab-row" aria-labelledby="ab-exp">
         <div class="ab-row__label">
-          <h2 id="ab-exp">Work Experience</h2>
+          <h2 id="ab-exp">Background</h2>
           <p class="ab-row__note">Gold marks the breaks between chapters — mended, not hidden.</p>
         </div>
         <ol class="ab-row__body ab-record">
-          {roles.map((r, i) => (
+          {ROLES.map((r, i) => (
             <li class="ab-role">
               {i > 0 && (
                 <div class="ab-mend" data-mend aria-hidden="true"><Seam /></div>
@@ -220,45 +234,26 @@ const engagements: { name: string; detail: string }[] = [
         </ol>
       </section>
 
-      <!-- ── On the record ── -->
-      <section class="ab-row" aria-labelledby="ab-record">
-        <div class="ab-row__label">
-          <h2 id="ab-record">On the Record</h2>
-          <p class="ab-row__note">Where someone else wrote it down. <a href="/work/">/work</a> has the full ledger, with evidence for each claim.</p>
-        </div>
-        <ul class="ab-row__body ab-cites">
-          {onRecord.map((c) => (
-            <li>
-              <a href={c.href}>
-                <span class="ab-cites__what">{c.what}</span>
-                <span class="ab-cites__where">{c.where}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <!-- ── Engagements ── -->
-      <section class="ab-row" aria-labelledby="ab-work-with">
-        <div class="ab-row__label">
-          <h2 id="ab-work-with">Working Together</h2>
-          <p class="ab-row__note">Not a fit for compliance theater, generic SEO content, or brand work without a technical foundation.</p>
-        </div>
-        <dl class="ab-row__body ab-engage">
-          {engagements.map((e) => (
-            <div class="ab-engage__item">
-              <dt>{e.name}</dt>
-              <dd>{e.detail}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <!-- ── Outside ── -->
-      <section class="ab-row" aria-labelledby="ab-outside">
-        <h2 class="ab-row__label" id="ab-outside">Outside</h2>
+      <!-- ── Collaborate ── -->
+      <section class="ab-row" aria-labelledby="ab-collab">
+        <h2 class="ab-row__label" id="ab-collab">Collaborate</h2>
         <div class="ab-row__body ab-prose">
-          <p>I make music — Ableton, Logic, a Universal Audio Volt 2, and a Martin acoustic-electric named Joni — and I write speculative fiction and poetry.</p>
+          <p class="ab-lede">I’m looking for researchers willing to disagree with this work in public, and to put their names beside the parts that survive.</p>
+          <p>Concretely: critique of study design before data exists, independent annotation, replication on a corpus I didn’t choose, and co-authorship. If you can design the experiment that would prove the architecture wrong, I want to hear it.</p>
+          <p>I also take on a small amount of security consulting for teams whose systems touch sensitive data.</p>
+          <p class="ab-coda">I build systems that break in the right places — and I’d rather show you the seam than hide it.</p>
+        </div>
+      </section>
+
+      <!-- ── Cite ── -->
+      <section class="ab-row" aria-labelledby="ab-cite">
+        <div class="ab-row__label">
+          <h2 id="ab-cite">How to Cite</h2>
+          <p class="ab-row__note">The current study, as preregistered. Cite a specific paper by its own title.</p>
+        </div>
+        <div class="ab-row__body">
+          <p class="ab-cite__text">{CITATION.text}</p>
+          <pre class="ab-cite__bib" tabindex="0" aria-label="BibTeX entry"><code>{CITATION.bibtex}</code></pre>
         </div>
       </section>
 
@@ -268,11 +263,12 @@ const engagements: { name: string; detail: string }[] = [
         <div class="ab-row__body">
           <p class="ab-prose ab-contact__lede">The fastest way to reach me is the <a href="/contact/">contact form</a>. Security reports go to <a href={SITE_EMAIL}>{securityEmail}</a>.</p>
           <ul class="ab-links">
-            <li><a href="/work/">Selected work</a></li>
-            <li><a href="/mazze-leczzare-cv.pdf" type="application/pdf">CV <span class="ab-links__meta">PDF</span></a></li>
             <li><a href={SITE_GITHUB_URL}>GitHub</a></li>
+            <li><a href="/mazze-leczzare-cv.pdf" type="application/pdf">CV <span class="ab-links__meta">PDF</span></a></li>
+            <li><a href="/work/">Work</a></li>
             <li><a href="https://linkedin.com/in/mazze-leczzare">LinkedIn</a></li>
           </ul>
+          <p class="ab-outside">Outside the work: I make music — Ableton, Logic, a Universal Audio Volt 2, and a Martin acoustic-electric named Joni — and write speculative fiction and poetry.</p>
         </div>
       </section>
 
@@ -595,6 +591,172 @@ const engagements: { name: string; detail: string }[] = [
     color: var(--text-dim);
   }
 
+  /* ── Research: thesis + numbered questions ── */
+  .ab-thesis {
+    margin: 0 0 36px;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 2.3vw, 1.85rem);
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--text);
+    text-wrap: balance;
+  }
+  .ab-questions { list-style: none; margin: 0; padding: 0; }
+  .ab-questions li {
+    display: grid;
+    grid-template-columns: 3.2ch minmax(0, 1fr);
+    column-gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .ab-questions li:last-child { border-bottom: 1px solid var(--rule); }
+  .ab-questions__n {
+    grid-row: span 2;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--gold);
+    padding-top: 0.45em;
+  }
+  .ab-questions__text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.18rem;
+    line-height: 1.55;
+    color: var(--text-dim);
+  }
+  .ab-questions__where {
+    margin: 6px 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* ── Current study ── */
+  .ab-study__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 2.4vw, 1.95rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text);
+  }
+  .ab-study__subtitle {
+    margin: 4px 0 22px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.12rem;
+    color: var(--text-dim);
+  }
+  .ab-study__q {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border-left: 1px solid var(--gold-seam);
+    background: rgba(var(--gold-rgb), 0.05);
+    font-family: var(--font-display);
+    font-size: 1.22rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .ab-kicker {
+    display: block;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  :global([data-theme="light"]) .ab-kicker,
+  :global([data-theme="light"]) .ab-questions__n { color: var(--gold-seam-deep); }
+
+  /* ── Methods sub-block ── */
+  .ab-subhead {
+    margin: 48px 0 6px;
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .ab-subnote {
+    margin: 0 0 16px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    line-height: 1.7;
+    color: var(--text-faint);
+  }
+  .ab .ab-cites--tools a { grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); }
+
+  /* ── Publications ── */
+  .ab-pubs { list-style: none; }
+  .ab-pubs li { border-bottom: 1px solid var(--rule); }
+  .ab-pubs li:first-child { border-top: 1px solid var(--rule); }
+  .ab .ab-pubs a {
+    display: grid;
+    grid-template-columns: 5ch minmax(0, 1fr);
+    column-gap: 16px;
+    padding: 16px 2px;
+    min-height: 44px;
+    text-decoration: none;
+  }
+  .ab-pubs__year {
+    grid-row: span 2;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-faint);
+    padding-top: 0.3em;
+    font-variant-numeric: tabular-nums;
+  }
+  .ab-pubs__title {
+    font-family: var(--font-display);
+    font-size: 1.18rem;
+    line-height: 1.4;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--gold-rgb), 0.4);
+    text-underline-offset: 3px;
+  }
+  .ab-pubs__kind {
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--text-faint);
+  }
+  .ab .ab-pubs a:hover .ab-pubs__title { color: var(--gold); }
+
+  /* ── Cite ── */
+  .ab-cite__text {
+    margin: 0 0 18px;
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+    overflow-wrap: anywhere;
+  }
+  .ab-cite__bib {
+    margin: 0;
+    padding: 16px 18px;
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .ab-cite__bib:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+
+  .ab-outside {
+    margin: 28px 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: var(--text-faint);
+  }
+
   /* ── Contact ── */
   .ab-links {
     list-style: none;
@@ -655,6 +817,8 @@ const engagements: { name: string; detail: string }[] = [
     .ab-prose p, .ab-prose.ab-contact__lede { font-size: 1.18rem; }
     .ab-prose .ab-lede { font-size: 1.35rem; }
     .ab-role .ab-mend { margin: 32px 0 28px; }
-    .ab .ab-cites a { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .ab .ab-cites a,
+    .ab .ab-cites--tools a { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .ab-questions__text, .ab-pubs__title { font-size: 1.1rem; }
   }
 </style>
