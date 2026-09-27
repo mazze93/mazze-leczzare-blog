@@ -31,6 +31,9 @@
  * Vanilla script, not a React island (Key Constraints: islands only where
  * interaction earns it; this is ~90 lines of DOM and a rAF loop).
  */
+
+/** No props: the cursor is page-global and self-configuring. */
+export interface Props {}
 ---
 
 <div class="seam-cursor" aria-hidden="true" hidden>
