@@ -1,0 +1,186 @@
+---
+/**
+ * SeamCursor.astro — a two-part pointer: a dot that is exactly where you are,
+ * and a gold ring that arrives a moment later.
+ *
+ * The lag is the point. The dot is the claim; the ring is the record catching
+ * up to it — a spring, not a tween, so it overshoots a hair and settles, and
+ * you can see the distance between "where the pointer is" and "where the
+ * system thinks it is" at every instant. Nothing hidden: the gap is drawn.
+ *
+ *   dot  — white, mix-blend-mode: difference, so it inverts whatever sits
+ *          beneath it and stays visible on obsidian and on paper alike.
+ *          Swells over anything clickable, which doubles as the hover cue.
+ *   ring — --gold-seam hairline on a damped spring (k 120, c 18, m 1).
+ *
+ * Mounts nothing, and leaves the native cursor alone, unless ALL of:
+ *   - the primary pointer is fine (mouse/trackpad) — touch never sees it
+ *   - prefers-reduced-motion is not "reduce" — a lagging ring IS motion
+ *   - forced-colors is off — Windows High Contrast owns the cursor there
+ * Only after the script mounts does <html> get .has-seam-cursor, which is the
+ * sole trigger for cursor:none. No JS → native cursor. Script error → native
+ * cursor. The failure mode is the default, never an invisible pointer.
+ *
+ * Z-index: 2147483000 on EACH layer, not on the wrapper. A z-indexed wrapper
+ * would be its own stacking context, and the dot's mix-blend-mode would then
+ * blend only with the (empty) wrapper instead of the page — so the wrapper
+ * stays unpositioned and each fixed layer stacks against the root directly.
+ * Above the header (--z-header 100) and StoreAnnounce (same).
+ * pointer-events: none on every layer, so it can never intercept a click.
+ *
+ * Vanilla script, not a React island (Key Constraints: islands only where
+ * interaction earns it; this is ~90 lines of DOM and a rAF loop).
+ */
+
+/** No props: the cursor is page-global and self-configuring. */
+export interface Props {}
+---
+
+<div class="seam-cursor" aria-hidden="true" hidden>
+  <div class="seam-cursor__ring"></div>
+  <div class="seam-cursor__dot"></div>
+</div>
+
+<script>
+  // ── Gate ────────────────────────────────────────────────────────────────
+  const canMount = (): boolean =>
+    window.matchMedia('(pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+    !window.matchMedia('(forced-colors: active)').matches;
+
+  // Anything a click would act on. Kept in step with the reference behaviour:
+  // the dot swells over the thing you could press.
+  const INTERACTIVE = 'a, button, [role="button"], label, select, summary, input, textarea';
+
+  // Spring constants. Semi-implicit Euler, integrated on real frame time.
+  const STIFFNESS = 120;
+  const DAMPING = 18;
+  const MASS = 1;
+  const REST_EPSILON = 0.05; // px — below this, stop the loop until next move
+
+  interface Axis { pos: number; vel: number }
+
+  /** One spring step toward `target`. Pure: returns the next state. */
+  function stepAxis(a: Axis, target: number, dt: number): Axis {
+    const force = -STIFFNESS * (a.pos - target) - DAMPING * a.vel;
+    const vel = a.vel + (force / MASS) * dt;
+    return { pos: a.pos + vel * dt, vel };
+  }
+
+  function mount(root: HTMLElement): void {
+    const dot = root.querySelector<HTMLElement>('.seam-cursor__dot');
+    const ring = root.querySelector<HTMLElement>('.seam-cursor__ring');
+    if (!dot || !ring) return;
+
+    let target = { x: -200, y: -200 };
+    let rx: Axis = { pos: -200, vel: 0 };
+    let ry: Axis = { pos: -200, vel: 0 };
+    let last = 0;
+    let frame = 0;
+
+    // ── Ring loop — runs only while the spring is still moving ──
+    const tick = (now: number): void => {
+      const dt = Math.min((now - last) / 1000, 1 / 30); // clamp tab-switch gaps
+      last = now;
+      rx = stepAxis(rx, target.x, dt);
+      ry = stepAxis(ry, target.y, dt);
+      ring.style.transform = `translate3d(${rx.pos}px, ${ry.pos}px, 0) translate(-50%, -50%)`;
+
+      const settled =
+        Math.abs(rx.pos - target.x) < REST_EPSILON && Math.abs(ry.pos - target.y) < REST_EPSILON &&
+        Math.abs(rx.vel) < REST_EPSILON && Math.abs(ry.vel) < REST_EPSILON;
+      frame = settled ? 0 : requestAnimationFrame(tick);
+    };
+
+    const wake = (): void => {
+      if (frame) return;
+      last = performance.now();
+      frame = requestAnimationFrame(tick);
+    };
+
+    // ── Input ── side effects: writes dot transform + root data attributes
+    const onMove = (e: PointerEvent): void => {
+      if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+      target = { x: e.clientX, y: e.clientY };
+      dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      const el = e.target instanceof Element ? e.target : null;
+      root.dataset.hot = el?.closest(INTERACTIVE) ? 'true' : 'false';
+      root.dataset.visible = 'true';
+      wake();
+    };
+
+    const onLeave = (): void => { root.dataset.visible = 'false'; };
+    const onDown = (): void => { root.dataset.pressed = 'true'; };
+    const onUp = (): void => { root.dataset.pressed = 'false'; };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerdown', onDown, { passive: true });
+    window.addEventListener('pointerup', onUp, { passive: true });
+    document.documentElement.addEventListener('mouseleave', onLeave);
+
+    root.hidden = false;
+    document.documentElement.classList.add('has-seam-cursor');
+  }
+
+  const root = document.querySelector<HTMLElement>('.seam-cursor');
+  if (root && canMount()) mount(root);
+</script>
+
+<style>
+  /* Native cursor is hidden ONLY once the script has mounted (see docblock). */
+  :global(html.has-seam-cursor),
+  :global(html.has-seam-cursor *) {
+    cursor: none !important;
+  }
+
+  /* Unpositioned on purpose — see the z-index note in the docblock. */
+  .seam-cursor { pointer-events: none; }
+
+  .seam-cursor__dot,
+  .seam-cursor__ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2147483000; /* per-layer; documented in the component docblock */
+    opacity: 0;
+    will-change: transform;
+    transform: translate3d(-200px, -200px, 0);
+  }
+
+  /* Dot: inverts what it covers, so it reads on either theme. */
+  .seam-cursor__dot {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    mix-blend-mode: difference;
+    transition:
+      width 180ms ease-out,
+      height 180ms ease-out,
+      opacity 200ms ease-out;
+  }
+
+  /* Ring: the gold seam, catching up. */
+  .seam-cursor__ring {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--gold-seam);
+    box-shadow: 0 0 12px rgba(var(--gold-rgb), 0.18);
+    transition:
+      width 220ms ease-out,
+      height 220ms ease-out,
+      opacity 250ms ease-out,
+      border-color 220ms ease-out;
+  }
+
+  .seam-cursor[data-visible="true"] .seam-cursor__dot  { opacity: 1; }
+  .seam-cursor[data-visible="true"] .seam-cursor__ring { opacity: 0.7; }
+
+  /* Over something pressable: the dot opens into a lens; the ring widens. */
+  .seam-cursor[data-hot="true"] .seam-cursor__dot  { width: 44px; height: 44px; }
+  .seam-cursor[data-hot="true"] .seam-cursor__ring { width: 58px; height: 58px; border-color: var(--gold-seam-bright); }
+
+  /* Press: the ring closes on the dot — contact. */
+  .seam-cursor[data-pressed="true"] .seam-cursor__ring { width: 22px; height: 22px; }
+</style>

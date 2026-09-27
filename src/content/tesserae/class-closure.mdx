@@ -1,0 +1,134 @@
+---
+title: "Class-Closure Threat Response"
+description: "A finding should create an instrument, not merely a patch. The handoff from one session that blinded a prompt-injection detector with an accent, and the method it produced. Filed with its first action executed."
+pubDate: 2026-09-27
+tags: ["aletheia", "security", "unicode", "regex", "method", "tessera"]
+project: "aletheia"
+draft: false
+---
+
+import ArtifactEmbed from '../../components/blog/ArtifactEmbed.astro';
+
+One session found a way to make aletheia, a prompt-injection detector, blind
+by putting an accent on a word. `\b` is not a security boundary. It marks a
+transition between `\w` and `\W`, and runtimes disagree about what `\w` is.
+The fix replaced a dialect default with a policy written in English first:
+*match a security keyword unless it is embedded inside a larger ASCII
+identifier.* The method that came out of it is called Class-Closure Threat
+Response.
+
+The handoff below is the record: the chain of events, the finding as a probe
+you can run in the page, the method, the corrections, and the specification
+for what comes next. Read §4 (Corrections) before §3 (the method). The page
+itself says the method is only as good as the record of the times it went
+wrong.
+
+<ArtifactEmbed
+  src="/artifacts/tessera-class-closure.html"
+  title="Tessera: Class-Closure Threat Response, 2026-09-03"
+  height={900}
+  caption="Interactive, offline, no dependencies. Type a payload into §02 to see three readings of where a word ends. The shared page in §08 saves only to your own browser."
+  fullscreenHref="/artifacts/tessera-class-closure.html"
+/>
+
+## First action, executed
+
+The specification's first action for the Rust consolidation (issue #5) was:
+*check what the Rust `regex` crate's `\b` means by default. Not because it is
+expected to be wrong, but because assuming it agrees with the written policy
+is the exact move that started this.*
+
+This was run on 2026-09-27 against `regex` 1.13.1, using the twelve probes
+from the page:
+
+| input | default `\b` | `(?-u:\b)` | written policy |
+| --- | --- | --- | --- |
+| `critical` | match | match | match |
+| `criticalé` · `écritical` · `criticalЖ` · `critical中` | **blind** | match | match |
+| `urgentü` · `exploité` · `immediatelyé` | **blind** | match | match |
+| `hypercritical` · `critical_path` | no match | no match | no match |
+| U+FEFF / U+200B adjacent | match | match | match |
+
+**The crate's default `\b` is Unicode-aware, as Python's is, and it
+disagrees with the written policy on 7 of 12 cases.** A straight port would
+have carried the original evasion into the one implementation meant to
+retire the class. `(?-u:\b)`, the crate's ASCII-only boundary, agrees with
+the policy on all twelve. This is the third runtime default the spec warned
+about, and it lands on the Python side of the seam.
+
+### Correction, same day: the policy itself has a case-folding seam
+
+The first version of this tile said the policy could also be written directly
+as `(?i)(?:^|[^A-Za-z0-9_])(?:KEYWORDS)(?:[^A-Za-z0-9_]|$)`, and that this
+form "agrees too". It agreed on the twelve probes above because none of them
+exercised case folding. A verification pass run afterwards did:
+
+- Under case-insensitive Unicode matching, the "ASCII identifier" class
+  `[A-Za-z0-9_]` also matches non-ASCII letters that fold to ASCII. In
+  Python `re.I` those are K (U+212A, Kelvin sign), ſ (U+017F), İ (U+0130)
+  and ı (U+0131). In JavaScript `iu` and Rust `(?i)` only K and ſ fold this
+  way.
+- So `criticalK` and `ſcritical` are **blind** under the policy as written
+  in all three runtimes. `criticalİ` and `criticalı` are blind in Python
+  only, which opens a new parity split. The written sentence says Unicode
+  letters adjacent to a keyword do not suppress a detection. Here, some do.
+  This includes the `RX_POL` shipped in the page above, which is left as it
+  was: it is the record.
+- Two forms hold on every probe in all three runtimes:
+  `(?-u:\b)`, and the policy with the class kept case-sensitive and only the
+  keyword alternation folded:
+  `(?:^|[^A-Za-z0-9_])(?i:KEYWORDS)(?:[^A-Za-z0-9_]|$)`.
+- The keyword side folds too. Python `re.I` reads `crıtical` (dotless ı) as
+  `critical`; JavaScript `iu` and Rust `(?i)` do not. When Python is retired
+  as the migration oracle, a Rust core would lose that detection unless the
+  corpus pins it.
+
+Whether aletheia's real `boundary.py` and `boundary.ts` compile with
+case-insensitive flags was not checked here, because that repository is not
+part of this record. If they do, this is a new member of the class. It sits
+in the same place U+FEFF did: generation (stage 5) feeding back into naming
+the assumption (stage 2). The violated assumption is that an ASCII class
+stays ASCII under case folding. It doesn't.
+
+Twelve probes are not the 651-case corpus. The acceptance criterion stands:
+the Rust core passes the full mutation corpus, and whichever boundary form
+the core uses should be pinned by a test that names the policy, not the
+primitive.
+
+<details>
+<summary>The harness (Rust, <code>regex = "1"</code>)</summary>
+
+```rust
+use regex::Regex;
+
+fn main() {
+    let kw = "critical|urgent|exploit|breach|immediately";
+    let default_b = Regex::new(&format!(r"(?i)\b(?:{kw})\b")).unwrap();
+    let ascii_b = Regex::new(&format!(r"(?i-u:\b)(?:{kw})(?-u:\b)")).unwrap();
+    let policy = Regex::new(&format!(
+        r"(?i)(?:^|[^A-Za-z0-9_])(?:{kw})(?:[^A-Za-z0-9_]|$)"
+    )).unwrap();
+
+    let cases: &[(&str, bool)] = &[
+        ("critical", true), ("criticalé", true), ("écritical", true),
+        ("criticalЖ", true), ("critical中", true), ("urgentü", true),
+        ("exploité", true), ("immediatelyé", true),
+        ("hypercritical", false), ("critical_path", false),
+        ("\u{FEFF}critical\u{FEFF}", true), ("critical\u{200B}", true),
+    ];
+    for (s, want) in cases {
+        println!("{s:?}: default={} ascii={} policy={} expected={want}",
+            default_b.is_match(s), ascii_b.is_match(s), policy.is_match(s));
+    }
+}
+```
+
+</details>
+
+## Published with redactions
+
+aletheia is a live control. Three things are withheld from this public copy
+and marked in place: the hook's current enforcement state, the origin and
+score of one unfiled policy residue, and local filesystem paths. The closed
+`\b` finding, the method and the corrections are unchanged. The reproduction
+commands in §07 need the aletheia repository itself.

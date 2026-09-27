@@ -60,6 +60,12 @@ export default defineConfig({
         // disk, verified complete, tracked and registered in the same commit
         // per this file's own rule above.
         "https://mazzeleczzare.com/cognitive-topology/",
+        // Added 2026-09-27: the-break-is-the-record.html shipped 2026-09-23
+        // without an entry here (check-docs-drift.sh flagged it); registered
+        // alongside the cognitive-topology reshape tessera, added the same day.
+        "https://mazzeleczzare.com/artifacts/the-break-is-the-record.html",
+        "https://mazzeleczzare.com/artifacts/tessera-cognitive-topology.html",
+        "https://mazzeleczzare.com/artifacts/tessera-class-closure.html",
       ],
     }),
     react(),
