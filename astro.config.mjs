@@ -65,6 +65,7 @@ export default defineConfig({
         // alongside the cognitive-topology reshape tessera, added the same day.
         "https://mazzeleczzare.com/artifacts/the-break-is-the-record.html",
         "https://mazzeleczzare.com/artifacts/tessera-cognitive-topology.html",
+        "https://mazzeleczzare.com/artifacts/tessera-class-closure.html",
       ],
     }),
     react(),

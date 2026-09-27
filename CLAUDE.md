@@ -154,7 +154,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/support`        | `src/pages/support.astro`           | Support page                             |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
-| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tree-of-knowledge, publication-surface, the-break-is-the-record) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
+| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` | Standalone page; ships its own `fonts/` subdirectory |
@@ -174,7 +174,7 @@ Defined in `src/content.config.ts`. **Three collections** (all glob-loader,
 | ---------- | ------------- | --------------------------------------- |
 | `blog` | Essays — the primary long-form surface | (full schema below) |
 | `signal` | Transmissions from the field ledger — verse, fragments, dispatches | `transmissionId`, `cycle`, `classification`, `status`, `origin` (all optional strings; map to TransmissionFeed props) |
-| `tesserae` | Mosaic tiles — smallest modular fragments, neither essay nor transmission | blog-common fields only. First tile: `cognitive-topology-reshape.mdx` (2026-09-27), which embeds `/artifacts/tessera-cognitive-topology.html` and links its spec/trace/changelog under `public/cognitive-topology/reshape/` |
+| `tesserae` | Mosaic tiles — smallest modular fragments, neither essay nor transmission | blog-common fields only. Tiles (2026-09-27): `cognitive-topology-reshape.mdx` (embeds `/artifacts/tessera-cognitive-topology.html`, links spec/trace/changelog under `public/cognitive-topology/reshape/`) and `class-closure.mdx` (project `aletheia`; embeds `/artifacts/tessera-class-closure.html`, published with live-control details redacted and marked in place) |
 
 **Constellation fields** (`project?: string`, `committed?: boolean`,
 `resolved?: boolean`) exist on **all three** collections (`blog`, `signal`,
