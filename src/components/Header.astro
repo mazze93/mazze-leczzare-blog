@@ -321,6 +321,10 @@ nav {
   }
   .util-link { display: none; }
   :global(.theme-toggle) { display: inline-flex; }
+  /* Wrap, don't overflow: at 390px the single row of nine items ran ~114px
+     past the viewport and gave every page a horizontal scroll. Wrapping (not
+     overflow-x: auto) so the absolutely-positioned Studio menu isn't clipped. */
+  .nav-links { flex-wrap: wrap; flex-basis: 100%; min-width: 0; row-gap: 0; }
   .nav-links a { padding: 0.3em 0.5em; }
   .nav-disclosure { padding: 0.3em 0.5em; }
   /* The nav wraps at this width, so an absolutely-positioned menu can hang off
