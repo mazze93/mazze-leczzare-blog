@@ -292,7 +292,14 @@
 
     // ---- ledger + gauges, epoch-driven ----
     var tb=document.querySelector("#ledger tbody");
-    function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+    // Ledger fields come from the embedded record, so they are written as
+    // text nodes (textContent), never parsed as HTML.
+    function el(tag,cls,text){
+      var n=document.createElement(tag);
+      if(cls)n.className=cls;
+      if(text!=null)n.textContent=String(text);
+      return n;
+    }
     function render(epoch){
       // gauges
       var p=projection(epoch);
@@ -304,17 +311,24 @@
       document.getElementById("l-epoch").textContent=epoch;
       document.getElementById("m-epoch").textContent=epoch;
       // ledger
-      tb.innerHTML="";
+      tb.textContent="";
       EV.forEach(function(e){
         if(e.seq>epoch)return;
         var isOrig=(e.type==="decision"||e.type==="foreclosure");
         var st=isOrig?statusAt(e.id,epoch):"—";
         var au=isOrig?authority(e.id,epoch):"—";
         var tr=document.createElement("tr");
-        var shadow=e.claim&&e.claim.shadow?'<span class="shadow">shadow ['+e.claim.shadow.tag+' · '+e.claim.shadow.certainty+']: '+esc(e.claim.shadow.trace)+'</span>':'';
-        var pill=isOrig?'<span class="pill '+au+'">'+au+'</span>':'—';
-        tr.innerHTML='<td class="id">'+e.id+'</td><td>'+e.type+'</td><td class="mono">'+st+'</td><td>'+pill+'</td>'+
-          '<td>'+esc(e.claim.narrative)+shadow+'</td>';
+        tr.appendChild(el("td","id",e.id));
+        tr.appendChild(el("td",null,e.type));
+        tr.appendChild(el("td","mono",st));
+        var auCell=el("td");
+        // au is one of four fixed tier names from authority(), safe as a class
+        auCell.appendChild(isOrig?el("span","pill "+au,au):document.createTextNode("—"));
+        tr.appendChild(auCell);
+        var claim=el("td",null,e.claim&&e.claim.narrative);
+        var sh=e.claim&&e.claim.shadow;
+        if(sh)claim.appendChild(el("span","shadow","shadow ["+sh.tag+" · "+sh.certainty+"]: "+sh.trace));
+        tr.appendChild(claim);
         tb.appendChild(tr);
       });
     }
