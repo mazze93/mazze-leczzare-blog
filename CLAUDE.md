@@ -497,6 +497,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology           |
 | `verify-lockfile.sh`      | Checks `package-lock.json` is in sync                          |
 | `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
+| `extend-portrait.py`     | Regenerates `src/assets/images/about/mazze-portrait-wide.jpg` (the /about 2:1 hero) from `public/mazze-headshot.jpg` by extending the photo's own backdrop — run it if the headshot changes |
 
 `scripts/bootstrap-dev-toolbelt.sh` — one-time developer environment bootstrap (separate from ops).
 
