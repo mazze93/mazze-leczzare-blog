@@ -1,0 +1,44 @@
+---
+title: "Cognitive Topology → Stratum Ingress"
+description: "The handoff tessera for ct-reshape@0.6.0: cognitive-topology reshaped from a standalone marketplace into Stratum's first ingress client, recorded in the ledger it writes to. Ratified 2026-09-06."
+pubDate: 2026-09-27
+tags: ["cognitive-topology", "stratum", "tessera", "kintsugi", "decision ledger"]
+project: "cognitive-topology"
+draft: false
+---
+
+import ArtifactEmbed from '../../components/blog/ArtifactEmbed.astro';
+
+The first version of cognitive-topology was built before I knew Stratum existed.
+It reimplemented, in prose, three things Stratum had already shipped and
+superseded: the tessera as an editable file, memory tiers as stores, and twelve
+roles shipped at once. The reshape turns it into Stratum's first ingress client.
+It emits explicit decisions as events and reads their status back as a fold.
+The change is an integration, not a deletion.
+
+This tile is the handoff for that reshape. Its human view is rendered from its
+own machine record: thirteen genesis events, `ct-000` through `ct-012`, embedded
+in the page. Drag the core-depth scrubber to replay the fold. `ct-011` loses its
+evidence and the reframe un-ratifies as you move back past their markers.
+
+<ArtifactEmbed
+  src="/artifacts/tessera-cognitive-topology.html"
+  title="Tessera handoff: cognitive-topology → Stratum ingress, ct-reshape@0.6.0"
+  height={900}
+  caption="Interactive. Nine phases; the gold-seamed tiles are the breaks, where the work was wrong and was mended in view."
+  fullscreenHref="/artifacts/tessera-cognitive-topology.html"
+/>
+
+## The records
+
+- [ct-reshape@0.6.0 spec](/cognitive-topology/reshape/cognitive-topology-reshape.spec.md): the execution spec, ratified 2026-09-06. The envelope and birth-status legality are confirmed from Stratum source.
+- [Genesis trace (JSONL)](/cognitive-topology/reshape/cognitive-topology-trace.jsonl): the machine record, `schema_version: 1`.
+- [Changelog](/cognitive-topology/reshape/CHANGELOG.md): the human-readable projection of that record, with the spec's revision history from 0.2.0 to 0.6.0.
+
+## Status
+
+The reframe is ratified. It has not been executed yet. Marketplace `0.2.0` is
+the target, and its completion will post as ledger events before `v0.2.0` is
+tagged. Until those events exist, this tile records a decision, not a delivery.
+
+The architecture this reshapes is on the [Cognitive Topology](/cognitive-topology/) page.
