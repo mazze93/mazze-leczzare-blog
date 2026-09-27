@@ -164,7 +164,7 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
       <section class="ab-row" aria-labelledby="ab-methods">
         <div class="ab-row__label">
           <h2 id="ab-methods">Methods</h2>
-          <p class="ab-row__note">Everything below is open source and runs from its README. Each tool states what it does not guarantee.</p>
+          <p class="ab-row__note">How claims get checked here. Every instrument listed is an open repository.</p>
         </div>
         <div class="ab-row__body">
           <dl class="ab-engage">
@@ -548,7 +548,7 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
   .ab-role__body :global(em) { color: var(--text); }
 
   /* ── Citations ── */
-  .ab-cites { list-style: none; }
+  .ab-cites { list-style: none; margin: 0; padding: 0; }
   .ab-cites li { border-bottom: 1px solid var(--rule); }
   .ab-cites li:first-child { border-top: 1px solid var(--rule); }
   .ab .ab-cites a {
@@ -820,5 +820,7 @@ const securityEmail = SITE_EMAIL.replace('mailto:', '');
     .ab .ab-cites a,
     .ab .ab-cites--tools a { grid-template-columns: minmax(0, 1fr); gap: 4px; }
     .ab-questions__text, .ab-pubs__title { font-size: 1.1rem; }
+    /* Wrap the BibTeX on phones rather than hiding half the title off-edge. */
+    .ab-cite__bib { white-space: pre-wrap; overflow-wrap: anywhere; }
   }
 </style>
