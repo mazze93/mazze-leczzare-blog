@@ -83,12 +83,24 @@ exercised case folding. A verification pass run afterwards did:
   as the migration oracle, a Rust core would lose that detection unless the
   corpus pins it.
 
-Whether aletheia's real `boundary.py` and `boundary.ts` compile with
-case-insensitive flags was not checked here, because that repository is not
-part of this record. If they do, this is a new member of the class. It sits
-in the same place U+FEFF did: generation (stage 5) feeding back into naming
-the assumption (stage 2). The violated assumption is that an ASCII class
-stays ASCII under case folding. It doesn't.
+**Confirmed in the real code, and fixed.** The first version of this
+correction could only say the finding held *if* aletheia compiled its bounded
+patterns case-insensitively. Checked against the source the same day, it did,
+in fifteen patterns per runtime. In the deployed assessor a single Kelvin sign
+dropped `critical` from 0.286 to 0.0: 116 blinded mutations across 15 of 21
+seeds. It is a new member of the class, sitting in the same place U+FEFF did:
+generation (stage 5) feeding back into naming the assumption (stage 2). The
+violated assumption is that an ASCII class stays ASCII under case folding.
+
+The fix landed in
+[aletheia#21](https://github.com/mazze93/aletheia/pull/21). It follows the
+method: the policy was written in English first; the keyword is rewritten into
+explicit case classes, so neither runtime needs an ignore-case flag; the
+four-letter fold family was added to the mutation corpus (651 → 819 cases);
+and a gate now fails the build if a bounded pattern is compiled
+case-insensitively again. A second adversarial pass on the fix found two
+latent gaps in its own tooling. The gate read lines instead of calls, and the
+rewrite folded letters inside `\x` escapes. Both were closed before merge.
 
 Twelve probes are not the 651-case corpus. The acceptance criterion stands:
 the Rust core passes the full mutation corpus, and whichever boundary form
