@@ -17,15 +17,15 @@
  * docblock carries the sourcing rule and the sources read. This file only
  * lays it out.
  *
- * Interaction: <SeamCursor /> (dot + spring-lagged gold ring) mounts here
- * only. It self-gates on fine pointer / reduced motion / forced colours.
+ * Interaction: the SeamCursor (dot + spring-lagged gold ring) is mounted
+ * sitewide by Header.astro; it self-gates on fine pointer / reduced motion /
+ * forced colours.
  */
 import { getImage } from 'astro:assets';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Seam from '../components/Seam.astro';
-import SeamCursor from '../components/SeamCursor.astro';
 import { SITE_EMAIL, SITE_GITHUB_URL } from '../consts';
 import {
   PROGRAM, PROPOSITION, QUESTIONS, CURRENT_STUDY, INSTRUMENTS,
@@ -83,7 +83,6 @@ const [wideAvif, wideWebp, sqAvif, sqWebp, sqJpg] = await Promise.all([
   </head>
   <body>
     <Header />
-    <SeamCursor />
 
     <!-- Atmosphere: grain + a low gold dawn at the top edge. Scoped to this
          wrapper (absolute, not fixed) so it never washes over the footer.
