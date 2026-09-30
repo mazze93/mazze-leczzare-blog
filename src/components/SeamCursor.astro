@@ -13,6 +13,9 @@
  *          Swells over anything clickable, which doubles as the hover cue.
  *   ring — --gold-seam hairline on a damped spring (k 120, c 18, m 1).
  *
+ * Sitewide: mounted once in Header.astro and persisted across ClientRouter
+ * navigations (transition:persist), so the spring state carries between pages.
+ *
  * Mounts nothing, and leaves the native cursor alone, unless ALL of:
  *   - the primary pointer is fine (mouse/trackpad) — touch never sees it
  *   - prefers-reduced-motion is not "reduce" — a lagging ring IS motion
@@ -36,7 +39,7 @@
 export interface Props {}
 ---
 
-<div class="seam-cursor" aria-hidden="true" hidden>
+<div class="seam-cursor" aria-hidden="true" hidden transition:persist="seam-cursor">
   <div class="seam-cursor__ring"></div>
   <div class="seam-cursor__dot"></div>
 </div>
@@ -123,7 +126,19 @@ export interface Props {}
   }
 
   const root = document.querySelector<HTMLElement>('.seam-cursor');
-  if (root && canMount()) mount(root);
+  if (root && canMount()) {
+    mount(root);
+    // ClientRouter rewrites <html>'s attributes on every navigation, which
+    // drops has-seam-cursor while the persisted element and its listeners
+    // survive. Re-arm it after each swap, but only if the ring is actually in
+    // the new document: the class hides the native cursor, so it must never
+    // outlive the element that replaces it.
+    document.addEventListener('astro:after-swap', () => {
+      if (document.querySelector('.seam-cursor')) {
+        document.documentElement.classList.add('has-seam-cursor');
+      }
+    });
+  }
 </script>
 
 <style>

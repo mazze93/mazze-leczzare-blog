@@ -2,6 +2,7 @@
 import { SITE_TITLE, COMPASS_LABEL } from '../consts';
 import ThemeToggle from './ThemeToggle';
 import CompassLink from './CompassLink.astro';
+import SeamCursor from './SeamCursor.astro';
 
 /**
  * minimal — masthead only (brand + utilities), no atlas nav. For pages that
@@ -58,6 +59,9 @@ const { minimal = false } = Astro.props;
     </div>
   </nav>
 </header>
+<!-- Sitewide pointer. Header is on every page, so it is mounted here once;
+     the component persists across ClientRouter navigations. -->
+<SeamCursor />
 
 <style>
 header {
