@@ -49,7 +49,7 @@ const primaryConcepts = ['decision-telemetry', 'context-synapse', 'secure-pride'
         ]}>
           <a href={`/blog/${featured.id}/`} class="featured-link">
             {featured.data.heroImage && (
-              <div class="featured-image">
+              <div class:list={['featured-image', featured.data.heroDim === false && 'featured-image--clear']}>
                 {FeaturedSvg ? (
                   <FeaturedSvg preserveAspectRatio="xMidYMid slice" />
                 ) : typeof featured.data.heroImage === 'object' ? (
@@ -282,6 +282,14 @@ main {
 .featured-card:hover .featured-image :global(svg) {
   filter: brightness(0.8);
   transform: scale(1.02);
+}
+
+/* heroDim: false in frontmatter: the card carries its own colour, so no dimming. */
+.featured-image--clear img,
+.featured-image--clear :global(svg),
+.featured-card:hover .featured-image--clear img,
+.featured-card:hover .featured-image--clear :global(svg) {
+  filter: none;
 }
 
 .featured-body {
