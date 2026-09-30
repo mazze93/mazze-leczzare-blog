@@ -227,6 +227,9 @@ const uniqueWordCount = Object.keys(wordFreq).length;
     width: min(860px, 100%);
     margin: 0 auto;
     display: grid;
+    /* Without minmax(0, …) the track grows to its widest child (a non-wrapping
+       stat-grid was 746px wide inside a 288px column at 320px). */
+    grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
   }
 
@@ -364,6 +367,9 @@ const uniqueWordCount = Object.keys(wordFreq).length;
     padding: 0;
     margin: 0;
     display: grid;
+    /* minmax(0, 1fr): the nowrap post titles otherwise size the auto track
+       (712px inside a 288px panel at 320px). */
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.25rem;
   }
 
@@ -470,6 +476,7 @@ const uniqueWordCount = Object.keys(wordFreq).length;
     padding: 0;
     margin: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr); /* see .posts-list */
     gap: 0.5rem;
   }
 

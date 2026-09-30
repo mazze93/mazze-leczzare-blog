@@ -101,7 +101,8 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  flex-wrap: wrap; /* brand + nav needs ~400px; wrap instead of overflowing a 320px phone */
+  gap: 8px 16px;
 }
 .brand {
   display: flex;
@@ -123,6 +124,7 @@ a { color: inherit; }
   color: var(--ink-muted);
   margin-left: 22px;
 }
+.topbar nav a:first-child { margin-left: 0; } /* the flex gap already spaces it */
 .topbar nav a:hover { color: var(--seam); }
 
 /* ---------- Hero ---------- */
