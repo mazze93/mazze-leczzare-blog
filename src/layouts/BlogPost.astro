@@ -28,6 +28,7 @@ type Props = {
   heroImage?: ImageMetadata | SvgComponent | string;
   heroImageOG?: string;
   heroImageAlt?: string;
+  heroDim?: boolean;
   contentType?: 'artifact' | 'dispatch' | 'field-note';
   repoUrl?: string;
   frontmatter?: {
@@ -40,6 +41,7 @@ type Props = {
     heroImage?: string;
     heroImageOG?: string;
     heroImageAlt?: string;
+    heroDim?: boolean;
     contentType?: 'artifact' | 'dispatch' | 'field-note';
     repoUrl?: string;
   };
@@ -57,6 +59,7 @@ const subtitle = resolved.subtitle;
 const tags = resolved.tags ?? [];
 const heroImage = resolved.heroImage;
 const heroImageAlt = resolved.heroImageAlt ?? title;
+const heroDim = resolved.heroDim !== false;
 // Capitalised: Astro only treats a capitalised identifier as a component.
 const HeroSvg = typeof heroImage === 'function' ? heroImage : undefined;
 const contentType = resolved.contentType ?? 'field-note';
@@ -182,6 +185,8 @@ const articleSchema = {
       border-radius: 0;
       filter: brightness(0.55);
     }
+    .hero-wrap--clear img,
+    .hero-wrap--clear :global(svg) { filter: none; }
     .hero-scrim {
       position: absolute;
       inset: 0;
@@ -442,7 +447,7 @@ const articleSchema = {
   <main>
     <article>
       {heroImage && (
-        <div class="hero-wrap">
+        <div class:list={['hero-wrap', !heroDim && 'hero-wrap--clear']}>
           {HeroSvg ? (
             // SVG heroes render inline; the file's own <title>/aria-label
             // carries the accessible name.
