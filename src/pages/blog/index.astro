@@ -12,6 +12,9 @@ const allPosts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 );
 
 const [featured, ...rest] = allPosts;
+// Astro 7 imports an .svg as a component (a function), not ImageMetadata; see BlogPost.astro.
+const FeaturedSvg =
+  typeof featured?.data.heroImage === 'function' ? featured.data.heroImage : undefined;
 
 const primaryConcepts = ['decision-telemetry', 'context-synapse', 'secure-pride', 'cipher-gothic'];
 ---
@@ -46,8 +49,10 @@ const primaryConcepts = ['decision-telemetry', 'context-synapse', 'secure-pride'
         ]}>
           <a href={`/blog/${featured.id}/`} class="featured-link">
             {featured.data.heroImage && (
-              <div class="featured-image">
-                {typeof featured.data.heroImage === 'object' ? (
+              <div class:list={['featured-image', featured.data.heroDim === false && 'featured-image--clear']}>
+                {FeaturedSvg ? (
+                  <FeaturedSvg preserveAspectRatio="xMidYMid slice" />
+                ) : typeof featured.data.heroImage === 'object' ? (
                   <Image
                     src={featured.data.heroImage}
                     alt={(featured.data as any).heroImageAlt || featured.data.title}
@@ -262,7 +267,8 @@ main {
   overflow: hidden;
 }
 
-.featured-image img {
+.featured-image img,
+.featured-image :global(svg) {
   display: block;
   width: 100%;
   height: 100%;
@@ -272,9 +278,18 @@ main {
   transition: filter var(--transition-slow), transform var(--transition-slow);
 }
 
-.featured-card:hover .featured-image img {
+.featured-card:hover .featured-image img,
+.featured-card:hover .featured-image :global(svg) {
   filter: brightness(0.8);
   transform: scale(1.02);
+}
+
+/* heroDim: false in frontmatter: the card carries its own colour, so no dimming. */
+.featured-image--clear img,
+.featured-image--clear :global(svg),
+.featured-card:hover .featured-image--clear img,
+.featured-card:hover .featured-image--clear :global(svg) {
+  filter: none;
 }
 
 .featured-body {

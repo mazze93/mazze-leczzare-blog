@@ -37,6 +37,13 @@
 @import '@fontsource/dm-mono/latin-400-italic.css';
 @import '@fontsource/dm-mono/latin-500.css';
 @import '@fontsource/dm-mono/latin-500-italic.css';
+/* Literata — the reading face for blog prose (.prose > p / li in BlogPost.astro).
+   A screen serif with a real text-size design: it holds up at 17–19px on a
+   dark ground where Cormorant's hairlines thin out. DM Mono stays the voice
+   of labels, code, dates and tags. 400 body · 400 italic em · 600 strong. */
+@import '@fontsource/literata/latin-400.css';
+@import '@fontsource/literata/latin-400-italic.css';
+@import '@fontsource/literata/latin-600.css';
 @import './compass.css';
 /* Haven / Ink — the approved light-mode palette. Wired 2026-08-02; it had sat
    unimported since 2026-07-17 with a "not yet wired" note, which is why light
@@ -62,9 +69,10 @@
      — see the Design Systems section of CLAUDE.md. */
   --teal:       #5CCFCF;
   /* The -dim pair are used as text colours (.tag:hover), so they are tuned to
-     clear WCAG AA (4.5:1) on --bg #0f1210, not just picked by eye. Both of
-     their predecessors failed it: #1c6964 was 2.92:1 and #a04030 was 2.94:1.
-     Current: #2f8a8a = 4.60:1, #c25f65 = 4.59:1. */
+     clear WCAG AA (4.5:1) on --bg, not just picked by eye. Both of their
+     predecessors failed it: #1c6964 was 2.92:1 and #a04030 was 2.94:1.
+     Tuned against the old #0f1210 ground (4.60:1 / 4.59:1); the darker Ink
+     ground #0b0e15 only raises them: re-measured 2026-09-25 at 4.71:1 each. */
   --teal-dim:   #2f8a8a;
   --coral:      #F07178;
   --coral-dim:  #c25f65;
@@ -87,15 +95,32 @@
   --paper-soft: #c4bdab;
   --muted-warm: #a39c84;
 
-  /* Dark mode tokens (default) */
-  --charcoal:   #0f1210;
-  --bg:         #0f1210;
+  /* Dark mode tokens (default).
+     Ground moved 2026-09-25 from #0f1210 (a green-black that read as murky
+     olive/brown on many screens) to the Kintsugi Ink family already defined
+     above: --bg = --ink-deep, --surface = --ink-raise, rule tuned to match.
+     Written as literals rather than var(--ink-*) so the light-mode block keeps
+     overriding these five without inheriting an Ink reference. */
+  --charcoal:   #0b0e15;
+  --bg:         #0b0e15;
   --text:       #c8cec8;
   --text-dim:   #8a9890;
   --text-faint: #7a9090;
-  --rule:       #1e2a26;
-  --surface:    #111a17;
-  --header-bg:  rgba(15, 18, 16, 0.92);
+  --rule:       #1f2633;
+  --surface:    #121723;
+  --header-bg:  rgba(11, 14, 21, 0.92);
+
+  /* Blog prose — reading face + temperature contrast.
+     Warm paper text on the cool Ink ground (dark); cool ink text on warm paper
+     (light — see the [data-theme="light"] block). The two modes mirror each
+     other. Consumed by src/layouts/BlogPost.astro only. */
+  --font-prose:      'Literata', Georgia, serif;
+  --prose-text:      var(--paper-soft);      /* #c4bdab — 10.3:1 on --bg */
+  --prose-heading:   var(--paper);           /* #ece7da — title, h2, lead, strong */
+  --prose-subtitle:  var(--muted-warm);      /* #a39c84 */
+  --prose-gold:      var(--gold-seam-bright);/* #e6c478 — drop cap, em */
+  --prose-mark:      var(--gold);            /* #cda24e — § section labels */
+  --prose-glow:      #1a2233;                /* top-of-page ground lift */
 
   /* Semantic aliases */
   --accent:     var(--teal);
@@ -138,7 +163,7 @@
   --z-header: 100;
 
   /* Theme-color values (used by JS to update <meta name="theme-color">) */
-  --theme-color-dark:  #0f1210;
+  --theme-color-dark:  #0b0e15;
   --theme-color-light: #f5f0e8;
 
   /* ---- Brand palette (Constellation architecture, 2026-05) ------------- */
@@ -486,6 +511,16 @@ body[data-layout="homepage"] {
   --paper:            var(--hv-high);
   --paper-soft:       var(--hv-mid);
   --muted-warm:       var(--ink-3);
+
+  /* ---- Blog prose, light: cool ink on warm paper -----------------------
+     The mirror of dark mode's warm-on-cool. Gold goes to the deep seam value
+     (#6f5628, 6.1:1 on --bg) — the bright gold vanishes into paper. */
+  --prose-text:      #1b2130;
+  --prose-heading:   #0b0e15;
+  --prose-subtitle:  #4a4538;
+  --prose-gold:      var(--gold-seam-deep);
+  --prose-mark:      var(--gold-seam-deep);
+  --prose-glow:      #fbf8f2;
 }
 
 /* Constellation sky, light — the ink-on-paper star chart the Haven/Ink file

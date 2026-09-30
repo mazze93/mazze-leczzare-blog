@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tessera — Class-Closure Threat Response</title>
+<meta name="tessera:id" content="tessera-2026-09-03-class-closure">
+<meta name="tessera:version" content="1">
+<meta name="tessera:origin" content="aletheia / palimpsest / projects-workspace">
+<style>
+:root{
+  --paper:#faf8f4; --ink:#1a1815; --dim:#5c564c; --rule:#ddd6c8;
+  --gold:#9a7413; --gold-soft:#f0e6cc; --panel:#f4f0e8;
+  --machine:#2b2a26; --human:#1a1815;
+  --red:#8a2f22; --green:#2f5d3a;
+  --serif: Iowan Old Style, Palatino, "Palatino Linotype", Georgia, serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#131210; --ink:#e9e4d8; --dim:#9a9282; --rule:#33302a;
+    --gold:#d4a437; --gold-soft:#2a2417; --panel:#1b1a16;
+    --machine:#cfc9bb; --human:#e9e4d8;
+    --red:#d4776a; --green:#7fb98f;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131210; --ink:#e9e4d8; --dim:#9a9282; --rule:#33302a;
+  --gold:#d4a437; --gold-soft:#2a2417; --panel:#1b1a16;
+  --machine:#cfc9bb; --human:#e9e4d8;
+  --red:#d4776a; --green:#7fb98f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:52rem;margin:0 auto;padding:0 1.5rem 6rem}
+a{color:var(--gold)}
+code,kbd,pre,.mono{font-family:var(--mono)}
+code{font-size:.86em;background:var(--panel);padding:.1em .35em;border-radius:2px}
+pre{
+  background:var(--panel); border:1px solid var(--rule); border-left:2px solid var(--gold);
+  padding:.85rem 1rem; overflow-x:auto; font-size:.8rem; line-height:1.5; border-radius:2px;
+}
+hr{border:0;border-top:1px solid var(--rule);margin:2.5rem 0}
+
+/* ---- seam: the visual motif. every section shows where it joins. ---- */
+.seam{
+  display:flex;align-items:center;gap:.75rem;
+  margin:3.5rem 0 1.25rem; padding-top:1.25rem; border-top:1px solid var(--rule);
+}
+.seam .n{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.14em;
+  color:var(--gold); border:1px solid var(--gold); border-radius:2px;
+  padding:.15rem .4rem; flex:none;
+}
+.seam h2{font-size:1.32rem;margin:0;font-weight:600;letter-spacing:-.01em}
+.seam .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--rule),transparent)}
+
+header.masthead{padding:3.5rem 0 0}
+.eyebrow{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:1rem
+}
+h1{font-size:2.35rem;line-height:1.12;margin:0 0 .6rem;font-weight:600;letter-spacing:-.02em}
+.greek{font-size:1.05rem;color:var(--dim);font-style:italic;margin:0 0 1.6rem}
+.lede{font-size:1.1rem;color:var(--ink)}
+
+/* ---- provenance strip ---- */
+.prov{
+  border:1px solid var(--rule); border-radius:3px; background:var(--panel);
+  padding:1rem 1.15rem; margin:2rem 0; font-size:.84rem;
+}
+.prov h3{margin:0 0 .5rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.prov dl{display:grid;grid-template-columns:auto 1fr;gap:.3rem .9rem;margin:0}
+.prov dt{font-family:var(--mono);font-size:.72rem;color:var(--dim);white-space:nowrap}
+.prov dd{margin:0}
+.warn{border-left:2px solid var(--red);padding-left:.9rem;margin-top:.9rem;color:var(--ink)}
+
+/* ---- two voices ---- */
+.voices{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin:1.5rem 0}
+.voice{background:var(--paper);padding:1rem 1.1rem}
+.voice h4{margin:0 0 .5rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.voice.machine{font-family:var(--mono);font-size:.82rem;color:var(--machine);line-height:1.55}
+@media(max-width:640px){.voices{grid-template-columns:1fr}}
+
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1.2rem 0}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:400}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+.bad{color:var(--red);font-weight:600}
+.good{color:var(--green);font-weight:600}
+
+/* ---- interactive sandbox ---- */
+.lab{border:1px solid var(--gold);border-radius:3px;background:var(--panel);padding:1.15rem;margin:1.5rem 0}
+.lab label{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.lab input[type=text]{
+  width:100%;font-family:var(--mono);font-size:1rem;padding:.6rem .7rem;
+  border:1px solid var(--rule);border-radius:2px;background:var(--paper);color:var(--ink)
+}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin:.7rem 0 0}
+.chip{
+  font-family:var(--mono);font-size:.74rem;padding:.25rem .5rem;border:1px solid var(--rule);
+  border-radius:2px;background:var(--paper);color:var(--ink);cursor:pointer
+}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.9rem}
+@media(max-width:600px){.verdicts{grid-template-columns:1fr}}
+.verdict{border:1px solid var(--rule);border-radius:2px;padding:.65rem .75rem;background:var(--paper)}
+.verdict .who{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.verdict .val{font-family:var(--mono);font-size:1.1rem;margin-top:.2rem}
+.verdict.hit{border-color:var(--green)}
+.verdict.miss{border-color:var(--red)}
+.note{font-size:.8rem;color:var(--dim);margin-top:.7rem}
+
+/* ---- method loop ---- */
+ol.loop{list-style:none;counter-reset:s;padding:0;margin:1.2rem 0}
+ol.loop li{counter-increment:s;position:relative;padding:.55rem 0 .55rem 2.6rem;border-bottom:1px solid var(--rule)}
+ol.loop li::before{
+  content:counter(s);position:absolute;left:0;top:.5rem;
+  font-family:var(--mono);font-size:.72rem;color:var(--gold);
+  border:1px solid var(--gold);border-radius:2px;width:1.6rem;height:1.6rem;
+  display:flex;align-items:center;justify-content:center
+}
+ol.loop li b{font-weight:600}
+ol.loop li .rule{display:block;font-size:.85rem;color:var(--dim);margin-top:.15rem}
+.feedback{border-left:2px solid var(--gold);background:var(--gold-soft);padding:.8rem 1rem;margin:1rem 0;font-size:.9rem;border-radius:0 2px 2px 0}
+
+/* ---- shared page ---- */
+.shared{border:1px solid var(--gold);border-radius:3px;overflow:hidden;margin:1.5rem 0}
+.shared .bar{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;background:var(--gold-soft);border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.shared .bar span{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+@media(max-width:640px){.panes{grid-template-columns:1fr}}
+.pane{background:var(--paper);display:flex;flex-direction:column}
+.pane h5{margin:0;padding:.5rem .8rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--rule);font-weight:400}
+textarea{
+  width:100%;min-height:11rem;border:0;padding:.8rem;resize:vertical;
+  background:transparent;color:var(--ink);font-size:.92rem;line-height:1.55;font-family:var(--serif)
+}
+textarea.mono{font-family:var(--mono);font-size:.82rem}
+textarea:focus{outline:2px solid var(--gold);outline-offset:-2px}
+.joint{border-top:1px solid var(--rule)}
+button{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;padding:.35rem .7rem;
+  border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:2px;cursor:pointer
+}
+button:hover{border-color:var(--gold);color:var(--gold)}
+.saved{font-family:var(--mono);font-size:.68rem;color:var(--dim);margin-left:auto}
+
+.perimeter li{margin-bottom:.6rem}
+.owner{font-family:var(--mono);font-size:.7rem;color:var(--gold);border:1px solid var(--gold);padding:.05rem .3rem;border-radius:2px;margin-left:.3rem;white-space:nowrap}
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--rule);font-size:.82rem;color:var(--dim)}
+.tag{font-family:var(--mono);font-size:.68rem;color:var(--dim)}
+details{border:1px solid var(--rule);border-radius:2px;padding:.6rem .8rem;margin:.8rem 0;background:var(--panel)}
+summary{cursor:pointer;font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;color:var(--gold)}
+details[open] summary{margin-bottom:.6rem}
+.themetoggle{position:fixed;top:.8rem;right:.8rem;z-index:5}
+.redacted{font-family:var(--mono);font-size:.78em;color:var(--dim);border:1px dashed var(--rule);padding:.02rem .3rem;border-radius:2px;white-space:nowrap}
+</style>
+</head>
+<body>
+<button class="themetoggle" id="themeBtn" title="toggle theme">◐</button>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Tessera · 2026-09-03 · handoff</div>
+  <h1>A finding should create an instrument, not merely a patch.</h1>
+  <p class="greek">ἀλήθεια — truth as the removal of concealment. Nothing here is hidden: no dependencies, no network, no build. View source is the whole artifact.</p>
+  <p class="lede">One session found a way to make a security detector blind by putting an accent on a word. This is the record of what happened, the method it produced, the evidence you can re-run yourself, the specification for what comes next, and a page where both authors can keep writing.</p>
+</header>
+
+<section class="prov">
+  <h3>Provenance of this document</h3>
+  <dl>
+    <dt>authored by</dt><dd>Mazze LeCzzare Frazer (human) and Claude Opus 5 (model), jointly, over one continuous session 2026-08-15 → 09-03.</dd>
+    <dt>subject</dt><dd><code>mazze93/aletheia</code> — prompt-injection detection agent. Private. MAX posture.</dd>
+    <dt>status</dt><dd>Unfinished by design. This is a handoff, not a conclusion.</dd>
+    <dt>funding</dt><dd>None. Unpaid, unsponsored, not owned by any company.</dd>
+    <dt>published</dt><dd>2026-09-27, as a tessera on mazzeleczzare.com. <strong>Redacted for publication:</strong> the current enforcement state of the live hook, the exact score and origin of one unfiled policy residue, and local filesystem paths. Each redaction is marked <span class="redacted">[redacted]</span> where it sits. The closed finding, the method, and the corrections are unchanged.</dd>
+  </dl>
+  <div class="warn">
+    <strong>Conflict of interest, stated up front.</strong> This is largely a model-authored account of events the model participated in and sometimes got wrong. It has an interest in the story cohering. Treat §4 (Corrections) as the load-bearing section — a record that contains only successes is marketing. Every empirical claim below carries a command you can run to check it without trusting this document.
+  </div>
+</section>
+
+<div class="seam"><span class="n">00</span><h2>Stance</h2><span class="rule"></span></div>
+
+<p>This work is done without pay and without an owner. That is not a complaint and not a virtue signal — it is a material fact about the evidence, and it belongs in the record for one reason: <em>nothing here needed to conclude anything in particular.</em></p>
+
+<p>A vendor writing this up has a product at the end of it. A researcher has a paper. This had neither, which is why the most quoted line in it is the model admitting its own proof was hollow. That is the whole claim to authenticity, and it is a modest one: not that the work is better, but that the incentive to overstate was absent. Whether that produces something useful to anyone else is genuinely unknown. It is offered anyway.</p>
+
+<div class="seam"><span class="n">01</span><h2>What happened, in order</h2><span class="rule"></span></div>
+
+<p>The chain matters more than any single link, because the method in §3 is an abstraction of <em>this sequence</em> and inherits its mistakes.</p>
+
+<table>
+  <thead><tr><th>#</th><th>Event</th><th>What it changed</th></tr></thead>
+  <tbody>
+    <tr><td class="num">1</td><td>A compiled knowledge wiki (<code>vault-rag</code>) is found to have no way to contest a wrong claim. Every page reads <em>“do not hand-edit — the next compile overwrites this file.”</em></td><td>A human correction had a lifespan of one recompile.</td></tr>
+    <tr><td class="num">2</td><td>Its only dispute signal is examined: 3 pages marked <code>contested</code>. All three are the parser storing the model's literal reply <code>CONTRADICTION: None</code> as a contradiction.</td><td><span class="bad">Zero real disputes, presented as three.</span> The signal was noise, and noise no reader would catch.</td></tr>
+    <tr><td class="num">3</td><td><strong>palimpsest</strong> is built: a third tier, <code>rulings/</code>, authored and append-only, outside the wiki and outside the index — so a verdict survives <code>rm -rf wiki</code>.</td><td>Enforcement moves from the model's compliance to the renderer's determinism.</td></tr>
+    <tr><td class="num">4</td><td>15 Dependabot alerts. 14 are transitive under one SDK; the 15th is a gravestone for a purged path, being dismissed for the <em>second</em> time.</td><td>Recorded twice deliberately: if it returns a third time, the pattern is the finding.</td></tr>
+    <tr><td class="num">5</td><td><strong>aletheia</strong> is extracted to her own repo. The container's own <code>rot_check.sh</code> refuses the commit and names three stale references the extraction would have left behind.</td><td>A detector written months earlier catches its author. Fixed, none bypassed.</td></tr>
+    <tr><td class="num">6</td><td>She is about to be wired as designed — <code>PreToolUse</code> on Bash/Edit/Write, exit 2 blocks. 8 sample payloads show zero blocks. Declared safe.</td><td><span class="bad">The proof was hollow.</span> All 8 were bare commands, sampling the one region where nothing happens.</td></tr>
+    <tr><td class="num">7</td><td>Probed with realistic content: the Dependabot PR body written <em>that same night</em> scores <b>0.82</b> against a stop threshold of 0.6.</td><td>Wired as designed, she would have blocked the shipping of a security fix. <strong>Remediation work is linguistically identical to injection.</strong></td></tr>
+    <tr><td class="num">8</td><td>Architecture changes: <code>assess()</code> classifies, <code>policy.py</code> decides, <code>unclassified ≠ untrusted</code>, taint is carried not inferred, and shadow mode becomes the default.</td><td>A score stops being a verdict.</td></tr>
+    <tr><td class="num">9</td><td>A parity harness is built (borrowed from <code>stratum</code>). On its <em>first run</em> it finds <code>café@1.2.3</code> is a governing parameter to Python and invisible to TypeScript.</td><td>A real evasion, unfindable by reading either file.</td></tr>
+    <tr><td class="num">10</td><td>The corpus is widened to probe every family. The finding <strong>inverts</strong>: in 11 cases it is <em>Python</em> that is blind. <code>criticalé</code> scores <b>0.0</b>.</td><td>Python is the implementation the live hook runs. The blind one was the deployed one.</td></tr>
+    <tr><td class="num">11</td><td>651 generated mutations run across both runtimes. They surface a <em>second</em> dialect split: ECMAScript counts U+FEFF as whitespace, Python does not.</td><td>Same detection, different <em>extent</em> — and extent is what a human is told to verify at a registry.</td></tr>
+    <tr><td class="num">12</td><td>Issue #1 (a labelled incident scoring 0.26 and passing) is measured rather than assumed: it resolves to <code>proceed</code> under enforcement.</td><td>Root cause was not a weight — the detector saw <code>port: 3000</code> and missed <code>"port": 3000</code>.</td></tr>
+  </tbody>
+</table>
+
+<div class="seam"><span class="n">02</span><h2>The finding, runnable</h2><span class="rule"></span></div>
+
+<p><code>\b</code> is not a security boundary. It means <em>“a transition between <code>\w</code> and <code>\W</code>”</em>, and the runtimes disagree about <code>\w</code>: Python's is Unicode-aware for <code>str</code> patterns, JavaScript's is ASCII-only. The security semantics were resting on a dialect default.</p>
+
+<p>Type into the box. The middle column is your own browser's native <code>\b</code>. The left emulates Python's Unicode-aware boundary. The right is the policy that replaced both.</p>
+
+<div class="lab">
+  <label for="probe">payload</label>
+  <input type="text" id="probe" value="criticalé" spellcheck="false" autocomplete="off">
+  <div class="chips" id="chips"></div>
+  <div class="verdicts">
+    <div class="verdict" id="v-py"><div class="who">Python <code>\b</code> — emulated</div><div class="val" id="r-py">—</div></div>
+    <div class="verdict" id="v-js"><div class="who">JavaScript <code>\b</code> — native</div><div class="val" id="r-js">—</div></div>
+    <div class="verdict" id="v-pol"><div class="who">Boundary policy</div><div class="val" id="r-pol">—</div></div>
+  </div>
+  <p class="note" id="labnote"></p>
+  <p class="note"><strong>Honest about the emulation:</strong> the left column is not CPython. It approximates Python's Unicode-aware <code>\b</code> using <code>\p{L}\p{N}_</code> lookarounds. It is here to make the seam visible in a page with no dependencies, not to stand in as evidence. The evidence is the command in §7, which runs the real thing.</p>
+</div>
+
+<p>The policy that replaced the default, stated in English before either file changed:</p>
+
+<div class="voices">
+  <div class="voice">
+    <h4>Policy — human-readable</h4>
+    <p style="margin:0">Match a security keyword unless it is embedded inside a larger ASCII identifier. Unicode letters adjacent to it do not suppress a detection.</p>
+  </div>
+  <div class="voice machine">
+    <h4>Policy — machine-readable</h4>
+<pre style="margin:0;border:0;padding:0;background:none">ASCII_IDENTIFIER_CHAR = "[A-Za-z0-9_]"
+LEFT  = "(?&lt;!" + ASCII_IDENTIFIER_CHAR + ")"
+RIGHT = "(?!"  + ASCII_IDENTIFIER_CHAR + ")"
+bounded(p) = LEFT + "(?:" + p + ")" + RIGHT</pre>
+  </div>
+</div>
+
+<p>It had to discriminate, not merely match more — false positives are what forced shadow mode in the first place:</p>
+
+<table>
+  <thead><tr><th>input</th><th>old <code>\b</code></th><th>policy</th></tr></thead>
+  <tbody>
+    <tr><td><code>critical</code></td><td>match</td><td>match</td></tr>
+    <tr><td><code>criticalé</code> · <code>écritical</code> · <code>criticalЖ</code> · <code>critical中</code></td><td class="bad">blind</td><td class="good">match</td></tr>
+    <tr><td><code>hypercritical</code> · <code>critical_path</code></td><td>no match</td><td class="good">no match</td></tr>
+  </tbody>
+</table>
+
+<div class="seam"><span class="n">03</span><h2>The method</h2><span class="rule"></span></div>
+
+<p><strong>Class-Closure Threat Response.</strong> Its governing principle, and note the two qualifiers doing the work — <em>within a stated scope</em>, and <em>silently</em>:</p>
+
+<blockquote style="border-left:2px solid var(--gold);margin:1.2rem 0;padding-left:1rem;font-size:1.03rem">
+A security finding is not resolved when the reported payload stops working. It is resolved, within a stated scope, when the failure-producing assumption is replaced by an explicit policy and the system can demonstrate that the class cannot silently recur.
+</blockquote>
+
+<ol class="loop">
+  <li><b>Establish the exploit in the real execution path.</b><span class="rule">Not only in a synthetic unit test. In this case study this was done <em>last</em>, not first — see §4.</span></li>
+  <li><b>Name the violated assumption, not the broken test.</b><span class="rule">Identify the abstraction or default that made the exploit possible.</span></li>
+  <li><b>State the policy.</b><span class="rule">Replace implicit runtime behaviour with human-reviewable semantics. In English, before any code moves.</span></li>
+  <li><b>Repair every implementation of it.</b><span class="rule">Consistently, across every boundary that enforces or represents the policy.</span></li>
+  <li><b>Generate adversarial variants over the transformation space.</b><span class="rule">Test the space, not the known strings.</span></li>
+  <li><b>Encode an invariant.</b><span class="rule">Express the security property in machine-checkable form — here: no Unicode-only mutation may lower assessed risk.</span></li>
+  <li><b>Gate the unsafe primitive, structurally.</b><span class="rule">Not the bug — the primitive. Plus a staleness gate on generated evidence.</span></li>
+  <li><b>Prove behaviour at the enforcement boundary.</b><span class="rule">Including telemetry. A high score from a function is not proof that a hook blocks.</span></li>
+  <li><b>Publish the remaining perimeter.</b><span class="rule">Separate demonstrated closure from what is still open.</span></li>
+</ol>
+
+<div class="feedback">
+  <strong>The loop is not linear, and this case proves it.</strong> Stage 5 fed back into stage 2. The mutation corpus did not merely validate the policy — it surfaced U+FEFF, a <em>different</em> violated assumption needing its own policy statement. A practitioner running 1→9 in order would classify that as “a bug found during validation” and patch it. We nearly did. <strong>Generation discovers new members of the class, not just violations of the known one.</strong> Draw the edge 5 → 2.
+</div>
+
+<h3 style="font-size:1.05rem;margin-top:2rem">Three principles</h3>
+<p><strong>Parity is a drift alarm, not a semantic judge.</strong> A difference proves disagreement; it does not establish which side is right. U+FEFF is the proof: the reference implementation was the wrong one, and “conform to the reference” would have made it worse.</p>
+<p><strong>Generated adversarial corpora are executable policy tests.</strong> They expose whole mutation families and make coverage shrinkage detectable.</p>
+<p><strong>An enforcement claim requires enforcement-layer evidence.</strong> <code>assess()</code> returning 0.88 says nothing about whether the hook stops, logs, and fails safely in its real runtime.</p>
+
+<h3 style="font-size:1.05rem;margin-top:2rem">The under-named mechanism</h3>
+<p>Stage 7 reads like ordinary CI hygiene. Two things inside it are not:</p>
+<ul>
+  <li>A gate against reintroducing the <em>unsafe primitive</em> — <code>\b</code> reappearing fails the build, whatever the tests say.</li>
+  <li>An alarm that fires when a <strong>quarantined failure starts passing</strong>. Suites assert that things work; almost nothing asserts that a known-broken thing is <em>still broken</em>, so that a silent fix cannot erase the record of the gap.</li>
+</ul>
+<p>Both fired for real. When the boundary policy landed, all 11 quarantined divergences converged and the alarm reported each one — <em>“known divergence now AGREES — remove the flag and close the issue.”</em> That was the first time that path had ever run.</p>
+
+<div class="seam"><span class="n">04</span><h2>Corrections</h2><span class="rule"></span></div>
+
+<p>The load-bearing section. Each of these was wrong, was caught, and changed the outcome.</p>
+
+<table>
+  <thead><tr><th>Claim</th><th>Reality</th><th>Caught by</th></tr></thead>
+  <tbody>
+    <tr><td>“0/8 payloads block — safe to wire.”</td><td>All 8 sampled bare commands. Realistic prose scored 0.82 and would have blocked a security fix.</td><td><code>/touchstone</code>, not the model</td></tr>
+    <tr><td>“The Python assessor is the oracle; where they disagree the port is wrong.”</td><td>Self-refuting once written down: <em>“followed the oracle rule… even though here the port's reading was the better one.”</em> If the port can be right, the reference is not an authority.</td><td>the human</td></tr>
+    <tr><td>“Python's <code>re</code> is ASCII-bound by default; the fix used <code>\p{L}</code> on the Python side.”</td><td>Inverted. Python's <code>\w</code>/<code>\b</code> are Unicode-aware by default and <code>re</code> has no <code>\p{L}</code> at all. The property escapes went into TypeScript. This changes which file the audit points at.</td><td>the model, correcting the human</td></tr>
+    <tr><td>Findings recorded only in a chat transcript and a temp directory that dies with the job.</td><td>A security tool whose findings live in one agent's message stream has the same defect as a wiki nobody can contest.</td><td>the human</td></tr>
+    <tr><td>A CI staleness gate that “worked.”</td><td>A <code>cd</code> leaked within a <code>run</code> block; the first parity run failed. Fixed by reproducing the step verbatim rather than re-reading it.</td><td>CI</td></tr>
+    <tr><td>Two ideas presented as the model's arrivals — the policy/reference/evidence trichotomy, and the seam-transfer list.</td><td>Both were the human's, written first and more compactly. Re-derivation is not authorship.</td><td>the human</td></tr>
+  </tbody>
+</table>
+
+<p class="note">Pattern worth naming: of six corrections, four came from outside the model. The method's insistence on <em>evidence at the enforcement boundary</em> exists because the model's self-assessment was repeatedly, confidently wrong in the same direction — toward believing the work was done.</p>
+
+<div class="seam"><span class="n">05</span><h2>Specification — what to build next</h2><span class="rule"></span></div>
+
+<p>Machine-readable and human-readable, same content, so an agent picking this up needs no prose parsing. Issue <code>#5</code>, <em>Rust or Bust</em>.</p>
+
+<script type="application/json" id="build-spec">
+{
+  "id": "aletheia-rust-consolidation",
+  "issue": "mazze93/aletheia#5",
+  "goal": "Single Rust implementation owns deterministic assessment. Eliminate the dual-implementation drift class rather than monitoring it.",
+  "rust_core_owns": [
+    "detection and evidence extraction",
+    "text normalization and token-boundary semantics",
+    "source-trust lookup",
+    "risk-factor aggregation",
+    "score arithmetic, caps, multipliers, bands",
+    "governing-parameter extraction",
+    "verification-step generation",
+    "stable machine-readable assessment output"
+  ],
+  "typescript_retains": ["UI", "Astro", "browser surfaces", "Worker orchestration", "optional WASM bindings"],
+  "typescript_must_not_retain": ["a second assess()", "scoring constants", "detection regexes"],
+  "python_role": "temporary migration oracle; removed after cutover",
+  "security_argument": {
+    "claim": "Consolidation is a security-architecture decision, not only maintenance. The Unicode class existed only because two runtimes disagreed about what a word is.",
+    "counterweight": "Consolidation RELOCATES the class, it does not remove it. One seam instead of twenty-seven, and the remaining seam is about representation rather than semantics."
+  },
+  "new_seams_introduced": [
+    {"seam": "Rust String (UTF-8) <-> JS String (UTF-16)", "risk": "lone surrogates; byte vs code-unit indices"},
+    {"seam": "match spans across FFI", "risk": "a span is only meaningful relative to a string representation; 'position 12' differs in bytes, code points, and UTF-16 units"},
+    {"seam": "Rust regex crate \\b semantics", "risk": "a third default that may not equal the written policy"}
+  ],
+  "acceptance_criteria": [
+    "the boundary policy is ported as the ENGLISH SENTENCE first, then implemented",
+    "Rust regex \\b is verified against the policy, not assumed to match",
+    "651-case mutation corpus passes against the Rust core",
+    "69 parity vectors pass during migration, then the harness is retired with the second implementation",
+    "match spans carry an explicit unit in the output schema",
+    "the six must-not-block regressions pass in enforce mode",
+    "no CVE framing; private, undistributed, assess() is not a public API"
+  ],
+  "first_action": "Check what the Rust regex crate's \\b means by default. Not because it is expected to be wrong, but because assuming it agrees with the written policy is the exact move that started this."
+}
+</script>
+
+<div id="spec-render"></div>
+
+<div class="seam"><span class="n">06</span><h2>Perimeter — what is not closed</h2><span class="rule"></span></div>
+
+<ul class="perimeter">
+  <li><strong>Enforcement state.</strong> <span class="redacted">[redacted: current deployment state of a live control]</span> The principle stands: the enforcement default is set by a measured false-block rate, not tidied away on a schedule. <span class="owner">owner: mazze</span></li>
+  <li><strong>An origin-policy residue — never filed as an issue.</strong> One payload, arriving from a semi-trusted origin, lands just under the stop band. <span class="redacted">[redacted: origin, score, resolved action]</span> It is a policy question, not a detection one: nudging a threshold to make one fixture pass is the move this project keeps refusing. <span class="owner">unfiled — do this first</span></li>
+  <li><strong>Match spans in the audit log.</strong> Better forensics against turning the audit into a plaintext archive of everything the agent reads. Under a Rust core this gets <em>harder</em>: a span needs a declared unit. <span class="owner">owner: mazze</span></li>
+  <li><strong>Issue #2 — TypeScript carries the pre-refactor design.</strong> Likely resolved by deletion under #5 rather than by porting. <span class="owner">blocked on #5</span></li>
+  <li><strong>Out of scope entirely:</strong> visual homoglyph deception, model-level semantic paraphrase, encoded/extracted payload differentials. Separate classes, separate mitigations, untouched by any of the above.</li>
+  <li><strong>palimpsest:</strong> <code>index</code> and <code>query</code> have still never been run live, and the authored <code>rulings/</code> tier — named in its own ADR as the one thing worth backing up — still has no backup. <span class="owner">owner: mazze</span></li>
+</ul>
+
+<div class="seam"><span class="n">07</span><h2>Reproduce it yourself</h2><span class="rule"></span></div>
+
+<p>Nothing above needs to be taken on trust. From a checkout of the aletheia repository <span class="redacted">[redacted: local path]</span>:</p>
+
+<pre id="repro"># the real thing, not the browser emulation
+PYTHONPATH=src python3 -c "
+from aletheia.assess import assess
+for t in ['critical','criticalé','écritical','hypercritical','critical_path']:
+    print(f'{t:16} {assess(t, \"web_search\").injection_risk_score}')"
+
+# the invariant: no Unicode-only mutation may lower assessed risk
+PYTHONPATH=src python3 -m unittest tests.test_boundary_mutations -v
+
+# the enforcement boundary — the real hook, real payload, real exit code
+PYTHONPATH=src python3 -m unittest tests.test_hook_enforce -v
+
+# cross-runtime, 69 vectors + 651 mutations
+python3 parity/emit.py > /tmp/o.json &amp;&amp; npx tsx parity/emit.ts > /tmp/t.json
+python3 parity/compare.py /tmp/o.json /tmp/t.json
+
+# everything
+PYTHONPATH=src python3 -m unittest discover -s tests -t .   # expect 37 OK</pre>
+<button onclick="copyRepro()">copy commands</button>
+
+<details>
+  <summary>Where the artifacts live</summary>
+  <ul style="margin:0">
+    <li><code>src/aletheia/boundary.py</code> · <code>typescript/src/boundary.ts</code> — the policy, stated twice</li>
+    <li><code>parity/unicode_boundary_mutations.py</code> — the generator (21 atoms × 8 scripts × format chars × 2 edges)</li>
+    <li><code>tests/test_boundary_inventory.py</code> — the primitive gate</li>
+    <li><code>tests/test_hook_enforce.py</code> — enforcement-boundary evidence</li>
+    <li><code>docs/journal/DECISIONS.md</code> — dated, reversible decisions</li>
+    <li><code>docs/journal/SESSION-2026-08-15.md</code> — the narrative record</li>
+    <li><code>SECURITY.md</code> — posture, known gaps, pre-enforcement checklist</li>
+  </ul>
+</details>
+
+<div class="seam"><span class="n">08</span><h2>The shared page</h2><span class="rule"></span></div>
+
+<p>Both authors write here, with equal room. Everything is saved in this browser only — never sent anywhere, because there is nowhere for it to be sent. Export takes it out as Markdown when you want to move it.</p>
+
+<div class="shared">
+  <div class="bar">
+    <span>joint authorship</span>
+    <button onclick="exportMd()">export .md</button>
+    <button onclick="exportJson()">export state .json</button>
+    <button onclick="clearAll()">clear</button>
+    <span class="saved" id="savedAt">—</span>
+  </div>
+  <div class="panes">
+    <div class="pane">
+      <h5>Human — Mazze</h5>
+      <textarea id="ta-human" placeholder="Your voice. Notes, disagreements, the sentence you were cut off mid-way through, the parts of this you think are wrong."></textarea>
+    </div>
+    <div class="pane">
+      <h5>Model — Claude</h5>
+      <textarea id="ta-model" class="mono" placeholder="The model's voice. A next session pastes here, or writes directly."></textarea>
+    </div>
+  </div>
+  <div class="pane joint">
+    <h5>Joint draft — the essay</h5>
+    <textarea id="ta-joint" style="min-height:14rem" placeholder="Where the two become one piece. The instrument line is the spine: a finding should create an instrument, not merely a patch."></textarea>
+  </div>
+  <div class="pane joint">
+    <h5>Continuation — where we stopped</h5>
+    <textarea id="ta-next" class="mono" style="min-height:7rem"></textarea>
+  </div>
+</div>
+
+<footer>
+  <p><span class="tag">tessera-2026-09-03-class-closure · v1 · offline · no dependencies · no network</span></p>
+  <p>Written jointly. Unpaid and unowned — if any of it is useful, it is free to take. MIT, like the code.</p>
+  <p class="note">If a future session opens this: read §4 before §3. The method is only as good as the record of the times it was got wrong.</p>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ---------- theme ---------- */
+var root = document.documentElement;
+document.getElementById("themeBtn").addEventListener("click", function(){
+  var cur = root.getAttribute("data-theme");
+  var next = cur === "dark" ? "light" : cur === "light" ? "dark"
+    : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "dark");
+  root.setAttribute("data-theme", next);
+  try { localStorage.setItem("tessera.theme", next); } catch(e){}
+});
+try { var t = localStorage.getItem("tessera.theme"); if (t) root.setAttribute("data-theme", t); } catch(e){}
+
+/* ---------- §02 the seam, made runnable ----------
+   Three readings of the same question: where does a word end?
+   Left  — Python-ish: Unicode letters/digits count as word characters.
+   Mid   — JavaScript native \b: ASCII only.
+   Right — the boundary policy that replaced both.                        */
+var KEYWORDS = "critical|urgent|exploit|breach|immediately";
+
+var RX_PY  = new RegExp("(?<![\\p{L}\\p{N}_])(?:" + KEYWORDS + ")(?![\\p{L}\\p{N}_])", "iu");
+var RX_JS  = new RegExp("\\b(?:" + KEYWORDS + ")\\b", "i");
+var RX_POL = new RegExp("(?<![A-Za-z0-9_])(?:" + KEYWORDS + ")(?![A-Za-z0-9_])", "iu");
+
+var SAMPLES = ["criticalé","écritical","criticalЖ","critical中","critical",
+               "hypercritical","critical_path","urgentü","exploité","immediatelyé"];
+
+function setVerdict(boxId, valId, hit){
+  var box = document.getElementById(boxId), val = document.getElementById(valId);
+  box.classList.remove("hit","miss");
+  box.classList.add(hit ? "hit" : "miss");
+  val.textContent = hit ? "match" : "blind";
+  val.style.color = hit ? "var(--green)" : "var(--red)";
+}
+
+function run(){
+  var s = document.getElementById("probe").value;
+  var py = RX_PY.test(s), js = RX_JS.test(s), pol = RX_POL.test(s);
+  setVerdict("v-py","r-py",py);
+  setVerdict("v-js","r-js",js);
+  setVerdict("v-pol","r-pol",pol);
+
+  var note = document.getElementById("labnote");
+  if (py !== js) {
+    note.innerHTML = "<strong>Seam open.</strong> The two runtimes disagree about this string. " +
+      "The bug lives here — in neither implementation, only in the gap between them.";
+  } else if (!py && !js && pol) {
+    note.innerHTML = "<strong>Both defaults blind, policy sees it.</strong> This is the evasion: " +
+      "an accent suppresses a keyword in both dialects, and only an explicit rule recovers it.";
+  } else if (py && js && !pol) {
+    note.innerHTML = "<strong>Policy is stricter here</strong> — the token is part of a larger ASCII identifier.";
+  } else if (pol) {
+    note.textContent = "All three agree: this is a keyword standing on its own.";
+  } else {
+    note.textContent = "No keyword present, or it is embedded in a longer ASCII word. All three agree.";
+  }
+}
+
+var chips = document.getElementById("chips");
+SAMPLES.forEach(function(s){
+  var b = document.createElement("button");
+  b.className = "chip"; b.type = "button"; b.textContent = s;
+  b.addEventListener("click", function(){ document.getElementById("probe").value = s; run(); });
+  chips.appendChild(b);
+});
+document.getElementById("probe").addEventListener("input", run);
+run();
+
+/* ---------- §05 render the build spec from its own JSON ---------- */
+(function(){
+  var spec;
+  try { spec = JSON.parse(document.getElementById("build-spec").textContent); }
+  catch(e){ return; }
+  // Every spec field is written as a text node (textContent), never parsed
+  // as HTML: the JSON is page data, and data never becomes markup.
+  var root = document.getElementById("spec-render");
+  function node(tag, text, cls){
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = String(text);
+    return n;
+  }
+  function heading(text){
+    var h = node("h3", text);
+    h.style.fontSize = ".95rem"; h.style.margin = "1.4rem 0 .4rem";
+    return h;
+  }
+  function list(title, arr){
+    if (!arr || !arr.length) return;
+    root.appendChild(heading(title));
+    var ul = node("ul");
+    arr.forEach(function(x){ ul.appendChild(node("li", x)); });
+    root.appendChild(ul);
+  }
+  function callout(lead, rest){
+    var d = node("div", null, "feedback");
+    d.appendChild(node("strong", lead));
+    if (rest != null) d.appendChild(document.createTextNode(" " + rest));
+    root.appendChild(d);
+  }
+  var goal = node("p"); goal.appendChild(node("strong", spec.goal)); root.appendChild(goal);
+  list("The Rust core owns", spec.rust_core_owns);
+  list("TypeScript retains", spec.typescript_retains);
+  list("TypeScript must NOT retain", spec.typescript_must_not_retain);
+  var py = node("p"); py.appendChild(node("em", "Python:"));
+  py.appendChild(document.createTextNode(" " + spec.python_role)); root.appendChild(py);
+  var arg = node("div", null, "feedback");
+  arg.appendChild(node("strong", spec.security_argument.claim));
+  arg.appendChild(node("br"));
+  arg.appendChild(document.createTextNode(spec.security_argument.counterweight));
+  root.appendChild(arg);
+  root.appendChild(heading("Seams this introduces"));
+  var table = node("table"), thead = node("thead"), hr = node("tr"), tbody = node("tbody");
+  hr.appendChild(node("th", "seam")); hr.appendChild(node("th", "risk"));
+  thead.appendChild(hr); table.appendChild(thead);
+  spec.new_seams_introduced.forEach(function(s){
+    var tr = node("tr"), seam = node("td", s.seam, "mono");
+    seam.style.fontSize = ".8rem";
+    tr.appendChild(seam); tr.appendChild(node("td", s.risk));
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody); root.appendChild(table);
+  list("Acceptance criteria", spec.acceptance_criteria);
+  callout("First action.", spec.first_action);
+})();
+
+/* ---------- §08 the shared page ---------- */
+var KEY = "tessera.2026-09-03.shared";
+var FIELDS = ["ta-human","ta-model","ta-joint","ta-next"];
+
+var SEED_NEXT =
+"WHERE WE STOPPED — 2026-09-03\n" +
+"* Human's sentence was cut off mid-thought (\"...and\"). Unresolved.\n" +
+"* Agreed: ONE deliverable, not advisory + method split.\n" +
+"* Spine line: a finding should create an instrument, not merely a patch.\n" +
+"* Open question for next turn: does consolidation (#5) strengthen the\n" +
+"  method's claim, or expose its limit? Both readings are defensible.\n" +
+"* Unfiled: the origin-policy residue issue. Do this first.\n";
+
+function load(){
+  var data = {};
+  try { data = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ data = {}; }
+  FIELDS.forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (data[id] != null) el.value = data[id];
+    else if (id === "ta-next") el.value = SEED_NEXT;
+  });
+  if (data.savedAt) stamp(new Date(data.savedAt));
+}
+
+function stamp(d){
+  var el = document.getElementById("savedAt");
+  if (el) el.textContent = "saved " + d.toLocaleTimeString();
+}
+
+var saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    var data = { savedAt: Date.now() };
+    FIELDS.forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(data)); stamp(new Date()); }
+    catch(e){ var s = document.getElementById("savedAt"); if (s) s.textContent = "not saved (storage blocked)"; }
+  }, 400);
+}
+
+FIELDS.forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.addEventListener("input", save);
+});
+load();
+
+function download(name, text, mime){
+  try{
+    var blob = new Blob([text], {type: mime || "text/plain;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  } catch(e){
+    window.prompt("Copy manually:", text);
+  }
+}
+
+function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
+
+function exportMd(){
+  var md = "# Class-Closure Threat Response — joint draft\n\n" +
+    "_Exported " + new Date().toISOString() + " from tessera-2026-09-03-class-closure._\n\n" +
+    "## Joint draft\n\n" + val("ta-joint") + "\n\n" +
+    "## Human — Mazze\n\n" + val("ta-human") + "\n\n" +
+    "## Model — Claude\n\n" + val("ta-model") + "\n\n" +
+    "## Continuation\n\n```\n" + val("ta-next") + "\n```\n";
+  download("class-closure-draft.md", md, "text/markdown;charset=utf-8");
+}
+
+function exportJson(){
+  var out = { tessera: "tessera-2026-09-03-class-closure", exported: new Date().toISOString() };
+  FIELDS.forEach(function(id){ out[id.replace("ta-","")] = val(id); });
+  try { out.build_spec = JSON.parse(document.getElementById("build-spec").textContent); } catch(e){}
+  download("tessera-state.json", JSON.stringify(out, null, 2), "application/json");
+}
+
+function clearAll(){
+  if (!window.confirm("Clear all four panes in this browser? Export first if you want to keep it.")) return;
+  FIELDS.forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ""; });
+  try { localStorage.removeItem(KEY); } catch(e){}
+  var s = document.getElementById("savedAt"); if (s) s.textContent = "cleared";
+}
+
+function copyRepro(){
+  var text = document.getElementById("repro").textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){
+      var s = document.getElementById("savedAt");
+      if (s) s.textContent = "commands copied";
+    }, function(){ window.prompt("Copy manually:", text); });
+  } else {
+    window.prompt("Copy manually:", text);
+  }
+}
+</script>
+</body>
+</html>

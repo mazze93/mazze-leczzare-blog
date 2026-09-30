@@ -20,6 +20,10 @@ const blog = defineCollection({
     readingTime: z.string().optional(),
     heroImageOG: z.string().optional(),
     heroImageAlt: z.string().optional(),
+    // false: show the hero at full brightness. The default dims every hero to
+    // 0.55 for legibility of what follows; a title card that carries its own
+    // text and colour should opt out.
+    heroDim: z.boolean().default(true),
     featured: z.boolean().optional(),
     slug: z.string().optional(),
     draft: z.boolean().optional(),

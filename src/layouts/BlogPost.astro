@@ -1,6 +1,7 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import type { SvgComponent } from 'astro/types';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -23,9 +24,11 @@ type Props = {
   tags?: string[];
   pubDate?: Date | string;
   updatedDate?: Date | string;
-  heroImage?: ImageMetadata | string;
+  // An .svg import is an SvgComponent (Astro 7), not ImageMetadata.
+  heroImage?: ImageMetadata | SvgComponent | string;
   heroImageOG?: string;
   heroImageAlt?: string;
+  heroDim?: boolean;
   contentType?: 'artifact' | 'dispatch' | 'field-note';
   repoUrl?: string;
   frontmatter?: {
@@ -38,6 +41,7 @@ type Props = {
     heroImage?: string;
     heroImageOG?: string;
     heroImageAlt?: string;
+    heroDim?: boolean;
     contentType?: 'artifact' | 'dispatch' | 'field-note';
     repoUrl?: string;
   };
@@ -55,6 +59,9 @@ const subtitle = resolved.subtitle;
 const tags = resolved.tags ?? [];
 const heroImage = resolved.heroImage;
 const heroImageAlt = resolved.heroImageAlt ?? title;
+const heroDim = resolved.heroDim !== false;
+// Capitalised: Astro only treats a capitalised identifier as a component.
+const HeroSvg = typeof heroImage === 'function' ? heroImage : undefined;
 const contentType = resolved.contentType ?? 'field-note';
 const repoUrl = resolved.repoUrl;
 
@@ -77,8 +84,12 @@ if (!heroImageOG) {
       quality: 80,
     });
     heroImageOG = ogImage.src;
+  } else if (typeof heroImage === 'string') {
+    heroImageOG = heroImage;
   } else {
-    heroImageOG = heroImage ?? SITE_DEFAULT_OG_IMAGE;
+    // No hero, or an SVG hero (an inline component, not a URL a crawler can
+    // fetch or a social card can render): use the branded banner.
+    heroImageOG = SITE_DEFAULT_OG_IMAGE;
   }
 }
 
@@ -135,6 +146,22 @@ const articleSchema = {
   />
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <style>
+    /* ── Page ground: depth ──
+       A soft lift at the top of the viewport, a faint gold warmth bottom-right,
+       and a grayscale film grain — all painted as background layers on <body>,
+       so there is no overlay element and no z-index to manage. Grain opacity is
+       baked into the SVG (0.06) so one asset works on both grounds.
+       background-attachment: fixed is ignored by iOS Safari (it scrolls with
+       the page there) — an acceptable degradation, not a bug. */
+    body.post {
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 90% 55% at 50% -8%, var(--prose-glow) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(var(--gold-rgb), 0.05) 0%, transparent 70%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+
     main {
       width: calc(100% - 2em);
       max-width: 100%;
@@ -149,7 +176,8 @@ const articleSchema = {
       max-height: 480px;
       overflow: hidden;
     }
-    .hero-wrap img {
+    .hero-wrap img,
+    .hero-wrap :global(svg) {
       display: block;
       width: 100%;
       height: 480px;
@@ -157,6 +185,8 @@ const articleSchema = {
       border-radius: 0;
       filter: brightness(0.55);
     }
+    .hero-wrap--clear img,
+    .hero-wrap--clear :global(svg) { filter: none; }
     .hero-scrim {
       position: absolute;
       inset: 0;
@@ -198,7 +228,7 @@ const articleSchema = {
       font-family: var(--font-display);
       font-size: clamp(2.2rem, 5.5vw, 3.8rem);
       font-weight: 400;
-      color: var(--text);
+      color: var(--prose-heading);
       line-height: 1.1;
       margin: 0 0 0.4em;
       letter-spacing: 0.01em;
@@ -209,7 +239,7 @@ const articleSchema = {
       font-size: clamp(1.1rem, 2.5vw, 1.5rem);
       font-weight: 300;
       font-style: italic;
-      color: var(--text-dim);
+      color: var(--prose-subtitle);
       margin: 0 0 0.5em;
       line-height: 1.4;
     }
@@ -240,6 +270,103 @@ const articleSchema = {
     .prose :global(h3),
     .prose :global(h4) {
       margin-top: 2.5em;
+    }
+
+    /* ══ Reading layer (2026-09-25) ═════════════════════════════════════
+       Literata prose, warm/cool temperature contrast, lead + drop cap,
+       numbered gold-seam sections, inline accents. Every colour is a
+       --prose-* token from global.css, so light mode inverts for free.
+
+       Scope rule: direct children of .prose only (`.prose > p`, not
+       `.prose p`). Markdown paragraphs are direct children; MDX components
+       (PullQuote, Verse, MentorQuote, Colophon…) nest their <p>s and own
+       their type — a descendant selector would override them. */
+
+    /* ── Body copy ── */
+    .prose > :global(p),
+    .prose > :global(ul) > :global(li),
+    .prose > :global(ol) > :global(li) {
+      font-family: var(--font-prose);
+      font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.1875rem); /* 17→19px */
+      line-height: 1.7;
+      color: var(--prose-text);
+    }
+
+    /* Inline code keeps the mono voice but sizes to the serif around it. */
+    .prose > :global(p) :global(code),
+    .prose :global(li) :global(code) {
+      font-size: 0.82em;
+      border-color: rgba(var(--accent-rgb), 0.2);
+    }
+
+    .prose > :global(p) :global(em),
+    .prose :global(li) :global(em) {
+      color: var(--prose-gold);
+    }
+
+    .prose > :global(p) :global(strong),
+    .prose :global(li) :global(strong) {
+      font-weight: 600;
+      color: var(--prose-heading);
+    }
+
+    /* ── Lead paragraph + drop cap ──
+       Only when the post opens on a paragraph (:first-child) — a post that
+       opens on a component or image gets neither. */
+    .prose > :global(p:first-child) {
+      font-size: clamp(1.1875rem, 1rem + 0.9vw, 1.375rem); /* 19→22px */
+      line-height: 1.6;
+      color: var(--prose-heading);
+    }
+
+    .prose > :global(p:first-child)::first-letter {
+      float: left;
+      font-family: var(--font-display);
+      font-size: 4.6em;
+      font-weight: 500;
+      line-height: 0.82;
+      padding: 0.06em 0.1em 0 0;
+      color: var(--prose-gold);
+    }
+
+    /* ── Section marks + gold seam ──
+       Each h2 gets a § 01, § 02… DM Mono label (counted automatically) and a
+       seam hairline that burns gold at the left and cools into the rule. The
+       gradient reads the --gold-seam-* tokens, which the light block already
+       deepens for paper. */
+    .prose {
+      counter-reset: prose-section;
+    }
+
+    .prose > :global(h2) {
+      counter-increment: prose-section;
+      padding-top: 1.1rem;
+      font-style: italic;
+      font-weight: 500;
+      color: var(--prose-heading);
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(
+        90deg,
+        var(--gold-seam) 0,
+        var(--gold-seam-bright) 18%,
+        var(--gold-seam-deep) 32%,
+        var(--rule) 55%
+      ) 1;
+    }
+
+    .prose > :global(h2)::before {
+      content: "§ " counter(prose-section, decimal-leading-zero);
+      /* Decorative for AT: the empty alt text keeps screen readers from
+         announcing "section 01" inside every heading. Browsers without the
+         alt syntax drop this line and keep the plain declaration above. */
+      content: "§ " counter(prose-section, decimal-leading-zero) / "";
+      display: block;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-style: normal;
+      letter-spacing: 0.22em;
+      color: var(--prose-mark);
     }
 
     .prose :global(a) {
@@ -315,13 +442,17 @@ const articleSchema = {
   </style>
 </head>
 
-<body>
+<body class="post">
   <Header />
   <main>
     <article>
       {heroImage && (
-        <div class="hero-wrap">
-          {typeof heroImage === 'object' ? (
+        <div class:list={['hero-wrap', !heroDim && 'hero-wrap--clear']}>
+          {HeroSvg ? (
+            // SVG heroes render inline; the file's own <title>/aria-label
+            // carries the accessible name.
+            <HeroSvg preserveAspectRatio="xMidYMid slice" />
+          ) : typeof heroImage === 'object' ? (
             <Image src={heroImage} alt={heroImageAlt} width={1440} height={480} loading="eager" />
           ) : (
             <img src={heroImage} alt={heroImageAlt} width={1440} height={480} loading="eager" decoding="async" />

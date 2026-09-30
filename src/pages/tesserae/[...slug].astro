@@ -105,6 +105,9 @@ const { Content } = await render(entry);
     color: var(--text);
   }
   .tess-piece__body :global(p) { margin: 0 0 1.2em; }
+  /* Wide tables (class-closure's 4-column matrix) scroll inside the article
+     instead of widening the page: 394px at a 320px viewport otherwise. */
+  .tess-piece__body :global(table) { display: block; max-width: 100%; overflow-x: auto; }
   .tess-piece__body :global(a) { color: var(--teal); }
   .tess-piece__body :global(h2),
   .tess-piece__body :global(h3) {

@@ -94,6 +94,9 @@ import { SITE_TITLE } from '../consts';
 
   :global(.contact-form) {
     display: grid;
+    /* minmax(0, 1fr), not the implicit auto track: an <input>'s intrinsic
+       width (~300px) otherwise sets the column and overflows a 320px card. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
   }
 
