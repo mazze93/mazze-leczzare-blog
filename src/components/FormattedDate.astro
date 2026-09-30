@@ -12,6 +12,10 @@ const { date } = Astro.props;
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
+			// Frontmatter dates are UTC midnight. Without this, a build in a
+			// negative-offset zone (EDT) prints the previous day while a UTC build
+			// server prints the right one.
+			timeZone: 'UTC',
 		})
 	}
 </time>
