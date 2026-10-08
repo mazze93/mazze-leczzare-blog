@@ -202,7 +202,13 @@ const BASE_CSP = [
   "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
   "img-src 'self' data: blob:",
   "connect-src 'self' https://challenges.cloudflare.com",
-  "frame-src https://challenges.cloudflare.com",
+  // 'self' lets a post embed its own /artifacts/*.html (ArtifactEmbed). Without
+  // it every embed was blank in production: the parent page's frame-src only
+  // allowed Turnstile. Found 2026-10-08 by loading the live
+  // /blog/the-break-is-the-record/ in Chromium; `astro preview` runs no
+  // middleware, so no local check could see it. The artifact side already
+  // permits it (frame-ancestors 'self'); every other page keeps 'none'.
+  "frame-src 'self' https://challenges.cloudflare.com",
   "form-action 'self'",
   "base-uri 'self'",
   "upgrade-insecure-requests",

@@ -386,7 +386,8 @@ it's safe to inline). The client loads `https://challenges.cloudflare.com/turnst
 lazily, captures the token via callback, and resets the widget after every submit attempt
 (tokens are single-use). `functions/_middleware.ts`'s `BASE_CSP` allows
 `https://challenges.cloudflare.com` in `script-src`, `connect-src`, and `frame-src` for
-this reason.
+this reason. `frame-src` also allows `'self'` so posts can embed `/artifacts/*` via
+`ArtifactEmbed` (pinned by `src/utils/csp.test.ts`).
 
 ### `functions/api/share-event.ts`
 
