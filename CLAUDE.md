@@ -94,6 +94,7 @@ functions/
     share-event.ts    # Cloudflare Pages Function — quote share telemetry
     login.ts          # Cloudflare Pages Function — admin login
     logout.ts         # Cloudflare Pages Function — admin logout
+    ingest.ts         # Cloudflare Pages Function — authenticated content ingest (commits to main)
   utils/
     webBotAuth.ts      # RFC 9421 Ed25519 request signing (Web Bot Auth) for this site's outbound requests
 
@@ -152,6 +153,9 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/constellation`  | `src/pages/constellation.astro`     | Full-bleed sky view — same node geometry as the homepage hero, wrapped in `AstrolabeChrome`, plus a flattened shadow index; static, no hydration |
 | `/project/[slug]/`| `src/pages/project/[slug].astro`    | Pieces belonging to one project node     |
 | `/support`        | `src/pages/support.astro`           | Support page                             |
+| `/gay-wandering/` | `src/pages/gay-wandering/index.astro` | The book ("Book" in the header nav); own `--gw-*` palette |
+| `/work/research-program-operations/` | `src/pages/work/research-program-operations.astro` | Résumé page — carries the one approved published email (see Key Constraints) |
+| `/404`            | `src/pages/404.astro`               | Not-found page                           |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
 | `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
