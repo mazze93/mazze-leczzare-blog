@@ -154,7 +154,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/support`        | `src/pages/support.astro`           | Support page                             |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
-| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
+| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record, a-picture-of-what-it-expected) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` | Standalone page; ships its own `fonts/` subdirectory |
