@@ -1,0 +1,191 @@
+[
+ {
+  "name": "celestial-map_v1.0.0.svg / .png",
+  "version": "1.0.0",
+  "type": "Rebuilt map",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D01",
+  "exchange": "E03"
+ },
+ {
+  "name": "celestial-map_before-after_v1.0.0.png",
+  "version": "1.0.0",
+  "type": "Image",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D02",
+  "exchange": "E03"
+ },
+ {
+  "name": "celestial-map_build-log_v1.0.0.md",
+  "version": "1.0.0",
+  "type": "Build log",
+  "destination": "Sent as file; published as record/map-rebuild-log.md",
+  "provenance": "Tool",
+  "deliverable_id": "D03",
+  "exchange": "E03"
+ },
+ {
+  "name": "blog-concept_why-models-lie-about-their-work_v0.1.0.md",
+  "version": "0.1.0",
+  "type": "Blog concept",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D04",
+  "exchange": "E03"
+ },
+ {
+  "name": "celestial-map_source_v1.0.0.zip",
+  "version": "1.0.0",
+  "type": "Source",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D05",
+  "exchange": "E03"
+ },
+ {
+  "name": "the-measure-taken_v1.0.0.svg / .png",
+  "version": "1.0.0",
+  "type": "Original plate",
+  "destination": "Sent as file; in the post",
+  "provenance": "Tool",
+  "deliverable_id": "D06",
+  "exchange": "E04"
+ },
+ {
+  "name": "plate-build-log_v1.0.0.md",
+  "version": "1.0.0",
+  "type": "Build log",
+  "destination": "Sent as file; published as record/plate-build-log.md",
+  "provenance": "Tool",
+  "deliverable_id": "D07",
+  "exchange": "E04"
+ },
+ {
+  "name": "research-notes_v1.0.0.md",
+  "version": "1.0.0",
+  "type": "Research",
+  "destination": "Sent as file; published as record/research-notes.md",
+  "provenance": "Tool",
+  "deliverable_id": "D08",
+  "exchange": "E04"
+ },
+ {
+  "name": "the-measure-taken_source_v1.0.0.zip",
+  "version": "1.0.0",
+  "type": "Source",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D09",
+  "exchange": "E04"
+ },
+ {
+  "name": "a-picture-of-what-it-expected_repo-files_v0.1.0.zip",
+  "version": "0.1.0",
+  "type": "Repo files",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D10",
+  "exchange": "E04"
+ },
+ {
+  "name": "a-picture-of-what-it-expected_v0.1.0.patch",
+  "version": "0.1.0",
+  "type": "Post (commit b8fbeda)",
+  "destination": "Sent turn 7; re-exported turn 19; pushed",
+  "provenance": "Tool",
+  "deliverable_id": "D11",
+  "exchange": "E04"
+ },
+ {
+  "name": "Tree of the Measure",
+  "version": "—",
+  "type": "Decision-telemetry artifact",
+  "destination": "https://claude.ai/artifact/8j5uocog1g7jgpnLvLCgjR",
+  "provenance": "Tool",
+  "deliverable_id": "D12",
+  "exchange": "E06"
+ },
+ {
+  "name": "tree-of-the-measure.html",
+  "version": "—",
+  "type": "Standalone copy",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D13",
+  "exchange": "E06"
+ },
+ {
+  "name": "csp-allow-same-origin-artifact-frames_v1.0.0.patch",
+  "version": "1.0.0",
+  "type": "CSP fix (commit 5f966ff)",
+  "destination": "Sent as file; pushed",
+  "provenance": "Tool",
+  "deliverable_id": "D14",
+  "exchange": "E10"
+ },
+ {
+  "name": "near-touch-linter_v0.1.0.py",
+  "version": "0.1.0",
+  "type": "Geometry linter",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D15",
+  "exchange": "E10"
+ },
+ {
+  "name": "Branch field-note/a-picture-of-what-it-expected",
+  "version": "—",
+  "type": "2 commits on GitHub",
+  "destination": "https://github.com/mazze93/mazze-leczzare-blog/tree/field-note/a-picture-of-what-it-expected",
+  "provenance": "Tool",
+  "deliverable_id": "D16",
+  "exchange": "E12"
+ },
+ {
+  "name": "blog-push-report_v1.0.0.xlsx",
+  "version": "1.0.0",
+  "type": "Push tracker",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D17",
+  "exchange": "E13"
+ },
+ {
+  "name": "field-note_a-picture-of-what-it-expected_session-record_v1.0.0.xlsx",
+  "version": "1.0.0",
+  "type": "This workbook",
+  "destination": "Sent as file",
+  "provenance": "Tool",
+  "deliverable_id": "D18",
+  "exchange": "E14"
+ },
+ {
+  "deliverable_id": "D19",
+  "name": "session-record v2 workbook + core-sample toolkit (superseded by D20–D21)",
+  "version": "2.0.0",
+  "type": "Workbook, ledger, skill",
+  "destination": "Sent as files; skill proposed",
+  "exchange": "E15",
+  "provenance": "Tool"
+ },
+ {
+  "deliverable_id": "D20",
+  "name": "core-sample skill + toolkit (3 commits, PR #6)",
+  "version": "0.2.0",
+  "type": "Skill",
+  "destination": "https://github.com/mazze93/claude-code-skills/pull/6",
+  "exchange": "E17",
+  "provenance": "Tool"
+ },
+ {
+  "deliverable_id": "D21",
+  "name": "session record (annotations, CSV, SQLite, workbook)",
+  "version": "2.1.0",
+  "type": "Ledger",
+  "destination": "mazze-leczzare-blog: docs/field-notes/a-picture-of-what-it-expected/session-record/",
+  "exchange": "E17",
+  "provenance": "Tool"
+ }
+]

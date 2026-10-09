@@ -1,0 +1,230 @@
+[
+ {
+  "exchange": "E01",
+  "tool": "Bash",
+  "description": "Check for an SVG rendering tool",
+  "input": "which rsvg-convert inkscape; python3 -c \"import cairosvg\" 2>&1 | tail -1"
+ },
+ {
+  "exchange": "E01",
+  "tool": "Bash",
+  "description": "Install renderer and render the SVG to PNG",
+  "input": "pip install --break-system-packages -q cairosvg … cairosvg.svg2png(map.svg)"
+ },
+ {
+  "exchange": "E01",
+  "tool": "Read",
+  "description": "",
+  "input": "…/scratchpad/map.png"
+ },
+ {
+  "exchange": "E01",
+  "tool": "Bash",
+  "description": "Check text contrast and the T-curve control point",
+  "input": "python3 -c \"…contrast and T reflection…\""
+ },
+ {
+  "exchange": "E06",
+  "tool": "Bash",
+  "description": "Locate the reference implementation",
+  "input": "ls -la …/rigor/skills/decision-telemetry"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Read",
+  "description": "",
+  "input": "…/decision-telemetry/tree-of-knowledge.html"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Skill",
+  "description": "",
+  "input": "artifact-design"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Write",
+  "description": "",
+  "input": "/home/claude/decision-tree/tree-of-the-measure.html"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Bash",
+  "description": "Fix two quotes to verbatim, then take one look at desktop and phone",
+  "input": "python3 - (quote fixes); node shot.cjs"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Read",
+  "description": "",
+  "input": "/home/claude/decision-tree/look-desk.png"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Bash",
+  "description": "Crop the phone screenshot for viewing",
+  "input": "python3 -c \"…crop look-phone.png…\""
+ },
+ {
+  "exchange": "E06",
+  "tool": "Read",
+  "description": "",
+  "input": "/home/claude/decision-tree/look-phone-top.png"
+ },
+ {
+  "exchange": "E06",
+  "tool": "Artifact",
+  "description": "",
+  "input": "publish tree-of-the-measure.html"
+ },
+ {
+  "exchange": "E06",
+  "tool": "SendUserFile",
+  "description": "",
+  "input": "['/home/claude/decision-tree/tree-of-the-measure.html']"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Check production CSP for iframe and artifact rules",
+  "input": "grep -n \"frame-src…\" functions/_middleware.ts"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Read the live site's security headers for an existing embed post",
+  "input": "curl -sI https://mazzeleczzare.com/blog/the-break-is-the-record/"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Load the live post in Chromium and check whether its embed is CSP-blocked",
+  "input": "node live.cjs"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Fetch upstream, apply the patch to it, and list middleware exports",
+  "input": "git fetch origin main; git am --3way …patch"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Write a near-touch geometry linter and run it on the rebuilt map",
+  "input": "python3 near_touch.py map.svg"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Crop the four flagged spots from the final map render at 5×",
+  "input": "python3 - (crop map candidates)"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Read",
+  "description": "",
+  "input": "/home/claude/touchstone/map-candidates.png"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Run the near-touch linter on the plate",
+  "input": "python3 near_touch.py final.svg 0.5 4"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Render the plate at 2× and crop the hand, needle and seam junction",
+  "input": "python3 -c \"…resvg…crop…\""
+ },
+ {
+  "exchange": "E10",
+  "tool": "Read",
+  "description": "",
+  "input": "/home/claude/touchstone/plate-junction.png"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Look for existing CSP tests and documentation",
+  "input": "grep -rln \"frame-src\" …"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "See whether _headers also sets frame headers",
+  "input": "grep -n -i \"x-frame…\" public/_headers"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Read the middleware entry point and test config",
+  "input": "sed -n 225,300p functions/_middleware.ts"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Check middleware imports before writing a test",
+  "input": "sed -n 1,30p functions/_middleware.ts | grep import"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Allow same-origin frames in the CSP and pin it with a test",
+  "input": "python3 - (edit CSP); npx vitest run src/utils/csp.test.ts"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Confirm the test fails without the fix, then serve dist through the real middleware",
+  "input": "git stash …; node --experimental-strip-types prodlike.mts"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Load the embed post through production headers with the fix applied",
+  "input": "node fixed.cjs; pgrep -f prodlike.mts | xargs -r kill"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Stop the test server by exact process, not by pattern",
+  "input": "for p in $(pgrep -x node); … grep -q prodlike && kill $p"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Run all gates, commit the CSP fix separately, re-export patches",
+  "input": "npm run check; vitest; docs:check; git commit; git format-patch"
+ },
+ {
+  "exchange": "E10",
+  "tool": "Bash",
+  "description": "Make the commit message's scope exact, re-export versioned patches",
+  "input": "git commit --amend -F msg.txt; git format-patch -2"
+ },
+ {
+  "exchange": "E10",
+  "tool": "SendUserFile",
+  "description": "",
+  "input": "[csp patch, post patch, near-touch linter]"
+ },
+ {
+  "exchange": "E11",
+  "tool": "Bash",
+  "description": "Probe live security headers across page, artifact, static and error paths",
+  "input": "for path in / /blog/… ; do curl -sI …; done"
+ },
+ {
+  "exchange": "E11",
+  "tool": "Bash",
+  "description": "Follow the artifact redirect and look for signs of who sets X-Frame-Options",
+  "input": "curl -sIL …/artifacts/the-break-is-the-record.html"
+ },
+ {
+  "exchange": "E11",
+  "tool": "WebSearch",
+  "description": "",
+  "input": "Cloudflare managed transform \"Add security headers\" …"
+ }
+]
