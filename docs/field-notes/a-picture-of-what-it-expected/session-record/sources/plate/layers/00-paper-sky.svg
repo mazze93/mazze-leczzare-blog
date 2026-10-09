@@ -1,0 +1,37 @@
+  <defs>
+    <!-- Image field: everything pictorial is clipped to this window.
+         Text lives below it, on the plate but outside the picture. -->
+    <clipPath id="field"><rect x="70" y="70" width="760" height="880" rx="2"/></clipPath>
+
+    <!-- Sky: indigo zenith → bruised violet → ochre at the horizon (y≈760),
+         the colour order of Blake's colour-printed skies. -->
+    <linearGradient id="sky" x1="0" y1="70" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#26304F"/>
+      <stop offset="0.45" stop-color="#5E4F78"/>
+      <stop offset="0.78" stop-color="#B9776A"/>
+      <stop offset="1"    stop-color="#E2B064"/>
+    </linearGradient>
+
+    <!-- Colour-print mottle: low-frequency noise, alpha-only, laid over the
+         wash. Blake pulled colour from a board, which leaves this reticulated
+         texture; flat gradients read as digital. -->
+    <filter id="mottle" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03 0.045" numOctaves="3" seed="7"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0 0.1  0 0 0 -1.6 0.95"/>
+    </filter>
+  </defs>
+
+  <!-- Paper, then the plate mark: the slightly darker, debossed rectangle a
+       copper plate leaves in damp paper. -->
+  <rect width="900" height="1200" fill="#F2E8D0"/>
+  <rect x="40" y="40" width="820" height="1120" fill="#EBDDBE" stroke="#C9B48C" stroke-width="1.2"/>
+
+  <!-- Sky wash + mottle, clipped to the field -->
+  <g clip-path="url(#field)">
+    <rect x="70" y="70" width="760" height="880" fill="url(#sky)"/>
+    <!-- fill="none" on purpose: feTurbulence makes its own pixels, so the
+         filter still paints; where filters are unsupported (cairosvg, some
+         rasterisers) a default black fill would drop a 55% black sheet over
+         the sky. With none, the fallback is the clean wash. -->
+    <rect x="70" y="70" width="760" height="880" fill="none" filter="url(#mottle)" opacity="0.35"/>
+  </g>

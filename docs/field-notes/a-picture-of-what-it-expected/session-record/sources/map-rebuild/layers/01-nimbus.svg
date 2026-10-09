@@ -1,0 +1,49 @@
+  <!-- Shared clip: all artwork stays inside the inner rule (x/y 40–960).
+       Later layers reference #art; only frame text lives outside it. -->
+  <defs>
+    <clipPath id="art"><rect x="40" y="40" width="920" height="920"/></clipPath>
+  </defs>
+
+  <!-- Nimbus: concentric rings about (500, 420), the composition's optical centre.
+       Outer four radii pulled in (390/375/360/340 → 370/356/344/326): at 390 the
+       outer ring crossed the frame at y=30 and merged with the dotted inner rule. -->
+  <g clip-path="url(#art)" fill="none" stroke="#2C1A0C">
+    <circle cx="500" cy="420" r="370" stroke-width="0.5" stroke-dasharray="1,5"/>
+    <circle cx="500" cy="420" r="356" stroke-width="0.6" stroke-dasharray="8,2,2,2"/>
+    <circle cx="500" cy="420" r="344" stroke-width="0.8" stroke-dasharray="2,5"/>
+    <circle cx="500" cy="420" r="326" stroke-width="1.2" stroke-dasharray="20,6,2,6"/>
+    <circle cx="500" cy="420" r="260" stroke-width="2.2"/>
+    <circle cx="500" cy="420" r="210" stroke-width="0.8" stroke-dasharray="5,3"/>
+    <circle cx="500" cy="420" r="140" stroke-width="0.6" stroke-dasharray="1,2"/>
+    <circle cx="500" cy="420" r="80"  stroke-width="1.5"/>
+  </g>
+
+  <!-- Rays: cardinal + diagonal, from the r=80 ring outward to the frame.
+       Diagonals are computed from the centre (cos 45° · r), not eyeballed.
+       Upper diagonals stop at the r=260 nodes: run to the frame, they lay
+       almost on top of the wing primaries and doubled them.
+       No downward ray: the figure (04) occupies that axis down to the ground,
+       and below it the ray only cut through the ground strata and the scale.
+       Lower diagonals stop at the r=326 ring: run to the frame, they ended
+       exactly on the tips of the second stratum and made an ambiguous wedge.
+       (Tried r=370 first: its 0.5px dotted ring is too faint to read as an end.) -->
+  <g clip-path="url(#art)" stroke="#2C1A0C" stroke-width="1" stroke-linecap="round">
+    <line x1="500" y1="340" x2="500" y2="40"/>
+    <line x1="420" y1="420" x2="40"  y2="420"/>
+    <line x1="580" y1="420" x2="960" y2="420"/>
+    <line x1="443.4" y1="363.4" x2="316.2" y2="236.2"/>
+    <line x1="556.6" y1="363.4" x2="683.8" y2="236.2"/>
+    <line x1="443.4" y1="476.6" x2="269.5" y2="650.5"/>
+    <line x1="556.6" y1="476.6" x2="730.5" y2="650.5"/>
+  </g>
+
+  <!-- Nodes: cardinal points on r=344, diagonals on r=260 (260·cos45° = 183.8). -->
+  <g fill="#2C1A0C">
+    <circle cx="500" cy="76"  r="4"/>
+    <circle cx="156" cy="420" r="4"/>
+    <circle cx="844" cy="420" r="4"/>
+    <circle cx="316.2" cy="236.2" r="3"/>
+    <circle cx="683.8" cy="236.2" r="3"/>
+    <circle cx="316.2" cy="603.8" r="3"/>
+    <circle cx="683.8" cy="603.8" r="3"/>
+  </g>

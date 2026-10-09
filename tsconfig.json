@@ -8,7 +8,8 @@
     "dist",
     "march_claude_blog",
     "blog-post-package",
-    "files"
+    "files",
+    "docs/field-notes/*/session-record/sources"
   ],
   "compilerOptions": {
     "strictNullChecks": true,

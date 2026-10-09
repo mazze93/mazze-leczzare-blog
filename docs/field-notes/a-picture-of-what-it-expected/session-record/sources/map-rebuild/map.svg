@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"
+     width="1000" height="1000" role="img" aria-labelledby="map-title map-desc">
+  <title id="map-title">Celestial survey map</title>
+  <desc id="map-desc">An engraved-style chart: a winged, flame-like figure rising from
+  layered ground inside concentric orbital rings, with ochre elevation contours,
+  a compass rose and a distance scale.</desc>
+  <!-- ═══ 00-frame ═══ -->
+  <!-- Ground: parchment. Every later layer sits on this. -->
+  <rect width="1000" height="1000" fill="#FAF5E8"/>
+
+  <!-- Frame: four nested rules, 20 → 40. Inner rule at 40 is the art boundary
+       (see clipPath #art in 01). Margin band 0–20 holds the edge labels only. -->
+  <g fill="none" stroke="#2C1A0C">
+    <rect x="20" y="20" width="960" height="960" stroke-width="2.5"/>
+    <rect x="27" y="27" width="946" height="946" stroke-width="0.8" stroke-dasharray="10,4"/>
+    <rect x="34" y="34" width="932" height="932" stroke-width="0.5"/>
+    <rect x="40" y="40" width="920" height="920" stroke-width="0.4" stroke-dasharray="2,6"/>
+  </g>
+
+  <!-- Edge labels: all four sit in the outer margin, centred at 10 px from the edge,
+       so they mirror each other. Words kept from the source composition. -->
+  <g fill="#2C1A0C" font-family="Georgia, 'Times New Roman', serif" font-size="8"
+     font-weight="bold" letter-spacing="1.5" text-anchor="middle" dominant-baseline="central">
+    <text x="500" y="10">NADIR</text>
+    <text x="500" y="990">MERIDIAN</text>
+    <text x="990" y="500" transform="rotate(90 990 500)">90° EAST</text>
+    <text x="10" y="500" transform="rotate(-90 10 500)">90° WEST</text>
+  </g>
+  <!-- ═══ 01-nimbus ═══ -->
+  <!-- Shared clip: all artwork stays inside the inner rule (x/y 40–960).
+       Later layers reference #art; only frame text lives outside it. -->
+  <defs>
+    <clipPath id="art"><rect x="40" y="40" width="920" height="920"/></clipPath>
+  </defs>
+
+  <!-- Nimbus: concentric rings about (500, 420), the composition's optical centre.
+       Outer four radii pulled in (390/375/360/340 → 370/356/344/326): at 390 the
+       outer ring crossed the frame at y=30 and merged with the dotted inner rule. -->
+  <g clip-path="url(#art)" fill="none" stroke="#2C1A0C">
+    <circle cx="500" cy="420" r="370" stroke-width="0.5" stroke-dasharray="1,5"/>
+    <circle cx="500" cy="420" r="356" stroke-width="0.6" stroke-dasharray="8,2,2,2"/>
+    <circle cx="500" cy="420" r="344" stroke-width="0.8" stroke-dasharray="2,5"/>
+    <circle cx="500" cy="420" r="326" stroke-width="1.2" stroke-dasharray="20,6,2,6"/>
+    <circle cx="500" cy="420" r="260" stroke-width="2.2"/>
+    <circle cx="500" cy="420" r="210" stroke-width="0.8" stroke-dasharray="5,3"/>
+    <circle cx="500" cy="420" r="140" stroke-width="0.6" stroke-dasharray="1,2"/>
+    <circle cx="500" cy="420" r="80"  stroke-width="1.5"/>
+  </g>
+
+  <!-- Rays: cardinal + diagonal, from the r=80 ring outward to the frame.
+       Diagonals are computed from the centre (cos 45° · r), not eyeballed.
+       Upper diagonals stop at the r=260 nodes: run to the frame, they lay
+       almost on top of the wing primaries and doubled them.
+       No downward ray: the figure (04) occupies that axis down to the ground,
+       and below it the ray only cut through the ground strata and the scale.
+       Lower diagonals stop at the r=326 ring: run to the frame, they ended
+       exactly on the tips of the second stratum and made an ambiguous wedge.
+       (Tried r=370 first: its 0.5px dotted ring is too faint to read as an end.) -->
+  <g clip-path="url(#art)" stroke="#2C1A0C" stroke-width="1" stroke-linecap="round">
+    <line x1="500" y1="340" x2="500" y2="40"/>
+    <line x1="420" y1="420" x2="40"  y2="420"/>
+    <line x1="580" y1="420" x2="960" y2="420"/>
+    <line x1="443.4" y1="363.4" x2="316.2" y2="236.2"/>
+    <line x1="556.6" y1="363.4" x2="683.8" y2="236.2"/>
+    <line x1="443.4" y1="476.6" x2="269.5" y2="650.5"/>
+    <line x1="556.6" y1="476.6" x2="730.5" y2="650.5"/>
+  </g>
+
+  <!-- Nodes: cardinal points on r=344, diagonals on r=260 (260·cos45° = 183.8). -->
+  <g fill="#2C1A0C">
+    <circle cx="500" cy="76"  r="4"/>
+    <circle cx="156" cy="420" r="4"/>
+    <circle cx="844" cy="420" r="4"/>
+    <circle cx="316.2" cy="236.2" r="3"/>
+    <circle cx="683.8" cy="236.2" r="3"/>
+    <circle cx="316.2" cy="603.8" r="3"/>
+    <circle cx="683.8" cy="603.8" r="3"/>
+  </g>
+  <!-- ═══ 02-contours ═══ -->
+  <!-- Ochre survey layer. Contour lines only; their numerals live in 07-labels
+       so they can sit above every stroke with a parchment knockout. -->
+  <g clip-path="url(#art)" fill="none" stroke="#A86824" stroke-linecap="round">
+
+    <!-- Upper boundary: two explicit cubics, mirrored about x=500.
+         Replaces the source's Q…T…T chain, whose reflected control point
+         (960, 470) bent the last segment into a hook.
+         Crest raised 170 → 125: at 170 it ran 10px under the heavy r=260 ring
+         and read as a near-tangent; at 125 it sits midway between rings. -->
+    <path d="M 40,250 C 180,300 320,125 500,125 C 680,125 820,300 960,250" stroke-width="1.8"/>
+
+    <!-- Lower contours: nested arcs, every second one dashed (index contours solid).
+         Elevation rises toward the centre: 900 → 1200. The source's 800 contour
+         (crest y=750) ran along the ground line 5px away; the ground is the base. -->
+    <path d="M 55,790 C 205,740 365,700 500,700 C 635,700 795,740 945,790" stroke-width="1.3"/>
+    <path d="M 70,730 C 220,680 370,645 500,645 C 630,645 780,680 930,730" stroke-width="0.8" stroke-dasharray="4,3,1,3"/>
+    <path d="M 90,675 C 240,625 380,595 500,595 C 620,595 760,625 910,675" stroke-width="1.3"/>
+    <path d="M 110,620 C 250,570 380,540 500,540 C 620,540 750,570 890,620" stroke-width="0.8" stroke-dasharray="4,3,1,3"/>
+
+    <!-- Side ridges: closed outer contour + dashed inner contour, mirrored.
+         Each closes with a cubic whose handles continue the neighbouring
+         tangents; a bare Z drew a straight chord and a visible kink. The mid-ridge
+         joins (320,370)/(280,380) also had 9–13° kinks; handles realigned to be collinear. -->
+    <path d="M 100,470 C 130,340 240,300 320,370 C 370,414 290,540 160,500 C 121,488 91,509 100,470 Z" stroke-width="1.3"/>
+    <path d="M 130,450 C 150,360 220,330 280,380 C 310,405 270,490 180,470 C 153,464 124,477 130,450 Z" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <path d="M 900,470 C 870,340 760,300 680,370 C 630,414 710,540 840,500 C 879,488 909,509 900,470 Z" stroke-width="1.3"/>
+    <path d="M 870,450 C 850,360 780,330 720,380 C 690,405 730,490 820,470 C 847,464 876,477 870,450 Z" stroke-width="0.8" stroke-dasharray="4,3"/>
+  </g>
+  <!-- ═══ 03-wings ═══ -->
+  <!-- Wings. Source geometry kept stroke-for-stroke, then scaled 0.876 about the
+       wing root (500, 450): the source's second primary reached (60, 5), outside
+       the frame. 0.876 = (450 − 60) / (450 − 5) puts that tip at y = 60.
+       Stroke widths scale with the group (3 → 2.6), which suits the engraving. -->
+  <g clip-path="url(#art)">
+  <g transform="translate(500 450) scale(0.876) translate(-500 -450)"
+     fill="none" stroke="#2C1A0C" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Left: three primaries, each an out-and-back hook from the root -->
+    <path d="M 500,450 C 350,400 200,290 90,105 C 165,180 295,290 410,345" stroke-width="3"/>
+    <path d="M 360,285 C 240,205 130,115 60,5 C 135,90 275,200 380,275" stroke-width="2"/>
+    <path d="M 320,225 C 240,170 160,95 100,20 C 165,75 260,155 340,215" stroke-width="1.8"/>
+    <!-- Left hatching: parallel strokes (not cross-hatching — none intersect) -->
+    <path d="M 460,415 C 370,375 250,285 155,175 M 430,385 C 340,350 230,265 145,170 M 400,355 C 310,320 205,240 135,150 M 370,325 C 290,290 195,215 125,135 M 340,295 C 260,260 175,190 115,120" stroke-width="0.9" opacity="0.85"/>
+    <path d="M 450,410 C 375,380 270,305 190,215 M 440,400 C 365,370 260,295 180,205 M 420,380 C 345,350 245,280 170,195 M 390,350 C 320,325 225,260 155,180" stroke-width="0.55" opacity="0.7"/>
+
+    <!-- Right: exact mirror about x = 500 -->
+    <path d="M 500,450 C 650,400 800,290 910,105 C 835,180 705,290 590,345" stroke-width="3"/>
+    <path d="M 640,285 C 760,205 870,115 940,5 C 865,90 725,200 620,275" stroke-width="2"/>
+    <path d="M 680,225 C 760,170 840,95 900,20 C 835,75 740,155 660,215" stroke-width="1.8"/>
+    <path d="M 540,415 C 630,375 750,285 845,175 M 570,385 C 660,350 770,265 855,170 M 600,355 C 690,320 795,240 865,150 M 630,325 C 710,290 805,215 875,135 M 660,295 C 740,260 825,190 885,120" stroke-width="0.9" opacity="0.85"/>
+    <path d="M 550,410 C 625,380 730,305 810,215 M 560,400 C 635,370 740,295 820,205 M 580,380 C 655,350 755,280 830,195 M 610,350 C 680,325 775,260 845,180" stroke-width="0.55" opacity="0.7"/>
+  </g>
+  </g>
+  <!-- ═══ 04-figure ═══ -->
+  <!-- Central figure: a flame-shaped body rising from the ground (foot at 500, 768, under the ground line) to a
+       point at (500, 180). Geometry from the source. One change: the outer contour
+       is filled with parchment, so rays, rings and the wing root behind it are
+       occluded — the figure reads as standing in front, as in an engraving,
+       rather than as a transparent outline over the grid. -->
+  <g clip-path="url(#art)" stroke="#2C1A0C" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer contour (opaque) -->
+    <path d="M 500,768 C 420,670 380,520 440,400 C 470,335 492,280 500,180 C 508,280 530,345 560,400 C 620,520 580,670 500,768 Z"
+          fill="#FAF5E8" stroke-width="3.2"/>
+
+    <g fill="none">
+      <!-- Inner sweeps: two strokes rising and converging at (500, 260) -->
+      <path d="M 500,720 C 452,640 435,535 475,430 C 488,395 498,350 500,260 M 500,720 C 548,640 565,535 525,430 C 512,395 502,350 500,260" stroke-width="1.8"/>
+      <path d="M 480,670 C 450,605 445,500 480,420 M 520,670 C 550,605 555,500 520,420" stroke-width="1.1"/>
+
+      <!-- Hatching: three weights of parallel shading inside the contour -->
+      <path d="M 458,635 C 440,570 445,485 482,415 M 542,635 C 560,570 555,485 518,415" stroke-width="0.8" stroke-dasharray="6,2" opacity="0.85"/>
+      <path d="M 465,680 C 435,610 445,515 485,455 M 535,680 C 565,610 555,515 515,455" stroke-width="0.8" stroke-dasharray="2,2" opacity="0.85"/>
+      <path d="M 478,715 C 456,655 458,570 488,500 M 522,715 C 544,655 542,570 512,500" stroke-width="0.65" opacity="0.8"/>
+    </g>
+  </g>
+  <!-- ═══ 05-ground ═══ -->
+  <!-- Ground. An opaque parchment mass whose top follows the first stratum and
+       tails out to the frame; it occludes the rings, lower rays and the figure's
+       foot, so the figure stands *in* the ground rather than hovering 5px above it.
+       Strata: source geometry with the centre notch removed. Each source line met
+       itself at x=500 with opposed tangents (a V); here the handles either side of
+       x=500 sit at the centre height, so every line crosses the axis level. -->
+  <g clip-path="url(#art)">
+    <path d="M 40,862 C 80,842 110,826 140,810 C 270,740 410,755 500,755 C 590,755 730,740 860,810 C 890,826 920,842 960,862 L 960,960 L 40,960 Z"
+          fill="#FAF5E8"/>
+    <g fill="none" stroke="#2C1A0C" stroke-linecap="round">
+      <path d="M 140,810 C 270,740 410,755 500,755 C 590,755 730,740 860,810" stroke-width="3.2"/>
+      <path d="M 70,845 C 240,775 390,780 500,780 C 610,780 760,775 930,845" stroke-width="3"/>
+      <path d="M 110,860 C 260,800 400,805 500,805 C 600,805 740,800 890,860" stroke-width="1.8"/>
+      <path d="M 80,885 C 240,820 390,825 500,825 C 610,825 760,820 920,885" stroke-width="1.2" opacity="0.9"/>
+      <path d="M 50,910 C 220,845 380,850 500,850 C 620,850 780,845 950,910" stroke-width="0.85" stroke-dasharray="6,3,1,3" opacity="0.85"/>
+      <path d="M 40,935 C 200,870 370,875 500,875 C 630,875 800,870 960,935" stroke-width="0.85" stroke-dasharray="10,4" opacity="0.8"/>
+    </g>
+  </g>
+  <!-- ═══ 06-compass-scale ═══ -->
+  <!-- Compass rose. The source put it at (85, 85), where the wing tips now are.
+       Placement measured, not guessed: the largest ink-free square on the left
+       half of the step-05 render is 97px, centred at (94, 202). The rose spans
+       ±45 at scale 1, so it is drawn at 0.85 (±38) to leave a margin. -->
+  <g transform="translate(94 202) scale(0.85)" stroke="#2C1A0C" stroke-linecap="round">
+    <g fill="none">
+      <circle r="30" stroke-dasharray="1,3.5" stroke-width="0.8"/>
+      <circle r="22" stroke-width="0.85"/>
+      <line y1="-34" y2="34" stroke-width="0.9"/>
+      <line x1="-34" x2="34" stroke-width="0.9"/>
+    </g>
+    <!-- Four-point rose: north point inked, the rest open. The source used a
+         lopsided five-point star that pointed north only. -->
+    <path d="M 0,-34 L 5,-5 L 0,0 Z" fill="#2C1A0C" stroke-width="0.6"/>
+    <path d="M 0,-34 L -5,-5 L 0,0 Z M 34,0 L 5,-5 L 0,0 L 5,5 Z M 0,34 L 5,5 L 0,0 L -5,5 Z M -34,0 L -5,5 L 0,0 L -5,-5 Z"
+          fill="#FAF5E8" stroke-width="0.6" stroke-linejoin="round"/>
+    <g fill="#2C1A0C" stroke="none" font-family="Georgia, 'Times New Roman', serif"
+       font-weight="bold" font-size="9" text-anchor="middle" dominant-baseline="central">
+      <text y="-42">N</text>
+      <text y="42">S</text>
+      <text x="42">E</text>
+      <text x="-42">W</text>
+    </g>
+  </g>
+
+  <!-- Scale bar, bottom centre, inside the ground mass (which is blank below
+       y ≈ 880). Retitled "Scale of Distance": a horizontal bar cannot scale
+       elevation, which the contours already carry. Units moved into the title so
+       every numeral centres on its tick ("1000 yds" centred pushed 1000 off its tick). -->
+  <g transform="translate(400 922)" stroke="#2C1A0C" stroke-linecap="butt">
+    <!-- Alternating filled/open segments: the classic engraved bar -->
+    <rect x="0"   y="-2" width="50" height="4" fill="#2C1A0C" stroke-width="0.8"/>
+    <rect x="50"  y="-2" width="50" height="4" fill="#FAF5E8" stroke-width="0.8"/>
+    <rect x="100" y="-2" width="50" height="4" fill="#2C1A0C" stroke-width="0.8"/>
+    <rect x="150" y="-2" width="50" height="4" fill="#FAF5E8" stroke-width="0.8"/>
+    <g fill="#2C1A0C" stroke="none" font-family="Georgia, 'Times New Roman', serif"
+       font-size="8" text-anchor="middle">
+      <text x="0"   y="-7">0</text>
+      <text x="100" y="-7">500</text>
+      <text x="200" y="-7">1000</text>
+      <text x="100" y="16" font-style="italic" font-weight="bold" font-size="9">Scale of Distance · yards</text>
+    </g>
+  </g>
+  <!-- ═══ 07-labels ═══ -->
+  <!-- Elevation numerals, drawn last so nothing crosses them.
+       Each label is drawn twice: a parchment stroke (the knockout) under the ink.
+       Two passes instead of paint-order, which some renderers ignore.
+       Ink is #8E5418 (5.62:1 on parchment, passes WCAG AA for small text);
+       the contour lines keep #A86824 (4.13:1 — enough for graphics, not for text).
+       Positions sit on visible contour arms, computed from the curves (point and
+       tangent at a chosen x), clear of the rings and the figure:
+         1200 on the left arm at x=145 → (145, 607.9), tangent −18.6°
+         1000 on the right arm at x=855 → (855, 706.3), tangent +16.6°
+         1400 inside each ridge's inner contour, between the r=326 and r=260 rings. -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="10" font-style="italic"
+     font-weight="bold" text-anchor="middle" dominant-baseline="central">
+    <g fill="none" stroke="#FAF5E8" stroke-width="4" stroke-linejoin="round">
+      <text transform="translate(145 607.9) rotate(-18.6)">1200</text>
+      <text transform="translate(855 706.3) rotate(16.6)">1000</text>
+      <text x="205" y="395">1400</text>
+      <text x="795" y="395">1400</text>
+    </g>
+    <g fill="#8E5418">
+      <text transform="translate(145 607.9) rotate(-18.6)">1200</text>
+      <text transform="translate(855 706.3) rotate(16.6)">1000</text>
+      <text x="205" y="395">1400</text>
+      <text x="795" y="395">1400</text>
+    </g>
+  </g>
+</svg>

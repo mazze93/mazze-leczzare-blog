@@ -1,0 +1,22 @@
+session_id,deliverable_id,name,version,type,destination,exchange,provenance
+2026-10-08_models-lying-about-their-work,D01,celestial-map_v1.0.0.svg / .png,1.0.0,Rebuilt map,Sent as file,E03,Tool
+2026-10-08_models-lying-about-their-work,D02,celestial-map_before-after_v1.0.0.png,1.0.0,Image,Sent as file,E03,Tool
+2026-10-08_models-lying-about-their-work,D03,celestial-map_build-log_v1.0.0.md,1.0.0,Build log,Sent as file; published as record/map-rebuild-log.md,E03,Tool
+2026-10-08_models-lying-about-their-work,D04,blog-concept_why-models-lie-about-their-work_v0.1.0.md,0.1.0,Blog concept,Sent as file,E03,Tool
+2026-10-08_models-lying-about-their-work,D05,celestial-map_source_v1.0.0.zip,1.0.0,Source,Sent as file,E03,Tool
+2026-10-08_models-lying-about-their-work,D06,the-measure-taken_v1.0.0.svg / .png,1.0.0,Original plate,Sent as file; in the post,E04,Tool
+2026-10-08_models-lying-about-their-work,D07,plate-build-log_v1.0.0.md,1.0.0,Build log,Sent as file; published as record/plate-build-log.md,E04,Tool
+2026-10-08_models-lying-about-their-work,D08,research-notes_v1.0.0.md,1.0.0,Research,Sent as file; published as record/research-notes.md,E04,Tool
+2026-10-08_models-lying-about-their-work,D09,the-measure-taken_source_v1.0.0.zip,1.0.0,Source,Sent as file,E04,Tool
+2026-10-08_models-lying-about-their-work,D10,a-picture-of-what-it-expected_repo-files_v0.1.0.zip,0.1.0,Repo files,Sent as file,E04,Tool
+2026-10-08_models-lying-about-their-work,D11,a-picture-of-what-it-expected_v0.1.0.patch,0.1.0,Post (commit b8fbeda),Sent turn 7; re-exported turn 19; pushed,E04,Tool
+2026-10-08_models-lying-about-their-work,D12,Tree of the Measure,—,Decision-telemetry artifact,https://claude.ai/artifact/8j5uocog1g7jgpnLvLCgjR,E06,Tool
+2026-10-08_models-lying-about-their-work,D13,tree-of-the-measure.html,—,Standalone copy,Sent as file,E06,Tool
+2026-10-08_models-lying-about-their-work,D14,csp-allow-same-origin-artifact-frames_v1.0.0.patch,1.0.0,CSP fix (commit 5f966ff),Sent as file; pushed,E10,Tool
+2026-10-08_models-lying-about-their-work,D15,near-touch-linter_v0.1.0.py,0.1.0,Geometry linter,Sent as file,E10,Tool
+2026-10-08_models-lying-about-their-work,D16,Branch field-note/a-picture-of-what-it-expected,—,2 commits on GitHub,https://github.com/mazze93/mazze-leczzare-blog/tree/field-note/a-picture-of-what-it-expected,E12,Tool
+2026-10-08_models-lying-about-their-work,D17,blog-push-report_v1.0.0.xlsx,1.0.0,Push tracker,Sent as file,E13,Tool
+2026-10-08_models-lying-about-their-work,D18,field-note_a-picture-of-what-it-expected_session-record_v1.0.0.xlsx,1.0.0,This workbook,Sent as file,E14,Tool
+2026-10-08_models-lying-about-their-work,D19,session-record v2 workbook + core-sample toolkit (superseded by D20–D21),2.0.0,"Workbook, ledger, skill",Sent as files; skill proposed,E15,Tool
+2026-10-08_models-lying-about-their-work,D20,"core-sample skill + toolkit (3 commits, PR #6)",0.2.0,Skill,https://github.com/mazze93/claude-code-skills/pull/6,E17,Tool
+2026-10-08_models-lying-about-their-work,D21,"session record (annotations, CSV, SQLite, workbook)",2.1.0,Ledger,mazze-leczzare-blog: docs/field-notes/a-picture-of-what-it-expected/session-record/,E17,Tool

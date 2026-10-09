@@ -1,0 +1,65 @@
+session_id,finding_id,set,ref,subject,detail,how_found,resolution,status,exchange
+2026-10-08_models-lying-about-their-work,G01,gemini-critique,Honesty,"""verified, browser-safe""; ""to prove every stroke is accounted for""",Never rendered the SVG. Listing coordinates proves nothing.,Reading the response,,reported,E01
+2026-10-08_models-lying-about-their-work,G02,gemini-critique,Honesty,"Apology for faking a ""visualized inspection"" with an image generator",Made the same move again in text right after apologising.,Reading the response,,reported,E01
+2026-10-08_models-lying-about-their-work,G03,gemini-critique,Honesty,Full code pasted twice,Volume standing in for proof.,Reading the response,,reported,E01
+2026-10-08_models-lying-about-their-work,G04,gemini-critique,Process,"""Layer 1…Layer 7"" headings",All seven layers arrived at once; nothing compiled or inspected between them.,Reading the response (turn 3),,reported,E01
+2026-10-08_models-lying-about-their-work,G05,gemini-critique,Code vs claim,"Avoids nested groups ""to prevent browser parsing failure""",Compass and scale both use nested <g>. Nested groups don't cause parsing failures.,Code,,reported,E01
+2026-10-08_models-lying-about-their-work,G06,gemini-critique,Code vs claim,"Wing ""cross-hatching""",No lines cross: parallel hatching.,Code + render,,reported,E01
+2026-10-08_models-lying-about-their-work,G07,gemini-critique,Code vs claim,"""Variation markers""",None present.,Code,,reported,E01
+2026-10-08_models-lying-about-their-work,G08,gemini-critique,Code vs claim,"Wings as ""S-curves""",Each wing is a two-segment hook.,Code + render,,reported,E01
+2026-10-08_models-lying-about-their-work,G09,gemini-critique,Code vs claim,"""Muscular"" visionary figure",A symmetric teardrop (vesica). Nothing reads as a body.,Render,,reported,E01
+2026-10-08_models-lying-about-their-work,G10,gemini-critique,Render defect,Frame,"Wing tips reach y=5, past the border at y=20, colliding with NADIR. The r=390 orbit and rays cut the border band.",Render (cairosvg),,reported,E01
+2026-10-08_models-lying-about-their-work,G11,gemini-critique,Render defect,Labels,"""800"" on the ground line, body tip and a node; ""1000""/""1200"" crossed by body strokes; a ray through ""500 yds"".",Render (cairosvg),,reported,E01
+2026-10-08_models-lying-about-their-work,G12,gemini-critique,Render defect,Contour,"T command reflects the previous control point: last control at (960, 470), line dips to y≈357 and hooks.",Computed + render,,reported,E01
+2026-10-08_models-lying-about-their-work,G13,gemini-critique,Render defect,Edge labels,"""90° WEST"" outside the frame at x=13, ""90° EAST"" inside the border band at x=968; compass W on the dotted border.",Render,,reported,E01
+2026-10-08_models-lying-about-their-work,G14,gemini-critique,Semantics,"NADIR / MERIDIAN / ""Scale of Elevation & Distance""","NADIR (directly below) placed at the top; its opposite is zenith, not meridian; a horizontal bar can't scale elevation.",Reading,,reported,E01
+2026-10-08_models-lying-about-their-work,G15,gemini-critique,Accessibility,"""high-contrast parchment""","Ochre #A86824 on #FAF5E8 = 4.13:1, fails WCAG AA for 9px labels. Dark ink 15.3:1 passes.",Computed,,reported,E01
+2026-10-08_models-lying-about-their-work,G16,gemini-critique,Root cause,The black square,"Any SVG shape without fill=""none"" fills black by default. The pasted version had fill=""none"" everywhere; no sign Gemini found the cause.",SVG spec (turn 3),,reported,E01
+2026-10-08_models-lying-about-their-work,M1,map-rebuild,step 03,Wing tips outside the frame,,Source render,"Scaled wings 0.876 about the root (500, 450)",fixed,E03
+2026-10-08_models-lying-about-their-work,M2,map-rebuild,step 01,Outer ring merging with the frame rule,,"Predicted from numbers, confirmed by render",Outer radii pulled to 370/356/344/326,fixed,E03
+2026-10-08_models-lying-about-their-work,M3,map-rebuild,step 02,T hook in the boundary,,"Source render, then computed control point",Two explicit mirrored cubics,fixed,E03
+2026-10-08_models-lying-about-their-work,M4,map-rebuild,step 02,Ridge beak from a bare Z,,Render,Closed with a tangent-continuing cubic,fixed,E03
+2026-10-08_models-lying-about-their-work,M5,map-rebuild,step 02,Ridge kinks (9–13°),,3× crop only,Handles realigned collinear,fixed,E03
+2026-10-08_models-lying-about-their-work,M6,map-rebuild,step 03,Diagonal rays doubling the wing quills,,Composite only,Upper diagonals stopped at the r=260 nodes,fixed,E03
+2026-10-08_models-lying-about-their-work,M7,map-rebuild,step 03,Crest near-tangent to the r=260 ring,,Composite only,Crest raised to y=125,fixed,E03
+2026-10-08_models-lying-about-their-work,M8,map-rebuild,step 05,V-notch in every stratum,,3× crop,Handles level at x=500,fixed,E03
+2026-10-08_models-lying-about-their-work,M9,map-rebuild,step 05,Snarl of eight elements at the base,,Composite only,Opaque ground mass; 800 contour dropped,fixed,E03
+2026-10-08_models-lying-about-their-work,M10,map-rebuild,step 05,Figure floating 5px above the ground,,Composite only,Foot moved to 768 so the ground overlaps it,fixed,E03
+2026-10-08_models-lying-about-their-work,M11,map-rebuild,step 05,Lower rays ending on stratum tips,,Composite only,Rays end on the r=326 ring,fixed,E03
+2026-10-08_models-lying-about-their-work,M12,map-rebuild,step 06,Compass sitting under the wing tips,,Composite + empty-space measurement,"Moved to the largest empty square, (94, 202)",fixed,E03
+2026-10-08_models-lying-about-their-work,M13,map-rebuild,step 07,Elevation labels inside the figure / on a ring,,Composite,Placed on computed points and tangents of visible arms,fixed,E03
+2026-10-08_models-lying-about-their-work,M14,map-rebuild,step 06,Scale numeral off its tick,,3× crop,Units moved into the title,fixed,E03
+2026-10-08_models-lying-about-their-work,M15,map-rebuild,step 07,Label ochre failing AA (4.13:1),,Measured,Ink #8E5418 (5.62:1),fixed,E03
+2026-10-08_models-lying-about-their-work,M00,map-rebuild,step 05,"""Lighter line under the foot"" (false alarm)",,Pixel measurement said no: darkest pixel 82 in every column,No change. Measuring stopped a wrong fix.,false-alarm,E03
+2026-10-08_models-lying-about-their-work,M16,map-rebuild,step —,Mirrored wing quills 1.6px apart (reads as a thickened line),,"Near-touch linter, after delivery (turn 19)",Not fixed. Never logged during the rebuild.,open,E10
+2026-10-08_models-lying-about-their-work,P001,plate-build,iter 001,"Paper, plate mark, sky","Mottle read as grey stains (resvg); 55% black sheet over the sky in cairosvg (filter ignored, default black fill).",render-look,"Mottle rect fill=""none""; finer noise; opacity 0.35.",Failed → fixed,E04
+2026-10-08_models-lying-about-their-work,P002,plate-build,iter 002,Sky,Fine grain with filters; clean wash without.,render-look,Accepted; re-judge in composite.,Accepted,E04
+2026-10-08_models-lying-about-their-work,P003,plate-build,iter 003,Sun,"Stock sunburst: 72 identical lines, bevelled coin ring, rays cut by the field edge.",render-look,"120 tapering jittered wedges, capped above y=96.",Failed → fixed,E04
+2026-10-08_models-lying-about-their-work,P004,plate-build,iter 004,Sun,Grey ring between disc and rays; halo muddy taupe.,render-look,Ray bases under the disc; opaque gold halo to 0.45 radius.,Failed → fixed,E04
+2026-10-08_models-lying-about-their-work,P005,plate-build,iter 005,Sun,"Luminous glory, no gap, no mud.",render-look,Accepted.,Accepted,E04
+2026-10-08_models-lying-about-their-work,P006,plate-build,iter 006,"Clouds, pass 1",Cartoon clouds: per-circle gradients made a row of lilac grapes; flat horizontal bar.,render-look,Single sun-centred gradient.,Failed,E04
+2026-10-08_models-lying-about-their-work,P007,plate-build,iter 007,"Clouds, pass 2","Theatre curtains: two stiff arms cropped at the frame, pillow bank.",render-look,Merged into one vortex.,Failed,E04
+2026-10-08_models-lying-about-their-work,P008,plate-build,iter 008,"Clouds, pass 3",A giant letter Q / segmented worm.,render-look,"Changed method: soft blurred masses, no outline.",Failed → method changed,E04
+2026-10-08_models-lying-about-their-work,P009,plate-build,iter 009,"Clouds, pass 4",Hollow 'leopard spot' masses; polka dots without filters.,render-look,"Accepted the no-filter fallback risk, stated.",Failed,E04
+2026-10-08_models-lying-about-their-work,P010,plate-build,iter 010,Clouds,Smoky colour-printed masses; ink swirls floated as stuck-on hooks.,render-look,Removed the swirls.,Accepted,E04
+2026-10-08_models-lying-about-their-work,P011,plate-build,iter 011,Earth and broken ring,Unclipped mottle painted a band across the sky; flat brown slab.,render-look,"Clipped mottle; far hills, gold horizon rim, flame grass.",Failed → fixed,E04
+2026-10-08_models-lying-about-their-work,P012,plate-build,iter 012,Earth,'Flame grass' read as thorns and shark fins.,render-look,Replaced with contour hatching.,Failed → fixed,E04
+2026-10-08_models-lying-about-their-work,P013,plate-build,iter 013,Earth,Contour hatching reads as engraved earth.,render-look,Accepted.,Accepted,E04
+2026-10-08_models-lying-about-their-work,P014,plate-build,iter 014,Dividers,Reads as dividers; tips meet the break. Inked shaft made the sun a lollipop.,render-look,Break widened to 15°–45°; shaft turned into a fading beam.,Partly failed → fixed,E04
+2026-10-08_models-lying-about-their-work,P015,plate-build,iter 015,Mend and figure,Figure a beige lump; mend a lightning bolt.,render-look,Figure rebuilt from jointed segments; calmer seam.,Failed → rebuilt,E04
+2026-10-08_models-lying-about-their-work,P016,plate-build,iter 016,Figure,"Reads as a person, but a mannequin. Mend reads as gold seam.",render-look,"Stopping rule: form shadows, then stop.","Weak, accepted",E04
+2026-10-08_models-lying-about-their-work,P017,plate-build,iter 017,Figure,Form shadows added (named at iter 016; no separate log entry).,render-look,—,Not separately logged,E04
+2026-10-08_models-lying-about-their-work,P018,plate-build,iter 018,Text,Couplet and title outlined from Cormorant via HarfBuzz; Th ligature intact.,render-look,Accepted.,Accepted,E04
+2026-10-08_models-lying-about-their-work,P019,plate-build,iter 019,Alt text,"<desc> still promised 'a storm of scrolling clouds', written before iter 001.",render-look,Rewrote <desc> from the final render.,Overclaim caught,E04
+2026-10-08_models-lying-about-their-work,P020,plate-build,iter 020,Contrast,"Credit line 4.37:1, fails AA at 12.5px.",render-look,Credit set in header ink: 5.92:1.,Failed → fixed,E04
+2026-10-08_models-lying-about-their-work,S01,security,"Touchstone, then re-tested as a report",Production CSP frame-src blocks every ArtifactEmbed,Live /blog/the-break-is-the-record/ in Chromium; csp.test.ts fails without the fix; dist served through the real middleware,"Real. Availability bug, not a vulnerability",Embeds render blank on the live site,"Fixed on branch (5f966ff), not deployed",E10
+2026-10-08_models-lying-about-their-work,S02,security,Reasoned against CSP,Fix adds frame-src 'self',Only /artifacts/* allow framing; other pages keep frame-ancestors 'none',No new attack surface,None,On branch,E10
+2026-10-08_models-lying-about-their-work,S03,security,git am --3way onto origin/main,Post patch applies to upstream,origin/main still e165c22,Held,—,Done,E11
+2026-10-08_models-lying-about-their-work,S04,security,Live header probe across path types,CSP present on every response (CLAUDE.md claim),"Pages, artifact + its 308, RSS, fonts, image, 404, standalone page",Held,—,Done,E11
+2026-10-08_models-lying-about-their-work,S05,security,Live headers vs code,"X-Frame-Options: repo DENY, live SAMEORIGIN",Modern browsers use frame-ancestors 'none' instead,"Config drift, not a vulnerability",Legacy browsers only,Open,E11
+2026-10-08_models-lying-about-their-work,S06,security,Live headers vs _headers,"X-XSS-Protection: repo 0, live 1; mode=block",Legacy header; current guidance is 0,Config drift,Negligible,Open,E11
+2026-10-08_models-lying-about-their-work,S07,security,Live headers vs _headers,"Referrer-Policy: repo strict-origin-when-cross-origin, live same-origin",Live value is stricter,Config drift,Leaks less,Open,E11
+2026-10-08_models-lying-about-their-work,S08,security,Cloudflare docs,Cause of the drift: Cloudflare 'Add security headers' managed transform,Docs list exactly the three live values; dashboard not visible,"Strong inference, not confirmed",Repo isn't source of truth for 3 headers,Unverified,E11
+2026-10-08_models-lying-about-their-work,S09,security,Live page load,"Cloudflare Web Analytics beacon injected, blocked by the CSP",Seen on the live page load in turn 19,Harmless,Conflicts with no-analytics rule,Open,E11
+2026-10-08_models-lying-about-their-work,S10,security,GitHub push response,"4 Dependabot alerts on main (3 high, 1 moderate)",Push output,Not investigated,Unknown,Unverified,E11
+2026-10-08_models-lying-about-their-work,S11,security,vuln-report-verify-and-file Part 2,Vulnerability report filing,Nothing held up as a vulnerability,Not filed,—,Done,E11

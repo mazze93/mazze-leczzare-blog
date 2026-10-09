@@ -1,0 +1,40 @@
+  <!-- The mend: kintsugi gold across the break, ends pinned to the ring's ends
+       (15°, 45°), middle wandering ±1.8px over 7 vertices. (iter 015's 13
+       vertices at ±3.2px read as a lightning bolt.) -->
+  <g clip-path="url(#field)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 672.2,843.5 L 666.1,849.4 L 658.5,853.2 L 649.2,856.0 L 638.4,861.0 L 626.2,861.7 L 612.6,866.8" stroke="#FFD86B" stroke-width="8" opacity="0.6" filter="url(#glow)"/>
+    <path d="M 672.2,843.5 L 666.1,849.4 L 658.5,853.2 L 649.2,856.0 L 638.4,861.0 L 626.2,861.7 L 612.6,866.8" stroke="#1E140E" stroke-width="5"/>
+    <path d="M 672.2,843.5 L 666.1,849.4 L 658.5,853.2 L 649.2,856.0 L 638.4,861.0 L 626.2,861.7 L 612.6,866.8" stroke="#E7B23C" stroke-width="2.8"/>
+  </g>
+
+  <!-- The witness (rebuilt iter 016): body segments as round-capped strokes,
+       ink pass then flesh pass, so the union keeps one outline. Kneeling on both
+       knees, stooped; back hand planted, front hand reaching to the near end of
+       the break. Head at (584, 878), bowed. -->
+  <g clip-path="url(#field)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#2B1E14">
+      <path d="M 522,922 L 497,925 L 474,926" stroke-width="17.4"/>
+      <path d="M 550,866 L 545,893 L 556,921" stroke-width="13.4"/>
+      <path d="M 502,882 L 514,902 L 522,920" stroke-width="24.4"/>
+      <path d="M 502,880 L 530,868 L 558,866" stroke-width="32.4"/>
+      <path d="M 560,866 L 574,872" stroke-width="14.4"/>
+      <path d="M 562,868 L 584,888 L 606,873" stroke-width="13.4"/>
+    </g>
+    <circle cx="584" cy="878" r="13.2" fill="#2B1E14"/>
+    <g stroke="#ECD5B0">
+      <path d="M 522,922 L 497,925 L 474,926" stroke-width="14"/>
+      <path d="M 550,866 L 545,893 L 556,921" stroke-width="10"/>
+      <path d="M 502,882 L 514,902 L 522,920" stroke-width="21"/>
+      <path d="M 502,880 L 530,868 L 558,866" stroke-width="29"/>
+      <path d="M 560,866 L 574,872" stroke-width="11"/>
+      <path d="M 562,868 L 584,888 L 606,873" stroke-width="10"/>
+    </g>
+    <circle cx="584" cy="878" r="11.5" fill="#ECD5B0"/>
+    <!-- hair falling forward over the bowed head -->
+    <path d="M 574,874 C 574,864 586,862 594,869 C 596,876 594,884 590,889 C 586,882 580,878 574,874 Z" fill="#3A2A1C"/>
+    <!-- form shadow: underside of torso and thigh, away from the sun -->
+    <path d="M 508,890 C 526,880 544,876 556,875" stroke="#B89870" stroke-width="5" opacity="0.7"/>
+    <path d="M 506,894 C 512,904 517,912 520,918" stroke="#B89870" stroke-width="4" opacity="0.6"/>
+    <!-- light from above: a warm highlight along the back -->
+    <path d="M 506,870 C 524,860 542,856 558,856" stroke="#FFF2D2" stroke-width="2.2" opacity="0.8"/>
+  </g>
