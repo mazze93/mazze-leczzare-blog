@@ -11,7 +11,7 @@ Personal blog for Mazze LeCzzare Frazer. Astro 7 static site deployed to **Cloud
 - **Edge functions**: Cloudflare Pages Functions (`functions/`)
 - **Middleware**: `functions/_middleware.ts` — JWT admin auth + Markdown-for-Agents content negotiation
 - **Deploy**: Cloudflare Pages (not Workers, not Vercel)
-- **Node**: 22.x
+- **Node**: 24.x (`.nvmrc`)
 
 ## Canonical Commands (from `package.json`)
 
@@ -72,7 +72,7 @@ Runs on every request. Three responsibilities:
 ## Content Collection Schema
 
 ```ts
-// src/content.config.ts — collection: "blog"
+// src/content.config.ts — collection: "blog" (also: signal, tesserae — see CLAUDE.md)
 {
   title: string             // required
   description: string       // required
@@ -89,6 +89,9 @@ Runs on every request. Three responsibilities:
   featured?: boolean
   slug?: string             // explicit URL slug override
   draft?: boolean           // true = hidden from all listings
+  contentType?: 'artifact' | 'dispatch' | 'field-note' // default 'field-note'
+  repoUrl?: string; artifactNote?: string; sessionTranscript?: string
+  project?: string; committed?: boolean; resolved?: boolean // constellation node fields
 }
 ```
 
