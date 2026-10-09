@@ -1,0 +1,24 @@
+  <!-- Wings. Source geometry kept stroke-for-stroke, then scaled 0.876 about the
+       wing root (500, 450): the source's second primary reached (60, 5), outside
+       the frame. 0.876 = (450 − 60) / (450 − 5) puts that tip at y = 60.
+       Stroke widths scale with the group (3 → 2.6), which suits the engraving. -->
+  <g clip-path="url(#art)">
+  <g transform="translate(500 450) scale(0.876) translate(-500 -450)"
+     fill="none" stroke="#2C1A0C" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Left: three primaries, each an out-and-back hook from the root -->
+    <path d="M 500,450 C 350,400 200,290 90,105 C 165,180 295,290 410,345" stroke-width="3"/>
+    <path d="M 360,285 C 240,205 130,115 60,5 C 135,90 275,200 380,275" stroke-width="2"/>
+    <path d="M 320,225 C 240,170 160,95 100,20 C 165,75 260,155 340,215" stroke-width="1.8"/>
+    <!-- Left hatching: parallel strokes (not cross-hatching — none intersect) -->
+    <path d="M 460,415 C 370,375 250,285 155,175 M 430,385 C 340,350 230,265 145,170 M 400,355 C 310,320 205,240 135,150 M 370,325 C 290,290 195,215 125,135 M 340,295 C 260,260 175,190 115,120" stroke-width="0.9" opacity="0.85"/>
+    <path d="M 450,410 C 375,380 270,305 190,215 M 440,400 C 365,370 260,295 180,205 M 420,380 C 345,350 245,280 170,195 M 390,350 C 320,325 225,260 155,180" stroke-width="0.55" opacity="0.7"/>
+
+    <!-- Right: exact mirror about x = 500 -->
+    <path d="M 500,450 C 650,400 800,290 910,105 C 835,180 705,290 590,345" stroke-width="3"/>
+    <path d="M 640,285 C 760,205 870,115 940,5 C 865,90 725,200 620,275" stroke-width="2"/>
+    <path d="M 680,225 C 760,170 840,95 900,20 C 835,75 740,155 660,215" stroke-width="1.8"/>
+    <path d="M 540,415 C 630,375 750,285 845,175 M 570,385 C 660,350 770,265 855,170 M 600,355 C 690,320 795,240 865,150 M 630,325 C 710,290 805,215 875,135 M 660,295 C 740,260 825,190 885,120" stroke-width="0.9" opacity="0.85"/>
+    <path d="M 550,410 C 625,380 730,305 810,215 M 560,400 C 635,370 740,295 820,205 M 580,380 C 655,350 755,280 830,195 M 610,350 C 680,325 775,260 845,180" stroke-width="0.55" opacity="0.7"/>
+  </g>
+  </g>
