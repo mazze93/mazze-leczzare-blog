@@ -158,7 +158,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/404`            | `src/pages/404.astro`               | Not-found page                           |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
-| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
+| `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record, a-picture-of-what-it-expected) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
 | `/writing/what-i-can-stand-by/` | `public/writing/what-i-can-stand-by/index.html` | Standalone page; ships its own `fonts/` subdirectory |
@@ -390,7 +390,8 @@ it's safe to inline). The client loads `https://challenges.cloudflare.com/turnst
 lazily, captures the token via callback, and resets the widget after every submit attempt
 (tokens are single-use). `functions/_middleware.ts`'s `BASE_CSP` allows
 `https://challenges.cloudflare.com` in `script-src`, `connect-src`, and `frame-src` for
-this reason.
+this reason. `frame-src` also allows `'self'` so posts can embed `/artifacts/*` via
+`ArtifactEmbed` (pinned by `src/utils/csp.test.ts`).
 
 ### `functions/api/share-event.ts`
 
