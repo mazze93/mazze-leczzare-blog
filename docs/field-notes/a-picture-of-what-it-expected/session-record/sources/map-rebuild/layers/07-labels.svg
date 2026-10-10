@@ -1,0 +1,25 @@
+  <!-- Elevation numerals, drawn last so nothing crosses them.
+       Each label is drawn twice: a parchment stroke (the knockout) under the ink.
+       Two passes instead of paint-order, which some renderers ignore.
+       Ink is #8E5418 (5.62:1 on parchment, passes WCAG AA for small text);
+       the contour lines keep #A86824 (4.13:1 — enough for graphics, not for text).
+       Positions sit on visible contour arms, computed from the curves (point and
+       tangent at a chosen x), clear of the rings and the figure:
+         1200 on the left arm at x=145 → (145, 607.9), tangent −18.6°
+         1000 on the right arm at x=855 → (855, 706.3), tangent +16.6°
+         1400 inside each ridge's inner contour, between the r=326 and r=260 rings. -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="10" font-style="italic"
+     font-weight="bold" text-anchor="middle" dominant-baseline="central">
+    <g fill="none" stroke="#FAF5E8" stroke-width="4" stroke-linejoin="round">
+      <text transform="translate(145 607.9) rotate(-18.6)">1200</text>
+      <text transform="translate(855 706.3) rotate(16.6)">1000</text>
+      <text x="205" y="395">1400</text>
+      <text x="795" y="395">1400</text>
+    </g>
+    <g fill="#8E5418">
+      <text transform="translate(145 607.9) rotate(-18.6)">1200</text>
+      <text transform="translate(855 706.3) rotate(16.6)">1000</text>
+      <text x="205" y="395">1400</text>
+      <text x="795" y="395">1400</text>
+    </g>
+  </g>

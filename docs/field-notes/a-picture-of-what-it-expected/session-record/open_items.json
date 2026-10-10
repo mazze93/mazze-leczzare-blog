@@ -1,0 +1,209 @@
+[
+ {
+  "item": "Rewrite the framing paragraphs in your own voice",
+  "kind": "Editorial",
+  "status": "Decision needed",
+  "owner": "Mazze",
+  "next_action": "Drafted in your first person by Claude",
+  "item_id": "O01",
+  "exchange": "E04"
+ },
+ {
+  "item": "Name Gemini in the essay, or not",
+  "kind": "Editorial",
+  "status": "Decision needed",
+  "owner": "Mazze",
+  "next_action": "Currently named",
+  "item_id": "O02",
+  "exchange": "E04"
+ },
+ {
+  "item": "NADIR at the top of the map: deliberate?",
+  "kind": "Editorial",
+  "status": "Decision needed",
+  "owner": "Mazze",
+  "next_action": "Kept as written; MERIDIAN is also a project name",
+  "item_id": "O03",
+  "exchange": "E03"
+ },
+ {
+  "item": "Confirm 'mlx' meant MDX",
+  "kind": "Editorial",
+  "status": "Decision needed",
+  "owner": "Mazze",
+  "next_action": "Post is MDX",
+  "item_id": "O04",
+  "exchange": "E04"
+ },
+ {
+  "item": "public/ files go live on merge despite draft: true",
+  "kind": "Release",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Merge only when ready to publish the record",
+  "item_id": "O05",
+  "exchange": "E04"
+ },
+ {
+  "item": "Cloudflare Pages preview of the branch may expose public/ files",
+  "kind": "Exposure",
+  "status": "Unverified",
+  "owner": "Mazze",
+  "next_action": "Check the Pages project's preview deployment settings",
+  "item_id": "O06",
+  "exchange": "E11"
+ },
+ {
+  "item": "Open a pull request",
+  "kind": "Release",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "https://github.com/mazze93/mazze-leczzare-blog/pull/new/field-note/a-picture-of-what-it-expected",
+  "item_id": "O07",
+  "exchange": "E11"
+ },
+ {
+  "item": "Check 'Add security headers' managed transform",
+  "kind": "Security config",
+  "status": "Unverified",
+  "owner": "Mazze",
+  "next_action": "Turn it off, or document the override in CLAUDE.md",
+  "item_id": "O08",
+  "exchange": "E11"
+ },
+ {
+  "item": "CLAUDE.md says middleware sets X-Frame-Options; live differs",
+  "kind": "Docs",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Update after the dashboard check",
+  "item_id": "O09",
+  "exchange": "E11"
+ },
+ {
+  "item": "Disable Cloudflare Web Analytics injection",
+  "kind": "Security config",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Dashboard setting",
+  "item_id": "O10",
+  "exchange": "E10"
+ },
+ {
+  "item": "Review 4 Dependabot alerts on main",
+  "kind": "Security",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "https://github.com/mazze93/mazze-leczzare-blog/security/dependabot",
+  "item_id": "O11",
+  "exchange": "E11"
+ },
+ {
+  "item": "Essay says 'fifteen problems' as if a full count",
+  "kind": "Editorial",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Add a clause: 15 is what was found; the log can't count misses",
+  "item_id": "O12",
+  "exchange": "E07"
+ },
+ {
+  "item": "Plate alt text vs hidden divider tip",
+  "kind": "Accessibility",
+  "status": "Open",
+  "owner": "Claude",
+  "next_action": "Reword the alt text or move the hand",
+  "item_id": "O13",
+  "exchange": "E10"
+ },
+ {
+  "item": "Wing quills 1.6px apart on the map",
+  "kind": "Art",
+  "status": "Open",
+  "owner": "Claude",
+  "next_action": "Separate or merge the strokes",
+  "item_id": "O14",
+  "exchange": "E10"
+ },
+ {
+  "item": "Near-touch linter ignores fills, occlusion and text collisions",
+  "kind": "Tooling",
+  "status": "Open",
+  "owner": "Claude",
+  "next_action": "Extend before relying on it",
+  "item_id": "O15",
+  "exchange": "E10"
+ },
+ {
+  "item": "Tree of the Measure uses Google Fonts",
+  "kind": "Release",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Swap to self-hosted @font-face if moved into /artifacts/",
+  "item_id": "O16",
+  "exchange": "E06"
+ },
+ {
+  "item": "2026 preprints aren't peer-reviewed",
+  "kind": "Research",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Note in the essay or wait",
+  "item_id": "O17",
+  "exchange": "E04"
+ },
+ {
+  "item": "Blind second look at the renders without the log",
+  "kind": "Idea",
+  "status": "Idea",
+  "owner": "Mazze",
+  "next_action": "Estimate Claude's miss rate",
+  "item_id": "O18",
+  "exchange": "E07"
+ },
+ {
+  "item": "Four-field evidence contract in Stele or agent defaults",
+  "kind": "Idea",
+  "status": "Idea",
+  "owner": "Mazze",
+  "next_action": "STATUS / EVIDENCE / LIMITATION / NEXT ACTION",
+  "item_id": "O19",
+  "exchange": "E05"
+ },
+ {
+  "item_id": "O20",
+  "item": "Install the core-sample capture hook so the next session records every tool result live",
+  "kind": "Tooling",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Add hooks/ledger_hook.py to ~/.claude/settings.json (see the skill)",
+  "exchange": "E15"
+ },
+ {
+  "item_id": "O21",
+  "item": "Merge PR #6 (core-sample) — and decide its tier: it's bundled in rigor, which is 'pro'",
+  "kind": "Decision",
+  "status": "Decision needed",
+  "owner": "Mazze",
+  "next_action": "https://github.com/mazze93/claude-code-skills/pull/6",
+  "exchange": "E17"
+ },
+ {
+  "item_id": "O22",
+  "item": "Replace the non-discriminating eval and grade iteration 1",
+  "kind": "Tooling",
+  "status": "Open",
+  "owner": "Claude",
+  "next_action": "skills/core-sample/evals/iteration-1/README.md",
+  "exchange": "E17"
+ },
+ {
+  "item_id": "O23",
+  "item": "Keep the raw transcript somewhere private (sent as an attachment; not in any repo)",
+  "kind": "Record",
+  "status": "Open",
+  "owner": "Mazze",
+  "next_action": "Save transcript.jsonl from this conversation to private storage",
+  "exchange": "E17"
+ }
+]
