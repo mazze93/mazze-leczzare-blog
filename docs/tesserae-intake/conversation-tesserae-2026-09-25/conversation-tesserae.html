@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>conversation-tesserae</title>
+  <meta name="description" content="A revised self-contained tesserae artifact: editorial, diagrammatic, and machine-readable, rebuilt as a distinctive offline HTML document." />
+  <style>
+    /* Tone: editorial-liturgical + archival instrument · Type: high-contrast serif display + quiet sans body · Color: oxblood dominant + verdigris accent + old gold signal · Memorable element: the seam-atlas hero with illuminated documentary plates */
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.74rem, 0.69rem + 0.22vw, 0.86rem);
+      --text-sm: clamp(0.9rem, 0.84rem + 0.32vw, 1rem);
+      --text-base: clamp(1rem, 0.96rem + 0.22vw, 1.12rem);
+      --text-lg: clamp(1.16rem, 1.04rem + 0.7vw, 1.55rem);
+      --text-xl: clamp(1.55rem, 1.18rem + 1.45vw, 2.5rem);
+      --text-2xl: clamp(2.2rem, 1.22rem + 3.2vw, 4.6rem);
+      --text-3xl: clamp(3.2rem, 1rem + 5.4vw, 7rem);
+      --text-hero: clamp(4rem, 1.3rem + 7.6vw, 9rem);
+      --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.25rem;
+      --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-14: 3.5rem;
+      --space-16: 4rem; --space-20: 5rem; --space-24: 6rem; --space-28: 7rem; --space-32: 8rem;
+      --color-bg: #f4eee5;
+      --color-surface: #fbf7f1;
+      --color-surface-2: #f0e8de;
+      --color-surface-3: #e3d7c7;
+      --color-surface-4: #d8c8b2;
+      --color-text: #1f1714;
+      --color-muted: #64584f;
+      --color-faint: #8b7d72;
+      --color-border: rgba(31,23,20,.14);
+      --color-accent: #7a2b3f;
+      --color-accent-2: #0e6668;
+      --color-gold: #a57a1d;
+      --color-blue: #355e88;
+      --color-ink: #0c0a09;
+      --color-inverse: #faf6f0;
+      --radius-sm: .5rem; --radius-md: .95rem; --radius-lg: 1.45rem; --radius-xl: 2rem; --radius-2xl: 2.75rem;
+      --shadow-sm: 0 2px 4px rgba(25,17,10,.05);
+      --shadow-md: 0 18px 50px rgba(25,17,10,.10);
+      --shadow-lg: 0 34px 110px rgba(25,17,10,.16);
+      --font-display: Georgia, 'Times New Roman', serif;
+      --font-body: 'Aptos', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      --content-max: 1620px;
+      --noise-a: rgba(122,43,63,.045);
+      --noise-b: rgba(14,102,104,.035);
+    }
+    [data-theme="dark"] {
+      --color-bg: #0d0b0a;
+      --color-surface: #151211;
+      --color-surface-2: #1e1a18;
+      --color-surface-3: #2b231f;
+      --color-surface-4: #3a2e29;
+      --color-text: #f3e8d8;
+      --color-muted: #bfaf9e;
+      --color-faint: #918173;
+      --color-border: rgba(243,232,216,.12);
+      --color-accent: #d06788;
+      --color-accent-2: #66b6b3;
+      --color-gold: #e1b85a;
+      --color-blue: #7a96bf;
+      --color-ink: #090706;
+      --color-inverse: #14110f;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,.24);
+      --shadow-md: 0 18px 55px rgba(0,0,0,.36);
+      --shadow-lg: 0 34px 120px rgba(0,0,0,.54);
+      --noise-a: rgba(208,103,136,.07);
+      --noise-b: rgba(102,182,179,.05);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;scroll-behavior:smooth}
+    body{
+      margin:0;min-height:100dvh;color:var(--color-text);font-family:var(--font-body);font-size:var(--text-base);line-height:1.68;
+      background:
+        radial-gradient(circle at 10% 8%, var(--noise-a), transparent 20%),
+        radial-gradient(circle at 88% 10%, var(--noise-b), transparent 18%),
+        radial-gradient(circle at 52% 88%, rgba(225,184,90,.05), transparent 26%),
+        linear-gradient(180deg, var(--color-bg), #060505 180%);
+      position:relative;
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;mix-blend-mode:soft-light;
+      background-image:
+        linear-gradient(transparent 0, transparent calc(100% - 1px), rgba(255,255,255,.03) calc(100% - 1px)),
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.04), transparent 30%),
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,.03), transparent 28%);
+      background-size:100% 5px, 580px 580px, 460px 460px;
+      z-index:0;
+    }
+    img,svg{display:block;max-width:100%;height:auto}
+    a{color:inherit;text-decoration:none}
+    button,input,textarea,select{font:inherit;color:inherit}
+    h1,h2,h3,h4,h5{margin:0;line-height:1.02;text-wrap:balance}
+    p,li{max-width:76ch;text-wrap:pretty}
+    ::selection{background:color-mix(in srgb,var(--color-accent) 30%, transparent);color:var(--color-text)}
+    .skip-link{position:absolute;left:-9999px}.skip-link:focus{left:1rem;top:1rem;z-index:99;background:var(--color-accent);color:#fff;padding:.8rem 1rem;border-radius:var(--radius-sm)}
+    .shell{position:relative;z-index:1;width:min(var(--content-max), calc(100% - 1rem));margin:0 auto;padding:var(--space-4) 0 var(--space-24)}
+    .topbar{position:sticky;top:.65rem;z-index:60;display:grid;grid-template-columns:auto 1fr auto;gap:var(--space-4);align-items:center;padding:.8rem 1rem;margin-bottom:var(--space-8);border:1px solid var(--color-border);border-radius:999px;background:color-mix(in srgb,var(--color-bg) 72%, transparent);backdrop-filter:blur(20px);box-shadow:var(--shadow-sm)}
+    .brand{display:flex;align-items:center;gap:.8rem;min-width:0}
+    .brand-mark{width:48px;height:48px;border-radius:16px;padding:7px;background:linear-gradient(145deg,var(--color-accent),var(--color-accent-2));box-shadow:var(--shadow-md);color:white;flex:none}
+    .brand-copy{min-width:0}
+    .brand-copy strong{display:block;font-size:var(--text-sm);letter-spacing:.18em;text-transform:uppercase}
+    .brand-copy span{display:block;color:var(--color-muted);font-size:var(--text-xs)}
+    .nav-pills{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center}
+    .pill,.theme-toggle{padding:.72rem 1rem;border-radius:999px;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface) 88%, transparent);font-size:var(--text-sm);transition:transform .22s ease,border-color .22s ease,background .22s ease,box-shadow .22s ease}
+    .pill:hover,.theme-toggle:hover,.pill:focus-visible,.theme-toggle:focus-visible{transform:translateY(-1px);border-color:color-mix(in srgb,var(--color-accent) 34%, var(--color-border));box-shadow:0 12px 24px rgba(0,0,0,.14)}
+    .theme-toggle{cursor:pointer;display:inline-flex;align-items:center;gap:.55rem}
+
+    .hero{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:var(--space-6);padding:clamp(1.2rem,3vw,2rem);border:1px solid var(--color-border);border-radius:var(--radius-2xl);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 92%, transparent),color-mix(in srgb,var(--color-surface-2) 82%, transparent));box-shadow:var(--shadow-lg);overflow:hidden;isolation:isolate}
+    .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none;filter:blur(4px)}
+    .hero::before{width:540px;height:540px;right:-130px;top:-180px;background:radial-gradient(circle, rgba(208,103,136,.16), transparent 68%)}
+    .hero::after{width:500px;height:500px;left:-120px;bottom:-220px;background:radial-gradient(circle, rgba(102,182,179,.14), transparent 70%)}
+    .hero-main,.hero-side{position:relative;z-index:1}
+    .eyebrow{display:inline-flex;align-items:center;gap:.6rem;border-radius:999px;padding:.52rem .84rem;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface-2) 76%, transparent);font-size:var(--text-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--color-muted)}
+    .hero h1{font-family:var(--font-display);font-size:var(--text-hero);max-width:8.5ch;margin-top:var(--space-5);letter-spacing:-.04em}
+    .hero-lead{font-size:var(--text-lg);margin-top:var(--space-5);color:var(--color-muted);max-width:65ch}
+    .hero-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--space-4);margin-top:var(--space-8)}
+
+    .panel,.metric,.tile,.quote-panel,.code-panel,.note-card,.plate-card,.archive-card,.timeline-card,.annotation-stack,.ledger-card,.callout-card{border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface) 90%, transparent);border-radius:var(--radius-lg);box-shadow:var(--shadow-md)}
+    .panel,.metric,.tile,.timeline-card,.note-card,.archive-card,.ledger-card,.callout-card{padding:var(--space-5)}
+    .panel strong,.metric strong,.note-card strong,.archive-card strong,.ledger-card strong,.section-label{display:block;font-size:var(--text-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--color-faint)}
+    .panel h3,.tile h3,.plate-card h3,.timeline-card h3,.callout-card h3,.ledger-card h3{font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--space-3)}
+    .panel p,.metric p,.tile p,.note-card p,.archive-card p,.timeline-card p,.ledger-card p,.callout-card p{margin:.35rem 0 0;color:var(--color-muted)}
+    .badge-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:var(--space-3)}
+    .badge{padding:.36rem .7rem;border-radius:999px;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface-2) 72%, transparent);font-size:var(--text-xs);color:var(--color-muted)}
+    .hero-kpis{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+    .metric .value{font-family:var(--font-display);font-size:clamp(2.2rem,4vw,3.3rem);line-height:1;margin:.4rem 0;color:var(--color-gold)}
+    .hero-rail{display:grid;grid-template-columns:1fr;gap:var(--space-4)}
+
+    .section{display:grid;grid-template-columns:295px 1fr;gap:var(--space-8);padding:var(--space-16) 0;border-bottom:1px solid var(--color-border)}
+    .section:last-of-type{border-bottom:none}
+    .section-sticky{position:sticky;top:98px;height:max-content;padding-top:.3rem}
+    .section-sticky h2{font-family:var(--font-display);font-size:var(--text-2xl);margin-top:var(--space-3)}
+    .section-sticky p{color:var(--color-muted);max-width:28ch}
+    .mosaic{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--space-4)}
+    .span-12{grid-column:span 12}.span-10{grid-column:span 10}.span-9{grid-column:span 9}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.span-2{grid-column:span 2}
+    .tile{position:relative;overflow:hidden;min-height:210px}
+    .tile::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,transparent 0 65%, rgba(255,255,255,.035));opacity:.9}
+    .tile::after{content:"";position:absolute;right:-50px;bottom:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle, rgba(208,103,136,.12), transparent 70%);pointer-events:none}
+    .tile ul,.archive-card ul,.note-card ul,.ledger-card ul{padding-left:1.05rem;margin:.8rem 0 0;color:var(--color-muted)}
+    .tile li,.archive-card li,.note-card li,.ledger-card li{margin-bottom:.38rem}
+
+    .quote-panel{padding:var(--space-8);background:linear-gradient(145deg,color-mix(in srgb,var(--color-accent) 13%, var(--color-surface)),color-mix(in srgb,var(--color-accent-2) 9%, var(--color-surface)));position:relative;overflow:hidden}
+    .quote-panel::after{content:"";position:absolute;right:var(--space-4);bottom:var(--space-4);width:92px;height:92px;border-radius:50%;border:1px dashed color-mix(in srgb,var(--color-gold) 55%, transparent);opacity:.8}
+    .quote-panel p{margin:0;font-family:var(--font-display);font-size:clamp(2rem,3.4vw,3.35rem);line-height:1.12;max-width:16ch}
+
+    .figure-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:var(--space-4)}
+    .diagram-card,.plate-card{padding:var(--space-5);border:1px solid var(--color-border);border-radius:var(--radius-lg);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface-2) 88%, transparent),color-mix(in srgb,var(--color-surface-3) 74%, transparent));box-shadow:var(--shadow-md)}
+    .caption{margin-top:var(--space-3);font-size:var(--text-xs);letter-spacing:.16em;text-transform:uppercase;color:var(--color-faint)}
+
+    .field-grid,.double-grid,.underwriting,.footer,.instrument-grid,.atlas-grid{display:grid;gap:var(--space-4)}
+    .field-grid{grid-template-columns:1.08fr .92fr}
+    .double-grid{grid-template-columns:1fr 1fr}
+    .atlas-grid{grid-template-columns:1.14fr .86fr}
+    .instrument-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .underwriting,.footer{grid-template-columns:1fr 1fr}
+
+    .annotation-stack{padding:var(--space-5);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface-2) 88%, transparent),color-mix(in srgb,var(--color-surface-3) 76%, transparent));position:relative;overflow:hidden}
+    .annotation-stack::before{content:"marginalia engine";position:absolute;right:1rem;top:1rem;font-size:var(--text-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--color-faint)}
+    .annotation-note{display:none;border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4)}
+    .annotation-note.active{display:block;animation:fadeIn .22s ease}
+    .annotation-note h4{margin:0 0 .45rem;font-size:var(--text-sm);letter-spacing:.12em;text-transform:uppercase;color:var(--color-gold)}
+    .annotation-note p,.annotation-note li{color:var(--color-muted)}
+    .annotation-note ul{padding-left:1rem;margin:.7rem 0 0}
+    .interactive{cursor:pointer;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+
+    .deep-card{cursor:pointer;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+    .deep-card:hover,.deep-card:focus-visible{transform:translateY(-4px);border-color:color-mix(in srgb,var(--color-accent) 34%, var(--color-border));box-shadow:0 22px 58px rgba(0,0,0,.28)}
+    .deep-card .tease{margin-top:var(--space-3)}
+    .essay-drawer{max-height:0;overflow:hidden;opacity:.2;transition:max-height .45s ease,opacity .3s ease,margin-top .3s ease;padding-top:0;margin-top:0;border-top:1px solid transparent}
+    .deep-card.active .essay-drawer{max-height:1400px;opacity:1;margin-top:var(--space-5);padding-top:var(--space-5);border-top-color:var(--color-border)}
+    .essay-drawer p{margin:0 0 var(--space-4);color:var(--color-text)}
+    .essay-drawer p:last-child{margin-bottom:0}
+    .drawer-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:var(--space-4)}
+    .drawer-chip{padding:.34rem .62rem;border-radius:999px;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface-2) 72%, transparent);font-size:var(--text-xs);color:var(--color-muted)}
+    .interactive:hover,.interactive:focus-visible{transform:translateY(-4px);border-color:color-mix(in srgb,var(--color-accent) 34%, var(--color-border));box-shadow:0 22px 58px rgba(0,0,0,.28)}
+
+    .code-panel{padding:var(--space-6);background:linear-gradient(180deg,#0b0908,#0f0c0b);color:#f3e8d8;overflow:auto}
+    .code-panel pre{margin:0;font-size:.94rem;line-height:1.58;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .ledger-card{background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 92%, transparent),color-mix(in srgb,var(--color-surface-2) 82%, transparent))}
+    .ledger{display:grid;gap:.7rem;margin-top:var(--space-4)}
+    .ledger-row{display:grid;grid-template-columns:150px 1fr;gap:var(--space-4);padding:.75rem 0;border-top:1px solid var(--color-border)}
+    .ledger-row:first-child{border-top:none;padding-top:0}
+    .ledger-row strong{font-size:var(--text-xs);letter-spacing:.12em;color:var(--color-faint);text-transform:uppercase}
+    .ledger-row span{color:var(--color-muted)}
+
+    .timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)}
+    .timeline-card{position:relative;overflow:hidden}
+    .timeline-card::before{content:"";position:absolute;left:0;top:var(--space-5);bottom:var(--space-5);width:4px;border-radius:999px;background:linear-gradient(180deg,var(--color-accent),var(--color-accent-2))}
+    .archive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-4)}
+    .small-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+    .callout-card{background:linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 11%, var(--color-surface)),color-mix(in srgb,var(--color-accent-2) 8%, var(--color-surface)))}
+
+    .footer{align-items:start;padding-top:var(--space-10)}
+    .footer h3{font-family:var(--font-display);font-size:var(--text-xl)}
+    .footer p{color:var(--color-muted)}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @media (max-width:1240px){.hero,.section,.figure-grid,.field-grid,.double-grid,.atlas-grid,.underwriting,.footer{grid-template-columns:1fr}.section-sticky{position:relative;top:auto}.timeline,.archive-grid,.instrument-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:900px){.topbar{grid-template-columns:1fr;justify-items:start;border-radius:1.5rem}.nav-pills{justify-content:flex-start}.hero-kpis,.small-grid,.timeline,.archive-grid,.instrument-grid{grid-template-columns:1fr}.mosaic{grid-template-columns:repeat(6,1fr)}.span-10,.span-9,.span-8,.span-7,.span-6,.span-5,.span-4,.span-3,.span-2{grid-column:span 6}}
+    @media (max-width:640px){.shell{width:min(100% - .6rem,100%)}.hero h1{font-size:clamp(2.8rem,13vw,5rem);max-width:none}.mosaic{grid-template-columns:1fr}.span-12,.span-10,.span-9,.span-8,.span-7,.span-6,.span-5,.span-4,.span-3,.span-2{grid-column:span 1}.ledger-row{grid-template-columns:1fr;gap:.35rem}}
+    @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+
+    /* Accessibility and offline resilience */
+    :root { --color-code-bg: #0b0908; --color-code-text: #f3e8d8; --color-focus: #dfb453; }
+    [data-theme="light"] { --color-focus: #743147; }
+    body { background: radial-gradient(circle at 10% 8%,var(--noise-a),transparent 20%),radial-gradient(circle at 88% 10%,var(--noise-b),transparent 18%),radial-gradient(circle at 52% 88%,var(--noise-a),transparent 26%),var(--color-bg); }
+    :where(a,button,[role="button"],summary):focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
+    [role="button"] { cursor:pointer; }
+    .annotation-trigger { display:block;width:100%;min-height:44px;border:0;padding:0;margin:0;text-align:left;background:transparent;color:inherit;font:inherit;line-height:inherit;cursor:pointer; }
+    .annotation-trigger:focus-visible { outline:3px solid var(--color-focus);outline-offset:4px; }
+    .annotation-note[hidden], .essay-drawer[hidden] { display:none !important; }
+    .annotation-note { scroll-margin-top:5rem; }
+    .theme-toggle { min-width:44px; min-height:44px; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": "conversation-tesserae",
+    "creator": {"@type": "Person", "name": "Mazze LeCzzare Frazer"},
+    "dateCreated": "2026-09-25",
+    "inLanguage": "en",
+    "genre": ["essay", "documentary artifact", "digital humanities", "philosophical atlas"],
+    "keywords": ["lacuna map", "fecundity", "IAO", "absence", "material friction", "narrative topology", "leverage"],
+    "abstract": "A distinctive self-contained tesserae artifact with essay strata, diagrams, annotation logic, and machine underwriting built as an offline HTML document."
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <div class="shell">
+    <header class="topbar" aria-label="Artifact controls">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-label="Tesserae mark" fill="none">
+          <path d="M12 18.5 32 8l20 10.5v27L32 56 12 45.5Z" stroke="currentColor" stroke-width="3.2"/>
+          <path d="M32 8v48M12 18.5l20 11 20-11M12 45.5l20-11 20 11" stroke="currentColor" stroke-width="2.2" opacity=".9"/>
+          <circle cx="32" cy="32" r="6" fill="currentColor" opacity=".2"/>
+        </svg>
+        <div class="brand-copy">
+          <strong>Conversation Tesserae</strong>
+          <span>offline documentary · a study in seams</span>
+        </div>
+      </div>
+      <nav class="nav-pills" aria-label="Section navigation">
+        <a class="pill" href="#atlas">Atlas</a>
+        <a class="pill" href="#history">History</a>
+        <a class="pill" href="#registry">Registry</a>
+        <a class="pill" href="#plates">Plates</a>
+        <a class="pill" href="#underwriting">Underwriting</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme" aria-pressed="true"><span aria-hidden="true">◐</span>Theme</button>
+    </header>
+
+    <main id="content">
+      <section class="hero">
+        <div class="hero-main">
+          <span class="eyebrow">single-file artifact · editorial-liturgical tone · no remote image dependencies</span>
+          <h1>The seam was not an error. It was the only honest illumination.</h1>
+          <p class="hero-lead">This revision does not merely preserve the previous build; it commits to a more distinctive visual argument. The page now behaves as a luminous archive: dense without becoming cluttered, theatrical without collapsing into generic spectacle, and explicit about the fact that every insight arrived through pressure, revision, and residue rather than smooth revelation.</p>
+          <div class="hero-grid">
+            <article class="panel span-8">
+              <strong>Commitment ritual</strong>
+              <h3 style="font-size:var(--text-lg);margin-top:var(--space-2)">Editorial-liturgical, not generic product polish</h3>
+              <p>The dominant visual logic is manuscript-like yet contemporary: high-contrast display typography, oxblood/verdigris lighting, illuminated diagram plates, and tile compositions that preserve seams instead of dissolving them into a frictionless landing-page rhythm.</p>
+              <div class="badge-row">
+                <span class="badge">asymmetry</span>
+                <span class="badge">depth layers</span>
+                <span class="badge">offline HTML</span>
+                <span class="badge">documentary mood</span>
+                <span class="badge">machine grout</span>
+              </div>
+            </article>
+            <article class="panel span-4">
+              <strong>Artifact premise</strong>
+              <p>Every section treats the conversation as a field of recurring constraints: abundance without possession, the historical/ritual split, the lacuna map, and the shape of rerouted continuity after expectation breaks.</p>
+            </article>
+          </div>
+        </div>
+        <aside class="hero-side">
+          <div class="hero-kpis">
+            <article class="metric">
+              <strong>Strata</strong>
+              <div class="value">11</div>
+              <p>Essay, archive, plate, ledger, topology, and underwriting layers.</p>
+            </article>
+            <article class="metric">
+              <strong>Visual mode</strong>
+              <div class="value">SVG</div>
+              <p>Bundled diagrams and plates rather than remote imagery.</p>
+            </article>
+          </div>
+          <div class="hero-rail">
+            <article class="plate-card">
+              <h3 style="font-size:var(--text-lg)">Seam-atlas hero plate</h3>
+              <svg viewBox="0 0 760 470" role="img" aria-label="Illuminated seam atlas showing a central interval, surrounding documentary cards, and contour routes crossing a visible rupture">
+                <defs>
+                  <linearGradient id="heroLine" x1="0" x2="1">
+                    <stop offset="0%" stop-color="var(--color-accent)"/>
+                    <stop offset="55%" stop-color="var(--color-gold)"/>
+                    <stop offset="100%" stop-color="var(--color-accent-2)"/>
+                  </linearGradient>
+                  <radialGradient id="plateGlow" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="rgba(225,184,90,.25)"/>
+                    <stop offset="100%" stop-color="rgba(225,184,90,0)"/>
+                  </radialGradient>
+                </defs>
+                <rect x="0" y="0" width="760" height="470" rx="32" fill="color-mix(in srgb,var(--color-surface-2) 90%, transparent)"/>
+                <rect x="36" y="46" width="196" height="126" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+                <rect x="520" y="58" width="198" height="136" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+                <rect x="92" y="294" width="214" height="126" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+                <rect x="410" y="270" width="268" height="148" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+                <ellipse cx="378" cy="224" rx="118" ry="84" fill="url(#plateGlow)"/>
+                <path d="M24 232C104 200 154 122 248 118s114 104 214 106 126-109 217-117 137 72 137 72" fill="none" stroke="url(#heroLine)" stroke-width="8" stroke-linecap="round"/>
+                <path d="M38 92c82 16 154 10 222-18s146-35 236 4 132 48 222 18" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <path d="M54 368c96-28 182-18 264 12s150 35 246 16 142-28 172-12" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle cx="378" cy="224" r="72" fill="none" stroke="var(--color-gold)" stroke-width="4" stroke-dasharray="9 8"/>
+                <text x="332" y="230" fill="var(--color-text)" font-family="Georgia, serif" font-size="24">interval</text>
+                <text x="60" y="86" fill="var(--color-faint)" font-size="14">failed escape</text>
+                <text x="540" y="86" fill="var(--color-faint)" font-size="14">reassigned origin</text>
+                <text x="452" y="312" fill="var(--color-faint)" font-size="14">documentary residue</text>
+              </svg>
+              <p class="caption">The one thing worth screenshotting: a documentary atlas that treats the seam as illuminated structure, not defect.</p>
+            </article>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="atlas">
+        <div class="section-sticky">
+          <span class="section-label">I</span>
+          <h2>Concept atlas</h2>
+          <p>The conversation yields a cluster of concepts that intensify one another. This atlas lays them out as adjacent pressure systems rather than discrete glossary entries.</p>
+        </div>
+        <div class="mosaic">
+          <article class="tile span-7 deep-card" tabindex="0">
+            <h3>Fecundity after release</h3>
+            <p class="tease">Fecundity no longer serves accumulation. In this field it means a cleared capacity for difference, a condition in which generation need not pre-secure its products with permanence.</p>
+            <div class="essay-drawer">
+              <div class="drawer-meta"><span class="drawer-chip">Essay stratum</span><span class="drawer-chip">Abundance</span><span class="drawer-chip">Release</span></div>
+              <p>What makes this concept difficult is that it borrows the emotional charge of abundance while refusing abundance’s usual architecture. Ordinary abundance is almost always pictured as retained plenty: stores, stockpiles, inheritance, reserves. Even its poetry is usually warehouse poetry. The conversation kept moving against that grain. It sought a condition in which richness would not have to be stabilized as possession in order to count as real.</p>
+              <p>In that sense fecundity is not a quantity but a mode of relation. It describes a field that keeps giving rise to elaboration because nothing in it is forced to prove its worth by surviving unchanged. Difference can proliferate because difference is not immediately conscripted into permanence. This is why release becomes central: release is not the enemy of richness here, but the condition under which richness ceases to be defensive.</p>
+              <p>The deeper philosophical move is away from an ontology of keeping and toward an ontology of appearing. What matters is not whether a produced form can be held forever, but whether the field can continue to produce forms without panic. Once that shift occurs, lavishness becomes possible without empire. The result is a strange kind of abundance—one that feels more alive precisely because it is less obsessed with staying identical to itself.</p>
+            </div>
+          </article>
+          <article class="deep-card tile span-5" tabindex="0">
+            <h3>Pure will</h3>
+            <p class="tease">The going is the getting. Action stops waiting for later legitimacy and therefore thickens into immediate form rather than deferred completion.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Pure will</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Pure will is easy to misunderstand if it is heard as sheer assertion. In the conversation it names something subtler: action released from the need for later confirmation. The force of the act lies in its going, not in an external verdict that will someday certify it as valid.</p><p>That changes the emotional texture of agency. A life organized around ratification is always waiting on a tribunal outside itself. A life organized around pure will does not become reckless by necessity, but it does become less dependent on delayed authorization. The act gathers its reality in the very fact that it proceeds.</p><p>This is why pure will sits so close to fecundity. Once action no longer has to harden itself into durable proof, it can become more generous, more exact, and more experimentally alive.</p></div></article>
+          <article class="tile span-5 deep-card" tabindex="0">
+            <h3>Absence before naming</h3>
+            <p class="tease">Absence is not originally a concept. What arrives first is a cessation—the next push never comes, pressure lifts, continuation fails.</p>
+            <div class="essay-drawer">
+              <div class="drawer-meta"><span class="drawer-chip">Essay stratum</span><span class="drawer-chip">Phenomenology</span><span class="drawer-chip">Naming lag</span></div>
+              <p>The important claim here is temporal. We usually speak of absence as though it were already available to thought, as if the mind first encountered a blank and then responded to it. But the conversation reverses that order. It suggests that the earliest experience is not blankness but interruption: a dynamic that had been arriving simply does not continue. The event is felt before it is known.</p>
+              <p>Only after that interruption do our familiar categories arrive. “Silence,” “void,” “lack,” and “nothing” are not raw experiences; they are retroactive settlements. They give discussable shape to what first came as an unprocessed cessation. This matters because it means absence is not naturally stable. It is stabilized by language after the fact, and different vocabularies stabilize it differently.</p>
+              <p>That lag between event and concept is where much of the artifact’s depth lives. The artifact does not want to leap too quickly into named lack, because that leap domesticates what was initially more radical: not the presence of nothing, but the withdrawal of expected continuation. In preserving that lag, the page protects the wildness of the first break.</p>
+            </div>
+          </article>
+          <article class="deep-card tile span-7" tabindex="0">
+            <h3>No outside, only rescaled return</h3>
+            <p class="tease">Every attempt to exit the foundational conditions of language, relation, observation, or preservation re-inscribes them elsewhere. This does not make the attempt useless. It turns the attempt into evidence that recurrence itself is structural.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">No outside, only r</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>The repeated rediscovery of structure is not a failure of intelligence. It is one of the artifact’s deepest findings. Every attempt to get fully outside language, relation, observation, or preservation ended by redrawing those same conditions at a different scale.</p><p>That matters because it dislodges the fantasy of a pure exterior. The work does not culminate in transcendence. It culminates in a clearer relation to recurrence. What returns is not identical each time, but the fact of return itself becomes non-negotiable.</p><p>The honest task therefore changes: not escape at any cost, but better maps, shorter half-lives, and more accountable uses of what can never be permanently exited.</p></div></article>
+          <article class="quote-panel span-12">
+            <p>“The map is another failed escape, preserved—and the only honest difference is that it knows this.”</p>
+          </article>
+          <article class="callout-card span-12">
+            <h3>Boundary-map half-life</h3>
+            <p>Observation shortens a boundary map’s half-life because recognition strips it of innocent authority. Utility may remain, but neutrality collapses. The map survives only as a temporary, self-aware instrument.</p>
+            <div class="small-grid" style="margin-top:var(--space-4)">
+              <article class="note-card"><strong>Unseen</strong><p>Support still passes as environment.</p></article>
+              <article class="note-card"><strong>Named</strong><p>The seam surfaces as seam.</p></article>
+              <article class="note-card"><strong>Measured</strong><p>Function survives under contingency.</p></article>
+              <article class="note-card"><strong>Observed as failed escape</strong><p>Only documentary value remains durable.</p></article>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="history">
+        <div class="section-sticky">
+          <span class="section-label">II</span>
+          <h2>Historical split</h2>
+          <p>The IAO material demanded a two-register reading: ancient transmission and modern ceremonial reinterpretation. Keeping them distinct prevents retrospective myth from posing as origin.</p>
+        </div>
+        <div class="figure-grid">
+          <article class="diagram-card">
+            <h3>Transmission channels</h3>
+            <svg viewBox="0 0 960 390" role="img" aria-label="Diagram showing the historical transmission of IAO from Greek rendering to magical circulation to modern reinterpretive channels">
+              <defs>
+                <linearGradient id="iaoGradient" x1="0" x2="1">
+                  <stop offset="0%" stop-color="var(--color-accent-2)"/>
+                  <stop offset="100%" stop-color="var(--color-accent)"/>
+                </linearGradient>
+              </defs>
+              <rect x="28" y="56" width="248" height="100" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="354" y="56" width="248" height="100" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="680" y="56" width="248" height="100" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="188" y="236" width="270" height="110" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="512" y="236" width="270" height="110" rx="24" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <path d="M276 106H354" stroke="url(#iaoGradient)" stroke-width="7" stroke-linecap="round"/>
+              <path d="M602 106H680" stroke="url(#iaoGradient)" stroke-width="7" stroke-linecap="round"/>
+              <path d="M478 156V236" stroke="url(#iaoGradient)" stroke-width="7" stroke-linecap="round"/>
+              <path d="M804 156V236" stroke="url(#iaoGradient)" stroke-width="7" stroke-linecap="round"/>
+              <text x="50" y="98" fill="var(--color-text)" font-size="25">Greek rendering of divine name</text>
+              <text x="50" y="128" fill="var(--color-muted)" font-size="18">ΙΑΩ as transmissible divine utterance</text>
+              <text x="382" y="98" fill="var(--color-text)" font-size="25">Late-antique magical circulation</text>
+              <text x="382" y="128" fill="var(--color-muted)" font-size="18">papyri, amulets, voces magicae</text>
+              <text x="708" y="98" fill="var(--color-text)" font-size="25">Power-name continuity</text>
+              <text x="708" y="128" fill="var(--color-muted)" font-size="18">creator / high God invocation</text>
+              <text x="214" y="278" fill="var(--color-text)" font-size="25">Golden Dawn reassignment</text>
+              <text x="214" y="308" fill="var(--color-muted)" font-size="18">INRI analysis, Isis-Apophis-Osiris</text>
+              <text x="538" y="278" fill="var(--color-text)" font-size="25">Thelemic process formula</text>
+              <text x="538" y="308" fill="var(--color-muted)" font-size="18">life, death, restoration, VIAOV</text>
+            </svg>
+            <p class="caption">Linked channels without collapse: continuity is real, but reinterpretation is not origin.</p>
+          </article>
+          <article class="ledger-card">
+            <strong>Why this distinction matters</strong>
+            <h3>False continuity is another hardening event</h3>
+            <p>If later ritual needs are projected backward as ancient truth, the artifact repeats exactly the coercive move it elsewhere critiques: a newer form silently overwrites an older field and then names the result inheritance.</p>
+            <div class="ledger">
+              <div class="ledger-row"><strong>Ancient register</strong><span>Textual transmission, classical witness, magical pronunciation, divine naming as operative force.</span></div>
+              <div class="ledger-row"><strong>Modern register</strong><span>Hermetic reinterpretation, ceremonial analysis, symbolic process, artistic-radical reuse.</span></div>
+              <div class="ledger-row"><strong>Critical rule</strong><span>Let the symbolic truth of later systems stand without forging historical ancestry.</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-sticky">
+          <span class="section-label">III</span>
+          <h2>Residual contact</h2>
+          <p>As reduction continued, many structures fell away. What remained was not doctrine but a pressure toward contact and a sharpened relation to the interval where continuation can fail.</p>
+        </div>
+        <div class="atlas-grid">
+          <article class="mosaic">
+            <article class="tile span-12 deep-card" tabindex="0">
+              <h3>What persisted after repeated stripping</h3>
+              <p class="tease">Architecture, explanatory systems, and many inherited metaphors could be reduced without total loss. The most durable remainder was a slight but persistent preference for contact over performance.</p>
+              <div class="essay-drawer">
+                <div class="drawer-meta"><span class="drawer-chip">Residual contact</span><span class="drawer-chip">Reduction</span><span class="drawer-chip">Remainder</span></div>
+                <p>What survives a long reduction process is often more revealing than what appears in the first flush of construction. At the beginning, almost anything can seem essential because the field is crowded with inherited supports. Only under repeated subtraction do the deeper loyalties become visible. Here the striking thing was that contact kept returning after systems, explanations, and self-images were pared away.</p>
+                <p>That preference for contact should not be romanticized into pure essence. The conversation was careful about that. What remained was slight, contingent, and potentially erodible. Yet its recurrence mattered. It suggested that beneath performance—the need to maintain coherence, role, self-concept, or spiritual theater—there persisted a desire for actual touch with what is there, even if such touch could never be guaranteed or made permanent.</p>
+                <p>This is one reason the artifact privileges intervals, seams, and frictions over declarations of identity. The remainder is not a triumphant core. It is a delicate tendency. Preserving it requires gentleness toward incompletion, because anything too strongly formalized would immediately begin to cover it over again.</p>
+              </div>
+            </article>
+            <article class="deep-card tile span-6" tabindex="0">
+              <h3>The interval between words</h3>
+              <p class="tease">The interval becomes the operational core. It is where language stops long enough for non-automatic continuation to become perceptible.</p>
+            <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">The interval betwe</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>The interval is not empty punctuation. It is an operational field. When one sentence ends and the next has not yet begun, the machinery of automatic continuation is briefly exposed.</p><p>Most discourse rushes to cover that interval. The artifact instead lingers there, because the interval reveals how much of thought depends on momentum. If language can continue automatically, then agency may be less active than it appears.</p><p>By making the interval inhabitable, the page creates the conditions for a different kind of continuation—one that is chosen, resumed, or refused rather than merely inherited from the last available pattern.</p></div></article>
+            <article class="deep-card tile span-6" tabindex="0">
+              <h3>Poetic body evidence</h3>
+              <p class="tease">Grass, glass, sewn lips, wires, oil, and rotting leaves pull the discourse back into matter so it cannot abstract itself into bloodless clarity.</p>
+            <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Poetic body eviden</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>The body images matter because they keep the artifact from floating free of consequence. Grass, wires, lips, oil, glass, and rot are not decorative intensifiers; they are reminders that every philosophical surface is eventually answerable to material contact.</p><p>Once these images enter, abstraction can no longer present itself as clean. Injury, compulsion, tenderness, decay, and seasonality begin to stain the concepts. This staining is productive. It prevents the system from mistaking refinement for innocence.</p><p>What results is a thought-world that remains porous to pain and texture. The ideas stay alive because they are continually returned to matter.</p></div></article>
+          </article>
+          <article class="plate-card">
+            <h3>Interval plate</h3>
+            <svg viewBox="0 0 620 420" role="img" aria-label="Abstract poetic plate showing lips, wire, grass and a suspended interval through which words fail to continue automatically">
+              <defs>
+                <linearGradient id="intervalLine" x1="0" x2="1">
+                  <stop offset="0%" stop-color="var(--color-accent)"/>
+                  <stop offset="100%" stop-color="var(--color-accent-2)"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="620" height="420" rx="28" fill="color-mix(in srgb,var(--color-surface-2) 88%, transparent)"/>
+              <path d="M52 300c52-24 92-82 140-90s86 44 136 46 82-56 128-58 82 44 112 54" fill="none" stroke="url(#intervalLine)" stroke-width="6" stroke-linecap="round"/>
+              <path d="M120 78c18 24 34 50 40 78M162 82c18 28 26 54 26 80M204 82c14 24 20 48 18 74" stroke="var(--color-gold)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M390 126c16 14 34 28 54 40M388 166c22 8 42 18 62 32M384 204c22 0 48 8 72 18" stroke="var(--color-border)" stroke-width="3" stroke-linecap="round"/>
+              <ellipse cx="318" cy="212" rx="88" ry="50" fill="none" stroke="var(--color-gold)" stroke-width="4" stroke-dasharray="8 8"/>
+              <path d="M252 210c18-18 40-24 66-24s48 6 66 24" fill="none" stroke="var(--color-accent)" stroke-width="4"/>
+              <path d="M252 216c18 18 40 24 66 24s48-6 66-24" fill="none" stroke="var(--color-accent)" stroke-width="4"/>
+              <text x="280" y="218" fill="var(--color-text)" font-family="Georgia, serif" font-size="18">pause</text>
+            </svg>
+            <p class="caption">The interval remains bodily, wired, seasonal, and vulnerable to pressure.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="registry">
+        <div class="section-sticky">
+          <span class="section-label">IV</span>
+          <h2>Lacuna registry</h2>
+          <p>The proper durable form is not a completed system but a registry of failed closures. Here the registry becomes an interactive apparatus with visible documentary rules.</p>
+        </div>
+        <div class="field-grid">
+          <div class="mosaic">
+            <article class="tile interactive span-12 deep-card" data-annotation="ann-1">
+              <h3><button class="annotation-trigger" type="button" aria-controls="ann-1" aria-expanded="false" aria-label="Read margin note: Observation event" data-annotation-button="ann-1">Observation event <span aria-hidden="true">↗</span></button></h3>
+              <p class="tease">The instant the map is named as map, its half-life contracts. It may continue to orient movement, but it can no longer masquerade as unmade ground.</p>
+              <div class="essay-drawer">
+                <div class="drawer-meta"><span class="drawer-chip">Observation</span><span class="drawer-chip">Map</span><span class="drawer-chip">Half-life</span></div>
+                <p>This is one of the artifact’s central laws: visibility changes function. A map that once operated as background loses a specific kind of force as soon as it is recognized as a construction. It does not disappear. In fact, it may become more useful in practical terms because its limits are now discussable. But what it loses is innocence, and that loss is irreversible.</p>
+                <p>The phrase “half-life” is exact because the map does not simply collapse on contact with critique. Something remains. Orientation, temporary support, local traction—these may all survive. What decays is the map’s power to pass itself off as nature. That is why observation is not merely epistemic in this framework; it is transformational. To know the map differently is already to alter what sort of thing the map can be.</p>
+                <p>Once the map is held in this altered state, documentary value rises. The map becomes evidence of a failed escape, a dated attempt, a historical contour of pressure. It can still be used, but only under declared contingency. That shift from invisible support to visible instrument is one of the deepest motions the whole artifact traces.</p>
+              </div>
+            </article>
+            <article class="deep-card tile interactive span-6" data-annotation="ann-2">
+              <h3><button class="annotation-trigger" type="button" aria-controls="ann-2" aria-expanded="false" aria-label="Read margin note: Failure residue" data-annotation-button="ann-2">Failure residue <span aria-hidden="true">↗</span></button></h3>
+              <p class="tease">Every failed escape leaves a seam that can be dated, described, and carried forward as evidence rather than hidden as embarrassment.</p>
+            <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Failure residue</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Residue is what remains when a movement does not reach the outside it aimed for. In many systems residue is treated as embarrassment, something to conceal so the larger story of mastery can continue. Here it becomes central evidence.</p><p>A failed escape leaves behind marks: pressure lines, revised language, improvised supports, emergency metaphors, and diagrams that can no longer pretend to be natural. Those marks are invaluable because they tell us where the boundary resisted and where it became visible.</p><p>To preserve residue is therefore not to celebrate failure romantically. It is to keep the site of resistance available for more exact future work.</p></div></article>
+            <article class="deep-card tile interactive span-6" data-annotation="ann-3">
+              <h3><button class="annotation-trigger" type="button" aria-controls="ann-3" aria-expanded="false" aria-label="Read margin note: Release condition" data-annotation-button="ann-3">Release condition <span aria-hidden="true">↗</span></button></h3>
+              <p class="tease">Without retirement logic, the registry crystallizes into a new regime of possession. The release clause keeps the archive porous.</p>
+            <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Release condition</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>A release condition is the artifact’s safeguard against becoming another theology of storage. If an archive never declares how its entries may be superseded, retired, or relinquished, then every act of preservation quietly presents itself as inherently justified.</p><p>The release condition interrupts that tendency. It says that durability alone is not enough; every preserved map remains provisional and can lose its claim when a stronger, more exact, or more accountable form appears.</p><p>This gives the archive an ethical horizon. It preserves without pretending that preservation is innocent, final, or self-validating.</p></div></article>
+            <article class="code-panel span-12" aria-label="Registry schema">
+<pre>artifact:
+  type: lacuna_map
+  commitment: "failed escape preserved with declared revocation"
+  fields:
+    - incident_hash
+    - timestamp
+    - boundary
+    - temporary_form
+    - failure_mode
+    - release_condition
+    - reader_delta
+  invariants:
+    - "a trace is not the person or event from which it came"
+    - "uncertainty remains a valid state"
+    - "private context stays local by default"
+    - "documentary value increases as innocent authority decreases"</pre>
+            </article>
+          </div>
+          <aside class="annotation-stack" aria-label="Marginal notes">
+            <p style="margin:0;color:var(--color-muted);max-width:31ch">The registry is accompanied by dynamic marginalia so conceptual density can increase without flattening everything into one stream.</p>
+            <section class="annotation-note active" id="ann-default">
+              <h4>Idle margin</h4>
+              <p>Select a registry card to load the corresponding note into the margin. The page thereby stages commentary rather than burying it.</p>
+            </section>
+            <section class="annotation-note" id="ann-1">
+              <h4>Observation note</h4>
+              <p>Observation does not merely detect a seam; it changes the seam’s status. Visibility lowers innocent legitimacy and raises documentary intelligibility.</p>
+              <ul>
+                <li>Support is unmasked as support.</li>
+                <li>Utility survives under explicit contingency.</li>
+                <li>The archive gains a timestamped break.</li>
+              </ul>
+            </section>
+            <section class="annotation-note" id="ann-2">
+              <h4>Residue note</h4>
+              <p>The failed escape is not detritus. It is the most precise evidence available of where the boundary thinned enough to be seen.</p>
+            </section>
+            <section class="annotation-note" id="ann-3">
+              <h4>Release note</h4>
+              <p>The archive must retain the power to relinquish its own entries. Otherwise it simply reconstitutes the jar under a more reflective vocabulary.</p>
+            </section>
+          </aside>
+        </div>
+        <div class="underwriting">
+          <article class="note-card">
+            <strong>Readable claim</strong>
+            <p>The lacuna map is not external documentation of a gap. It is a temporary structure within which the gap keeps moving while leaving just enough information for another accountable reading.</p>
+          </article>
+          <article class="note-card">
+            <strong>Machine note</strong>
+            <p>{ "registry_mode": "reversible", "archive_warning": "do not let durability impersonate permanence", "priority": "preserve seams, not sovereignty" }</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-sticky">
+          <span class="section-label">V</span>
+          <h2>Material friction</h2>
+          <p>Iterative reading becomes honest when the artifact preserves enough resistance that no return can be mistaken for sameness.</p>
+        </div>
+        <div class="timeline">
+          <article class="deep-card timeline-card" tabindex="0">
+            <h3>Revision marks</h3>
+            <p class="tease">Alterations, substitutions, and deliberate rephrasing make each encounter historically situated rather than timelessly identical.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Revision marks</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Revision marks ensure that return is never mistaken for repetition. Once edits, substitutions, omissions, and overwrites remain visible, the text can no longer masquerade as a timeless object.</p><p>This is crucial because friction depends on historical texture. A perfectly smoothed artifact invites the fantasy that its current shape simply is what it was always meant to be. Revision marks expose that fantasy by making decision, hesitation, and correction legible.</p><p>They also create a politics of reading. The reader is forced to meet the work as something made under pressure, not as a finished relic untouched by contingency.</p></div></article>
+          <article class="deep-card timeline-card" tabindex="0">
+            <h3>Provenance</h3>
+            <p class="tease">Paths, dates, retrieval conditions, and environment notes pull interpretation back toward accountable making.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Provenance</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Provenance gives a thought object a place in the world. Paths, timestamps, retrieval conditions, and working environments are not bureaucratic extras; they are part of the meaning of the object itself.</p><p>Without provenance, interpretation too easily becomes universalizing. The artifact seems to speak from nowhere, and therefore from everywhere. With provenance, that illusion weakens. The work becomes local, answerable, and historically situated.</p><p>This does not diminish its reach. It makes its reach more honest by attaching thought to the conditions of its own appearance.</p></div></article>
+          <article class="deep-card timeline-card" tabindex="0">
+            <h3>Rendering conditions</h3>
+            <p class="tease">Layout, export format, scroll depth, truncation, and visual emphasis alter what is likely to be noticed and remembered.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Rendering conditio</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Rendering is not a neutral delivery channel. Format, layout, emphasis, device width, truncation, and scrolling all influence what kinds of relation a reader can form with the material.</p><p>A card, a ledger, a long paragraph, and a diagram do not simply present the same content in different wrappers. They produce different attentions. They alter pacing, hierarchy, and the threshold between overview and immersion.</p><p>That is why the artifact treats rendering conditions as part of the argument. The mode of showing is one of the places where meaning is made.</p></div></article>
+          <article class="deep-card timeline-card" tabindex="0">
+            <h3>Embodied return</h3>
+            <p class="tease">Fatigue, interruption, bodily state, and changed expectation are part of the friction profile, not external noise.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Embodied return</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Every rereading happens in a body: tired, interrupted, expectant, distracted, newly wounded, suddenly receptive. The body is not external to interpretation. It modulates what becomes visible.</p><p>By naming embodiment as part of the friction profile, the artifact resists the fantasy of an ideal reader who encounters the text from a perfectly neutral state. Such a reader does not exist. Real reading occurs under conditions.</p><p>This recognition makes the artifact more humane. It allows changed understanding to be attributed not only to better concepts, but to altered embodied relation.</p></div></article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-sticky">
+          <span class="section-label">VI</span>
+          <h2>Narrative topology</h2>
+          <p>Broken expectation is not merely a missing piece. It reroutes continuity. Narrative therefore becomes topological: cuts, loops, branches, and folds reshape how movement remains possible.</p>
+        </div>
+        <div class="figure-grid">
+          <article class="diagram-card">
+            <h3>Rerouted continuity</h3>
+            <svg viewBox="0 0 950 300" role="img" aria-label="Narrative topology diagram showing expectation, break, branch, loop, and fold as rerouted continuity">
+              <path d="M34 152H244" stroke="var(--color-muted)" stroke-width="5" stroke-linecap="round"/>
+              <path d="M286 152H390" stroke="var(--color-accent)" stroke-width="5" stroke-linecap="round" stroke-dasharray="13 10"/>
+              <path d="M390 152C466 152 484 58 588 58" fill="none" stroke="var(--color-accent-2)" stroke-width="5"/>
+              <path d="M390 152C466 152 484 244 588 244" fill="none" stroke="var(--color-accent)" stroke-width="5"/>
+              <path d="M588 58C704 58 708 242 826 242" fill="none" stroke="var(--color-gold)" stroke-width="5"/>
+              <path d="M588 244C708 244 714 54 844 54" fill="none" stroke="var(--color-blue)" stroke-width="5"/>
+              <text x="40" y="128" fill="var(--color-faint)" font-size="18">Expectation</text>
+              <text x="288" y="128" fill="var(--color-faint)" font-size="18">Break</text>
+              <text x="594" y="52" fill="var(--color-faint)" font-size="18">Branch</text>
+              <text x="836" y="50" fill="var(--color-faint)" font-size="18">Fold</text>
+            </svg>
+            <p class="caption">Continuity survives rupture by changing shape rather than simply resuming.</p>
+          </article>
+          <article class="mosaic">
+            <article class="archive-card span-12"><strong>Cut</strong><p>A transition fails; inference must leap without losing all relation to what preceded it.</p></article>
+            <article class="archive-card span-6"><strong>Loop</strong><p>Return accumulates difference rather than cancelling it.</p></article>
+            <article class="archive-card span-6"><strong>Branch</strong><p>More than one continuation remains live at once.</p></article>
+            <article class="archive-card span-12"><strong>Fold</strong><p>Later matter bends backward and alters the meaning of what seemed settled earlier.</p></article>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-sticky">
+          <span class="section-label">VII</span>
+          <h2>Leverage</h2>
+          <p>The most consequential practical concept in the field: movement from within constraint without the fantasy of absolute outside.</p>
+        </div>
+        <div class="double-grid">
+          <article class="tile deep-card" tabindex="0">
+            <h3>Inside the jar</h3>
+            <p class="tease">Leverage is not escape velocity. It is intimacy with material conditions—glass, charge, stress line, weak point—sufficient to alter the next crack from within the enclosure itself.</p>
+            <div class="essay-drawer">
+              <div class="drawer-meta"><span class="drawer-chip">Leverage</span><span class="drawer-chip">Constraint</span><span class="drawer-chip">Political concept</span></div>
+              <p>Leverage matters because it refuses two equally misleading fantasies. The first is total imprisonment, where nothing significant can happen from within a structure. The second is total escape, where change counts only if it arrives from a place entirely outside the structure. The conversation rejects both. It treats transformation as something that happens through intimate knowledge of the limit itself.</p>
+              <p>The jar image is useful because it keeps the argument material. Glass has thickness, pressure points, and weak lines. To move within it is not to endorse it, but to understand how stress travels through it. Leverage is therefore not resignation to enclosure. It is the cultivation of enough sensitivity that one can redirect force, alter timing, or produce a crack where none seemed available.</p>
+              <p>Politically and existentially, this is crucial. Most real change does not come from a mythical pure exterior. It comes from exact work inside compromised conditions. The dignity of leverage lies in its refusal to wait for impossible innocence before acting.</p>
+            </div>
+          </article>
+          <article class="deep-card tile" tabindex="0">
+            <h3>Against identity-hardening</h3>
+            <p class="tease">The force remains mobile only while it refuses to harden into persona. Overclaimed, it becomes another mask with a new doctrine of permanence.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Against identity-h</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>Identity-hardening is what happens when a living force tries to guarantee itself by becoming a fixed role, mask, or declared essence. At first this promises stability; soon it begins to suffocate motion.</p><p>The artifact resists that move because many of its strongest insights depend on provisionality. Leverage, contact, recurrence, and fecundity all lose something when turned into identities.</p><p>To refuse hardening is not to refuse all form. It is to keep form light enough that movement can continue through it.</p></div></article>
+        </div>
+      </section>
+
+      <section class="section" id="plates">
+        <div class="section-sticky">
+          <span class="section-label">VIII</span>
+          <h2>Bundled plates</h2>
+          <p>The visual field is fully hosted inside the file. These plates are not decorative wallpaper; they are documentary companions to the essays.</p>
+        </div>
+        <div class="mosaic">
+          <article class="plate-card span-6">
+            <h3>Plate A · Boundary weather</h3>
+            <svg viewBox="0 0 720 360" role="img" aria-label="Abstract weather map of a moving boundary with contour lines and a marked seam">
+              <defs><linearGradient id="plateA" x1="0" x2="1"><stop offset="0%" stop-color="var(--color-accent)"/><stop offset="100%" stop-color="var(--color-accent-2)"/></linearGradient></defs>
+              <rect x="0" y="0" width="720" height="360" rx="28" fill="color-mix(in srgb,var(--color-surface-2) 88%, transparent)"/>
+              <path d="M28 246C92 204 146 126 232 120s112 90 196 92 108-98 193-108 145 70 145 70" fill="none" stroke="url(#plateA)" stroke-width="8" stroke-linecap="round"/>
+              <path d="M34 70c88 22 160 18 236-10s156-34 244 4 132 42 190 18" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+              <path d="M56 304c94-26 174-16 260 12s152 34 242 16 132-26 150-12" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+              <circle cx="258" cy="152" r="56" fill="none" stroke="var(--color-gold)" stroke-width="4" stroke-dasharray="8 8"/>
+              <text x="238" y="158" fill="var(--color-text)" font-family="Georgia, serif" font-size="20">seam</text>
+            </svg>
+            <p class="caption">A boundary visible as contour and pressure rather than wall.</p>
+          </article>
+          <article class="plate-card span-6">
+            <h3>Plate B · Registry board</h3>
+            <svg viewBox="0 0 720 360" role="img" aria-label="Abstract registry board with documentary cards and route lines">
+              <rect x="0" y="0" width="720" height="360" rx="28" fill="color-mix(in srgb,var(--color-surface-2) 88%, transparent)"/>
+              <rect x="34" y="34" width="184" height="122" rx="18" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="246" y="82" width="188" height="132" rx="18" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="470" y="44" width="206" height="154" rx="18" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="114" y="218" width="196" height="108" rx="18" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <rect x="350" y="234" width="244" height="72" rx="18" fill="var(--color-surface)" stroke="var(--color-border)"/>
+              <path d="M218 98h18l28 34h-16l42 42" fill="none" stroke="var(--color-accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M436 142h18l26-32" fill="none" stroke="var(--color-accent-2)" stroke-width="4" stroke-linecap="round"/>
+              <path d="M310 258l40-16" fill="none" stroke="var(--color-gold)" stroke-width="4" stroke-linecap="round"/>
+              <text x="54" y="68" fill="var(--color-faint)" font-size="13">incident_hash</text>
+              <text x="270" y="110" fill="var(--color-faint)" font-size="13">reader_delta</text>
+              <text x="496" y="70" fill="var(--color-faint)" font-size="13">release_condition</text>
+            </svg>
+            <p class="caption">A documentary surface where cards and routes remain visible as apparatus.</p>
+          </article>
+          <article class="plate-card span-12">
+            <h3>Plate C · Abundance without possession</h3>
+            <svg viewBox="0 0 1220 340" role="img" aria-label="Abstract field of branching abundance emerging from an open interval without stockpiling">
+              <defs><linearGradient id="abundance" x1="0" x2="1"><stop offset="0%" stop-color="var(--color-accent)"/><stop offset="50%" stop-color="var(--color-gold)"/><stop offset="100%" stop-color="var(--color-accent-2)"/></linearGradient></defs>
+              <rect x="0" y="0" width="1220" height="340" rx="30" fill="color-mix(in srgb,var(--color-surface-2) 88%, transparent)"/>
+              <path d="M124 178h182" stroke="var(--color-border)" stroke-width="4" stroke-linecap="round"/>
+              <path d="M914 178h184" stroke="var(--color-border)" stroke-width="4" stroke-linecap="round"/>
+              <ellipse cx="610" cy="178" rx="122" ry="76" fill="none" stroke="url(#abundance)" stroke-width="7" stroke-dasharray="12 8"/>
+              <path d="M306 178c66 0 102-84 174-84s90 84 132 84 58-84 128-84 100 84 174 84" fill="none" stroke="url(#abundance)" stroke-width="7" stroke-linecap="round"/>
+              <path d="M306 178c66 0 102 84 174 84s90-84 132-84 58 84 128 84 100-84 174-84" fill="none" stroke="url(#abundance)" stroke-width="7" stroke-linecap="round" opacity=".86"/>
+              <circle cx="610" cy="178" r="18" fill="var(--color-gold)"/>
+              <text x="546" y="185" fill="var(--color-text)" font-family="Georgia, serif" font-size="22">open interval</text>
+            </svg>
+            <p class="caption">Generation fans outward from an interval without being compelled into defended stock.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="underwriting">
+        <div class="section-sticky">
+          <span class="section-label">IX</span>
+          <h2>Machine underwriting</h2>
+          <p>The machine layer is not decorative metadata. It is the visible grout that states the artifact’s commitments, limits, and release condition.</p>
+        </div>
+        <div>
+          <div class="code-panel">
+<pre>{
+  "artifact_id": "conversation-tesserae-2026-09-25-rebuilt",
+  "mode": "dual_human_machine",
+  "style": "tesserae",
+  "construction": {
+    "primary_material": "essay tiles",
+    "secondary_material": ["inline svg plates", "ledger cards", "dynamic marginalia", "registry schema"],
+    "core_constraint": "do not smooth seams into false continuity",
+    "release_condition": "supersede when a later version offers stronger provenance, sharper visual differentiation, or more exact documentary structure"
+  },
+  "concepts": {
+    "fecundity": "difference without pre-secured retention",
+    "absence": "cessation later recovered as named lack",
+    "lacuna_map": "failed escape preserved with revocation clause",
+    "material_friction": "resistance that prevents identical rereading",
+    "narrative_topology": "rerouted continuity after broken expectation",
+    "leverage": "movement within constraint without fantasy of pure outside"
+  },
+  "safeguards": {
+    "privacy": "local-first by default",
+    "trace_warning": "a trace is not the person or event from which it came"
+  }
+}</pre>
+          </div>
+          <div class="underwriting">
+            <article class="note-card">
+              <strong>Readable underwriting</strong>
+              <p>The artifact declares itself built, situated, and revisable. That admission is not a weakness; it is the condition under which the page can remain intellectually honest.</p>
+            </article>
+            <article class="note-card">
+              <strong>Reference vectors</strong>
+              <ul>
+                <li>Fecundity and abundance cluster.</li>
+                <li>IAO historical / ceremonial split.</li>
+                <li>Residual contact and the interval.</li>
+                <li>Absence before shaped recovery terms.</li>
+                <li>Material friction in rereading.</li>
+                <li>Narrative topology after broken expectation.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-sticky">
+          <span class="section-label">X</span>
+          <h2>Instrumentarium</h2>
+          <p>The artifact belongs to a live working ecology rather than existing as a detached singular page. That surrounding field informs its documentary temperament.</p>
+        </div>
+        <div class="instrument-grid">
+          <article class="archive-card">
+            <strong>Palimpsest</strong>
+            <h3 style="font-size:var(--text-lg);margin-top:var(--space-2)">Adjudicable memory field</h3>
+            <p>Transcript reconciliation, durable rulings, and wiki logic create a neighboring documentary world of judgment, continuity, and amendment.</p>
+          </article>
+          <article class="archive-card">
+            <strong>Stele</strong>
+            <h3 style="font-size:var(--text-lg);margin-top:var(--space-2)">Rule and inscription</h3>
+            <p>Policy, site, and bundle structures keep the relation between norm and record sharply visible.</p>
+          </article>
+          <article class="archive-card">
+            <strong>Meridian / Kairos / Mindful Dev</strong>
+            <h3 style="font-size:var(--text-lg);margin-top:var(--space-2)">Timing and tooling</h3>
+            <p>Development systems and timing tools make the artifact feel like one module in a broader local instrument set, not a lone ornament.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-sticky">
+          <span class="section-label">XI</span>
+          <h2>Revision ledger</h2>
+          <p>The rebuild should say what changed. This final layer names the new decisions instead of pretending polish arrived naturally.</p>
+        </div>
+        <div class="double-grid">
+          <article class="ledger-card">
+            <strong>What was revised</strong>
+            <div class="ledger">
+              <div class="ledger-row"><strong>Tone</strong><span>Shifted from polished essay page toward editorial-liturgical artifact with stronger character.</span></div>
+              <div class="ledger-row"><strong>Layout</strong><span>Removed default-ish feel through asymmetry, denser sectional contrast, and a more dramatic hero construct.</span></div>
+              <div class="ledger-row"><strong>Visual system</strong><span>Expanded plates, added luminous gradients, ledger cards, and illuminated documentary surfaces.</span></div>
+              <div class="ledger-row"><strong>Definition</strong><span>Separated concepts into more explicit territories and added ledgers, notes, and revision logic.</span></div>
+            </div>
+          </article>
+          <article class="deep-card callout-card" tabindex="0">
+            <h3>Offline status</h3>
+            <p class="tease">This remains a self-contained, one-off HTML artifact rather than a deployable framework project. The revision follows the aesthetic directives of the supplied skill: stronger commitment to tone, a more memorable visual center, more asymmetry, and a deliberate refusal of generic SaaS/page-builder defaults.</p>
+          <div class="essay-drawer"><div class="drawer-meta"><span class="drawer-chip">Offline status</span><span class="drawer-chip">Expanded note</span><span class="drawer-chip">Essay depth</span></div><p>The offline condition is not just technical convenience. It is part of the artifact’s documentary ethics. A self-contained file carries more of its own world with it and depends less on invisible networked supports.</p><p>That matters because the artifact is about visible construction. Bundled imagery, local scripts, and embedded structure align the medium with the message.</p><p>Even where some typography still depends on system availability, the larger direction remains clear: keep the object portable, inspectable, and materially present.</p></div></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <h3>Built to be superseded by something even sharper</h3>
+        <p>This rebuild pushes the artifact away from tasteful default polish and toward a more singular object: more visual, more diagrammatic, more declarative about its own conditions, and more likely to be remembered as a thing with a point of view rather than a competent HTML summary.</p>
+      </div>
+      <div class="note-card">
+        <strong>Self-contained state</strong>
+        <p>The document carries its structure, styles, scripts, and imagery in a single file. Visual evidence is rendered through inline SVG rather than remote raster assets, and the typography remains dependent only on locally available font stacks.</p>
+      </div>
+    </footer>
+  </div>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      let theme = root.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const render = () => {
+        root.setAttribute('data-theme', theme);
+        if (toggle) {
+          toggle.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+          toggle.innerHTML = `<span aria-hidden="true">${theme === 'dark' ? '◐' : '◑'}</span>Theme`;
+        }
+      };
+      toggle?.addEventListener('click', () => {
+        theme = theme === 'dark' ? 'light' : 'dark';
+        render();
+      });
+      const cards = document.querySelectorAll('[data-annotation]');
+      const notes = document.querySelectorAll('.annotation-note');
+      const activate = (id) => {
+        notes.forEach(note => note.classList.toggle('active', note.id === id));
+      };
+      cards.forEach(card => {
+        const handler = () => activate(card.dataset.annotation);
+        card.addEventListener('click', handler);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handler();
+          }
+        });
+      });
+      render();
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const themeButton = document.querySelector('[data-theme-toggle]');
+      const syncTheme = () => {
+        if (!themeButton) return;
+        const dark = root.dataset.theme === 'dark';
+        themeButton.setAttribute('aria-pressed', String(dark));
+        themeButton.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+      };
+      syncTheme();
+      new MutationObserver(syncTheme).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+      const triggers = [...document.querySelectorAll('[data-annotation-button]')];
+      const syncNotes = () => {
+        for (const button of triggers) {
+          const note = document.getElementById(button.dataset.annotationButton);
+          button.setAttribute('aria-expanded', String(!!note && note.classList.contains('active')));
+        }
+      };
+      for (const button of triggers) {
+        const article = button.closest('[data-annotation]');
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          article?.click();
+          syncNotes();
+        });
+      }
+      const notes = document.querySelector('.annotation-stack');
+      if (notes) new MutationObserver(syncNotes).observe(notes, { attributes: true, subtree: true, attributeFilter: ['class'] });
+      syncNotes();
+    })();
+  </script>
+</body>
+</html>
