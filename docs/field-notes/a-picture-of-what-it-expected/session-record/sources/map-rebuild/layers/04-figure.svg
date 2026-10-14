@@ -1,0 +1,21 @@
+  <!-- Central figure: a flame-shaped body rising from the ground (foot at 500, 768, under the ground line) to a
+       point at (500, 180). Geometry from the source. One change: the outer contour
+       is filled with parchment, so rays, rings and the wing root behind it are
+       occluded — the figure reads as standing in front, as in an engraving,
+       rather than as a transparent outline over the grid. -->
+  <g clip-path="url(#art)" stroke="#2C1A0C" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer contour (opaque) -->
+    <path d="M 500,768 C 420,670 380,520 440,400 C 470,335 492,280 500,180 C 508,280 530,345 560,400 C 620,520 580,670 500,768 Z"
+          fill="#FAF5E8" stroke-width="3.2"/>
+
+    <g fill="none">
+      <!-- Inner sweeps: two strokes rising and converging at (500, 260) -->
+      <path d="M 500,720 C 452,640 435,535 475,430 C 488,395 498,350 500,260 M 500,720 C 548,640 565,535 525,430 C 512,395 502,350 500,260" stroke-width="1.8"/>
+      <path d="M 480,670 C 450,605 445,500 480,420 M 520,670 C 550,605 555,500 520,420" stroke-width="1.1"/>
+
+      <!-- Hatching: three weights of parallel shading inside the contour -->
+      <path d="M 458,635 C 440,570 445,485 482,415 M 542,635 C 560,570 555,485 518,415" stroke-width="0.8" stroke-dasharray="6,2" opacity="0.85"/>
+      <path d="M 465,680 C 435,610 445,515 485,455 M 535,680 C 565,610 555,515 515,455" stroke-width="0.8" stroke-dasharray="2,2" opacity="0.85"/>
+      <path d="M 478,715 C 456,655 458,570 488,500 M 522,715 C 544,655 542,570 512,500" stroke-width="0.65" opacity="0.8"/>
+    </g>
+  </g>

@@ -66,6 +66,11 @@ export default defineConfig({
         "https://mazzeleczzare.com/artifacts/the-break-is-the-record.html",
         "https://mazzeleczzare.com/artifacts/tessera-cognitive-topology.html",
         "https://mazzeleczzare.com/artifacts/tessera-class-closure.html",
+        // Added 2026-10-08: render-loop stepper for the field note "A Picture
+        // of What It Expected" (draft). Registered in the same commit per the
+        // rule above; note that public/ deploys regardless of the post's draft
+        // flag, so this page is live once merged even while the post is hidden.
+        "https://mazzeleczzare.com/artifacts/a-picture-of-what-it-expected.html",
       ],
     }),
     react(),

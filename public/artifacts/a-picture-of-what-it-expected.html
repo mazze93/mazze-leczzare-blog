@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every Render, Kept</title>
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   Every Render, Kept — a stepper through two hand-built SVGs, one render at
+   a time, failures included. Companion to the field note
+   /blog/a-picture-of-what-it-expected/.
+   Self-contained: fonts are self-hosted from /fonts/*, images from
+   /images/blog/a-picture-of-what-it-expected/. No external requests.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Fonts (self-hosted; CDN fonts are not used even though /artifacts/ allows them) ── */
+@font-face { font-family: 'Cormorant Garamond'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('/fonts/cormorantgaramond-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cormorant Garamond'; font-style: italic; font-weight: 500; font-display: swap;
+  src: url('/fonts/cormorantgaramond-500-italic.woff2') format('woff2'); }
+@font-face { font-family: 'DM Mono'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('/fonts/dmmono-400-normal.woff2') format('woff2'); }
+
+/* ── Tokens: parchment (light) / ink (dark). All text pairs checked ≥ 4.5:1. ── */
+:root {
+  --bg: #F2E8D0;        --panel: #EBDDBE;     --ink: #2B1E14;
+  --muted: #5E4630;     --rule: #C9B48C;      --focus: #1F5F8B;
+  --fail: #9E2A18;      --fix: #7A5410;       --accept: #1F6B52;   --source: #4A4A60;
+  --badge-ink: #FFFFFF;
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17120D;      --panel: #221A12;     --ink: #F0E3C8;
+    --muted: #CDB58E;   --rule: #4A3A28;      --focus: #8CC8F0;
+    --fail: #F08A78;    --fix: #E8BE62;       --accept: #7FD3B4;   --source: #B9B9D6;
+    --badge-ink: #17120D;
+  }
+}
+
+/* ── Base ── */
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font-family: var(--serif); font-size: 18px; line-height: 1.5; padding: 16px; }
+.wrap { max-width: 880px; margin: 0 auto; }
+h1 { font-weight: 500; font-size: 1.6rem; margin: 0 0 .2rem; }
+.lede { color: var(--muted); font-style: italic; margin: 0 0 1rem; }
+
+/* ── Track tabs ── */
+.tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.tab {
+  font: 500 1rem var(--serif); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--rule); border-radius: 999px; padding: .35rem .95rem; cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ── Stage: image + caption side by side; stacked on narrow screens ── */
+.stage { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 680px) {
+  /* Narrow (the post embeds this in a 900px-tall iframe): one column, image
+     capped so the controls stay inside the frame without inner scrolling.
+     Measured: the plate track ran to 942px in a 640px phone embed. */
+  .stage { grid-template-columns: 1fr; }
+  body { font-size: 17px; }
+  .lede { font-size: .95rem; }
+  .frame img { max-height: 50vh; width: auto; margin: 0 auto; }
+  /* The embed is 640px tall on phones and scrolls inside. Text and arrows go
+     first so stepping never needs an inner scroll; the image follows. */
+  .stage > .frame { order: 2; }
+}
+.frame { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 8px; }
+.frame img { display: block; width: 100%; height: auto; border-radius: 3px; }
+
+.meta { font-family: var(--mono); font-size: .8rem; color: var(--muted); display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.badge {
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--badge-ink); background: var(--source); border-radius: 3px; padding: .1rem .45rem;
+}
+.badge[data-v="fail"]   { background: var(--fail); }
+.badge[data-v="fix"]    { background: var(--fix); }
+.badge[data-v="accept"] { background: var(--accept); }
+.caption { font-size: 1.12rem; margin: .5rem 0 0; }
+
+/* ── Controls ── */
+.controls { display: flex; align-items: center; gap: .6rem; margin-top: .9rem; }
+.btn {
+  font: 500 1rem var(--serif); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--rule); border-radius: 6px; min-width: 44px; min-height: 44px; cursor: pointer;
+}
+.btn:disabled { opacity: .45; cursor: default; }
+input[type="range"] { flex: 1; accent-color: var(--ink); min-height: 44px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.tally { margin-top: 1rem; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Every render, kept</h1>
+  <p class="lede">Two pictures, built one layer at a time. Every step is a real render, looked at before the next. Failures included.</p>
+
+  <div class="tabs" role="tablist" aria-label="Build">
+    <button class="tab" role="tab" id="tab-map" aria-controls="panel" aria-selected="true" data-track="map">Map, rebuilt</button>
+    <button class="tab" role="tab" id="tab-plate" aria-controls="panel" aria-selected="false" data-track="plate">Plate, unmonitored</button>
+  </div>
+
+  <section id="panel" role="tabpanel" aria-labelledby="tab-map">
+    <div class="stage">
+      <div class="frame"><img id="shot" alt="" width="600" height="600"></div>
+      <div>
+        <div class="meta"><span id="step"></span><span class="badge" id="badge"></span></div>
+        <p class="caption" id="caption" aria-live="polite"></p>
+        <div class="controls">
+          <button class="btn" id="prev" aria-label="Previous render">←</button>
+          <label class="sr" for="scrub">Render number</label>
+          <input type="range" id="scrub" min="0" value="0">
+          <button class="btn" id="next" aria-label="Next render">→</button>
+        </div>
+        <p class="tally" id="tally"></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ── Data: one entry per kept render. v = verdict at that render. ──
+   Captions condense the build logs; the logs themselves are in the post. */
+const IMG = '/images/blog/a-picture-of-what-it-expected/';
+const TRACKS = {
+  map: { w: 600, h: 600, tally: '15 defects found by looking · 7 only visible in the composite · 1 false alarm caught by measuring', steps: [
+    ['map/source.webp', 'source', 'As delivered by another model, described as "verified, browser-safe." Its author never rendered it.'],
+    ['map/step-00.webp', 'fix', 'Frame. The edge labels are now mirrored in the margin. The source had WEST outside the frame and EAST inside the border band.'],
+    ['map/step-01.webp', 'fix', 'Rings. At r = 390 the outer ring crossed the frame and merged with the dotted rule. I predicted that from the numbers and the render confirmed it.'],
+    ['map/step-02.webp', 'fix', 'Contours. The source\'s hooked T-curve is replaced. A ridge beak showed up in the render; two 9–13° kinks only at 3× zoom.'],
+    ['map/step-03.webp', 'fix', 'Wings, scaled about their root so no tip leaves the frame. Two problems only the composite shows: rays doubling the quills, and a near-tangent crest.'],
+    ['map/step-04.webp', 'fix', 'The figure is filled so it stands in front of the grid. The downward ray becomes redundant and is removed.'],
+    ['map/step-05.webp', 'fix', 'Ground: a V-notch in every stratum, an eight-element snarl at the base, the figure floating 5px up. One false alarm, overruled by a pixel measurement.'],
+    ['map/step-06.webp', 'fix', 'Compass placed by a largest-empty-square search instead of by eye. Scale numerals re-centred on their ticks.'],
+    ['map/step-07.webp', 'accept', 'Labels moved onto visible contour arms with parchment knockouts, ink darkened to pass AA. Two independent renderers agree.'],
+  ]},
+  plate: { w: 600, h: 800, tally: '20 renders · 8 marked fail · 1 found only by a second renderer · 1 found by re-reading my own alt text', steps: [
+    ['plate/iter-001.webp', 'fail', 'Paper and sky. With filters, grey stains. Without filters, a 55% black sheet over the whole sky: the texture layer\'s default fill.'],
+    ['plate/iter-002.webp', 'accept', 'Texture fixed (no fill, finer noise). The fallback without filters is now a clean wash.'],
+    ['plate/iter-003.webp', 'fail', 'Sun, first pass: a stock sunburst. 72 identical lines, a bevelled coin ring, top rays cut by the frame.'],
+    ['plate/iter-004.webp', 'fix', '120 tapering, jittered rays. At 3×: a grey gap at the disc edge, and a halo gone muddy.'],
+    ['plate/iter-005.webp', 'accept', 'Gold halo, no gap.'],
+    ['plate/iter-006.webp', 'fail', 'Clouds, first pass: cartoon clouds. Every circle has its own gradient, so the bank is a row of lilac grapes.'],
+    ['plate/iter-007.webp', 'fail', 'Second pass: theatre curtains and a pillow.'],
+    ['plate/iter-008.webp', 'fail', 'Third pass: a giant letter Q. Three tries in, the problem was the method, not the numbers.'],
+    ['plate/iter-009.webp', 'fail', 'New method: soft, colour-printed masses. Each one reads hollow, because the lit crest covers the body.'],
+    ['plate/iter-010.webp', 'fix', 'Denser bodies, thinner crests. Smoke, in the right family. The ink swirls look stuck on.'],
+    ['plate/iter-011.webp', 'fix', 'Swirls gone. Earth and the broken ring arrive, and the earth\'s texture leaks into the sky as a hard band.'],
+    ['plate/iter-012.webp', 'fail', 'Band fixed. The "flame-grass" reads as thorns.'],
+    ['plate/iter-013.webp', 'accept', 'Engraved contour hatching instead.'],
+    ['plate/iter-014.webp', 'fix', 'Dividers, with tips computed onto the ends of the break. The inked shaft turns the sun into a lollipop.'],
+    ['plate/iter-015.webp', 'fail', 'The shaft becomes light. The figure fails (a beige lump), and the gold mend reads as lightning.'],
+    ['plate/iter-016.webp', 'fix', 'Figure rebuilt from jointed segments. A person now, but crude. Mend calmed.'],
+    ['plate/iter-017.webp', 'accept', 'Form shadows. Still the weakest element, and the log says so.'],
+    ['plate/iter-018.webp', 'accept', 'Couplet set in the blog\'s own typefaces and converted to outlines.'],
+    ['plate/iter-019.webp', 'fix', 'No visible change. The alt text, written before the drawing existed, still described "scrolling clouds" that had been removed. Rewritten from the render.'],
+    ['plate/iter-020.webp', 'accept', 'Credit line contrast raised from 4.37:1 to 5.92:1. Final.'],
+  ]},
+};
+const VERDICT = { fail: 'Fail', fix: 'Fix', accept: 'Accept', source: 'Source' };
+
+/* ── State + rendering ── */
+const $ = (id) => document.getElementById(id);
+const state = { track: 'map', i: 0 };
+
+function preload(src) { const im = new Image(); im.src = src; }
+
+function render() {
+  const t = TRACKS[state.track];
+  const [file, v, text] = t.steps[state.i];
+  const shot = $('shot');
+  shot.width = t.w; shot.height = t.h;
+  shot.src = IMG + file;
+  shot.alt = `Render ${state.i + 1} of ${t.steps.length}: ${text}`;
+  $('step').textContent = `render ${String(state.i + 1).padStart(2, '0')} / ${t.steps.length}`;
+  const badge = $('badge');
+  badge.dataset.v = v; badge.textContent = VERDICT[v];
+  $('caption').textContent = text;
+  $('scrub').max = t.steps.length - 1; $('scrub').value = state.i;
+  $('prev').disabled = state.i === 0;
+  $('next').disabled = state.i === t.steps.length - 1;
+  $('tally').textContent = t.tally;
+  if (state.i + 1 < t.steps.length) preload(IMG + t.steps[state.i + 1][0]);
+}
+
+function go(i) {
+  const n = TRACKS[state.track].steps.length;
+  state.i = Math.max(0, Math.min(n - 1, i));
+  render();
+}
+
+function setTrack(name) {
+  state.track = name; state.i = 0;
+  document.querySelectorAll('.tab').forEach((b) => {
+    const on = b.dataset.track === name;
+    b.setAttribute('aria-selected', String(on));
+    b.tabIndex = on ? 0 : -1;
+  });
+  $('panel').setAttribute('aria-labelledby', 'tab-' + name);
+  render();
+}
+
+/* ── Events ── */
+$('prev').addEventListener('click', () => go(state.i - 1));
+$('next').addEventListener('click', () => go(state.i + 1));
+$('scrub').addEventListener('input', (e) => go(Number(e.target.value)));
+document.querySelectorAll('.tab').forEach((b) => {
+  b.addEventListener('click', () => setTrack(b.dataset.track));
+  b.addEventListener('keydown', (e) => {            // roving tabindex between the two tabs
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const other = b.dataset.track === 'map' ? 'plate' : 'map';
+    setTrack(other); document.getElementById('tab-' + other).focus();
+  });
+});
+document.addEventListener('keydown', (e) => {       // ← / → step through renders anywhere but the tabs
+  if (e.target.closest && e.target.closest('.tab, input')) return;
+  if (e.key === 'ArrowRight') go(state.i + 1);
+  if (e.key === 'ArrowLeft') go(state.i - 1);
+});
+
+setTrack('map');
+</script>
+</body>
+</html>

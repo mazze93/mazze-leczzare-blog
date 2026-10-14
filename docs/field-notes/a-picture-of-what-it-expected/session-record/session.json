@@ -1,0 +1,20 @@
+{
+ "session_id": "2026-10-08_models-lying-about-their-work",
+ "title": "A Picture of What It Expected",
+ "chat_title": "Models lying about their work",
+ "chat_url": "https://claude.ai/chat/87d855ce-f31d-4c44-82de-10c652f91a8c",
+ "timezone": "America/New_York",
+ "date": "2026-10-08",
+ "project": "mazze-leczzare-blog",
+ "transcript_first_exchange": "E11",
+ "transcript_exchange_offset": 12,
+ "how_found_sets": [
+  "map-rebuild"
+ ],
+ "notes": [
+  "The transcript file on disk holds only post-compaction entries (from 19:13 EDT). Earlier tool calls come from the conversation export, which keeps calls but not their results.",
+  "Turns 1, 11, 19 and the first part of 21 came back inline from the export and were transcribed into calls_manual.json; turns 5 and 7 were parsed from saved export pages.",
+  "raw/ (transcript, export pages) is gitignored: it holds private session data, memory contents included. It was delivered to Mazze as an attachment.",
+  "These annotation JSON files are the source of truth. history/ keeps the one-time seed script and v1's builders."
+ ]
+}

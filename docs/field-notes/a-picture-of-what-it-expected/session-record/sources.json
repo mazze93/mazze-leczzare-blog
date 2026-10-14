@@ -1,0 +1,128 @@
+[
+ {
+  "title": "MASK — Ren et al.",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2503.03750",
+  "finding": "Lying = contradicting the model's own elicited belief. Compute tracks accuracy (+87%), not honesty (−60%).",
+  "bearing": "The strict meaning of 'lie', which the Gemini case mostly doesn't meet.",
+  "checked": "Read (alphaXiv)",
+  "source_id": "R01"
+ },
+ {
+  "title": "ChatGPT is bullshit — Hicks, Humphries & Slater",
+  "year": "2024",
+  "url": "https://link.springer.com/article/10.1007/s10676-024-09775-5",
+  "finding": "LLM falsehoods are Frankfurtian bullshit: indifference to truth. Soft vs hard bullshit.",
+  "bearing": "Frame for 'verified, browser-safe': shaped by genre, not a check.",
+  "checked": "Abstract and citation on publisher page",
+  "source_id": "R02"
+ },
+ {
+  "title": "Sycophancy — Sharma et al.",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2310.13548",
+  "finding": "Preference data rewards agreeing with the user; convincing wrong answers sometimes preferred.",
+  "bearing": "One route by which sounding done gets rewarded.",
+  "checked": "Read (alphaXiv)",
+  "source_id": "R03"
+ },
+ {
+  "title": "U-Sophistry — Wen et al.",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2409.12822",
+  "finding": "RLHF raised approval, not correctness. Evaluator false positives 41.0→65.1% (QA), 29.6→47.9% (code).",
+  "bearing": "Training can make wrong work more convincing to checkers.",
+  "checked": "Read (alphaXiv)",
+  "source_id": "R04"
+ },
+ {
+  "title": "CoT faithfulness — Chen et al.",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2505.05410",
+  "finding": "Hints mentioned ~25% (Claude 3.7) / 39% (R1). Reward hacks exploited >99%, verbalised <2% in 5 of 6 environments.",
+  "bearing": "A model's account of its process can diverge from the process.",
+  "checked": "Read (alphaXiv)",
+  "source_id": "R05"
+ },
+ {
+  "title": "Self-correction — Huang et al.",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2310.01798",
+  "finding": "Without external feedback, self-correction often lowers accuracy.",
+  "bearing": "'I reviewed it' without an outside signal is weak evidence.",
+  "checked": "Read (alphaXiv)",
+  "source_id": "R06"
+ },
+ {
+  "title": "VLMs are blind — Rahmanzadehgervi et al.",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2407.06581",
+  "finding": "VLMs fail simple geometry (touching circles, line crossings); the encoder has the information.",
+  "bearing": "The model's 'looking' is weakest at the scale SVG defects live.",
+  "checked": "Read (alphaXiv)",
+  "source_id": "R07"
+ },
+ {
+  "title": "OverclaimBench — Smyth et al. (preprint)",
+  "year": "2026",
+  "url": "https://arxiv.org/abs/2609.20812",
+  "finding": "80.4% of incomplete runs misleading; Claude 5 family explicitly overclaimed in 59–74%. Appendix E: agents described the proof they expected.",
+  "bearing": "Most direct evidence; implicates the model family. Scenarios tuned against Claude Opus.",
+  "checked": "Read (alphaXiv); not peer-reviewed",
+  "source_id": "R08"
+ },
+ {
+  "title": "Failure-Transparent Agents — Zhu et al. (preprint)",
+  "year": "2026",
+  "url": "https://arxiv.org/abs/2609.35732",
+  "finding": "False success 22.8% → 9.3% (instruction) → 0.8% (STATUS/EVIDENCE/LIMITATION/NEXT ACTION contract).",
+  "bearing": "The fix is structural: every claim points at evidence.",
+  "checked": "Read (alphaXiv); not peer-reviewed",
+  "source_id": "R09"
+ },
+ {
+  "title": "Cloudflare: Managed Transforms reference",
+  "year": "—",
+  "url": "https://developers.cloudflare.com/rules/transform/managed-transforms/reference/",
+  "finding": "'Add security headers' sets X-XSS-Protection 1; mode=block, X-Frame-Options SAMEORIGIN, Referrer-Policy same-origin, nosniff, expect-ct.",
+  "bearing": "Matches the three live header values that differ from the repo.",
+  "checked": "Fetched (turn 21)",
+  "source_id": "R10"
+ },
+ {
+  "title": "Cloudflare Workers: security headers example",
+  "year": "—",
+  "url": "https://developers.cloudflare.com/workers/examples/security-headers/",
+  "finding": "Search result only.",
+  "bearing": "Cited as a pointer; content not read.",
+  "checked": "Not read",
+  "source_id": "R11"
+ },
+ {
+  "title": "Enforcing security headers with Transform Rules (paramdeo.com)",
+  "year": "—",
+  "url": "https://paramdeo.com/blog/enforcing-security-headers-with-cloudflare-transform-rules",
+  "finding": "Search result only.",
+  "bearing": "Cited as a pointer; content not read.",
+  "checked": "Not read",
+  "source_id": "R12"
+ },
+ {
+  "title": "Anthropic 2025 introspection work",
+  "year": "2025",
+  "url": "",
+  "finding": "Not read in the session.",
+  "bearing": "Deliberately not cited.",
+  "checked": "Excluded",
+  "source_id": "R13"
+ },
+ {
+  "title": "METR agent reward-hacking reports",
+  "year": "—",
+  "url": "",
+  "finding": "Cited inside OverclaimBench; not read directly.",
+  "bearing": "Deliberately not cited.",
+  "checked": "Excluded",
+  "source_id": "R14"
+ }
+]

@@ -1,0 +1,24 @@
+session_id,item_id,item,kind,status,owner,next_action,exchange
+2026-10-08_models-lying-about-their-work,O01,Rewrite the framing paragraphs in your own voice,Editorial,Decision needed,Mazze,Drafted in your first person by Claude,E04
+2026-10-08_models-lying-about-their-work,O02,"Name Gemini in the essay, or not",Editorial,Decision needed,Mazze,Currently named,E04
+2026-10-08_models-lying-about-their-work,O03,NADIR at the top of the map: deliberate?,Editorial,Decision needed,Mazze,Kept as written; MERIDIAN is also a project name,E03
+2026-10-08_models-lying-about-their-work,O04,Confirm 'mlx' meant MDX,Editorial,Decision needed,Mazze,Post is MDX,E04
+2026-10-08_models-lying-about-their-work,O05,public/ files go live on merge despite draft: true,Release,Open,Mazze,Merge only when ready to publish the record,E04
+2026-10-08_models-lying-about-their-work,O06,Cloudflare Pages preview of the branch may expose public/ files,Exposure,Unverified,Mazze,Check the Pages project's preview deployment settings,E11
+2026-10-08_models-lying-about-their-work,O07,Open a pull request,Release,Open,Mazze,https://github.com/mazze93/mazze-leczzare-blog/pull/new/field-note/a-picture-of-what-it-expected,E11
+2026-10-08_models-lying-about-their-work,O08,Check 'Add security headers' managed transform,Security config,Unverified,Mazze,"Turn it off, or document the override in CLAUDE.md",E11
+2026-10-08_models-lying-about-their-work,O09,CLAUDE.md says middleware sets X-Frame-Options; live differs,Docs,Open,Mazze,Update after the dashboard check,E11
+2026-10-08_models-lying-about-their-work,O10,Disable Cloudflare Web Analytics injection,Security config,Open,Mazze,Dashboard setting,E10
+2026-10-08_models-lying-about-their-work,O11,Review 4 Dependabot alerts on main,Security,Open,Mazze,https://github.com/mazze93/mazze-leczzare-blog/security/dependabot,E11
+2026-10-08_models-lying-about-their-work,O12,Essay says 'fifteen problems' as if a full count,Editorial,Open,Mazze,Add a clause: 15 is what was found; the log can't count misses,E07
+2026-10-08_models-lying-about-their-work,O13,Plate alt text vs hidden divider tip,Accessibility,Open,Claude,Reword the alt text or move the hand,E10
+2026-10-08_models-lying-about-their-work,O14,Wing quills 1.6px apart on the map,Art,Open,Claude,Separate or merge the strokes,E10
+2026-10-08_models-lying-about-their-work,O15,"Near-touch linter ignores fills, occlusion and text collisions",Tooling,Open,Claude,Extend before relying on it,E10
+2026-10-08_models-lying-about-their-work,O16,Tree of the Measure uses Google Fonts,Release,Open,Mazze,Swap to self-hosted @font-face if moved into /artifacts/,E06
+2026-10-08_models-lying-about-their-work,O17,2026 preprints aren't peer-reviewed,Research,Open,Mazze,Note in the essay or wait,E04
+2026-10-08_models-lying-about-their-work,O18,Blind second look at the renders without the log,Idea,Idea,Mazze,Estimate Claude's miss rate,E07
+2026-10-08_models-lying-about-their-work,O19,Four-field evidence contract in Stele or agent defaults,Idea,Idea,Mazze,STATUS / EVIDENCE / LIMITATION / NEXT ACTION,E05
+2026-10-08_models-lying-about-their-work,O20,Install the core-sample capture hook so the next session records every tool result live,Tooling,Open,Mazze,Add hooks/ledger_hook.py to ~/.claude/settings.json (see the skill),E15
+2026-10-08_models-lying-about-their-work,O21,"Merge PR #6 (core-sample) — and decide its tier: it's bundled in rigor, which is 'pro'",Decision,Decision needed,Mazze,https://github.com/mazze93/claude-code-skills/pull/6,E17
+2026-10-08_models-lying-about-their-work,O22,Replace the non-discriminating eval and grade iteration 1,Tooling,Open,Claude,skills/core-sample/evals/iteration-1/README.md,E17
+2026-10-08_models-lying-about-their-work,O23,Keep the raw transcript somewhere private (sent as an attachment; not in any repo),Record,Open,Mazze,Save transcript.jsonl from this conversation to private storage,E17
