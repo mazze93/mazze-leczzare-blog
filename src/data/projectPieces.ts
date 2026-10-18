@@ -18,7 +18,7 @@ export interface ExternalPiece {
 
 export const PROJECT_THESES: Record<string, string> = {
   "intentional-fragility":
-    "A system should be built to break in the right places — and the break is the record, not the failure. Context should cost something to keep; protection should be earned, not granted; the gap between what a system expected and what happened is the signal worth keeping. One idea, instantiated across essays, a formal paper, and two live instruments.",
+    "A system should be built to break in the right places — and the break is the record, not the failure. Context should cost something to keep; protection should be earned, not granted; the gap between what a system expected and what happened is the signal worth keeping. One idea, instantiated across essays, a formal paper, one working instrument and one still on paper.",
   "context-synapse":
     "A local-first context-orchestration engine that models — on-device — what a system has learned about you over time, and lets you interrogate and correct it. Lighthouse anchors hold the thread, a context-rot score names the drift, and Edgar watches it. Research project and privacy commitment in one codebase.",
 };
@@ -37,7 +37,7 @@ export const PROJECT_PIECES: Record<string, ExternalPiece[]> = {
       title: "Intentional Fragility — the spine",
       kind: "spine",
       href: "/intentional-fragility/",
-      desc: "The standing statement: the argument written three ways, two live instruments, and the research program that tests it in the field.",
+      desc: "The standing statement: the argument written three ways, two instruments (one built, one proposed), and the research program that tests it in the field.",
       date: "2026-07-15",
     },
     {
@@ -48,10 +48,17 @@ export const PROJECT_PIECES: Record<string, ExternalPiece[]> = {
       date: "2026-06-12",
     },
     {
+      title: "Theatre of Dependencies",
+      kind: "instrument",
+      href: "/theatre-of-dependencies/",
+      desc: "The first instrument to exist: a Physarum solver over your lockfile and OSV.dev advisories that stages an upgrade ritual, with coverage checked by an exact cut. Open source, zero dependencies.",
+      date: "2026-10-18",
+    },
+    {
       title: "Two instruments, one refusal",
       kind: "artifact",
       href: "https://fieldnotes.mazzeleczzare.com/mz/intentional-fragility/",
-      desc: "Interactive: the kintsugi circuit breaker and a working Physarum routing solver, running the same discipline in unrelated domains.",
+      desc: "Interactive sketches of both instruments: the proposed kintsugi circuit breaker and a twelve-node Physarum solver, running the same discipline in unrelated domains.",
       date: "2026-07-15",
     },
     {
