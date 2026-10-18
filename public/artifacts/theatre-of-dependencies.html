@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark">
+<title>Theatre of Dependencies</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%23cda24e' stroke-width='3'/%3E%3Cpath d='M50 14 A66 66 0 0 1 50 86 A66 66 0 0 1 50 14Z' fill='none' stroke='%23cda24e' stroke-width='3'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%23cda24e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=DM+Mono:wght@400;500&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   THEATRE OF DEPENDENCIES — the stage
+   obsidian ground · gold is flux and, once sealed, the kintsugi seam ·
+   teal is a closed wound · coral marks only what nothing can fix.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#0b0e15; --ink-raise:#121723; --ink-2:#0e131c;
+  --gold:#cda24e; --gold-bright:#e6c478; --gold-deep:#8a6f33;
+  --teal:#5CCFCF; --coral:#F07178;
+  --paper:#ece7da; --paper-soft:#c4bdab; --muted:#a39c84;
+  --hair:rgba(205,162,78,.18); --hair-soft:rgba(196,189,171,.12);
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+  --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --bill:clamp(300px,27vw,400px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--ink);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow:hidden}
+body{display:grid;grid-template-columns:minmax(0,1fr) var(--bill);grid-template-rows:1fr auto}
+
+/* ── the stage ──────────────────────────────────────────────────────── */
+#stage{position:relative;grid-row:1;grid-column:1;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,.55) 100%)}
+
+.mast{position:absolute;top:clamp(16px,3vh,32px);left:clamp(16px,2.6vw,40px);pointer-events:none;max-width:52%}
+.mast .eyebrow{font-family:var(--mono);font-size:.66rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);display:flex;gap:.8rem;align-items:center}
+.mast .eyebrow::before{content:"";width:24px;height:1px;background:var(--gold)}
+.mast h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,3.6vw,3.3rem);line-height:.95;margin-top:.7rem;letter-spacing:-.01em}
+.mast h1 em{color:var(--gold);font-weight:500}
+.mast .sub{font-family:var(--mono);font-size:.74rem;color:var(--muted);margin-top:.8rem}
+.mast .sub b{color:var(--paper-soft);font-weight:400}
+
+.meters{position:absolute;top:clamp(16px,3vh,32px);right:clamp(16px,2vw,32px);text-align:right;pointer-events:none}
+.meter-k{font-family:var(--mono);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-deep)}
+.meter-v{font-family:var(--mono);font-size:.86rem;color:var(--paper-soft);margin:.15rem 0 .7rem}
+.big{font-family:var(--serif);font-weight:600;font-size:clamp(3rem,6vw,5.4rem);line-height:.85;color:var(--gold-bright);font-variant-numeric:lining-nums tabular-nums}
+.big small{font-size:.42em;color:var(--gold);margin-left:.08em}
+.badge{display:inline-flex;gap:.5rem;align-items:center;margin-top:.7rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+  padding:.38rem .75rem;border-radius:6px;border:1px solid var(--hair-soft);transition:color .5s,border-color .5s}
+.badge.open{color:var(--coral);border-color:rgba(240,113,120,.4)}
+.badge.half{color:var(--teal);border-color:rgba(92,207,207,.4)}
+.badge.closed{color:var(--gold-bright);border-color:rgba(205,162,78,.5)}
+
+/* surtitles — the opera convention: the plot, projected above the action */
+.surtitle{position:absolute;left:50%;bottom:clamp(18px,4vh,40px);transform:translateX(-50%);width:min(760px,88%);
+  text-align:center;pointer-events:none}
+.surtitle .act{font-family:var(--mono);font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);min-height:1em}
+.surtitle .line{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(1.15rem,2vw,1.6rem);line-height:1.3;color:var(--paper);
+  margin-top:.35rem;text-shadow:0 2px 18px rgba(0,0,0,.9);min-height:2.6em;transition:opacity .45s}
+.surtitle .line.fade{opacity:0}
+
+.tip{position:absolute;pointer-events:none;background:rgba(14,19,28,.94);border:1px solid var(--hair);border-radius:8px;
+  padding:.55rem .7rem;font-family:var(--mono);font-size:.72rem;color:var(--paper-soft);max-width:300px;display:none;z-index:5;line-height:1.5}
+.tip b{color:var(--paper);font-weight:500}
+.tip .sev{color:var(--coral)}
+
+/* ── the playbill ───────────────────────────────────────────────────── */
+#bill{grid-row:1;grid-column:2;border-left:1px solid var(--hair);background:linear-gradient(180deg,var(--ink-raise),var(--ink-2));
+  overflow-y:auto;padding:clamp(18px,3vh,30px) clamp(16px,1.6vw,26px) 28px;position:relative}
+#bill::before{content:"";position:absolute;left:-1px;top:0;bottom:0;width:1px;
+  background:repeating-linear-gradient(180deg,var(--gold-deep) 0 6px,transparent 6px 12px);opacity:.6}
+.bill-k{font-family:var(--mono);font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);display:flex;justify-content:space-between}
+.bill-k span:last-child{color:var(--gold-deep)}
+.bill-h{font-family:var(--serif);font-weight:600;font-size:1.65rem;line-height:1.05;margin:.5rem 0 .2rem}
+.bill-h em{color:var(--gold);font-weight:500}
+.bill-p{font-size:.86rem;color:var(--muted);line-height:1.55}
+.cast{display:grid;grid-template-columns:auto 1fr;gap:.25rem .9rem;margin:1.1rem 0 1.4rem;font-family:var(--mono);font-size:.74rem}
+.cast dt{color:var(--gold-deep);text-transform:uppercase;letter-spacing:.14em;font-size:.6rem;padding-top:.2rem}
+.cast dd{color:var(--paper-soft);overflow-wrap:anywhere;min-width:0}
+.sevs{display:flex;gap:.7rem;flex-wrap:wrap}
+.sevs i{font-style:normal;display:inline-flex;align-items:center;gap:.3rem}
+.sevs i::before{content:"";width:7px;height:7px;border-radius:2px;background:currentColor}
+.sev-CRITICAL{color:var(--coral)} .sev-HIGH{color:var(--gold-bright)} .sev-MODERATE{color:var(--gold)} .sev-LOW,.sev-UNKNOWN{color:var(--muted)}
+
+.acts{border-top:1px solid var(--hair-soft)}
+.act{padding:.85rem 0;border-bottom:1px solid var(--hair-soft);opacity:.18;transition:opacity .6s,transform .6s;transform:translateX(6px)}
+.act.on{opacity:1;transform:none}
+.act.now .act-name{color:var(--gold-bright)}
+.act-row{display:grid;grid-template-columns:2.6rem 1fr auto;align-items:baseline;gap:.4rem}
+.act-n{font-family:var(--serif);font-style:italic;font-weight:600;font-size:1.25rem;color:var(--gold)}
+.act-name{font-family:var(--mono);font-size:.84rem;color:var(--paper);transition:color .4s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-name small{color:var(--muted);font-size:.72rem;margin-left:.35rem}
+.act-cov{font-family:var(--mono);font-size:.74rem;color:var(--gold-bright)}
+.act-bar{grid-column:2/4;height:2px;background:var(--hair-soft);margin:.45rem 0 .35rem;position:relative;overflow:hidden;border-radius:2px}
+.act-bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));width:0;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.act-items{grid-column:2/4;font-family:var(--mono);font-size:.68rem;color:var(--muted);line-height:1.65}
+.act-items b{color:var(--paper-soft);font-weight:400}
+.act-items .to{color:var(--teal)}
+.act-items .nofix{color:var(--coral)}
+.act-items .shared{color:var(--coral);opacity:.85}
+
+.break{margin-top:1.3rem;padding:.9rem 1rem;border:1px solid rgba(240,113,120,.3);border-left:2px solid var(--coral);border-radius:0 8px 8px 0;
+  opacity:.15;transition:opacity .8s}
+.break.on{opacity:1}
+.break h3{font-family:var(--serif);font-weight:600;font-style:italic;font-size:1.15rem;color:var(--coral)}
+.break p{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-top:.35rem;line-height:1.6}
+.break p b{color:var(--paper-soft);font-weight:400}
+
+.script{margin-top:1.3rem;opacity:.15;transition:opacity .8s}
+.script.on{opacity:1}
+.script-head{display:flex;justify-content:space-between;align-items:center}
+.script h3{font-family:var(--serif);font-weight:600;font-size:1.15rem}
+.script h3 em{color:var(--gold)}
+.copy{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;color:var(--ink);background:var(--gold);border:0;border-radius:6px;padding:.35rem .7rem;cursor:pointer}
+.copy:hover{background:var(--gold-bright)}
+.copy:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+pre{margin-top:.6rem;font-family:var(--mono);font-size:.66rem;line-height:1.55;color:var(--paper-soft);background:rgba(0,0,0,.35);
+  border:1px solid var(--hair-soft);border-radius:8px;padding:.75rem .8rem;overflow-x:auto;max-height:260px}
+.script .warn{font-family:var(--mono);font-size:.64rem;color:var(--muted);margin-top:.5rem;line-height:1.55}
+.script .warn b{color:var(--coral);font-weight:400}
+.colophon{margin-top:1.6rem;font-family:var(--mono);font-size:.6rem;color:var(--gold-deep);letter-spacing:.06em;line-height:1.7}
+
+/* ── the scrubber ───────────────────────────────────────────────────── */
+#deck{grid-row:2;grid-column:1/3;display:flex;align-items:center;gap:1rem;padding:.6rem clamp(16px,2vw,28px);
+  border-top:1px solid var(--hair);background:var(--ink-2)}
+.play{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;flex:none;
+  display:grid;place-items:center;font-size:.8rem}
+.play:hover{background:rgba(205,162,78,.12)}
+.play:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.track{position:relative;flex:1;height:34px;display:flex;align-items:center}
+.track input{width:100%;appearance:none;-webkit-appearance:none;background:transparent;height:34px;cursor:pointer;position:relative;z-index:2}
+.track input::-webkit-slider-runnable-track{height:2px;background:var(--hair)}
+.track input::-moz-range-track{height:2px;background:var(--hair)}
+.track input::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold-bright);margin-top:-5.5px;box-shadow:0 0 12px rgba(230,196,120,.7)}
+.track input::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--gold-bright);border:0}
+.track input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.ticks{position:absolute;inset:0;pointer-events:none}
+.ticks span{position:absolute;top:4px;font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);transform:translateX(-50%);white-space:nowrap}
+.ticks span::after{content:"";position:absolute;left:50%;top:15px;width:1px;height:8px;background:var(--gold-deep)}
+.keys{font-family:var(--mono);font-size:.62rem;color:var(--gold-deep);white-space:nowrap}
+.keys kbd{font-family:inherit;color:var(--muted);border:1px solid var(--hair-soft);border-radius:4px;padding:0 .3rem;margin:0 .15rem}
+
+body.clean #bill,body.clean #deck,body.clean .meters .meter-k,body.clean .meters .meter-v{display:none}
+body.clean{grid-template-columns:1fr}
+
+@media (max-width:860px){
+  html,body{overflow:auto}
+  body{grid-template-columns:minmax(0,1fr);grid-template-rows:72vh auto auto}
+  #stage{grid-row:1}
+  #deck{grid-row:2;grid-column:1}
+  #bill{grid-row:3;grid-column:1;border-left:0;border-top:1px solid var(--hair);overflow:visible}
+  .keys{display:none}
+  .mast{max-width:58%}
+  .meters{max-width:40%}
+  .big{font-size:2.6rem}
+  .badge{font-size:.62rem;padding:.3rem .5rem}
+  .surtitle{width:92%}
+  .ticks span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .act,.act-bar i,.break,.script,.surtitle .line,.badge{transition:none}
+}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="Animated dependency network">
+  <canvas id="c" role="img" aria-label="A slime-mold network solver running over your dependency graph: tubes that carry vulnerable code to your project thicken; the rest starve; the ritual then seals each entrance in gold."></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <header class="mast">
+    <div class="eyebrow">Theatre of Dependencies</div>
+    <h1>A slime mold reads <em id="m-project"></em></h1>
+    <div class="sub" id="m-sub"></div>
+  </header>
+  <div class="meters" aria-live="polite">
+    <div class="meter-k">step</div><div class="meter-v" id="m-step">—</div>
+    <div class="meter-k">terrain alive</div><div class="meter-v" id="m-alive">—</div>
+    <div class="meter-k">surface closed</div>
+    <div class="big" id="m-cov">0<small>%</small></div>
+    <div><span class="badge open" id="m-state">○ OPEN · fragmented</span></div>
+  </div>
+  <div class="surtitle" aria-live="polite"><div class="act" id="s-act"></div><div class="line" id="s-line"></div></div>
+  <div class="tip" id="tip"></div>
+</main>
+
+<aside id="bill" aria-label="Playbill">
+  <div class="bill-k"><span>Tonight's programme</span><span id="b-date"></span></div>
+  <h2 class="bill-h">The Upgrade <em>Ritual</em></h2>
+  <p class="bill-p">Vulnerable packages are food. Your project is the heart. The organism lays tubes between them, keeps the ones that carry current, and lets the rest starve. The entrances it keeps are where you act.</p>
+  <dl class="cast" id="b-cast"></dl>
+  <div class="acts" id="b-acts"></div>
+  <div class="break" id="b-break"><h3>The break is kept</h3><p id="b-break-p"></p></div>
+  <div class="script" id="b-script">
+    <div class="script-head"><h3>The <em>script</em></h3><button class="copy" id="copy" type="button">copy</button></div>
+    <pre id="b-json"></pre>
+    <p class="warn" id="b-warn"></p>
+  </div>
+  <p class="colophon" id="b-colophon"></p>
+</aside>
+
+<nav id="deck" aria-label="Playback">
+  <button class="play" id="play" type="button" aria-label="Pause">❚❚</button>
+  <div class="track"><div class="ticks" id="ticks" aria-hidden="true"></div><input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Timeline"></div>
+  <div class="keys"><kbd>space</kbd>play <kbd>←</kbd><kbd>→</kbd>scrub <kbd>R</kbd>replay <kbd>H</kbd>clean</div>
+</nav>
+
+<script type="application/json" id="stage-data">{"meta":{"file":"fixtures/vulnerable-shop/lockfile.fixture.json","date":"2026-10-18","version":"0.1.0"},"project":"vulnerable-shop","nodes":[["vulnerable-shop","1.0.0",0,1],["@ungap/promise-all-settled","1.1.2",1,1],["accepts","1.3.8",0,1],["ajv","6.15.0",0,1],["ansi-colors","4.1.1",1,1],["ansi-regex","3.0.1",1,1],["ansi-styles","4.3.0",1,1],["anymatch","3.1.3",1,1],["argparse","1.0.10",1,1],["array-flatten","1.1.1",0,1],["asn1","0.2.6",0,1],["assert-plus","1.0.0",0,1],["async","3.2.6",0,1],["asynckit","0.4.0",0,1],["aws-sign2","0.7.0",0,1],["aws4","1.13.2",0,1],["axios","0.21.0",0,1],["balanced-match","1.0.2",0,1],["bcrypt-pbkdf","1.0.2",0,1],["binary-extensions","2.3.0",1,1],["body-parser","1.19.0",0,1],["brace-expansion","1.1.21",0,1],["braces","3.0.3",1,1],["browser-stdout","1.3.1",1,1],["buffer-equal-constant-time","1.0.1",0,1],["bytes","3.1.0",0,1],["camelcase","5.3.1",1,1],["caseless","0.12.0",0,1],["chalk","4.1.2",1,1],["chokidar","3.4.3",1,1],["cliui","5.0.0",1,1],["ansi-regex","4.1.1",1,1],["string-width","3.1.0",1,1],["strip-ansi","5.2.0",1,1],["color-convert","2.0.1",1,1],["color-name","1.1.4",1,1],["combined-stream","1.0.8",0,1],["concat-map","0.0.1",0,1],["content-disposition","0.5.3",0,1],["content-type","1.0.5",0,1],["cookie","0.4.0",0,1],["cookie-signature","1.0.6",0,1],["core-util-is","1.0.2",0,1],["dashdash","1.14.1",0,1],["debug","2.6.9",0,1],["decamelize","1.2.0",1,1],["delayed-stream","1.0.0",0,1],["depd","1.1.2",0,1],["destroy","1.0.4",0,1],["diff","4.0.2",1,1],["ecc-jsbn","0.1.2",0,1],["ecdsa-sig-formatter","1.0.11",0,1],["ee-first","1.1.1",0,1],["ejs","3.1.6",0,1],["emoji-regex","7.0.3",1,1],["encodeurl","1.0.2",0,1],["es-errors","1.3.0",0,1],["escape-html","1.0.3",0,1],["escape-string-regexp","4.0.0",1,1],["esprima","4.0.1",1,1],["etag","1.8.1",0,1],["express","4.17.1",0,1],["extend","3.0.2",0,1],["extsprintf","1.3.0",0,1],["fast-deep-equal","3.1.3",0,1],["fast-json-stable-stringify","2.1.0",0,1],["filelist","1.0.6",0,1],["brace-expansion","2.1.7",0,1],["minimatch","5.1.9",0,1],["fill-range","7.1.1",1,1],["finalhandler","1.1.2",0,1],["find-up","5.0.0",1,1],["flat","5.0.2",1,1],["follow-redirects","1.16.1",0,1],["forever-agent","0.6.1",0,1],["form-data","2.3.3",0,1],["forwarded","0.2.0",0,1],["fresh","0.5.2",0,1],["fs.realpath","1.0.0",0,1],["fsevents","2.1.3",1,1],["function-bind","1.1.2",0,1],["get-caller-file","2.0.5",1,1],["getpass","0.1.7",0,1],["glob","7.1.6",0,1],["glob-parent","5.1.2",1,1],["growl","1.10.5",1,1],["handlebars","4.5.3",0,1],["har-schema","2.0.0",0,1],["har-validator","5.1.5",0,1],["has-flag","4.0.0",1,1],["hasown","2.0.4",0,1],["he","1.2.0",1,1],["http-errors","1.7.2",0,1],["http-signature","1.2.0",0,1],["iconv-lite","0.4.24",0,1],["inflight","1.0.6",0,1],["inherits","2.0.3",0,1],["interpret","1.4.0",0,1],["ipaddr.js","1.9.1",0,1],["is-binary-path","2.1.0",1,1],["is-core-module","2.17.0",0,1],["is-extglob","2.1.1",1,1],["is-fullwidth-code-point","2.0.0",1,1],["is-glob","4.0.3",1,1],["is-number","7.0.0",1,1],["is-plain-obj","2.1.0",1,1],["is-typedarray","1.0.0",0,1],["isexe","2.0.0",1,1],["isstream","0.1.2",0,1],["jake","10.9.4",0,1],["js-yaml","3.14.0",1,1],["jsbn","0.1.1",0,1],["json-schema","0.4.0",0,1],["json-schema-traverse","0.4.1",0,1],["json-stringify-safe","5.0.1",0,1],["jsonwebtoken","8.5.1",0,1],["ms","2.1.3",0,1],["jsprim","1.4.2",0,1],["jwa","1.4.2",0,1],["jws","3.2.3",0,1],["locate-path","6.0.0",1,1],["lodash","4.17.15",0,1],["lodash.includes","4.3.0",0,1],["lodash.isboolean","3.0.3",0,1],["lodash.isinteger","4.0.4",0,1],["lodash.isnumber","3.0.3",0,1],["lodash.isplainobject","4.0.6",0,1],["lodash.isstring","4.0.1",0,1],["lodash.once","4.1.1",0,1],["log-symbols","4.0.0",1,1],["marked","0.7.0",0,1],["media-typer","0.3.0",0,1],["merge-descriptors","1.0.1",0,1],["methods","1.1.2",0,1],["mime","1.6.0",0,1],["mime-db","1.52.0",0,1],["mime-types","2.1.35",0,1],["minimatch","3.0.4",0,1],["minimist","0.0.8",0,1],["mkdirp","0.5.1",0,1],["mocha","8.2.1",1,1],["debug","4.2.0",1,1],["ms","2.1.2",1,1],["moment","2.29.1",0,1],["ms","2.0.0",0,1],["nanoid","3.1.12",1,1],["negotiator","0.6.3",0,1],["neo-async","2.6.2",0,1],["node-fetch","2.6.0",0,1],["normalize-path","3.0.0",1,1],["oauth-sign","0.9.0",0,1],["on-finished","2.3.0",0,1],["once","1.4.0",0,1],["optimist","0.6.1",0,1],["p-limit","3.1.0",1,1],["p-locate","5.0.0",1,1],["p-try","2.2.0",1,1],["parseurl","1.3.3",0,1],["path-exists","4.0.0",1,1],["path-is-absolute","1.0.1",0,1],["path-parse","1.0.7",0,1],["path-to-regexp","0.1.7",0,1],["performance-now","2.1.0",0,1],["picocolors","1.1.1",0,1],["picomatch","2.3.2",1,1],["proxy-addr","2.0.8",0,1],["psl","1.15.0",0,1],["punycode","2.3.1",0,1],["punycode","1.4.1",0,1],["qs","6.7.0",0,1],["randombytes","2.1.0",1,1],["range-parser","1.2.1",0,1],["raw-body","2.4.0",0,1],["readdirp","3.5.0",1,1],["rechoir","0.6.2",0,1],["request","2.88.0",0,1],["qs","6.5.5",0,1],["require-directory","2.1.1",1,1],["require-main-filename","2.0.0",1,1],["resolve","1.22.13",0,1],["safe-buffer","5.1.2",0,1],["safer-buffer","2.1.2",0,1],["semver","5.7.2",0,1],["send","0.17.1",0,1],["ms","2.1.1",0,1],["serialize-javascript","5.0.1",1,1],["serve-static","1.14.1",0,1],["set-blocking","2.0.0",1,1],["setprototypeof","1.1.1",0,1],["shelljs","0.8.4",0,1],["source-map","0.6.1",0,1],["sprintf-js","1.0.3",1,1],["sshpk","1.18.0",0,1],["statuses","1.5.0",0,1],["string-width","2.1.1",1,1],["strip-ansi","4.0.0",1,1],["strip-json-comments","3.1.1",1,1],["supports-color","7.2.0",1,1],["supports-preserve-symlinks-flag","1.0.0",0,1],["to-regex-range","5.0.1",1,1],["toidentifier","1.0.0",0,1],["tough-cookie","2.4.3",0,1],["tunnel-agent","0.6.0",0,1],["tweetnacl","0.14.5",0,1],["type-is","1.6.18",0,1],["uglify-js","3.19.3",0,1],["unpipe","1.0.0",0,1],["uri-js","4.4.1",0,1],["punycode","2.3.1",0,1],["utils-merge","1.0.1",0,1],["uuid","3.4.0",0,1],["vary","1.1.2",0,1],["verror","1.10.0",0,1],["which","2.0.2",1,1],["which-module","2.0.1",1,1],["wide-align","1.1.3",1,1],["wordwrap","0.0.3",0,1],["workerpool","6.0.2",1,1],["wrap-ansi","5.1.0",1,1],["ansi-regex","4.1.1",1,1],["ansi-styles","3.2.1",1,1],["color-convert","1.9.3",1,1],["color-name","1.1.3",1,1],["string-width","3.1.0",1,1],["strip-ansi","5.2.0",1,1],["wrappy","1.0.2",0,1],["ws","7.4.0",0,1],["y18n","4.0.3",1,1],["yargs","13.3.2",1,1],["yargs-parser","13.1.2",1,1],["yargs-unparser","2.0.0",1,1],["camelcase","6.3.0",1,1],["decamelize","4.0.0",1,1],["ansi-regex","4.1.1",1,1],["find-up","3.0.0",1,1],["locate-path","3.0.0",1,1],["p-limit","2.3.0",1,1],["p-locate","3.0.0",1,1],["path-exists","3.0.0",1,1],["string-width","3.1.0",1,1],["strip-ansi","5.2.0",1,1],["yocto-queue","0.1.0",1,1]],"edges":[[0,16],[0,53],[0,61],[0,86],[0,115],[0,121],[0,130],[0,137],[0,139],[0,143],[0,148],[0,175],[0,189],[0,226],[0,140],[2,136],[2,146],[3,64],[3,65],[3,113],[3,207],[6,34],[7,149],[7,164],[8,191],[10,181],[16,73],[18,203],[20,25],[20,39],[20,44],[20,47],[20,92],[20,94],[20,151],[20,169],[20,172],[20,204],[21,17],[21,37],[22,69],[28,6],[28,197],[29,7],[29,22],[29,84],[29,99],[29,103],[29,149],[29,173],[29,79],[30,32],[30,33],[30,218],[32,54],[32,102],[32,33],[33,31],[34,35],[36,46],[38,180],[43,11],[44,144],[50,111],[50,181],[51,180],[53,109],[61,2],[61,9],[61,20],[61,38],[61,39],[61,40],[61,41],[61,44],[61,47],[61,55],[61,57],[61,60],[61,70],[61,77],[61,132],[61,133],[61,151],[61,157],[61,161],[61,165],[61,169],[61,171],[61,180],[61,183],[61,186],[61,188],[61,193],[61,204],[61,209],[61,211],[66,68],[67,17],[68,67],[69,199],[70,44],[70,55],[70,57],[70,151],[70,157],[70,193],[70,206],[71,120],[71,158],[75,13],[75,36],[75,136],[82,11],[83,78],[83,95],[83,96],[83,137],[83,152],[83,159],[84,103],[86,147],[86,153],[86,190],[86,205],[88,3],[88,87],[90,80],[92,47],[92,96],[92,188],[92,193],[92,200],[93,11],[93,117],[93,192],[94,181],[95,152],[95,225],[99,19],[100,90],[103,101],[109,12],[109,66],[109,163],[110,8],[110,59],[115,119],[115,122],[115,123],[115,124],[115,125],[115,126],[115,127],[115,128],[115,116],[115,182],[117,11],[117,63],[117,112],[117,212],[118,24],[118,51],[118,180],[119,118],[119,180],[120,155],[129,28],[136,135],[137,21],[139,138],[140,1],[140,4],[140,23],[140,29],[140,141],[140,49],[140,58],[140,71],[140,83],[140,85],[140,91],[140,110],[140,129],[140,137],[140,142],[140,145],[140,185],[140,196],[140,197],[140,213],[140,215],[140,217],[140,228],[140,229],[140,230],[141,142],[151,52],[152,225],[153,138],[153,216],[154,241],[155,154],[165,76],[165,98],[166,167],[170,180],[172,25],[172,92],[172,94],[172,206],[173,164],[174,179],[175,14],[175,15],[175,27],[175,36],[175,62],[175,74],[175,75],[175,88],[175,93],[175,106],[175,108],[175,114],[175,136],[175,150],[175,162],[175,176],[175,180],[175,201],[175,202],[175,210],[179,56],[179,100],[179,160],[179,198],[183,44],[183,47],[183,48],[183,55],[183,57],[183,60],[183,77],[183,92],[183,134],[183,184],[183,151],[183,171],[183,193],[185,170],[186,55],[186,57],[186,157],[186,183],[189,83],[189,97],[189,174],[192,10],[192,11],[192,18],[192,43],[192,50],[192,82],[192,111],[192,181],[192,203],[194,102],[194,195],[195,5],[197,89],[199,104],[201,166],[201,168],[202,180],[204,131],[204,136],[207,208],[212,11],[212,42],[212,63],[213,107],[215,194],[218,220],[218,223],[218,224],[220,221],[221,222],[223,54],[223,102],[223,224],[224,219],[228,30],[228,234],[228,81],[228,177],[228,178],[228,187],[228,239],[228,214],[228,227],[228,229],[229,26],[229,45],[230,231],[230,232],[230,72],[230,105],[234,235],[235,237],[235,238],[236,156],[237,236],[239,54],[239,102],[239,240],[240,233]],"frames":"///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////06vTx6uzq6enq6vLq6vbo6Ojo6Ojo6Ojp6Ojo6Ojo6Ojo6Ono6Ojo6Ojo6Ono6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojq6Ojp6Ojo6Ojo6Ojo6Ojo6ujp6Ojp6ejo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojp6Ojo6Ono6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6ejo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ono6Ojp6eno6Ojo6Ozo6ejr6ujo6Ojo6Ojo6Ojo6ejo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojq6Ojo6Ojo6Ojp6Ono6ejo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6OrX6+XX2tbV1dbW59fX79TU1NTU1NTU1NXU1NTU1NTU1NTU1NTU1NTU1NTU1tTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NjU1NTU1NTU1NTU1NTU1NTW1NXU1NTV1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1dTU1NTU1NTU1NTU1NTU1NTU1NTU1NTV1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1dTU1NbU1NTU1NTU3NTU1NjW1NTU1NTU1NTU1NTV1NTU1NTU1NTU1NTU1NTU1NTU1NfU1NTU1NTU1NXU1dTW1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU4sbk28bKxcPDxcXdxsbpwcHBwcHBwcHBwsHBwcHBwcHBwcHCwcHBwcHBwcHEwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBx8HBwcHBwcHBwcHBwcHBwcXBw8HBwsPBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHCwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcLBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHDwcHBxMLBwcHBwcHNwcLBx8XBwcHBwcHBwcHBwcLBwcHBwcHBwcHBwcHBwcHBwcHBxsHBwcHBwcHBw8HDwcTBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHbtt3St7y1s7O1tdS2tuSwsLCwsLCwsLCysLCwsLCwsLCwsLGwsLCwsLCwsLOwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLC4sLCwsLCwsLCwsLCwsLCwtbCzsLCxs7CwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCxsLCwsLGwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsrCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLOwsLCzsbCwsLCwsMCwsbC5tbCwsLCwsLCwsLCwsbCwsLCwsLCwsLCwsLCwsLCwsLC3sLCwsLCwsLCysLOws7CwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsNWp18qpsKekpKenzaio36CgoKCgoKCgoKOgoKCgoKCgoKCgoaCgoKCgoKCgpaCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKqgoKGgoKCgoKCgoKCgoKCnoKSgoKGkoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKGgoKCgoqCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgpKCgoKWioaCgoKCgtKChoKunoKCgoKCgoKCgoKCioKCgoKCgoKCgoKCgoKCgoKCgoKmgoKCgoKCgoKSgpKCloKCgoKCgoKCgoKCgoKCgoKCgoKCgoaGgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg0JzSw5ylmpeWmprGm5zckpKSkpKSkpKSlZKSkpKSkpKSkpKUkpKSkpKSkpKYkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSnpKSk5KSkpKSkpKSkpKSkpqSl5KSk5eSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSk5KSkpKVkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpWSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKWkpKSmJSTkpKSkpKqkpSSn5qSkpKSkpKSkpKSkpWSkpKSkpKSkpKSkpKSkpKSkpKSnZKSkpKSkpKSlpKWkpiSkpKSkpKSkpKSkpKSkpKSkpKSkpKTk5KSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpLLkc6+kZuOioqOj8GQkdiFhYWFhYWFhYWJhYWFhYWFhYWFhYeFhYWFhYWFhYyFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWThYWGhYWFhYWFhYWFhYWFjoWLhYWHioWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWGhYWFhYiFhYWFhYWFhYWFhYWFhYWFhYWFhYWFiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYqFhYWMh4aFhYWFhaGFh4WUj4WFhYWFhYWFhYWFiIWFhYWFhYWFhYWFhYWFhYWFhYWShYWFhYWFhYWKhYqFjIWFhYWFhYWFhYWFhYWFhYWFhYWFhYaGhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhciHyrmHk4R/f4SEvIaH1nl5eXl5eXl5eX15eXl5eXl5eXl5e3l5eXl5eXl5gXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eYl5eXp5eXl5eXl5eXl5eXmEeYB5eXt/eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXt5eXl5fXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl9eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5f3l5eYF8enl5enl5mXl8eYuEeXl5eXl5eXl5eXl9eXl5eXl5eXl5eXl5eXl5eXl5eYh5eXl5eXl5eX95f3mBeXl5eXl5eXl5eXl5eXl5eXl5eXl5enp5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5xX7HtX6Le3V1e3u4fH7Ub29vb29vb29vc29vb29vb29vb29xb29vb29vb293b29vb29vb29vb29vb29vb29vb29vb29vgW9vcG9vb29vb29vb29vb3tvdm9vcXZvb29vb29vb29vb29vb29vb29vb29vb29vcG9vb29zb29vb29vb29vb29vb29vb29vb29vb3Nvb29vb29vb29vb29vb29vb29vb29vb291b29vd3Fwb29vb2+Sb3Fvg3tvb29vb29vb29vb3Nvb29vb29vb29vb29vb29vb29vf29vb29vb29vdW91b3dvb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb29vb2/CdsWxdoRzbGxzc7V0dtJlZWVlZWVlZWVqZWVlZWVlZWVlZWdlZWVlZWVlZW5lZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWV5ZWVmZWVlZWVlZWVlZWVlc2VuZWVnbWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVnZWVlZWllZWVlZWVlZWVlZWVlZWVlZWVlZWVlamVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWxlZWVuaGZlZWVlZYxlaGV7c2VlZWVlZWVlZWVlaWVlZWVlZWVlZWVlZWVlZWVlZWV3ZWVlZWVlZWVsZWxlbmVlZWVlZWVlZWVlZWVlZWVlZWVlZWZmZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZcBvw65vf2tkZGtrsm1v0VxcXFxcXFxcXGJcXFxcXFxcXFxcX1xcXFxcXFxcZ1xcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXHJcXF1cXFxcXFxcXFxcXFxrXGZcXF5lXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXF5cXFxcYVxcXFxcXFxcXFxcXFxcXFxcXFxcXFxiXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcZFxcXGdfXVxcXFxch1xfXHVsXFxcXFxcXFxcXFxhXFxcXFxcXFxcXFxcXFxcXFxcXHFcXFxcXFxcXGRcZFxnXFxcXFxcXFxcXFxcXFxcXFxcXFxcXV1cXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcvmnBrGl6ZV1dZWWwZmnPVFRUVFRUVFRUWlRUVFRUVFRUVFRXVFRUVFRUVFRgVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUbFRUVlRUVFRUVFRUVFRUVGVUX1RUV15UVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVlRUVFRaVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFpUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRdVFRUYFdWVFRUVFSCVFhUb2VUVFRUVFRUVFRUVFpUVFRUVFRUVFRUVFRUVFRUVFRUa1RUVFRUVFRUXFRdVGBUVFRUVFRUVFRUVFRUVFRUVFRUVFRVVVRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFS8Y8CqZHVfVlZfX65hY85MTExMTExMTExUTExMTExMTExMTFBMTExMTExMTFlMTExMTExMTExMTExMTExMTExMTExMTExnTExOTExMTExMTExMTExMX0xYTExQV0xMTExMTExMTExMTExMTExMTExMTExMTExPTExMTFNMTExMTExMTExMTExMTExMTExMTExMVExMTExMTExMTExMTExMTExMTExMTExMTFZMTExZUE5MTE1MTH5MUUxqYExMTExMTExMTExMU0xMTExMTExMTExMTExMTExMTExlTExMTExMTExWTFdMWUxMTExMTExMTExMTExMTExMTExMTE1NTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTLtfvqhfclpQUFparFxezkZGRkZGRkZGRk5GRkZGRkZGRkZGSkZGRkZGRkZGVEZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRmNGRkhGRkZGRkZGRkZGRkZaRlNGRklSRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkhGRkZGTUZGRkZGRkZGRkZGRkZGRkZGRkZGRkZORkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGUEZGRlRKSEZGRkZGe0ZLRmZbRkZGRkZGRkZGRkZNRkZGRkZGRkZGRkZGRkZGRkZGRmFGRkZGRkZGRlBGUUZURkZGRkZGRkZGRkZGRkZGRkZGRkZGR0dGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGulu9p1tuVktLVlarV1rNPz8/Pz8/Pz8/SD8/Pz8/Pz8/Pz9EPz8/Pz8/Pz9PPz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Xz8/Qj8/Pz8/Pz8/Pz8/P1Y/Tj8/Q00/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Qj8/Pz9IPz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/P0g/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz9LPz8/T0RCPz9APz94P0U/YlY/Pz8/Pz8/Pz8/P0g/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/XT8/Pz8/Pz8/Sz9MP08/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz9BQD8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz+5V72lWGxSR0ZSUqlTV8w6Ojo6Ojo6OjpEOjo6Ojo6Ojo6Oj86Ojo6Ojo6Oks6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6OjpbOjo9Ojo6Ojo6Ojo6Ojo6UjpKOjo+SDo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo9Ojo6OkM6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6RDo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6OkY6OjpLPz06Ojs6OnY6QDpfUjo6Ojo6Ojo6Ojo6Qzo6Ojo6Ojo6Ojo6Ojo6Ojo6OjpZOjo6Ojo6OjpHOkc6Szo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojs7Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6OrhUvKRVaU5CQk5PqFBUzDU1NTU1NTU1NT81NTU1NTU1NTU1OjU1NTU1NTU1RzU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NVg1NTg1NTU1NTU1NTU1NTVONUY1NTlENTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTg1NTU1PzU1NTU1NTU1NTU1NTU1NTU1NTU1NTU/NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1QjU1NUc7ODU1NjU1dDU8NVxPNTU1NTU1NTU1NTU/NTU1NTU1NTU1NTU1NTU1NTU1NVY1NTU1NTU1NUM1RDVHNTU1NTU1NTU1NTU1NTU1NTU1NTU1NjY1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1NTU1t1G7pFJoSz8/S0yoTVHLMDAwMDAwMDAwPDAwMDAwMDAwMDA2MDAwMDAwMDBEMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwVjAwMzAwMDAwMDAwMDAwMEswQzAwNUEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNDAwMDA7MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA/MDAwRDYzMDAxMDByMDgwWUwwMDAwMDAwMDAwMDswMDAwMDAwMDAwMDAwMDAwMDAwVDAwMDAwMDAwPzBAMEQwMDAwMDAwMDAwMDAwMDAwMDAwMDAyMTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDC3T7ujUGZJPDtJSadKT8ssLCwsLCwsLCw4LCwsLCwsLCwsLDIsLCwsLCwsLEEsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCxULCwvLCwsLCwsLCwsLCwsSSxALCwxPiwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwwLCwsLDgsLCwsLCwsLCwsLCwsLCwsLCwsLCwsOCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLDssLCxBMy8sLC0sLHEsNSxXSiwsLCwsLCwsLCwsOCwsLCwsLCwsLCwsLCwsLCwsLCxRLCwsLCwsLCw8LD0sQSwsLCwsLCwsLCwsLCwsLCwsLCwsLC4tLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLLdNuqJOZEc5OUdHpkhNyygoKCgoKCgoKDUoKCgoKCgoKCgoLygoKCgoKCgoPygoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKFIoKCwoKCgoKCgoKCgoKChHKD4oKC48KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCwoKCgoNSgoKCgoKCgoKCgoKCgoKCgoKCgoKCg1KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoOSgoKD8wLCgoKSgocCgyKFZIKCgoKCgoKCgoKCg1KCgoKCgoKCgoKCgoKCgoKCgoKFAoKCgoKCgoKDkoOig/KCgoKCgoKCgoKCgoKCgoKCgoKCgoKikoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgotku6okxjRTc2RUWmRkvLJCQkJCQkJCQkMyQkJCQkJCQkJCQrJCQkJCQkJCQ9JCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkUCQkKSQkJCQkJCQkJCQkJEUkPCQkKzkkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkKSQkJCQyJCQkJCQkJCQkJCQkJCQkJCQkJCQkJDMkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQ2JCQkPS0pJCQmJCRvJC8kVEYkJCQkJCQkJCQkJDIkJCQkJCQkJCQkJCQkJCQkJCQkTiQkJCQkJCQkNyQ4JD0kJCQkJCQkJCQkJCQkJCQkJCQkJCQnJiQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCS2SrqhS2JDNjRDRKZESsohISEhISEhISExISEhISEhISEhISkhISEhISEhITshISEhISEhISEhISEhISEhISEhISEhISFOISEmISEhISEhISEhISEhQyE6ISEoNyEhISEhISEhISEhISEhISEhISEhISEhISEmISEhITAhISEhISEhISEhISEhISEhISEhISEhMSEhISEhISEhISEhISEhISEhISEhISEhITQhISE7KiYhISIhIW4hLCFTRCEhISEhISEhISEhMCEhISEhISEhISEhISEhISEhISFNISEhISEhISE1ITYhOyEhISEhISEhISEhISEhISEhISEhISQjISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhIbZJuaFKYkI0M0JCpUNIyh4eHh4eHh4eHi8eHh4eHh4eHh4eJh4eHh4eHh4eOR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHk0eHiMeHh4eHh4eHh4eHh5CHjkeHiY2Hh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHiMeHh4eLh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4vHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eMx4eHjkoIx4eIB4ebR4qHlJDHh4eHh4eHh4eHh4uHh4eHh4eHh4eHh4eHh4eHh4eHkweHh4eHh4eHjMeNB45Hh4eHh4eHh4eHh4eHh4eHh4eHh4eISAeHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4etUi5oUlhQTQxQUGlQUfKGxsbGxsbGxsbLRsbGxsbGxsbGxsjGxsbGxsbGxs4GxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbSxsbIRsbGxsbGxsbGxsbG0EbOBsbJDQbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbIBsbGxssGxsbGxsbGxsbGxsbGxsbGxsbGxsbGy0bGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsxGxsbOCYhGxsdGxttGygbUUIbGxsbGxsbGxsbGywbGxsbGxsbGxsbGxsbGxsbGxsbSxsbGxsbGxsbMhszGzgbGxsbGxsbGxsbGxsbGxsbGxsbGxsfHRsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxu1R7mgSGBAMzBAQKVAR8oZGRkZGRkZGRksGRkZGRkZGRkZGSEZGRkZGRkZGTcZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRlKGRkfGRkZGRkZGRkZGRkZQBk4GRkiMxkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkeGRkZGSoZGRkZGRkZGRkZGRkZGRkZGRkZGRkZLBkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGTAZGRk3JB8ZGRsZGWwZJxlRQRkZGRkZGRkZGRkZKhkZGRkZGRkZGRkZGRkZGRkZGRlKGRkZGRkZGRkwGTIZNxkZGRkZGRkZGRkZGRkZGRkZGRkZGR0bGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGbVGuaBHYD8zLz9ApD9GyRcXFxcXFxcXFysXFxcXFxcXFxcXHxcXFxcXFxcXNhcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXF0kXFx0XFxcXFxcXFxcXFxc/FzcXFyAyFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxwXFxcXKRcXFxcXFxcXFxcXFxcXFxcXFxcXFxcrFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXLxcXFzYjHRcXGBcXbBclF1BAFxcXFxcXFxcXFxcpFxcXFxcXFxcXFxcXFxcXFxcXF0kXFxcXFxcXFy8XMRc2FxcXFxcXFxcXFxcXFxcXFxcXFxcXGxgXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXtUa5oEZfPzMvPz+kPkXJFRUVFRUVFRUVKhUVFRUVFRUVFRUdFRUVFRUVFRU1FRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVSBUVHBUVFRUVFRUVFRUVFT8VNxUVHzEVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVGhUVFRUoFRUVFRUVFRUVFRUVFRUVFRUVFRUVFSoVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUvFRUVNSEcFRUWFRVrFSQVT0AVFRUVFRUVFRUVFSgVFRUVFRUVFRUVFRUVFRUVFRUVSRUVFRUVFRUVLhUwFTUVFRUVFRUVFRUVFRUVFRUVFRUVFRUZFhUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRW1RbmfRl8+My4+PqQ9RckTExMTExMTExMpExMTExMTExMTExsTExMTExMTEzQTExMTExMTExMTExMTExMTExMTExMTExNGExMaExMTExMTExMTExMTPhM3ExMeMRMTExMTExMTExMTExMTExMTExMTExMTExMYExMTEycTExMTExMTExMTExMTExMTExMTExMTKRMTExMTExMTExMTExMTExMTExMTExMTEy4TExM0IBoTExQTE2sTIhNPPxMTExMTExMTExMTJxMTExMTExMTExMTExMTExMTExNIExMTExMTExMuEy8TNBMTExMTExMTExMTExMTExMTExMTExcUExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTE7VFuZ9GXz40Lj4+pD1EyRERERERERERESgRERERERERERERGRERERERERERNBEREREREREREREREREREREREREREREREUURERkRERERERERERERERE+ETgRER0wERERERERERERERERERERERERERERERERERYRERERJREREREREREREREREREREREREREREREoERERERERERERERERERERERERERERERERLhERETQfGRERExERaxEhEU8/ERERERERERERERElEREREREREREREREREREREREREUgRERERERERES0RLhE0ERERERERERERERERERERERERERERFhMRERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERtUS5n0VfPTUuPT6kPETIEBAQEBAQEBAQJxAQEBAQEBAQEBAYEBAQEBAQEBAzEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQRBAQGBAQEBAQEBAQEBAQED0QOBAQHC8QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFBAQEBAkEBAQEBAQEBAQEBAQEBAQEBAQEBAQECcQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAuEBAQMx8YEBAREBBrEB8QTj4QEBAQEBAQEBAQECQQEBAQEBAQEBAQEBAQEBAQEBAQRxAQEBAQEBAQLBAuEDMQEBAQEBAQEBAQEBAQEBAQEBAQEBAVERAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBC1RLmfRV49Ni49PaQ7RMgODg4ODg4ODg4nDg4ODg4ODg4ODhYODg4ODg4ODjMODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg5DDg4XDg4ODg4ODg4ODg4OPQ45Dg4cLw4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4SDg4ODiMODg4ODg4ODg4ODg4ODg4ODg4ODg4OJw4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODi4ODg4zHhcODhAODmsOHg5OPg4ODg4ODg4ODg4OIw4ODg4ODg4ODg4ODg4ODg4ODg5HDg4ODg4ODg4sDi0OMw4ODg4ODg4ODg4ODg4ODg4ODg4ODhMQDg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODrVEuJ5FXj04Lj09pDtDyA0NDQ0NDQ0NDSYNDQ0NDQ0NDQ0NFA0NDQ0NDQ0NMw0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDUINDRcNDQ0NDQ0NDQ0NDQ09DTkNDRsuDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDRENDQ0NIg0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0mDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NLg0NDTMdFw0NDg0Nag0cDU4+DQ0NDQ0NDQ0NDQ0iDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDUcNDQ0NDQ0NDSwNLQ0zDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NEg4NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NtUS4nkVePDkuPD2kOkPHDAwMDAwMDAwMJgwMDAwMDAwMDAwTDAwMDAwMDAwyDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMQQwMFgwMDAwMDAwMDAwMDDwMOgwMGy0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMEAwMDAwhDAwMDAwMDAwMDAwMDAwMDAwMDAwMDCYMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwuDAwMMh0WDAwNDAxqDBsMTj0MDAwMDAwMDAwMDCEMDAwMDAwMDAwMDAwMDAwMDAwMRwwMDAwMDAwMKwwtDDIMDAwMDAwMDAwMDAwMDAwMDAwMDAwRDQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAy0RLieRF48Oy48PaQ5Q8cLCwsLCwsLCwsmCwsLCwsLCwsLCxELCwsLCwsLCzILCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwtACwsVCwsLCwsLCwsLCwsLPAs6CwsbLQsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsOCwsLCyALCwsLCwsLCwsLCwsLCwsLCwsLCwsLJgsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCy4LCwsyHBULCwwLC2oLGQtOPQsLCwsLCwsLCwsLIAsLCwsLCwsLCwsLCwsLCwsLCwtHCwsLCwsLCwsrCywLMgsLCwsLCwsLCwsLCwsLCwsLCwsLCxAMCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLC7RDuJ1EXjw8Lzw8pDlDxwoKCgoKCgoKCiUKCgoKCgoKCgoKEAoKCgoKCgoKMgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj8KChUKCgoKCgoKCgoKCgo8CjsKChssCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg0KCgoKHwoKCgoKCgoKCgoKCgoKCgoKCgoKCgolCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKLwoKCjIcFQoKCwoKagoYCk09CgoKCgoKCgoKCgofCgoKCgoKCgoKCgoKCgoKCgoKCkYKCgoKCgoKCisKLAoyCgoKCgoKCgoKCgoKCgoKCgoKCgoKDwsKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKtEO4nURePD4wPDykOUPGCQkJCQkJCQkJJQkJCQkJCQkJCQkPCQkJCQkJCQkyCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJPgkJFQkJCQkJCQkJCQkJCTwJPAkJGywJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJDAkJCQkeCQkJCQkJCQkJCQkJCQkJCQkJCQkJCSUJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkwCQkJMhwVCQkKCQlqCRYJTT0JCQkJCQkJCQkJCR4JCQkJCQkJCQkJCQkJCQkJCQkJRgkJCQkJCQkJKwksCTIJCQkJCQkJCQkJCQkJCQkJCQkJCQkPCgkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQm0Q7icRF48PzA8PKQ4Q8YICAgICAgICAglCAgICAgICAgICA4ICAgICAgICDIICAgICAgICAgICAgICAgICAgICAgICAg9CAgUCAgICAgICAgICAgIPAg8CAgbKwgICAgICAgICAgICAgICAgICAgICAgICAgLCAgICB0ICAgICAgICAgICAgICAgICAgICAgIJQgICAgICAgICAgICAgICAgICAgICAgICDAICAgyGxQICAkICGoIFQhNPQgICAgICAgICAgIHQgICAgICAgICAgICAgICAgICAhGCAgICAgICAgqCCwIMggICAgICAgICAgICAgICAgICAgICA4JCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICLRDuJxEXjxBMTw8pDhDxgcHBwcHBwcHByUHBwcHBwcHBwcHDQcHBwcHBwcHMQcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBz0HBxQHBwcHBwcHBwcHBwc8Bz0HBxsrBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwoHBwcHHAcHBwcHBwcHBwcHBwcHBwcHBwcHBwclBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHMQcHBzEbFAcHCAcHagcTB009BwcHBwcHBwcHBwccBwcHBwcHBwcHBwcHBwcHBwcHB0YHBwcHBwcHByoHLAcxBwcHBwcHBwcHBwcHBwcHBwcHBwcHDQgHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHtEO4m0RePEIyPDykOEPFBwcHBwcHBwcHJQcHBwcHBwcHBwcMBwcHBwcHBwcxBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHPAcHFAcHBwcHBwcHBwcHBzwHPQcHHCoHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHCQcHBwcbBwcHBwcHBwcHBwcHBwcHBwcHBwcHByUHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcyBwcHMRsUBwcIBwdqBxIHTT0HBwcHBwcHBwcHBxsHBwcHBwcHBwcHBwcHBwcHBwcHRgcHBwcHBwcHKgcsBzEHBwcHBwcHBwcHBwcHBwcHBwcHBwcMCAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwe0Q7ibRF48RDM8PKQ3Q8UGBgYGBgYGBgYlBgYGBgYGBgYGBgsGBgYGBgYGBjEGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY7BgYUBgYGBgYGBgYGBgYGPAY+BgYcKgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYIBgYGBhkGBgYGBgYGBgYGBgYGBgYGBgYGBgYGJQYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBjMGBgYxGxQGBgcGBmoGEQZNPQYGBgYGBgYGBgYGGQYGBgYGBgYGBgYGBgYGBgYGBgZGBgYGBgYGBgYqBiwGMQYGBgYGBgYGBgYGBgYGBgYGBgYGBgsHBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBrRDuJpEXjxFNTw8pDdCxQYGBgYGBgYGBiUGBgYGBgYGBgYGCgYGBgYGBgYGMQYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBjsGBhMGBgYGBgYGBgYGBgY8Bj4GBhwpBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBggGBgYGGAYGBgYGBgYGBgYGBgYGBgYGBgYGBgYlBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGNQYGBjEbEwYGBgYGagYPBk09BgYGBgYGBgYGBgYYBgYGBgYGBgYGBgYGBgYGBgYGBkYGBgYGBgYGBioGLAYxBgYGBgYGBgYGBgYGBgYGBgYGBgYGCwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGtEO4mkReO0Y2OzykN0LFBQUFBQUFBQUFJAUFBQUFBQUFBQUJBQUFBQUFBQUxBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFOgUFEwUFBQUFBQUFBQUFBTsFPwUFHSkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBwUFBQUXBQUFBQUFBQUFBQUFBQUFBQUFBQUFBSQFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU2BQUFMRsTBQUGBQVqBQ4FTT0FBQUFBQUFBQUFBRcFBQUFBQUFBQUFBQUFBQUFBQUFRgUFBQUFBQUFKgUrBTEFBQUFBQUFBQUFBQUFBQUFBQUFBQUKBgUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQW0Q7iZRF47Rzc7PKQ3QsQFBQUFBQUFBQUkBQUFBQUFBQUFBQgFBQUFBQUFBTEFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU6BQUTBQUFBQUFBQUFBQUFOwU/BQUdKAUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUGBQUFBRUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFJAUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBTcFBQUxGxMFBQUFBWoFDQVNPQUFBQUFBQUFBQUFFQUFBQUFBQUFBQUFBQUFBQUFBQVGBQUFBQUFBQUqBSsFMQUFBQUFBQUFBQUFBQUFBQUFBQUFBQkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBbRDuJlEXTtIODs8pDdCxAQEBAQEBAQEBCQEBAQEBAQEBAQEBwQEBAQEBAQEMQQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBDkEBBMEBAQEBAQEBAQEBAQ7BEAEBB4nBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAYEBAQEFAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQkBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEOAQEBDEbEwQEBQQEagQMBE08BAQEBAQEBAQEBAQUBAQEBAQEBAQEBAQEBAQEBAQEBEYEBAQEBAQEBCoEKwQxBAQEBAQEBAQEBAQEBAQEBAQEBAQECAUEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEtEO4mERdO0k5OzykNkLEBAQEBAQEBAQEJAQEBAQEBAQEBAQHBAQEBAQEBAQxBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEOQQEEwQEBAQEBAQEBAQEBDsEQAQEHicEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBQQEBAQTBAQEBAQEBAQEBAQEBAQEBAQEBAQEBCQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ5BAQEMRsTBAQEBARqBAsETTwEBAQEBAQEBAQEBBMEBAQEBAQEBAQEBAQEBAQEBAQERgQEBAQEBAQEKgQrBDEEBAQEBAQEBAQEBAQEBAQEBAQEBAQIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAS0Q7iXRF07Sjo7PKQ2QsQEBAQEBAQEBAQkBAQEBAQEBAQEBAYEBAQEBAQEBDEEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ4BAQTBAQEBAQEBAQEBAQEOwRABAQfJwQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFBAQEBBEEBAQEBAQEBAQEBAQEBAQEBAQEBAQEJAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBDoEBAQxGhMEBAQEBGoECgRNPAQEBAQEBAQEBAQEEQQEBAQEBAQEBAQEBAQEBAQEBARGBAQEBAQEBAQqBCsEMQQEBAQEBAQEBAQEBAQEBAQEBAQEBAcEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBLRDuJdEXTtKOzs8pDZCxAMDAwMDAwMDAyQDAwMDAwMDAwMDBgMDAwMDAwMDMQMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAzgDAxMDAwMDAwMDAwMDAwM7A0ADAx8mAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwQDAwMDEAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMkAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDOwMDAzEaEwMDBAMDagMJA008AwMDAwMDAwMDAwMQAwMDAwMDAwMDAwMDAwMDAwMDA0YDAwMDAwMDAyoDKwMxAwMDAwMDAwMDAwMDAwMDAwMDAwMDBwQDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDtEO4lkRdO0s8OzykNkLDAwMDAwMDAwMDJAMDAwMDAwMDAwMFAwMDAwMDAwMxAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDOAMDEwMDAwMDAwMDAwMDAzsDQQMDHyYDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBAMDAwMPAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyQDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM8AwMDMRoTAwMDAwNqAwgDTTwDAwMDAwMDAwMDAw8DAwMDAwMDAwMDAwMDAwMDAwMDRgMDAwMDAwMDKgMrAzEDAwMDAwMDAwMDAwMDAwMDAwMDAwMGAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwO0Q7iWRF07Sz07PKQ2QsMDAwMDAwMDAwMkAwMDAwMDAwMDAwUDAwMDAwMDAzEDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM4AwMTAwMDAwMDAwMDAwMDOwNBAwMgJQMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMEAwMDAw4DAwMDAwMDAwMDAwMDAwMDAwMDAwMDJAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz0DAwMxGhMDAwMDA2oDCANNPAMDAwMDAwMDAwMDDgMDAwMDAwMDAwMDAwMDAwMDAwNGAwMDAwMDAwMqAysDMQMDAwMDAwMDAwMDAwMDAwMDAwMDAwYDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA7RDuJVEXTtMPjs8pDZCwwICAgICAgICAiQCAgICAgICAgICBAICAgICAgICMQICAgICAgICAgICAgICAgICAgICAgICAjcCAhMCAgICAgICAgICAgI7AkECAiAlAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICDQICAgICAgICAgICAgICAgICAgICAgIkAgICAgICAgICAgICAgICAgICAgICAgICPgICAjEaEwICAwICagIHAk08AgICAgICAgICAgINAgICAgICAgICAgICAgICAgICAkYCAgICAgICAioCKwIxAgICAgICAgICAgICAgICAgICAgICBQMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICtEO4lURdO0w/OzykNkLDAgICAgICAgICJAICAgICAgICAgIEAgICAgICAgIxAgICAgICAgICAgICAgICAgICAgICAgICNwICEwICAgICAgICAgICAjsCQQICICUCAgICAgICAgICAgICAgICAgICAgICAgICAwICAgIMAgICAgICAgICAgICAgICAgICAgICAiQCAgICAgICAgICAgICAgICAgICAgICAgI/AgICMRoTAgICAgJqAgYCTTwCAgICAgICAgICAgwCAgICAgICAgICAgICAgICAgICRgICAgICAgICKgIrAjECAgICAgICAgICAgICAgICAgICAgIFAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgK0Q7iVRF07TEA7PKQ2QsMCAgICAgICAgIkAgICAgICAgICAgQCAgICAgICAjECAgICAgICAgICAgICAgICAgICAgICAgI3AgITAgICAgICAgICAgICOwJBAgIgJAICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgsCAgICAgICAgICAgICAgICAgICAgICJAICAgICAgICAgICAgICAgICAgICAgICAkACAgIxGhMCAgICAmoCBgJNPAICAgICAgICAgICCwICAgICAgICAgICAgICAgICAgJGAgICAgICAgIqAisCMQICAgICAgICAgICAgICAgICAgICAgQCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICArRDuJREXTtNQDs8pDZCwwICAgICAgICAiQCAgICAgICAgICAwICAgICAgICMQICAgICAgICAgICAgICAgICAgICAgICAjcCAhMCAgICAgICAgICAgI7AkECAiEkAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICCgICAgICAgICAgICAgICAgICAgICAgIkAgICAgICAgICAgICAgICAgICAgICAgICQAICAjEaEwICAgICagIFAk08AgICAgICAgICAgIKAgICAgICAgICAgICAgICAgICAkYCAgICAgICAioCKwIxAgICAgICAgICAgICAgICAgICAgICBAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICtEO4lERdO01BOzykNkLDAgICAgICAgICJAICAgICAgICAgIDAgICAgICAgIxAgICAgICAgICAgICAgICAgICAgICAgICNwICEwICAgICAgICAgICAjsCQgICISQCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIJAgICAgICAgICAgICAgICAgICAgICAiQCAgICAgICAgICAgICAgICAgICAgICAgJBAgICMRoTAgICAgJqAgUCTTwCAgICAgICAgICAgkCAgICAgICAgICAgICAgICAgICRgICAgICAgICKgIrAjECAgICAgICAgICAgICAgICAgICAgIEAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgK0Q7iURF07TUE7PKQ2QsMCAgICAgICAgIkAgICAgICAgICAgMCAgICAgICAjECAgICAgICAgICAgICAgICAgICAgICAgI3AgITAgICAgICAgICAgICOwJCAgIhJAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAggCAgICAgICAgICAgICAgICAgICAgICJAICAgICAgICAgICAgICAgICAgICAgICAkECAgIxGhMCAgICAmoCBAJNPAICAgICAgICAgICCAICAgICAgICAgICAgICAgICAgJGAgICAgICAgIqAisCMQICAgICAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICArRDuJNEXTtNQjs8pDZCwwEBAQEBAQEBASQBAQEBAQEBAQEBAgEBAQEBAQEBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBATcBARMBAQEBAQEBAQEBAQE7AUIBASEjAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQIBAQEBBwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEkAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBQgEBATEaEwEBAgEBagEEAU08AQEBAQEBAQEBAQEHAQEBAQEBAQEBAQEBAQEBAQEBAUYBAQEBAQEBASoBKwExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAwIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBtEO4k0RdO05COzykNkLDAQEBAQEBAQEBJAEBAQEBAQEBAQECAQEBAQEBAQExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBNwEBEwEBAQEBAQEBAQEBATsBQgEBISMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAgEBAQEHAQEBAQEBAQEBAQEBAQEBAQEBAQEBASQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFCAQEBMRoTAQEBAQFqAQQBTTwBAQEBAQEBAQEBAQcBAQEBAQEBAQEBAQEBAQEBAQEBRgEBAQEBAQEBKgErATEBAQEBAQEBAQEBAQEBAQEBAQEBAQEDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQG0Q7iTRF07TkM7PKQ2QsMBAQEBAQEBAQEkAQEBAQEBAQEBAQIBAQEBAQEBATEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE2AQETAQEBAQEBAQEBAQEBOwFCAQEhIwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAQEBAQYBAQEBAQEBAQEBAQEBAQEBAQEBAQEBJAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAUMBAQExGhMBAQEBAWoBAwFNPAEBAQEBAQEBAQEBBgEBAQEBAQEBAQEBAQEBAQEBAQFGAQEBAQEBAQEqASsBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAbRDuJNEXTtOQzs8pDZCwwEBAQEBAQEBASQBAQEBAQEBAQEBAgEBAQEBAQEBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBATYBARMBAQEBAQEBAQEBAQE7AUIBASIjAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBBgEBAQEBAQEBAQEBAQEBAQEBAQEBAQEkAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBQwEBATEaEwEBAQEBagEDAU08AQEBAQEBAQEBAQEGAQEBAQEBAQEBAQEBAQEBAQEBAUYBAQEBAQEBASoBKwExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAgEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBtEO4k0RdO05DOzykNkLDAQEBAQEBAQEBJAEBAQEBAQEBAQECAQEBAQEBAQExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBNgEBEwEBAQEBAQEBAQEBATsBQgEBIiMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEFAQEBAQEBAQEBAQEBAQEBAQEBAQEBASQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFDAQEBMRoTAQEBAQFqAQMBTTwBAQEBAQEBAQEBAQUBAQEBAQEBAQEBAQEBAQEBAQEBRgEBAQEBAQEBKgErATEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQG0Q7iTRF07TkM7PKQ2QsMBAQEBAQEBAQEkAQEBAQEBAQEBAQIBAQEBAQEBATEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE2AQETAQEBAQEBAQEBAQEBOwFCAQEiIwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQUBAQEBAQEBAQEBAQEBAQEBAQEBAQEBJAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAUMBAQExGhMBAQEBAWoBAwFNPAEBAQEBAQEBAQEBBQEBAQEBAQEBAQEBAQEBAQEBAQFGAQEBAQEBAQEqASsBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAbRDuJJEXTtORDs8pDZCwwEBAQEBAQEBASQBAQEBAQEBAQEBAQEBAQEBAQEBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBATYBARMBAQEBAQEBAQEBAQE7AUIBASIjAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBBAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEkAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBRAEBATEaEwEBAQEBagECAU08AQEBAQEBAQEBAQEEAQEBAQEBAQEBAQEBAQEBAQEBAUYBAQEBAQEBASoBKwExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAgEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBtEO4kkRdO05EOzykNkLDAQEBAQEBAQEBJAEBAQEBAQEBAQEBAQEBAQEBAQExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBNgEBEwEBAQEBAQEBAQEBATsBQgEBIiMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEEAQEBAQEBAQEBAQEBAQEBAQEBAQEBASQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFEAQEBMRoTAQEBAQFqAQIBTTwBAQEBAQEBAQEBAQQBAQEBAQEBAQEBAQEBAQEBAQEBRgEBAQEBAQEBKgErATEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQG0Q7iSRF07TkQ7PKQ2QsMBAQEBAQEBAQEkAQEBAQEBAQEBAQEBAQEBAQEBATEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE2AQETAQEBAQEBAQEBAQEBOwFCAQEiIwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBJAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAUQBAQExGhMBAQEBAWoBAgFNPAEBAQEBAQEBAQEBBAEBAQEBAQEBAQEBAQEBAQEBAQFGAQEBAQEBAQEqASsBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAbRDuJJEXTtORDs8pDZCwwEBAQEBAQEBASQBAQEBAQEBAQEBAQEBAQEBAQEBMQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBATYBARMBAQEBAQEBAQEBAQE7AUIBASIjAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEkAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBRAEBATEaEwEBAQEBagECAU08AQEBAQEBAQEBAQEDAQEBAQEBAQEBAQEBAQEBAQEBAUYBAQEBAQEBASoBKwExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBtEO4kkRdO05EOzykNkLDAQEBAQEBAQEBJAEBAQEBAQEBAQEBAQEBAQEBAQExAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBNgEBEwEBAQEBAQEBAQEBATsBQgEBIiMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEDAQEBAQEBAQEBAQEBAQEBAQEBAQEBASQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFEAQEBMRoTAQEBAQFqAQIBTTwBAQEBAQEBAQEBAQMBAQEBAQEBAQEBAQEBAQEBAQEBRgEBAQEBAQEBKgErATEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","frameCount":67,"steps":197,"converged":197,"gamma":1.8,"food":[{"node":16,"w":4.600000000000002,"fixed":"0.33.0","closedAt":2,"label":"HIGH","count":25,"top":{"id":"GHSA-pjwm-pj3p-43mv","summary":"axios's shouldBypassProxy does not recognize IPv4-mapped IPv6 addresses, allowing NO_PROXY bypass (incomplete fix for CV"}},{"node":86,"w":3.0774999999999997,"fixed":"4.7.10","closedAt":4,"label":"CRITICAL","count":12,"top":{"id":"GHSA-2w6w-674q-4c4q","summary":"Handlebars.js has JavaScript Injection via AST Type Confusion"}},{"node":121,"w":1.6324999999999998,"fixed":"4.18.0","closedAt":5,"label":"HIGH","count":6,"top":{"id":"GHSA-r5fr-rjxr-66jc","summary":"lodash vulnerable to Code Injection via `_.template` imports key names"}},{"node":110,"w":1.39,"fixed":"3.15.2","closedAt":0,"label":"HIGH","count":5,"top":{"id":"GHSA-2883-xcg3-v3hh","summary":"js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources"}},{"node":137,"w":1.3125,"fixed":"3.1.4","closedAt":6,"label":"HIGH","count":4,"top":{"id":"GHSA-23c5-xmqv-rm74","summary":"minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions"}},{"node":145,"w":1.2799999999999998,"fixed":"3.3.18","closedAt":0,"label":"HIGH","count":5,"top":{"id":"GHSA-xwg4-73v4-xw9w","summary":"nanoid: Integer Overflow or Wraparound"}},{"node":75,"w":1.1375,"fixed":"2.5.6","closedAt":3,"label":"CRITICAL","count":2,"top":{"id":"GHSA-fjxv-7rqg-78g4","summary":"form-data uses unsafe random function in form-data for choosing boundary"}},{"node":138,"w":1.12,"fixed":"0.2.4","closedAt":null,"label":"CRITICAL","count":2,"top":{"id":"GHSA-xvch-5gv4-984h","summary":"Prototype Pollution in minimist"}},{"node":115,"w":1.095,"fixed":"9.0.0","closedAt":null,"label":"HIGH","count":3,"top":{"id":"GHSA-8cf7-32gw-wr33","summary":"jsonwebtoken unrestricted key type could lead to legacy keys usage "}},{"node":53,"w":1.08,"fixed":"3.1.10","closedAt":null,"label":"CRITICAL","count":2,"top":{"id":"GHSA-phwq-j96m-2c2q","summary":"ejs template injection vulnerability"}},{"node":226,"w":1.0699999999999998,"fixed":"7.5.11","closedAt":null,"label":"HIGH","count":3,"top":{"id":"GHSA-3h5v-q93c-6h6q","summary":"ws affected by a DoS when handling a request with many HTTP headers"}},{"node":169,"w":1.0675000000000001,"fixed":"6.16.0","closedAt":1,"label":"HIGH","count":4,"top":{"id":"GHSA-hrpp-h998-j3pp","summary":"qs vulnerable to Prototype Pollution"}},{"node":185,"w":0.9574999999999999,"fixed":"7.0.5","closedAt":0,"label":"HIGH","count":2,"top":{"id":"GHSA-5c6j-r48x-rmvq","summary":"Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()"}},{"node":148,"w":0.9450000000000001,"fixed":"2.6.7","closedAt":null,"label":"HIGH","count":2,"top":{"id":"GHSA-r683-j2x4-v87g","summary":"node-fetch forwards secure headers to untrusted sites"}},{"node":130,"w":0.9375,"fixed":"4.0.10","closedAt":null,"label":"HIGH","count":2,"top":{"id":"GHSA-5v2h-r2cx-5xgj","summary":"Inefficient Regular Expression Complexity in marked"}},{"node":143,"w":0.9375,"fixed":"2.29.4","closedAt":null,"label":"HIGH","count":2,"top":{"id":"GHSA-8hfj-j24r-96c4","summary":"Path Traversal: 'dir/../../filename' in moment.locale"}},{"node":161,"w":0.9375,"fixed":"0.1.13","closedAt":1,"label":"HIGH","count":2,"top":{"id":"GHSA-37ch-88jc-xwx2","summary":"path-to-regexp vulnerable to Regular Expression Denial of Service via multiple route parameters"}},{"node":20,"w":0.8425,"fixed":"1.20.6","closedAt":1,"label":"HIGH","count":2,"top":{"id":"GHSA-qwcr-r2fm-qrc7","summary":"body-parser vulnerable to denial of service when url encoding is enabled"}},{"node":189,"w":0.835,"fixed":"0.8.5","closedAt":null,"label":"HIGH","count":2,"top":{"id":"GHSA-4rq4-32rv-6wp6","summary":"Improper Privilege Management in shelljs"}},{"node":22,"w":0.75,"fixed":null,"closedAt":null,"label":"HIGH","count":1,"top":{"id":"GHSA-vfj7-8cjw-p6xm","summary":"braces vulnerable to stack-exhaustion denial of service through deeply nested patterns"}},{"node":210,"w":0.75,"fixed":"11.1.1","closedAt":3,"label":"HIGH","count":1,"top":{"id":"GHSA-w5hq-g745-h8pq","summary":"uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided"}},{"node":61,"w":0.735,"fixed":"4.20.0","closedAt":1,"label":"MODERATE","count":2,"top":{"id":"GHSA-rv95-896h-c2vc","summary":"Express.js Open Redirect in malformed URLs"}},{"node":201,"w":0.65,"fixed":"4.1.3","closedAt":3,"label":"MODERATE","count":1,"top":{"id":"GHSA-72xf-g2v4-qvf3","summary":"tough-cookie Prototype Pollution vulnerability"}},{"node":176,"w":0.6224999999999999,"fixed":"6.16.0","closedAt":3,"label":"MODERATE","count":2,"top":{"id":"GHSA-4mjr-xmp4-gh2g","summary":"qs: Denial of Service via Attacker Controlled isBuffer"}},{"node":175,"w":0.61,"fixed":null,"closedAt":null,"label":"MODERATE","count":1,"top":{"id":"GHSA-p8p7-x288-28g6","summary":"Server-Side Request Forgery in Request"}},{"node":191,"w":0.53,"fixed":null,"closedAt":null,"label":"MODERATE","count":1,"top":{"id":"GHSA-hp3w-g68c-fv3c","summary":"sprintf-js vulnerable to denial of service through unbounded precision specifiers"}},{"node":183,"w":0.5,"fixed":"0.19.0","closedAt":1,"label":"MODERATE","count":1,"top":{"id":"GHSA-m6fv-jmcg-4jfg","summary":"send vulnerable to template injection that can lead to XSS"}},{"node":186,"w":0.5,"fixed":"1.16.0","closedAt":1,"label":"MODERATE","count":1,"top":{"id":"GHSA-cm22-4g7w-348p","summary":"serve-static vulnerable to template injection that can lead to XSS"}},{"node":141,"w":0.37,"fixed":"4.3.1","closedAt":0,"label":"LOW","count":1,"top":{"id":"GHSA-gxpj-cx7g-858c","summary":"Regular Expression Denial of Service in debug"}},{"node":40,"w":0.25,"fixed":"0.7.0","closedAt":1,"label":"LOW","count":1,"top":{"id":"GHSA-pxg6-pf52-xh8x","summary":"cookie accepts cookie name, path, and domain with out of bounds characters"}},{"node":49,"w":0.25,"fixed":"4.0.4","closedAt":0,"label":"LOW","count":1,"top":{"id":"GHSA-73rr-hh4g-fpgx","summary":"jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch"}}],"acts":[{"root":140,"name":"mocha","version":"8.2.1","coverage":0.12960561446334581,"items":[{"name":"js-yaml","version":"3.14.0","fixed":"3.15.2","label":"HIGH","count":5,"shared":[]},{"name":"nanoid","version":"3.1.12","fixed":"3.3.18","label":"HIGH","count":5,"shared":[]},{"name":"serialize-javascript","version":"5.0.1","fixed":"7.0.5","label":"HIGH","count":2,"shared":[]},{"name":"braces","version":"3.0.3","fixed":null,"label":"HIGH","count":1,"shared":[]},{"name":"sprintf-js","version":"1.0.3","fixed":null,"label":"MODERATE","count":1,"shared":[]},{"name":"debug","version":"4.2.0","fixed":"4.3.1","label":"LOW","count":1,"shared":[]},{"name":"diff","version":"4.0.2","fixed":"4.0.4","label":"LOW","count":1,"shared":[]}]},{"root":61,"name":"express","version":"4.17.1","coverage":0.27706156075978333,"items":[{"name":"qs","version":"6.7.0","fixed":"6.16.0","label":"HIGH","count":4,"shared":[]},{"name":"path-to-regexp","version":"0.1.7","fixed":"0.1.13","label":"HIGH","count":2,"shared":[]},{"name":"body-parser","version":"1.19.0","fixed":"1.20.6","label":"HIGH","count":2,"shared":[]},{"name":"express","version":"4.17.1","fixed":"4.20.0","label":"MODERATE","count":2,"shared":[]},{"name":"send","version":"0.17.1","fixed":"0.19.0","label":"MODERATE","count":1,"shared":[]},{"name":"serve-static","version":"1.14.1","fixed":"1.16.0","label":"MODERATE","count":1,"shared":[]},{"name":"cookie","version":"0.4.0","fixed":"0.7.0","label":"LOW","count":1,"shared":[]}]},{"root":16,"name":"axios","version":"0.21.0","coverage":0.4174231444046075,"items":[{"name":"axios","version":"0.21.0","fixed":"0.33.0","label":"HIGH","count":25,"shared":[]}]},{"root":175,"name":"request","version":"2.88.0","coverage":0.513845449691052,"items":[{"name":"form-data","version":"2.3.3","fixed":"2.5.6","label":"CRITICAL","count":2,"shared":[]},{"name":"uuid","version":"3.4.0","fixed":"11.1.1","label":"HIGH","count":1,"shared":[]},{"name":"tough-cookie","version":"2.4.3","fixed":"4.1.3","label":"MODERATE","count":1,"shared":[]},{"name":"qs","version":"6.5.5","fixed":"6.16.0","label":"MODERATE","count":2,"shared":[]},{"name":"request","version":"2.88.0","fixed":null,"label":"MODERATE","count":1,"shared":[]}]},{"root":86,"name":"handlebars","version":"4.5.3","coverage":0.607750400488214,"items":[{"name":"handlebars","version":"4.5.3","fixed":"4.7.10","label":"CRITICAL","count":12,"shared":[]},{"name":"minimist","version":"0.0.8","fixed":"0.2.4","label":"CRITICAL","count":2,"shared":["mkdirp"]}]},{"root":121,"name":"lodash","version":"4.17.15","coverage":0.6575635059882523,"items":[{"name":"lodash","version":"4.17.15","fixed":"4.18.0","label":"HIGH","count":6,"shared":[]}]},{"root":137,"name":"minimatch","version":"3.0.4","coverage":0.6976123274086505,"items":[{"name":"minimatch","version":"3.0.4","fixed":"3.1.4","label":"HIGH","count":4,"shared":[]}]}],"sealedAt":[2,null,1,null,null,5,null,6,null,null,null,null,null,null,null,-1,-1,-1,-1,-1,-1,-1,-1,-1,null,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,null,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,-1,-1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,6,-1,-1,-1,-1,null,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,null,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,null,-1,-1,-1,null,0,0,-1,-1,6,-1,-1,null,-1,6,-1,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,null,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,3,-1,-1,-1,-1,-1,-1,-1,-1,3,-1,3,-1,3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],"state":{"min":0.6,"key":"half","label":"HALF-OPEN","note":"thin"},"coverage":0.6976123274086505,"fixable":0.9423296971546266,"unfixed":[{"name":"braces","version":"3.0.3","id":"GHSA-vfj7-8cjw-p6xm"},{"name":"request","version":"2.88.0","id":"GHSA-p8p7-x288-28g6"},{"name":"sprintf-js","version":"1.0.3","id":"GHSA-hp3w-g68c-fv3c"}],"script":{"dependencies":{"express":"^4.20.0","axios":"^0.33.0","handlebars":"^4.7.10","lodash":"^4.18.0","minimatch":"^3.1.4"},"overrides":{"mocha":{"js-yaml":"^3.15.2","nanoid":"^3.3.18","serialize-javascript":"^7.0.5","debug":"^4.3.1","diff":"^4.0.4"},"express":{"qs":"^6.16.0","path-to-regexp":"^0.1.13","body-parser":"^1.20.6","send":"^0.19.0","serve-static":"^1.16.0","cookie":"^0.7.0"},"request":{"form-data":"^2.5.6","uuid":"^11.1.1","tough-cookie":"^4.1.3","qs":"^6.16.0"},"handlebars":{"minimist":"^0.2.4"}}},"majors":["serialize-javascript 5.0.1 → 7.0.5","uuid 3.4.0 → 11.1.1","tough-cookie 2.4.3 → 4.1.3"]}</script>
+<script>
+(() => {
+'use strict';
+const S = JSON.parse(document.getElementById('stage-data').textContent);
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── data ─────────────────────────────────────────────────────────── */
+const N = S.nodes.length, E = S.edges, M = E.length;
+const raw = Uint8Array.from(atob(S.frames), (ch) => ch.charCodeAt(0));
+const FC = S.frameCount;
+const Dat = (f, e) => { const b = raw[f * M + e] / 255; return b * b; };
+const foodOf = new Map(S.food.map((f, i) => [f.node, i]));
+const wmax = Math.max(1e-9, ...S.food.map((f) => f.w));
+
+/* ── layout: a radial rail map, project at the heart ─────────────── */
+const kids = Array.from({ length: N }, () => []), parents = Array.from({ length: N }, () => []);
+E.forEach(([a, b], i) => { kids[a].push([b, i]); parents[b].push([a, i]); });
+const depth = new Int32Array(N).fill(-1); depth[0] = 0;
+const order = [0];
+for (let q = 0; q < order.length; q++) for (const [b] of kids[order[q]]) if (depth[b] < 0) { depth[b] = depth[order[q]] + 1; order.push(b); }
+const maxDepth = Math.max(1, ...depth);
+const finalD = (e) => Dat(FC - 1, e);
+// Tree parent: the shallowest parent, preferring the tube the organism kept.
+const tparent = new Int32Array(N).fill(-1);
+for (let v = 1; v < N; v++) {
+  let best = -1, bestD = -1;
+  for (const [p, e] of parents[v]) if (depth[p] === depth[v] - 1 && finalD(e) > bestD) { best = p; bestD = finalD(e); }
+  tparent[v] = best;
+}
+const tkids = Array.from({ length: N }, () => []);
+for (let v = 1; v < N; v++) if (tparent[v] >= 0) tkids[tparent[v]].push(v);
+const leaves = new Float64Array(N);
+for (let i = order.length - 1; i >= 0; i--) {
+  const v = order[i];
+  leaves[v] = tkids[v].length ? tkids[v].reduce((s, k) => s + leaves[k], 0) : 1;
+  // food gets a little more room so its labels breathe
+  if (foodOf.has(v)) leaves[v] += 0.6;
+}
+const ang = new Float64Array(N);
+(function place(v, a0, a1) {
+  ang[v] = (a0 + a1) / 2;
+  // interleave large and small subtrees so heavy branches don't cluster
+  const ks = tkids[v].slice().sort((x, y) => leaves[y] - leaves[x]);
+  const arranged = []; ks.forEach((k, i) => (i % 2 ? arranged.push(k) : arranged.unshift(k)));
+  const wt = (k) => Math.pow(leaves[k], 0.55);
+  const tot = arranged.reduce((s, k) => s + wt(k), 0) || 1;
+  let a = a0;
+  for (const k of arranged) { const span = (a1 - a0) * wt(k) / tot; place(k, a, a + span); a += span; }
+})(0, -Math.PI / 2, Math.PI * 1.5);
+
+// deterministic organic jitter
+const hash = (i, s) => { let x = Math.imul(i + 1, 0x9e3779b1) ^ Math.imul(s + 3, 0x85ebca77); x ^= x >>> 15; x = Math.imul(x, 0x2c1b3c6d); x ^= x >>> 12; return ((x >>> 0) % 10000) / 10000; };
+
+let W = 0, H = 0, DPR = 1, cx = 0, cy = 0, R = 0;
+const px = new Float64Array(N), py = new Float64Array(N);
+const curve = new Array(M);
+const cv = $('c'), ctx = cv.getContext('2d');
+function layout() {
+  const r = cv.getBoundingClientRect();
+  W = r.width; H = r.height; DPR = Math.min(devicePixelRatio || 1, 2);
+  cv.width = Math.max(1, W * DPR); cv.height = Math.max(1, H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  cx = W * 0.5; cy = H * 0.53; R = Math.min(W * 0.44, H * 0.43);
+  const ring = (d) => R * (0.18 + 0.82 * Math.pow((d - 1) / Math.max(1, maxDepth - 1), 0.85));
+  for (let v = 0; v < N; v++) {
+    if (depth[v] < 0) { px[v] = -9999; py[v] = -9999; continue; }
+    const rr = v === 0 ? 0 : ring(depth[v]) + (hash(v, 1) - 0.5) * (R / maxDepth) * 0.5;
+    const aa = ang[v] + (hash(v, 2) - 0.5) * 0.03;
+    px[v] = cx + Math.cos(aa) * rr; py[v] = cy + Math.sin(aa) * rr;
+  }
+  for (let e = 0; e < M; e++) {
+    const [a, b] = E[e];
+    const ra = Math.hypot(px[a] - cx, py[a] - cy), rb = Math.hypot(px[b] - cx, py[b] - cy);
+    const aa = Math.atan2(py[a] - cy, px[a] - cx), ab = Math.atan2(py[b] - cy, px[b] - cx);
+    const rm = (ra + rb) / 2;
+    const c1 = a === 0 ? [cx + Math.cos(ab) * rb * 0.35, cy + Math.sin(ab) * rb * 0.35] : [cx + Math.cos(aa) * rm, cy + Math.sin(aa) * rm];
+    const c2 = [cx + Math.cos(ab) * rm, cy + Math.sin(ab) * rm];
+    curve[e] = [px[a], py[a], c1[0], c1[1], c2[0], c2[1], px[b], py[b]];
+  }
+  rings = Array.from({ length: maxDepth }, (_, i) => ring(i + 1));
+}
+let rings = [];
+const bez = (c, t) => { const u = 1 - t; return [u*u*u*c[0] + 3*u*u*t*c[2] + 3*u*t*t*c[4] + t*t*t*c[6], u*u*u*c[1] + 3*u*u*t*c[3] + 3*u*t*t*c[5] + t*t*t*c[7]]; };
+
+/* ── the score: when each thing happens ──────────────────────────── */
+const T_OVER = 2.2, T_GROW = 9.5, T_ACT = 2.4, T_CODA = 4.5;
+const nActs = S.acts.length;
+const tGrow0 = T_OVER, tRit0 = T_OVER + T_GROW, tCoda0 = tRit0 + nActs * T_ACT, TOTAL = tCoda0 + T_CODA;
+const ease = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+function sceneAt(t) {
+  const gp = clamp01((t - tGrow0) / T_GROW);
+  const pos = ease(gp) * (FC - 1);
+  const actF = (t - tRit0) / T_ACT;                 // fractional act index
+  const actsDone = t < tRit0 ? -1 : Math.min(nActs - 1, Math.floor(actF));
+  const actProg = t < tRit0 ? 0 : actF >= nActs ? 1 : actF - Math.floor(actF);
+  return { t, gp, pos, actsDone, actProg, coda: t >= tCoda0, over: clamp01(t / T_OVER) };
+}
+const Dnow = (sc, e) => {
+  if (sc.t < tGrow0) return 1;
+  const i0 = Math.floor(sc.pos), i1 = Math.min(FC - 1, i0 + 1), k = sc.pos - i0;
+  return Dat(i0, e) * (1 - k) + Dat(i1, e) * k;
+};
+// sealing progress of a tube: 0 = live vein, 1 = gold seam
+function sealOf(sc, e) {
+  const s = S.sealedAt[e];
+  if (s == null || s < 0 || sc.actsDone < 0) return 0;
+  if (s < sc.actsDone) return 1;
+  if (s > sc.actsDone) return 0;
+  // lacquer runs outward from the heart: shallow tubes first
+  const d = depth[E[e][0]] / maxDepth;
+  return clamp01((sc.actProg - 0.12 - d * 0.55) / 0.25);
+}
+const closedP = (sc, fi) => {
+  const c = S.food[fi].closedAt;
+  if (c == null || sc.actsDone < 0) return 0;
+  return c < sc.actsDone ? 1 : c > sc.actsDone ? 0 : clamp01((sc.actProg - 0.55) / 0.3);
+};
+
+/* ── particles: current flowing home ─────────────────────────────── */
+const parts = [];
+const BUDGET = reduce ? 0 : Math.min(900, 120 + M * 2);
+for (let i = 0; i < BUDGET; i++) parts.push({ e: (hash(i, 9) * M) | 0, t: hash(i, 11), v: 0.12 + hash(i, 12) * 0.25 });
+
+/* ── drawing ─────────────────────────────────────────────────────── */
+const GOLD = [205, 162, 78], BRIGHT = [230, 196, 120], TEAL = [92, 207, 207], CORAL = [240, 113, 120];
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const mix = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+let hover = -1, lastT = performance.now();
+
+function draw(sc, dt) {
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#0b0e15'; ctx.fillRect(0, 0, W, H);
+  // agar: depth rings, labelled like a survey plate
+  ctx.lineWidth = 1;
+  rings.forEach((r, i) => {
+    ctx.strokeStyle = `rgba(205,162,78,${0.05 * sc.over})`;
+    ctx.setLineDash([2, 6]); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = `rgba(138,111,51,${0.5 * sc.over})`; ctx.font = '9px "DM Mono", monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+    if (i === 0 || i === rings.length - 1 || i % 2 === 0) ctx.fillText(`depth ${i + 1}`, cx - r * 0.74 - 4, cy + r * 0.67 + 3);
+  });
+
+  // tubes
+  const grow = sc.t >= tGrow0;
+  for (let pass = 0; pass < 2; pass++) {
+    ctx.globalCompositeOperation = pass ? 'lighter' : 'source-over';
+    for (let e = 0; e < M; e++) {
+      const [a] = E[e]; if (depth[a] < 0) continue;
+      const d = Dnow(sc, e) * (grow ? 1 : sc.over);
+      const seal = sealOf(sc, e);
+      const ghost = 0.035 * sc.over;
+      let alpha = Math.max(ghost, Math.min(0.92, 0.05 + Math.sqrt(d) * 0.85));
+      if (!grow) alpha = 0.06 + 0.22 * sc.over;
+      if (alpha < 0.03 && seal === 0) continue;
+      let col = mix(GOLD, BRIGHT, Math.min(1, d * 1.4));
+      const unfixed = S.sealedAt[e] === null && sc.coda;
+      if (unfixed) col = mix(col, CORAL, 0.55);
+      let wdt = 0.35 + Math.sqrt(d) * 5.2;
+      if (seal > 0) { col = mix(col, BRIGHT, seal); wdt = wdt * (1 - seal) + (1.6 + Math.sqrt(d) * 1.4) * seal; alpha = alpha * (1 - seal) + 0.95 * seal; }
+      const c = curve[e];
+      if (pass === 0) {
+        ctx.strokeStyle = rgba(col, alpha); ctx.lineWidth = wdt;
+      } else {
+        if (d < 0.08 && seal === 0) continue;
+        ctx.strokeStyle = rgba(col, (seal > 0 ? 0.16 * seal + 0.06 : 0.07) * Math.min(1, d * 3 + seal));
+        ctx.lineWidth = wdt * 3.4 + seal * 4;
+      }
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.bezierCurveTo(c[2], c[3], c[4], c[5], c[6], c[7]); ctx.stroke();
+    }
+  }
+
+  // current: particles drift from food toward the heart along live veins
+  if (grow && BUDGET) {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const p of parts) {
+      let d = Dnow(sc, p.e), s = sealOf(sc, p.e);
+      if (d < 0.06 || s > 0.5) { p.e = (Math.random() * M) | 0; p.t = Math.random(); continue; }
+      p.t -= dt * p.v * (0.5 + d * 1.6);
+      if (p.t <= 0) {
+        // hop to a parent tube so the current keeps travelling home
+        const a = E[p.e][0]; const ups = parents[a];
+        if (a !== 0 && ups.length) { const pick = ups.reduce((m, x) => (Dnow(sc, x[1]) > Dnow(sc, m[1]) ? x : m)); p.e = pick[1]; p.t = 1; }
+        else { p.e = (Math.random() * M) | 0; p.t = 1; }
+        continue;
+      }
+      const [x, y] = bez(curve[p.e], p.t);
+      const unfixed = S.sealedAt[p.e] === null && sc.coda;
+      ctx.fillStyle = unfixed ? 'rgba(240,113,120,.9)' : 'rgba(240,214,150,.9)';
+      ctx.beginPath(); ctx.arc(x, y, 0.9 + d * 1.3, 0, 6.2832); ctx.fill();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+
+  // dust: every package, faint
+  ctx.fillStyle = `rgba(196,189,171,${0.22 * sc.over})`;
+  for (let v = 1; v < N; v++) if (depth[v] > 0 && !foodOf.has(v)) { ctx.fillRect(px[v] - 0.7, py[v] - 0.7, 1.4, 1.4); }
+
+  // food: vulnerable packages, pulsing until closed
+  const now = sc.t;
+  S.food.forEach((f, fi) => {
+    const v = f.node; if (depth[v] < 0) return;
+    const k = closedP(sc, fi), r = 2.6 + (f.w / wmax) * 5.5;
+    const pulse = reduce ? 0 : (Math.sin(now * 3.1 + fi * 1.7) + 1) / 2;
+    const appear = clamp01((sc.t - 0.3 - fi * 0.04) / 0.8);
+    if (appear <= 0) return;
+    const sev = f.fixed ? mix(CORAL, BRIGHT, 0.25) : CORAL;
+    const col = mix(sev, TEAL, k);
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(px[v], py[v], 0, px[v], py[v], r * (3.2 + pulse * (1 - k) * 1.6));
+    g.addColorStop(0, rgba(col, 0.45 * appear)); g.addColorStop(1, rgba(col, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px[v], py[v], r * 5, 0, 6.2832); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = rgba(col, appear); ctx.beginPath(); ctx.arc(px[v], py[v], r * (1 - k * 0.35), 0, 6.2832); ctx.fill();
+    if (k > 0) { ctx.strokeStyle = rgba(BRIGHT, k); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(px[v], py[v], r + 3, 0, 6.2832 * k); ctx.stroke(); }
+    if (!f.fixed && sc.coda) { ctx.strokeStyle = rgba(CORAL, 0.8); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px[v] - r - 3, py[v] - r - 3); ctx.lineTo(px[v] + r + 3, py[v] + r + 3); ctx.stroke(); }
+  });
+
+  // labels: the heaviest food during growth; the act entrances during the ritual
+  ctx.font = '10.5px "DM Mono", monospace'; ctx.textBaseline = 'middle';
+  const placed = [];
+  const hit = (r) => placed.some((q) => r[0] < q[0] + q[2] && q[0] < r[0] + r[2] && r[1] < q[1] + q[3] && q[1] < r[1] + r[3]);
+  const label = (v, text, col, alpha) => {
+    const a = Math.atan2(py[v] - cy, px[v] - cx), right = Math.cos(a) >= 0;
+    const tw = ctx.measureText(text).width, x = px[v] + (right ? 10 : -10);
+    let y = py[v], rect = null;
+    for (const dy of [0, 14, -14, 28, -28, 42, -42]) {
+      const r = [right ? x - 3 : x - tw - 3, py[v] + dy - 8, tw + 6, 16];
+      if (!hit(r)) { rect = r; y = py[v] + dy; break; }
+    }
+    if (!rect) return;
+    placed.push(rect);
+    ctx.textAlign = right ? 'left' : 'right';
+    if (y !== py[v]) { ctx.strokeStyle = rgba(col, alpha * 0.35); ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(px[v], py[v]); ctx.lineTo(x, y); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(11,14,21,.8)'; ctx.fillRect(rect[0], rect[1], rect[2], rect[3]);
+    ctx.fillStyle = rgba(col, alpha); ctx.fillText(text, x, y);
+  };
+  S.acts.forEach((act, i) => {
+    if (sc.actsDone < i) return;
+    const v = act.root, k = i === sc.actsDone ? clamp01(sc.actProg * 3) : 1;
+    ctx.strokeStyle = rgba(BRIGHT, k); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(px[v], py[v], 6, 0, 6.2832); ctx.stroke();
+    label(v, `${['I','II','III','IV','V','VI','VII','VIII','IX','X'][i] ?? i + 1} · ${act.name}`, BRIGHT, k);
+  });
+
+  if (sc.t > 0.8) {
+    const top = S.food.slice().sort((a, b) => b.w - a.w).slice(0, 7);
+    const a = clamp01((sc.t - 0.8) / 1) * (sc.actsDone >= 0 ? 0.55 : 1);
+    for (const f of top) label(f.node, `${S.nodes[f.node][0]} ${S.nodes[f.node][1]}`, f.fixed ? BRIGHT : CORAL, a);
+  }
+  // the heart: the compass mark
+  ctx.save(); ctx.translate(cx, cy);
+  const hb = reduce ? 0 : Math.sin(now * 2) * 0.06;
+  ctx.globalCompositeOperation = 'lighter';
+  const hg = ctx.createRadialGradient(0, 0, 0, 0, 0, 46);
+  hg.addColorStop(0, `rgba(230,196,120,${0.35 * sc.over})`); hg.addColorStop(1, 'rgba(230,196,120,0)');
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(0, 0, 46, 0, 6.2832); ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.scale(1 + hb, 1 + hb);
+  ctx.strokeStyle = `rgba(205,162,78,${0.95 * sc.over})`; ctx.lineWidth = 1.1;
+  ctx.beginPath(); ctx.arc(0, 0, 15, 0, 6.2832); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, -11); ctx.quadraticCurveTo(10, 0, 0, 11); ctx.quadraticCurveTo(-10, 0, 0, -11); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-11, 0); ctx.quadraticCurveTo(0, 10, 11, 0); ctx.quadraticCurveTo(0, -10, -11, 0); ctx.stroke();
+  ctx.fillStyle = `rgba(230,196,120,${sc.over})`; ctx.beginPath(); ctx.arc(0, 0, 1.8, 0, 6.2832); ctx.fill();
+  ctx.restore();
+
+  if (hover >= 0) { ctx.strokeStyle = 'rgba(92,207,207,.9)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(px[hover], py[hover], 8, 0, 6.2832); ctx.stroke(); }
+}
+
+/* ── chrome: meters, surtitles, playbill ─────────────────────────── */
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+$('m-project').textContent = S.project.replace(/-/g, '\u2011');
+const vulnCount = S.food.length, advCount = S.food.reduce((s, f) => s + f.count, 0);
+$('m-sub').textContent = '';
+[[`${N - 1}`, ' packages · '], [`${M}`, ' tubes · '], [`${vulnCount}`, ' vulnerable']].forEach(([b, t]) => { $('m-sub').append(el('b', null, b), t); });
+$('b-date').textContent = S.meta.date;
+const cast = $('b-cast');
+const castRow = (k, v) => { cast.append(el('dt', null, k)); const dd = el('dd'); if (v instanceof Node) dd.append(v); else dd.textContent = v; cast.append(dd); };
+castRow('terrain', `${S.meta.file}`);
+castRow('food', `${vulnCount} packages · ${advCount} advisories`);
+const sevs = el('span', 'sevs'); const cnt = {};
+S.food.forEach((f) => { cnt[f.label] = (cnt[f.label] || 0) + 1; });
+['CRITICAL', 'HIGH', 'MODERATE', 'LOW'].forEach((k) => { if (cnt[k]) sevs.append(el('i', `sev-${k}`, `${cnt[k]} ${k.toLowerCase()}`)); });
+castRow('worst', sevs);
+castRow('organism', `γ ${S.gamma} · ${S.converged ? `converged at step ${S.converged}` : `${S.steps} steps`}`);
+castRow('source', 'OSV.dev advisories');
+
+const actsEl = $('b-acts'), actNodes = [];
+S.acts.forEach((a, i) => {
+  const d = el('div', 'act'), row = el('div', 'act-row');
+  row.append(el('span', 'act-n', ROMAN[i] ?? i + 1));
+  const nm = el('span', 'act-name', a.name); nm.append(el('small', null, a.version)); row.append(nm);
+  row.append(el('span', 'act-cov', `${Math.round(a.coverage * 100)}%`));
+  const bar = el('div', 'act-bar'), fill = el('i'); bar.append(fill); row.append(bar);
+  const items = el('div', 'act-items');
+  a.items.slice().sort((x, y) => (y.label === 'CRITICAL') - (x.label === 'CRITICAL')).slice(0, 4).forEach((it) => {
+    const line = el('div'); line.append(el('b', null, it.name), ` ${it.version} `);
+    if (it.fixed) line.append('→ ', el('span', 'to', it.fixed)); else line.append(el('span', 'nofix', '✕ no fix'));
+    line.append(` · ${it.count}× ${it.label.toLowerCase()}`);
+    if (it.shared.length) line.append(el('span', 'shared', ` · also via ${it.shared.join(', ')}`));
+    items.append(line);
+  });
+  if (a.items.length > 4) items.append(el('div', null, `+ ${a.items.length - 4} more`));
+  row.append(items); d.append(row); actsEl.append(d); actNodes.push([d, fill, a]);
+});
+if (!S.acts.length) actsEl.append(el('p', 'bill-p', S.food.length ? 'No entrance survived as backbone.' : 'No food. The organism rests.'));
+
+const bp = $('b-break-p');
+if (S.unfixed.length) S.unfixed.forEach((u) => { const l = el('div'); l.append(el('b', null, `${u.name} ${u.version}`), ` · ${u.id}`); bp.append(l); });
+else bp.textContent = 'Nothing unfixable. Every advisory here has a published fix.';
+if (!S.unfixed.length) $('b-break').querySelector('h3').textContent = 'No break to keep';
+
+const json = JSON.stringify(S.script, null, 2);
+$('b-json').textContent = json;
+$('b-warn').textContent = '';
+$('b-warn').append(el('b', null, 'Merge into package.json, run npm install, then your tests. '));
+if (S.majors.length) $('b-warn').append(`Major jumps (the parent may refuse): ${S.majors.join(' · ')}.`);
+$('copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(json); $('copy').textContent = 'copied'; } catch { $('copy').textContent = 'select ↓'; }
+  setTimeout(() => { $('copy').textContent = 'copy'; }, 1600);
+});
+$('b-colophon').textContent = `Every frame is a recorded solver step (Tero et al., Science 2010, adapted to directed dependencies). Coverage is the exact cut, not the organism's opinion. Generated ${S.meta.date} by theatre ${S.meta.version}.`;
+
+// scrubber ticks
+const ticks = $('ticks');
+[[0, 'overture'], [tGrow0, 'growth'], [tRit0, 'ritual'], [tCoda0, 'coda']].forEach(([t, k]) => { if (t < TOTAL) { const s = el('span', null, k); s.style.left = `${(t / TOTAL) * 100}%`; ticks.append(s); } });
+
+const STATE = (c) => c >= 0.92 ? ['closed', '● CLOSED · healthy'] : c >= 0.6 ? ['half', '◐ HALF-OPEN · thin'] : ['open', '○ OPEN · fragmented'];
+let lastLine = '', lastFocus = null;
+function surtitle(act, line) {
+  $('s-act').textContent = act;
+  if (line === lastLine) return;
+  lastLine = line;
+  const L = $('s-line'); L.classList.add('fade');
+  setTimeout(() => { L.textContent = line; L.classList.remove('fade'); }, reduce ? 0 : 280);
+}
+
+function chrome(sc) {
+  const step = sc.t < tGrow0 ? 0 : Math.round((sc.pos / Math.max(1, FC - 1)) * S.steps);
+  $('m-step').textContent = `${step} / ${S.steps}`;
+  let alive = 0; for (let e = 0; e < M; e++) if (Dnow(sc, e) >= 0.05) alive++;
+  $('m-alive').textContent = `${Math.round((alive / Math.max(1, M)) * 100)}%`;
+  let cov = 0;
+  if (sc.actsDone >= 0) {
+    const prev = sc.actsDone > 0 ? S.acts[sc.actsDone - 1].coverage : 0;
+    cov = prev + (S.acts[sc.actsDone].coverage - prev) * clamp01((sc.actProg - 0.5) / 0.4);
+  }
+  if (!S.food.length) cov = 1;
+  const big = $('m-cov'); big.firstChild.textContent = Math.round(cov * 100);
+  const [k, txt] = STATE(cov); const b = $('m-state'); b.className = `badge ${k}`; b.textContent = txt;
+  actNodes.forEach(([d, fill, a], i) => {
+    d.classList.toggle('on', sc.actsDone >= i); d.classList.toggle('now', sc.actsDone === i && !sc.coda);
+    fill.style.width = sc.actsDone >= i ? `${a.coverage * 100}%` : '0';
+  });
+  const focus = sc.coda ? $('b-script') : sc.actsDone >= 0 ? actNodes[sc.actsDone][0] : null;
+  if (focus && focus !== lastFocus && playing) { lastFocus = focus; focus.scrollIntoView({ block: sc.coda ? 'end' : 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }
+  $('b-break').classList.toggle('on', sc.coda);
+  $('b-script').classList.toggle('on', sc.coda);
+
+  if (sc.t < tGrow0) surtitle('Overture', `${N - 1} packages, ${M} tubes. Before it learns anything, the organism reaches everywhere.`);
+  else if (sc.gp < 0.45) surtitle('The organism feeds', `${vulnCount} vulnerable packages are food. Each pulls current, by severity, toward your project.`);
+  else if (sc.t < tRit0) surtitle('The organism chooses', `Unfed tubes starve. Rival routes compete; the stronger one thickens. ${alive} of ${M} tubes still carry current.`);
+  else if (!sc.coda) {
+    const a = S.acts[sc.actsDone];
+    const sealed = a.items.filter((it) => it.fixed).length;
+    surtitle(`Act ${ROMAN[sc.actsDone] ?? sc.actsDone + 1}`, `${a.name}: the organism's ${['heaviest', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'][sc.actsDone] ?? 'next'} entrance. ${sealed} package${sealed === 1 ? '' : 's'} sealed in gold. ${Math.round(a.coverage * 100)}% closed.`);
+  } else if (S.unfixed.length) surtitle('Coda', `${Math.round(S.coverage * 100)}% closed in ${nActs} acts. ${S.unfixed.length} cannot be fixed yet. The break is kept on the record, not hidden.`);
+  else surtitle('Coda', `${Math.round(S.coverage * 100)}% of the vulnerable surface closed in ${nActs} acts. The script is in the playbill.`);
+}
+
+/* ── playback ─────────────────────────────────────────────────────── */
+let t = reduce ? TOTAL : 0, playing = !reduce;
+const scrub = $('scrub'), play = $('play');
+const setPlaying = (p) => { playing = p; play.textContent = p ? '❚❚' : '▶'; play.setAttribute('aria-label', p ? 'Pause' : 'Play'); };
+setPlaying(playing);
+function frame(now) {
+  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+  if (playing) { t += dt; if (t >= TOTAL) { t = TOTAL; setPlaying(false); } scrub.value = Math.round((t / TOTAL) * 1000); }
+  const sc = sceneAt(t);
+  draw(sc, playing ? dt : 0); chrome(sc);
+  requestAnimationFrame(frame);
+}
+scrub.addEventListener('input', () => { t = (scrub.value / 1000) * TOTAL; setPlaying(false); });
+play.addEventListener('click', () => { if (t >= TOTAL) t = 0; setPlaying(!playing); });
+addEventListener('keydown', (e) => {
+  if (e.target instanceof HTMLInputElement && e.key !== ' ') return;
+  if (e.key === ' ') { e.preventDefault(); if (t >= TOTAL) t = 0; setPlaying(!playing); }
+  else if (e.key === 'ArrowRight') { t = Math.min(TOTAL, t + 1); }
+  else if (e.key === 'ArrowLeft') { t = Math.max(0, t - 1); }
+  else if (e.key === 'r' || e.key === 'R') { t = 0; setPlaying(true); }
+  else if (e.key === 'h' || e.key === 'H') { document.body.classList.toggle('clean'); requestAnimationFrame(layout); }
+  else if (/^[1-9]$/.test(e.key) && +e.key <= nActs) { t = tRit0 + (+e.key - 1) * T_ACT + T_ACT * 0.95; setPlaying(false); }
+});
+const qs = new URLSearchParams(location.search);
+if (qs.has('clean')) document.body.classList.add('clean');
+// ?t=<seconds> seeks and holds — for thumbnails and stills
+if (qs.has('t')) { t = Math.max(0, Math.min(TOTAL, Number.parseFloat(qs.get('t')) || 0)); setPlaying(false); scrub.value = Math.round((t / TOTAL) * 1000); }
+
+// hover: name, version, what it carries
+const tip = $('tip');
+cv.addEventListener('mousemove', (ev) => {
+  const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+  let best = -1, bd = 12 * 12;
+  for (let v = 0; v < N; v++) { const dx = px[v] - x, dy = py[v] - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = v; } }
+  hover = best;
+  if (best < 0) { tip.style.display = 'none'; return; }
+  const [name, ver, dev] = S.nodes[best];
+  tip.textContent = '';
+  tip.append(el('b', null, best === 0 ? `${name} — your project` : `${name} ${ver}`));
+  if (dev) tip.append(el('div', null, 'dev dependency'));
+  tip.append(el('div', null, best === 0 ? 'the heart: all flux drains here' : `depth ${depth[best]} · ${parents[best].length} parent${parents[best].length === 1 ? '' : 's'}`));
+  const fi = foodOf.get(best);
+  if (fi != null) {
+    const f = S.food[fi];
+    tip.append(el('div', 'sev', `${f.count} advisor${f.count === 1 ? 'y' : 'ies'} · worst ${f.label.toLowerCase()}`));
+    tip.append(el('div', null, `${f.top.id}: ${f.top.summary}`));
+    tip.append(el('div', null, f.fixed ? `fixed in ${f.fixed}` : 'no fix published'));
+  }
+  tip.style.display = 'block';
+  const tx = Math.min(x + 14, r.width - 310), ty = Math.min(y + 14, r.height - tip.offsetHeight - 8);
+  tip.style.left = `${tx}px`; tip.style.top = `${ty}px`;
+});
+cv.addEventListener('mouseleave', () => { hover = -1; tip.style.display = 'none'; });
+
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 120); });
+layout();
+document.fonts?.ready?.then(() => layout());
+requestAnimationFrame((n) => { lastT = n; frame(n); });
+})();
+</script>
+</body>
+</html>
