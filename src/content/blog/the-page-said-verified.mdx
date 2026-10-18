@@ -1,0 +1,97 @@
+---
+title: "The Page Said Verified"
+subtitle: "A build log: I gave a new skill a choice between two instruments I had only described, and it found my own page overclaiming"
+description: "A build log for the Theatre of Dependencies: a slime-mold solver that reads a lockfile and stages an upgrade ritual. How a new research skill chose it over the kintsugi circuit breaker, what broke on the way, how the result was checked against npm audit, and why my Intentional Fragility page now carries a correction."
+pubDate: 2026-10-18
+category: "Field Note"
+tags: ["AI collaboration", "supply chain security", "physarum", "verification", "intentional fragility", "build log"]
+readingTime: "~9 min"
+contentType: "artifact"
+repoUrl: "https://github.com/mazze93/theatre-of-dependencies"
+artifactNote: "Drafted by Claude (Opus 5.5) in my voice from the session record, with the high-signal-engine skill loaded, and published as drafted. It's a test of what that skill does to prose. Every commit, number and mistake named here is real."
+sessionTranscript: "https://claude.ai/code/session_01NEadtNKC54AqNgw3dmaGEb"
+project: "intentional-fragility"
+draft: false
+---
+
+import ArtifactEmbed from '../../components/blog/ArtifactEmbed.astro';
+
+Since July, the page that is supposed to hold this whole body of work together has said that the kintsugi circuit breaker is "Python · verified." It wasn't verified. It wasn't Python. It wasn't anything yet. The same page called both of its instruments "live," and sent anyone curious about the slime-mold one to the front door of my GitHub profile, where nothing by that name existed.
+
+I didn't catch that. A skill I was testing did, sideways, while doing something else.
+
+<ArtifactEmbed
+  src="/artifacts/theatre-of-dependencies.html"
+  title="Theatre of Dependencies — the animated stage, playing the bundled vulnerable-shop fixture"
+  height={760}
+  caption="Interactive. A 2020-era storefront: 241 packages, 31 vulnerable. Every frame is a recorded solver step. Press R to replay, H to hide the chrome."
+  fullscreenHref="/artifacts/theatre-of-dependencies.html"
+/>
+
+## The test
+
+The skill is called `high-signal-engine`. It's an operating contract for substantive work: answer in four parts (summary, insights, sources, action), prefer primary sources, cross-check anything non-trivial, never say "it depends" without committing to a default, and turn every answer into something you can run. I'd written it as a prompt and asked Claude to make it a proper skill.
+
+Into that same message I pasted the full HTML of the [Intentional Fragility](/intentional-fragility/) page. Claude built the skill, then set the page aside, guessing I'd pasted it by accident. I hadn't. It was the test.
+
+So I made the test explicit. Use the skill to choose between the two instruments that page proposes — kintsugi, a circuit breaker that lets tools fail on purpose and keeps the reason, and the Theatre of Dependencies, a slime mold that reads a dependency graph — then build the one it picks, with a real command line and an interface worth recording. And ship it all publicly, so whatever it claimed, it would have to stand by.
+
+## Choosing the one that could be honest
+
+The first thing Claude did was look for either tool. It searched my workspace and my GitHub. Neither existed. The only trace of them anywhere was the page.
+
+Then it chose, and the reasoning is the part I'd keep even if the code had failed. kintsugi only means something inside a working agent harness, where real tools fail under real load. Built on its own, its demo would be what the page's panel already is: a state machine walking through three labels, with a random reason for the break. The Theatre runs on input every project already has, a lockfile, and on real public data, the OSV.dev advisory database. Its output is something you act on the same day.
+
+"The break is the record" doesn't survive a fake break. That settled it.
+
+## A resistor network that lies
+
+The page describes the slime mold loosely: tubes between food sources, thickening where flux is high, starving where it isn't. The real model, from Tero and colleagues' 2010 paper in *Science* on *Physarum* rebuilding the Tokyo rail network, is precise. Current flows through tubes. Tubes that carry current thicken. With the right exponent, rival routes compete until one wins and the network collapses onto a backbone.
+
+Pointed naively at a dependency graph, that model lies. A resistor network has no direction. Current from a vulnerable package will happily leak sideways, down into a shared dependency and back up into an unrelated parent, and credit that parent with a vulnerability it can't actually deliver. So each advisory gets its own flow, restricted to the packages that can carry it home: its ancestors in the graph, and nothing else. Every vulnerable package is food, weighted by severity. The project is the heart.
+
+On the bundled fixture, a 2020-era storefront, the organism converges in 197 steps. Of 317 tubes, 21 survive.
+
+## The organism's opinion is not the answer
+
+This is where the tool could have lied the way my page did.
+
+The organism routes each advisory through one entrance. But `minimist`, an argument parser with two critical advisories against it here, comes in through two: `handlebars`, by way of `optimist`, and `mkdirp`. Act on `handlebars` alone and `minimist` is still in your project, delivered by `mkdirp`. If the tool had trusted the organism's pick, it would have reported that vulnerability closed.
+
+So the organism proposes and an exact cut decides. An advisory only counts as closed once every direct dependency it can enter through is in the ritual. Where the two disagree, the playbill says so in plain text: *also enters through mkdirp — closed only when that act runs too.* On the fixture, seven acts close 70% of the vulnerable surface. That leaves the project half-open, on a three-state scale borrowed straight from the page: closed, half-open, open. 94% could be closed at all. Three packages have no published fix, and they stay on the stage in coral rather than disappearing into a percentage.
+
+## What broke on the way
+
+**The escape that wasn't one.** The stage embeds its data in the page, and package names come from a lockfile, which means a hostile name could try to break out of the script tag. The code that guards against that has to escape two invisible Unicode characters, the line and paragraph separators. Claude wrote that line with the characters themselves instead of their escape codes. JavaScript treats them as line breaks, so the module didn't parse at all. The guard against invisible characters was broken by invisible characters.
+
+**A picture that contradicted itself.** In the terminal, each entrance is a vein running toward a heart symbol, with dots of current flowing along it. As a tube starved, its vein got *shorter*, pulling away from the heart, the opposite of what's happening. It should stay connected and thin out to dust. One-line fix, but only after the frames were captured and read.
+
+**A death too fast to watch.** The first version killed most of the terrain in the first quarter of the growth animation, so the best moment went by in under three seconds. Halving the solver's time step made it watchable. It didn't change the answer: seven acts, 70%, before and after.
+
+**Crowded labels.** Direct dependencies with no children of their own all bunched at twelve o'clock, labels stacked on labels. The layout now gives small branches room, and labels that would overlap step aside or stay hidden.
+
+## Checking the checker
+
+A tool like this is only worth something if it agrees with something it didn't write. The packages it found carrying their own advisories matched `npm audit` exactly: 30 of 30. npm audit lists five more, and every one of those only reaches an advisory through a child. Run on this site and on my store, the tool came back clean, and so did `npm audit`. A clean result is the one most in need of a second witness. It also leaves the most room for wishful reading.
+
+The skill earned its keep here in small ways I'd otherwise have skipped. It looked up the OSV batch API instead of remembering it, and found that the batch call returns only IDs, so full records have to be fetched one by one. It checked npm's documentation on dependency overrides before writing any, and found that npm refuses to override a direct dependency with a different version from the one you declared. That's why the generated fix bumps those instead. Both are the kind of detail that, misremembered, produces something that looks finished and fails on first use.
+
+## The correction nearly overclaimed
+
+Then the shipping started, and the record got interesting.
+
+The repo went public, and GitHub immediately reported 94 vulnerabilities against it. All of them came from the fixture, which is pinned to vulnerable versions on purpose. The tool's own test data had set off the alarm it exists to quiet. The fixture files are now named so scanners don't read them as manifests.
+
+Then the correction to the spine page. Claude's first draft of the notice said the page had pointed each instrument at its source, and the decision record it had pushed a few hours earlier quoted a link reading "source & demo." That wording existed only in the draft of the page I'd pasted, never in anything published. The git history was one command away, and it showed what was actually live: "Python · verified," both panels "live," and "repos at github.com/mazze93." The record got its own correction, saying exactly that.
+
+One more, caught while checking this post. The example of a shared entrance, used in the pushed decision record, in a draft of the instrument's landing page and in Claude's summary to me, was `qs` coming in through both `express` and `request`. The tool's own output says otherwise. Those are two different installs of `qs`, each with a single entrance. The real case is `minimist`, above. The example was fixed everywhere it appeared, and the commit says why.
+
+The note on the page now quotes what was really there. It also corrects a link that had been broken since July: the page sent readers to an essay at an address that doesn't exist.
+
+## What this actually says
+
+The fix for "Python · verified" was never going to be deleting the word. It was building the thing the word was standing in for, then leaving the old word visible beside the correction. That's the [Theatre of Dependencies](/theatre-of-dependencies/), running, with its [source](https://github.com/mazze93/theatre-of-dependencies) and its limits on the record. kintsugi is still a proposal, and the page now says so.
+
+On the skill: its discipline did real work. It looked things up instead of remembering them, cross-checked, and committed to one answer while saying what it cost. Its four-part format belonged on the decision and not on the build, and the skill says as much about itself. It also defers to my own working rules wherever the two conflict. A second agent reviewing the work later flagged that conflict; the rule settling it was already in the draft.
+
+And this post is the other half of the test. Claude drafted it in my voice from the session record and I published it as drafted. If it sounds like me, the skill's instruction to match an established voice rather than flatten it did its job. If it reads like a report wearing my coat, that's a result too, and it stays up as one.
