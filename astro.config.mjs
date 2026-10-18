@@ -71,6 +71,12 @@ export default defineConfig({
         // rule above; note that public/ deploys regardless of the post's draft
         // flag, so this page is live once merged even while the post is hidden.
         "https://mazzeleczzare.com/artifacts/a-picture-of-what-it-expected.html",
+        // Added 2026-10-18: the Theatre of Dependencies landing page and its
+        // stage shipped in #202 without entries here — the same miss as above,
+        // and for the same reason: Docs Integrity never ran on that PR, because
+        // its path filter didn't include public/ or this file. Fixed together.
+        "https://mazzeleczzare.com/theatre-of-dependencies/",
+        "https://mazzeleczzare.com/artifacts/theatre-of-dependencies.html",
       ],
     }),
     react(),
