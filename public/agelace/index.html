@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>agelace — a workshop for a story world · Mazze LeCzzare</title>
+<meta name="description" content="agelace is a local-first workshop for a story world: pages set like a book, boards, a living map of what names what, and a forge for your own fonts. Free, private, and built in public.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="agelace: a workshop for a story world">
+<meta property="og:description" content="Pages set like a book, boards, the Pattern, and a forge for your own fonts. Runs on your own computer. Built in public.">
+<meta property="og:url" content="https://mazzeleczzare.com/agelace/">
+<meta property="og:image" content="https://mazzeleczzare.com/agelace/img/board.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mazzeleczzare.com/agelace/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 8 92 50 50 92 8 50Z' fill='none' stroke='%23ac361b' stroke-width='7'/%3E%3C/svg%3E">
+<link rel="preload" href="./fonts/im-fell-english-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/alegreya-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./agelace.css">
+<script src="./agelace.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the folio</a>
+
+<header class="running">
+  <a href="/">Mazze LeCzzare · the spine</a>
+  <nav aria-label="agelace">
+    <a href="#rooms">The rooms</a>
+    <a href="#sandbox">Try it</a>
+    <a href="./guide/">Install guide</a>
+    <a href="#record">The record</a>
+  </nav>
+  <button type="button" class="lamp-toggle" aria-label="Switch between daylight and candle">Lamp</button>
+</header>
+
+<main id="main">
+  <!-- ── the title page ─────────────────────────────────────────────── -->
+  <div class="folio">
+    <section class="title-page" aria-labelledby="name">
+      <p class="kicker rise d1">A workshop for a story world</p>
+      <h1 class="name rise d2" id="name"><span class="initial">a</span>gelace</h1>
+      <p class="subtitle rise d3">Pages set like a book, boards to lay a plot out on, a living map of what names what, and a forge to cut your own type. It runs on your own computer, and your whole world is one folder.</p>
+      <ul class="statuses rise d4" aria-label="Every element of a world carries one of three marks">
+        <li><span class="mark m-canon" aria-hidden="true">◆</span> Canon</li>
+        <li><span class="mark m-proposed" aria-hidden="true">◇</span> Proposed</li>
+        <li><span class="mark m-question" aria-hidden="true">⸮</span> Question</li>
+      </ul>
+      <div class="actions rise d5">
+        <a class="btn btn-rubric" href="https://agelace-demo.pages.dev/">Open the sandbox <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="./guide/">Install it, step by step</a>
+      </div>
+    </section>
+    <aside class="margin rise d5" aria-label="About this page">
+      <p><b>Built in public</b>This page is the record. Every claim in the margin names the commit that made it true, and wears the same mark agelace gives a story element.</p>
+      <p><b>Status of this beta</b><span class="mark m-canon" aria-hidden="true">◆</span> tested on macOS and on amd64 under emulation. <span class="mark m-question" aria-hidden="true">⸮</span> not yet run on a real Windows PC.</p>
+    </aside>
+  </div>
+
+  <!-- ── I. the rooms ───────────────────────────────────────────────── -->
+  <div class="folio">
+    <section class="section wide" id="rooms" aria-labelledby="rooms-h">
+      <div class="section-head">
+        <span class="numeral" aria-hidden="true">I</span>
+        <h2 id="rooms-h">Four rooms</h2>
+        <p class="lede">Every screen below is a real screenshot of the app, of a small world invented for the purpose. A script in the repository takes them, so they can't drift from the software.</p>
+      </div>
+
+      <div class="rooms">
+        <article class="room">
+          <figure class="plate reveal">
+            <div class="plate-frame"><img src="./img/entry.webp" width="1600" height="1000" alt="An entry page titled The Night the Lamps Went Out, with a red drop cap, linked names underlined, and a footnote set in the margin." loading="lazy" decoding="async"></div>
+            <figcaption><span class="no">Plate I</span><p>A page. A drop cap, three names linked with double brackets, and a footnote that lives in the margin.</p></figcaption>
+          </figure>
+          <div>
+            <p class="label">Pages</p>
+            <h3>Write as if it were already printed.</h3>
+            <p>Give a phrase its own face and ink. Set small caps, drop caps and marginal notes. Type <code>[[</code> to name another part of the world; naming something that isn't written yet creates it, as a Question.</p>
+            <p>Everything saves as you type, into a plain file in your world folder.</p>
+          </div>
+        </article>
+
+        <article class="room">
+          <figure class="plate reveal">
+            <div class="plate-frame"><img src="./img/board.webp" width="1600" height="1000" alt="A board with entry cards inside a region called The Drowned Quarter, threads labelled she refused and sworn to, a timeline, a candle seal and a stroke of red ink." loading="lazy" decoding="async"></div>
+            <figcaption><span class="no">Plate II</span><p>A board. Cards that are the pages themselves, a region, labelled threads, a Mermaid timeline, a seal, and pen ink.</p></figcaption>
+          </figure>
+          <div>
+            <p class="label">Boards</p>
+            <h3>Lay the plot out on a table.</h3>
+            <p>Put pages on an endless board and tie threads between them. Draw with a pen (a stylus's pressure counts), sketch in Excalidraw, drop in a map, or write a timeline that draws itself.</p>
+            <p>Two windows on the same board merge, character by character.</p>
+          </div>
+        </article>
+
+        <article class="room">
+          <figure class="plate reveal">
+            <div class="plate-frame"><img src="./img/pattern.webp" width="1600" height="1000" alt="The Pattern: a graph of round seals, one per page, joined by lines for names in the text and red lines for threads on a board." loading="lazy" decoding="async"></div>
+            <figcaption><span class="no">Plate III</span><p>The Pattern. Each seal is a page; its border says Canon, Proposed or Question.</p></figcaption>
+          </figure>
+          <div>
+            <p class="label">The Pattern</p>
+            <h3>See what names what.</h3>
+            <p>The whole world as a web: grey strands where one page names another, red where you tied a thread on a board, dashed where pages share a board. Drag a seal to pin it. Every page also shows its own small web at its foot.</p>
+          </div>
+        </article>
+
+        <article class="room">
+          <figure class="plate reveal">
+            <div class="plate-frame"><img src="./img/forge-desk.webp" width="1600" height="1000" alt="The Scriptorium: a ruled sheet with a broad-nib letter L drawn on it, a grid of letters, and controls for nib width and angle." loading="lazy" decoding="async"></div>
+            <figcaption><span class="no">Plate IV</span><p>The Scriptorium. Letters drawn with a broad nib, then cast into a real font file.</p></figcaption>
+          </figure>
+          <div>
+            <p class="label">The Forge</p>
+            <h3>Cut your own type.</h3>
+            <p>Every face you own in one type case. Pair three of them and see a page of your own world set in them. Then draw an alphabet with a broad edge, a quill or a round nib, press <em>Cast the type</em>, and a working <code>.otf</code> appears in your fonts folder.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── II. the sandbox ────────────────────────────────────────────── -->
+  <div class="folio">
+    <section class="section" id="sandbox" aria-labelledby="sandbox-h">
+      <div class="section-head">
+        <span class="numeral" aria-hidden="true">II</span>
+        <h2 id="sandbox-h">Try it here, now</h2>
+      </div>
+      <div class="sandbox-call reveal">
+        <h3>The real app, running in your browser tab.</h3>
+        <p>Not a recording and not a mock-up. The sandbox is the same build you'd install. A service worker plays the server, running agelace's own server code against a world that lives in your browser.</p>
+        <ul class="facts">
+          <li><span class="mark m-canon" aria-hidden="true">◆</span><span>Nothing you make is sent anywhere. The page talks only to itself.</span></li>
+          <li><span class="mark m-canon" aria-hidden="true">◆</span><span>Your work stays in this browser until you press <em>Start over</em>.</span></li>
+          <li><span class="mark m-canon" aria-hidden="true">◆</span><span>The Forge really casts: draw a few letters and the font loads in the page.</span></li>
+        </ul>
+        <a class="btn btn-rubric" href="https://agelace-demo.pages.dev/">Open the sandbox <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+    <aside class="margin" aria-label="How the sandbox is checked">
+      <p><b>Checked by</b><code>e2e/sandbox/demo.mjs</code>: 16 checks, including stopping the worker mid-session and checking that no request leaves the page's origin. Commit <a href="https://github.com/mazze93/agelace/commit/8923019">8923019</a>.</p>
+      <p><b>One table, two servers</b>The installed server and the sandbox run the same route table. Commit <a href="https://github.com/mazze93/agelace/commit/3f7e3d3">3f7e3d3</a>.</p>
+    </aside>
+  </div>
+
+  <!-- ── III. take it home ──────────────────────────────────────────── -->
+  <div class="folio">
+    <section class="section" id="install" aria-labelledby="install-h">
+      <div class="section-head">
+        <span class="numeral" aria-hidden="true">III</span>
+        <h2 id="install-h">Take it home</h2>
+      </div>
+      <div class="prose">
+        <p class="drop">You need one free program, Docker Desktop, and nothing else: no accounts, no terminal, no subscriptions. Download the zip, unzip it, double-click <code>start-agelace</code>, and your browser opens on your own world.</p>
+        <p>The guide walks through it with a picture for every step, including the two places Windows asks you something.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-rubric" href="./guide/">The illustrated guide <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="https://github.com/mazze93/agelace/releases">Download the beta</a>
+      </div>
+    </section>
+    <aside class="margin" aria-label="What you download">
+      <p><b>What's in the zip</b>Four launchers, a plain-text guide, and a compose file that fetches a signed image. No source to build.</p>
+      <p><b>The image</b><span class="mark m-canon" aria-hidden="true">◆</span> amd64 + arm64, non-root, read-only, no shell. SBOM and provenance attached, cosign keyless. Commit <a href="https://github.com/mazze93/agelace/commit/2993cb4">2993cb4</a>.</p>
+    </aside>
+  </div>
+
+  <!-- ── IV. the record ─────────────────────────────────────────────── -->
+  <div class="folio">
+    <section class="section wide" id="record" aria-labelledby="record-h">
+      <div class="section-head">
+        <span class="numeral" aria-hidden="true">IV</span>
+        <h2 id="record-h">The record</h2>
+        <p class="lede">agelace is built in public, by Mazze with Claude. What follows is what was promised, what shipped and what broke, with the commit beside each line. Where something hasn't been proven, it says so.</p>
+      </div>
+
+      <div class="figures reveal" role="list" aria-label="The beta, in four numbers">
+        <div class="figure" role="listitem"><span class="was">13</span><span class="now">0</span><span class="what">Dependabot alerts, closed with Theatre of Dependencies</span></div>
+        <div class="figure" role="listitem"><span class="was">469 MB</span><span class="now">287 MB</span><span class="what">container image, distroless, no node_modules</span></div>
+        <div class="figure" role="listitem"><span class="was">root</span><span class="now">10001</span><span class="what">the user it runs as, read-only, every capability dropped</span></div>
+        <div class="figure" role="listitem"><span class="was">27</span><span class="now">51</span><span class="what">browser checks, with an exit code, in CI</span></div>
+      </div>
+
+      <table class="ledger reveal">
+        <caption>The ledger, oldest first</caption>
+        <thead><tr><th scope="col">When</th><th scope="col">Commit</th><th scope="col">What</th></tr></thead>
+        <tbody>
+          <tr><td class="when">4 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/4a6f21a">4a6f21a</a></td><td class="what"><strong>The brief.</strong> Planning sessions only: a gift for a friend, local-first, three marks on every story element.</td></tr>
+          <tr><td class="when">17 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/838be5c">838be5c</a></td><td class="what"><strong>Phases 1–2.</strong> A containerised server that keeps the world in a folder; the design system; the typesetter's editor.</td></tr>
+          <tr><td class="when">17 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/7beebde">7beebde</a></td><td class="what"><strong>Phase 3.</strong> Boards on Yjs, on a canvas engine of its own (tldraw's licence needs a key), and one Ctrl-Z for the whole app.</td></tr>
+          <tr><td class="when">17 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/68e8d4f">68e8d4f</a></td><td class="what"><strong>Phase 4.</strong> The Pattern, seals and strands.</td></tr>
+          <tr><td class="when">18 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/77b38e8">77b38e8</a></td><td class="what"><strong>Phase 5.</strong> The Forge: type case, pairing, and a scriptorium that casts real fonts.</td></tr>
+          <tr><td class="when">18 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/4323434">4323434</a></td><td class="what"><strong>An audit of all five.</strong> It found a cast that could overwrite a font you'd dropped in, a silent palm-rejection mode, and a design doc that paraphrased the CSS it claimed to quote. Each was fixed with a check that fails first.</td></tr>
+          <tr><td class="when">18 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/7f9f8cf">7f9f8cf</a></td><td class="what"><strong>Contrast, enforced.</strong> Every ink reads at 4.5:1 on every paper in both lamps, and a test fails if one doesn't.</td></tr>
+          <tr><td class="when">19 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/99d15cf">99d15cf</a></td><td class="what"><strong>All 13 alerts closed.</strong> Theatre of Dependencies couldn't see npm workspaces at first and staged nothing; it was fixed, then it closed every advisory with a published fix. The one without a fix was closed by cutting the package that carried it.</td></tr>
+          <tr><td class="when">19 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/2993cb4">2993cb4</a></td><td class="what"><strong>The image, hardened.</strong> Rebuilt on the posture of Mazze's secure-container template, plus CI, signed releases, and the friend's zip. The Mac launcher had never worked on double-click; it does now.</td></tr>
+          <tr><td class="when">19 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/8923019">8923019</a></td><td class="what"><strong>The sandbox.</strong> Private browser windows refused to install the first 7 MB worker; it's 836 KB now.</td></tr>
+          <tr><td class="when">19 Oct</td><td class="sha"><a href="https://github.com/mazze93/agelace/commit/1576eb9">1576eb9</a></td><td class="what"><strong>Long titles wrap.</strong> Found while taking these screenshots: a long title was being cut off mid-word.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" aria-labelledby="lessons-h">
+      <div class="section-head">
+        <span class="numeral" aria-hidden="true">V</span>
+        <h2 id="lessons-h">What went wrong, and the rule it left</h2>
+      </div>
+      <ol class="lessons">
+        <li><div><strong>Tests that passed for the wrong reason.</strong> A test now has to fail for the reason in its name: break the thing it guards and watch it go red before trusting it.</div></li>
+        <li><div><strong>Library behaviour remembered, not checked.</strong> Four libraries behaved differently than recalled. Anything that decides correctness gets probed in the container first.</div></li>
+        <li><div><strong>Writes into folders that aren't ours.</strong> agelace promises nothing is destroyed. A write into a folder you also use must prove it owns the file, or refuse. Deletions go to the trash folder.</div></li>
+        <li><div><strong>Modes nobody could see.</strong> Anything the app does on its own is visible and reversible where it happens. That's why the sandbox wears a ribbon.</div></li>
+        <li><div><strong>Claims ahead of the evidence.</strong> Docs that describe the code are checked against the code. This page follows the same rule, which is why the margin cites commits.</div></li>
+        <li><div><strong>Checks that lived in scratch.</strong> If it was worth checking once, it lives in the repository with an exit code, and CI runs it.</div></li>
+      </ol>
+    </section>
+    <aside class="margin" aria-label="Where the record comes from">
+      <p><b>Sources</b>The project's build diary and checkpoint, the git history, and a ledger of this session's tool calls kept with <em>core-sample</em>.</p>
+      <p><b>Still open</b><span class="mark m-question" aria-hidden="true">⸮</span> a real Windows run. <span class="mark m-question" aria-hidden="true">⸮</span> Podman, on real hardware. <span class="mark m-proposed" aria-hidden="true">◇</span> phase 6: tutorial modules.</p>
+    </aside>
+  </div>
+
+  <p class="fleuron" aria-hidden="true">❦ ❦ ❦</p>
+</main>
+
+<footer class="colophon">
+  <div class="inner">
+    <div>
+      <h2>Colophon</h2>
+      <p>Set in IM Fell English, Igino Marini's revival of the seventeenth-century Fell types, with Alegreya and Alegreya Sans SC by Juan Pablo del Peral. All three are under the SIL Open Font License.</p>
+    </div>
+    <div>
+      <p>agelace's icons are from <a href="https://game-icons.net">game-icons.net</a> (CC BY 3.0). The app credits them on its own Colophon page.</p>
+      <p>Made by Mazze LeCzzare, with Claude. Source at <a href="https://github.com/mazze93/agelace">github.com/mazze93/agelace</a>. Part of the work on <a href="/">the spine</a>.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

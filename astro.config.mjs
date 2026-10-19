@@ -44,6 +44,8 @@ export default defineConfig({
       // invisible to search. check-docs-drift.sh §1 lists these same paths.
       customPages: [
         "https://mazzeleczzare.com/intentional-fragility/",
+        "https://mazzeleczzare.com/agelace/",
+        "https://mazzeleczzare.com/agelace/guide/",
         "https://mazzeleczzare.com/writing/what-i-can-stand-by/",
         "https://mazzeleczzare.com/essays/the-breakthrough-artifact.html",
         "https://mazzeleczzare.com/artifacts/tessera-claude-anchor.html",
