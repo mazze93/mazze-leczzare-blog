@@ -561,6 +561,54 @@ fi
 
 echo ""
 
+# ── 12. Standalone pages with their own CSP survive Cloudflare's edge rewrites ─
+# Added 2026-10-18. Cloudflare rewrites pages at the edge after they leave
+# Pages: Rocket Loader turns inline <script> into a deferred type and injects a
+# loader from /cdn-cgi/, and Cloudflare Fonts swaps Google Fonts links for
+# same-origin /cf-fonts/ files. A page that ships its own meta CSP without
+# 'self' blocks both — the theatre-of-dependencies stage went live (#202) as a
+# static shell with no script running and fallback fonts. `astro preview` runs
+# no edge features, so nothing local can see it; this asserts the two rules.
+info "── Standalone pages with their own CSP survive edge rewrites ──"
+EDGE_OUT="$(python3 - "$REPO_ROOT/public" <<'PYEOF'
+import pathlib, re, sys
+root = pathlib.Path(sys.argv[1]); bad = []; n = 0
+for page in sorted(root.rglob("*.html")):
+    html = page.read_text(encoding="utf-8", errors="replace")
+    # match the value up to its own closing quote: CSP sources are single-quoted
+    m = re.search(r'<meta[^>]+http-equiv=["\']Content-Security-Policy["\'][^>]*content=(["\'])(.*?)\1', html, re.I | re.S)
+    if not m:
+        continue
+    n += 1
+    rel = page.relative_to(root.parent)
+    csp = {d.split()[0]: d.split()[1:] for d in (x.strip() for x in m.group(2).split(";")) if d}
+    for directive in ("script-src", "font-src"):
+        srcs = csp.get(directive, csp.get("default-src", []))
+        if "'self'" not in srcs:
+            bad.append(f"{rel} — meta CSP {directive} lacks 'self' (blocks Cloudflare's /cdn-cgi loader or /cf-fonts files)")
+    for tag in re.findall(r"<script\b[^>]*>", html, re.I):
+        if re.search(r"\bsrc\s*=", tag, re.I):
+            continue
+        t = re.search(r'\btype\s*=\s*["\']([^"\']+)', tag, re.I)
+        if t and t.group(1).lower() not in ("text/javascript", "module", "application/javascript"):
+            continue  # data blocks (application/json) never execute
+        if 'data-cfasync="false"' not in tag:
+            bad.append(f"{rel} — inline {tag[:40]}… lacks data-cfasync=\"false\" (Rocket Loader would defer it behind a CSP-blocked loader)")
+print(n)
+print("\n".join(bad))
+PYEOF
+)"
+EDGE_N="$(printf '%s\n' "$EDGE_OUT" | head -1)"
+EDGE_BAD=0
+while IFS= read -r line; do
+  [[ -z "$line" ]] && continue
+  fail "$line"
+  EDGE_BAD=$((EDGE_BAD + 1))
+done < <(printf '%s\n' "$EDGE_OUT" | tail -n +2)
+[[ $EDGE_BAD -eq 0 ]] && pass "${EDGE_N:-0} page(s) with their own CSP are edge-rewrite safe"
+
+echo ""
+
 # ── 10. Skill copies (this repo's copy vs the skills repo's source) ───────────
 # .claude/skills/run-mazze-leczzare-blog/ is a COPY of the skill published from
 # ~/Projects/skills/claude-code-skills. Two tracked copies in two repos is a

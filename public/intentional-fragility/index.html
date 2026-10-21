@@ -285,6 +285,11 @@ canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background
 .join{text-align:center;font-family:var(--serif);font-style:italic;color:var(--gold);
   font-size:1.1rem;margin:1.4rem 0 0;opacity:.85}
 
+.correction{margin-top:2.6rem;max-width:64ch;padding:1rem 1.2rem;border:1px solid rgba(240,113,120,.3);border-left:2px solid var(--coral);border-radius:0 10px 10px 0;background:rgba(240,113,120,.04)}
+.correction .tag{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-bottom:.5rem}
+.correction p{font-size:.92rem;color:var(--paper-soft);line-height:1.65}
+.correction b{color:var(--paper);font-weight:400;font-family:var(--mono);font-size:.9em}
+.correction a{color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(92,207,207,.3)}
 .fellows{margin-top:2rem;background:linear-gradient(165deg,var(--ink-raise),var(--ink-raise-2));
   border:1px solid var(--hairline);border-left:2px solid var(--gold);border-radius:0 12px 12px 0;
   padding:1.6rem 1.6rem}
@@ -357,7 +362,7 @@ canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background
     </p>
     <dl class="ledger">
       <div><dt>Argument</dt><dd>Three essays</dd></div>
-      <div><dt>Instruments</dt><dd>Two · live</dd></div>
+      <div><dt>Instruments</dt><dd>One built · one proposed</dd></div>
       <div><dt>Program</dt><dd>AI Security</dd></div>
       <div><dt>Status</dt><dd>Open · in motion</dd></div>
     </dl>
@@ -401,7 +406,7 @@ canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background
         </span>
         <span class="kind">Essay</span>
       </a>
-      <a class="essay" href="/blog/the-concept-is-not-the-state/">
+      <a class="essay" href="/blog/concept-is-not-the-state/">
         <span class="idx">02</span>
         <span class="body">
           <h4>The Concept Is Not the State</h4>
@@ -429,20 +434,21 @@ canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background
       When one abstraction shows up in two unrelated security problems, that is the evidence it
       is real. Both instruments run the identical three-state discipline — reinforce what carries
       value, let the rest decay, route around the break. One does it to tools. One does it to
-      dependency graphs, the way a slime mold does it to a rail map.
+      dependency graphs, the way a slime mold does it to a rail map. That is the claim; half of
+      its evidence now runs, and the other half is still a design.
     </p></div>
 
     <!-- kintsugi -->
     <div class="instrument">
       <div class="text inst-text">
         <div class="inst-name"><em>kintsugi</em></div>
-        <div class="inst-tag">Tool routing · Python · verified</div>
+        <div class="inst-tag">Tool routing · proposed · not yet built</div>
         <p>A fragility-aware toolbelt for a research harness. Tools are <em>expected</em> to eject under load; the breaker trips on a soft threshold, the portable task context hands off to the next tool intact, and the eject-reason taxonomy is kept as the research payload.</p>
-        <p>Routing ranks tools by value-density — goal advanced per token — never by reliability. Ejection is never penalized anywhere in the code.</p>
+        <p>Routing would rank tools by value-density — goal advanced per token — never by reliability, and ejection would never be penalized. It waits for a harness where real tools fail under real load; a demo without one would be a scripted break, and a scripted break records nothing.</p>
         <a class="src" href="/papers/intentional-fragility.pdf">→ the formal argument (PDF)</a>
       </div>
-      <div class="panel" role="img" aria-label="kintsugi circuit breaker: CLOSED to HALF-OPEN to OPEN, ejecting on a real reason then handing off context.">
-        <h3>Circuit · live</h3>
+      <div class="panel" role="img" aria-label="Illustration of the proposed kintsugi circuit breaker: CLOSED to HALF-OPEN to OPEN, ejecting on a named reason, then handing off context.">
+        <h3>Circuit · illustration</h3>
         <div class="states">
           <div class="state" data-s="closed"><span class="dot"></span><span><span class="lab">CLOSED</span><span class="desc">Tool active · monitoring health signals</span></span></div>
           <div class="state" data-s="half"><span class="dot"></span><span><span class="lab">HALF-OPEN</span><span class="desc">Strain detected · one cautious retry</span></span></div>
@@ -458,8 +464,8 @@ canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background
     <!-- theatre of dependencies / slime mold -->
     <div class="instrument flip" style="margin-top:2.5rem">
       <div class="panel slime-wrap">
-        <h3>Slime mold routing · live</h3>
-        <canvas id="slime" aria-label="A live Physarum-style network solver: tubes between dependency roots thicken where flux is high and decay where it is not, converging on an efficient backbone."></canvas>
+        <h3>Slime mold routing · sketch</h3>
+        <canvas id="slime" aria-label="A sketch of the Physarum-style solver on twelve abstract nodes: tubes thicken where flux is high and decay where it is not. The working instrument runs on real dependency graphs."></canvas>
         <div class="slime-read">
           <span class="stat">coverage <b class="v" id="cov">—</b></span>
           <span class="stat">backbone <b class="v" id="bb">—</b> edges</span>
@@ -469,12 +475,18 @@ canvas#slime{width:100%;height:300px;display:block;border-radius:10px;background
       </div>
       <div class="text inst-text">
         <div class="inst-name">Theatre of Dependencies</div>
-        <div class="inst-tag">Supply-chain · SBOM · slime-mold routing</div>
-        <p>Feed a dependency graph as terrain. The organism treats roots as food sources and lays tubes between them, thickening the paths that carry flux and starving the ones that don't — converging on a minimal set of roots whose trail covers the most surface. That set is the upgrade ritual.</p>
+        <div class="inst-tag">Supply-chain · SBOM · built · Node CLI</div>
+        <p>Feed it a lockfile as terrain. Vulnerable packages are the food and your project is the heart; the organism lays tubes along every chain that can carry a vulnerability home, thickens the ones that carry current and starves the rest — converging on the few direct dependencies through which most of the vulnerable surface enters. That set is the upgrade ritual, and an exact cut, not the organism, decides how much of it each act closes.</p>
         <p>It is the same fragility, applied to a different graph. <em>Physarum polycephalum</em> famously rebuilt the Tokyo rail network this way — reinforce what works, prune what doesn't (Tero et al., <span style="font-style:italic">Science</span>, 2010).</p>
-        <a class="src" href="https://github.com/mazze93">→ repos at github.com/mazze93</a>
+        <a class="src" href="/theatre-of-dependencies/">→ the instrument, running</a>
+        <a class="src" href="https://github.com/mazze93/theatre-of-dependencies" style="margin-left:1.2rem">→ source</a>
       </div>
     </div>
+
+    <aside class="correction" aria-label="Correction">
+      <span class="tag">Corrected · 18 October 2026</span>
+      <p>From July until today this section listed kintsugi as <b>“Python · verified”</b>, called both panels <b>live</b>, and sent readers looking for the slime mold at <b>“repos at github.com/mazze93”</b>. Neither tool existed. The Theatre of Dependencies does now — <a href="/blog/the-page-said-verified/">how it was chosen and built</a>. kintsugi is still a proposal, and is labelled as one. The original wording stays here rather than being edited away.</p>
+    </aside>
   </section>
 
   <!-- ── THE RESEARCH PROGRAM ────────────────────────────────────────── -->

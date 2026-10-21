@@ -15,6 +15,16 @@ on:
       - ".github/workflows/docs-integrity.yml"
       - "package.json"
       - "package-lock.json"
+      # What check-docs-drift.sh actually inspects. Without these, a PR that only
+      # touches public/ or the sitemap config never ran the checks that guard
+      # them (#202 shipped two pages missing from customPages that way).
+      - "CLAUDE.md"
+      - "astro.config.mjs"
+      - "public/**"
+      - "src/pages/**"
+      - "src/consts.ts"
+      - "src/content.config.ts"
+      - "functions/**"
   push:
     branches: [main]
     paths:
@@ -30,6 +40,16 @@ on:
       - ".github/workflows/docs-integrity.yml"
       - "package.json"
       - "package-lock.json"
+      # What check-docs-drift.sh actually inspects. Without these, a PR that only
+      # touches public/ or the sitemap config never ran the checks that guard
+      # them (#202 shipped two pages missing from customPages that way).
+      - "CLAUDE.md"
+      - "astro.config.mjs"
+      - "public/**"
+      - "src/pages/**"
+      - "src/consts.ts"
+      - "src/content.config.ts"
+      - "functions/**"
 
 permissions:
   contents: read

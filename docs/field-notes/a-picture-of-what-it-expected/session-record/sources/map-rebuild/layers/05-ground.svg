@@ -1,0 +1,18 @@
+  <!-- Ground. An opaque parchment mass whose top follows the first stratum and
+       tails out to the frame; it occludes the rings, lower rays and the figure's
+       foot, so the figure stands *in* the ground rather than hovering 5px above it.
+       Strata: source geometry with the centre notch removed. Each source line met
+       itself at x=500 with opposed tangents (a V); here the handles either side of
+       x=500 sit at the centre height, so every line crosses the axis level. -->
+  <g clip-path="url(#art)">
+    <path d="M 40,862 C 80,842 110,826 140,810 C 270,740 410,755 500,755 C 590,755 730,740 860,810 C 890,826 920,842 960,862 L 960,960 L 40,960 Z"
+          fill="#FAF5E8"/>
+    <g fill="none" stroke="#2C1A0C" stroke-linecap="round">
+      <path d="M 140,810 C 270,740 410,755 500,755 C 590,755 730,740 860,810" stroke-width="3.2"/>
+      <path d="M 70,845 C 240,775 390,780 500,780 C 610,780 760,775 930,845" stroke-width="3"/>
+      <path d="M 110,860 C 260,800 400,805 500,805 C 600,805 740,800 890,860" stroke-width="1.8"/>
+      <path d="M 80,885 C 240,820 390,825 500,825 C 610,825 760,820 920,885" stroke-width="1.2" opacity="0.9"/>
+      <path d="M 50,910 C 220,845 380,850 500,850 C 620,850 780,845 950,910" stroke-width="0.85" stroke-dasharray="6,3,1,3" opacity="0.85"/>
+      <path d="M 40,935 C 200,870 370,875 500,875 C 630,875 800,870 960,935" stroke-width="0.85" stroke-dasharray="10,4" opacity="0.8"/>
+    </g>
+  </g>
