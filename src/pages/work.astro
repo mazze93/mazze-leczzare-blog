@@ -49,7 +49,7 @@ interface Entry {
   note?: string;
   projectHref?: string;
   flagship?: boolean;
-  /** A plate rendered between the title and the body — show, then tell. */
+  /** A full-width plate above the entry — show first, then tell. */
   figure?: 'checkmate';
 }
 
@@ -90,7 +90,7 @@ const instruments: Entry[] = [
     subtitle: 'security-claim ledger',
     figure: 'checkmate',
     body: [
-      'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. It has no public page. What it lets out is above: the head, the tally, the rule.',
+      'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. It has no public page; the plate above is everything it lets out.',
     ],
     evidence: [
       { label: 'Live', title: 'Every head witnessed here', href: 'https://github.com/mazze93/mazze-leczzare-blog/commits/main/src/data/checkmate-witness.json', external: true },
@@ -424,6 +424,7 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
           <div class="work-grid">
             {section.entries.map((e) => (
               <article id={e.figure} class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
+                {e.figure === 'checkmate' && <CheckmateWitness />}
                 <div class="entry-apparatus">
                   <span class="entry-idx">{e.idx}</span>
                   <span class={`chip chip--${e.tier}`}>{TIER_LABEL[e.tier]}</span>
@@ -435,8 +436,6 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
                     <Fragment set:html={e.title} />
                     {e.subtitle && <span class="entry-sub"> — <Fragment set:html={e.subtitle} /></span>}
                   </h3>
-
-                  {e.figure === 'checkmate' && <CheckmateWitness />}
 
                   {e.body.map((para) => (
                     <p class="entry-para"><Fragment set:html={para} /></p>

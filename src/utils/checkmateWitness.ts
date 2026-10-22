@@ -160,3 +160,27 @@ export function toLedgerJson(w: WitnessSnapshot) {
     },
   };
 }
+
+export interface Pearl {
+  glyph: string;
+  label: string;
+  /** false only for audits still open: drawn as an empty setting. */
+  decided: boolean;
+}
+
+/**
+ * One pearl per audit, for the crown's points: decided verdicts first in
+ * notation order, open audits last. The crown grows as the ledger does.
+ */
+export function crownPearls(verdicts: Record<string, number>): Pearl[] {
+  return annotate(verdicts).flatMap((a) =>
+    Array.from({ length: a.count }, () => ({ glyph: a.glyph, label: a.label, decided: a.key !== 'open' })),
+  );
+}
+
+/** Moves for a chess-style game record: [[1, '#', '#'], [2, '?', '?'], …]. */
+export function gameRecord(pearls: Pearl[]): Array<[number, Pearl, Pearl | undefined]> {
+  const moves: Array<[number, Pearl, Pearl | undefined]> = [];
+  for (let i = 0; i < pearls.length; i += 2) moves.push([i / 2 + 1, pearls[i], pearls[i + 1]]);
+  return moves;
+}

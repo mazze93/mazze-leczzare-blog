@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import snapshot from '../data/checkmate-witness.json';
-import { annotate, headToBoard, parseWitness, toLedgerJson } from './checkmateWitness';
+import { annotate, crownPearls, gameRecord, headToBoard, parseWitness, toLedgerJson } from './checkmateWitness';
 
 const HEAD = '2e93ff8697d95fd97edd56b8c496ecb1649ff4fc66799a110010d3e87a16cedb';
 const valid = {
@@ -78,5 +78,20 @@ describe('toLedgerJson', () => {
     const j = toLedgerJson(parseWitness(valid));
     expect(j.generatedAt).toBe(1792646883768);
     expect(j.ledger.chain).toEqual({ ok: true, length: 177, head: HEAD });
+  });
+});
+
+describe('crownPearls / gameRecord', () => {
+  const pearls = crownPearls({ open: 2, 'class-closed': 1, 'did-not-hold': 2 });
+
+  it('gives one pearl per audit, decided first, open last', () => {
+    expect(pearls.map((p) => p.glyph)).toEqual(['#', '?', '?', '…', '…']);
+    expect(pearls.map((p) => p.decided)).toEqual([true, true, true, false, false]);
+  });
+
+  it('pairs pearls into numbered moves, leaving the last half-move open', () => {
+    const rec = gameRecord(pearls);
+    expect(rec.map(([n]) => n)).toEqual([1, 2, 3]);
+    expect(rec[2][2]).toBeUndefined();
   });
 });
