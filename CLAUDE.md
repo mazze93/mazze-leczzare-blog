@@ -73,6 +73,7 @@ src/
   content/blog/       # Markdown/MDX blog posts (Content Collection)
   content/signal/     # Signal transmissions (Content Collection)
   content/tesserae/   # Tesserae — mosaic-tile fragments (Content Collection)
+  data/               # Page content kept apart from layout (about.ts) + checkmate-witness.json snapshot
   utils/              # Constellation logic, split pure-vs-Astro for testability (see Constellation System below):
     decay.ts          #   pure — age/committed/resolved → Zone ("undefined"|"experiment"|"signal"|"resolved")
     layout.ts         #   pure — deterministic (seeded) node position/style from a Zone
@@ -299,6 +300,9 @@ Read source for full detail — these are the non-obvious points:
 **Cursor:**
 - **`SeamCursor.astro`** — difference-blended dot + spring-lagged gold ring (k 120, c 18). Mounted on `/about` only. Mounts nothing unless the pointer is fine, `prefers-reduced-motion` is off and `forced-colors` is off; the native cursor is hidden only after mount (`html.has-seam-cursor`), so a script failure leaves the normal pointer. z-index sits on each layer, not the wrapper, so the dot's `mix-blend-mode` blends with the page. Vanilla script, not a React island.
 
+**Work plates:**
+- **`work/CheckmateWitness.astro`** — the Checkmate entry on `/work` shows rather than describes: checkmate's ledger head drawn as a chessboard (64 hex digits → 64 squares, piece size = nibble), verdicts in chess-annotation glyphs (`#` `?` `?!` `∞` `…`), and the human-only filing rule. Data is `src/data/checkmate-witness.json`, a committed snapshot — **the commit is the point**: checkmate asks for its head to be recorded somewhere it doesn't control, and this repo's history is that record. Refresh with `node scripts/ops/witness-checkmate.mjs`; validation lives in `src/utils/checkmateWitness.ts` (pure, tested). Only fields checkmate's own `/public` page publishes may appear here — checkmate is MAX posture and its source is private. Link `/public` with **no trailing slash** (`/public/` hits the Access login). Zero hydration.
+
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
 
 ## Design Systems
@@ -503,6 +507,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology           |
 | `verify-lockfile.sh`      | Checks `package-lock.json` is in sync                          |
 | `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
+| `witness-checkmate.mjs` | Records checkmate's current public ledger head into `src/data/checkmate-witness.json` (`--check` reports without writing); warns if the chain shrank. Commit the result — it is the witness |
 | `extend-portrait.py`     | Regenerates `src/assets/images/about/mazze-portrait-wide.jpg` (the /about 2:1 hero) from `public/mazze-headshot.jpg` by extending the photo's own backdrop — run it if the headshot changes |
 
 `scripts/bootstrap-dev-toolbelt.sh` — one-time developer environment bootstrap (separate from ops).

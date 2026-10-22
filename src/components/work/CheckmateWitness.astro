@@ -1,0 +1,281 @@
+---
+/**
+ * CheckmateWitness — the Checkmate plate on /work.
+ *
+ * Shows the project instead of describing it: checkmate's ledger head drawn
+ * as a chessboard (64 hex digits → 64 squares, gold depth = nibble value),
+ * its verdicts in chess-annotation glyphs, and the one rule it holds hardest.
+ * The head is the snapshot this site last witnessed — see
+ * src/utils/checkmateWitness.ts for why that matters and how it's refreshed.
+ *
+ * Only what checkmate's own /public page already publishes appears here:
+ * aggregates and the chain head. Zero hydration; no motion under
+ * prefers-reduced-motion.
+ */
+import raw from '../../data/checkmate-witness.json';
+import {
+  CHECKMATE_PUBLIC_URL,
+  annotate,
+  headToBoard,
+  parseWitness,
+} from '../../utils/checkmateWitness';
+
+const w = parseWitness(raw);
+const board = headToBoard(w.head);
+const moves = annotate(w.verdicts);
+const witnessed = new Date(`${w.witnessedAt}T12:00:00Z`).toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const headLines = [w.head.slice(0, 32), w.head.slice(32)];
+---
+
+<figure class="cmw" aria-labelledby="cmw-cap">
+  <a
+    class="cmw-plate"
+    href={CHECKMATE_PUBLIC_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Checkmate's ledger head, link ${w.length}, drawn as a chessboard. Open the public ledger (opens in new tab)`}
+  >
+    <span class="cmw-ranks" aria-hidden="true">
+      {[8, 7, 6, 5, 4, 3, 2, 1].map((r) => <span>{r}</span>)}
+    </span>
+    <span class="cmw-board" aria-hidden="true">
+      {board.map((sq, i) => (
+        <span
+          class={`cmw-sq cmw-sq--${sq.tone}`}
+          style={`--n:${sq.nibble};--i:${i}`}
+          title={`${sq.name} · ${sq.char}`}
+        >
+          <i>{sq.char}</i>
+        </span>
+      ))}
+    </span>
+    <span class="cmw-files" aria-hidden="true">
+      {[...'abcdefgh'].map((f) => <span>{f}</span>)}
+    </span>
+  </a>
+
+  <figcaption class="cmw-cap" id="cmw-cap">
+    <p class="cmw-kicker">Ledger head · witnessed here {witnessed}</p>
+    <p class="cmw-head" aria-label={`Head ${w.head}`}>
+      {headLines.map((l) => <code>{l}</code>)}
+    </p>
+    <p class={`cmw-chain ${w.intact ? '' : 'cmw-chain--broken'}`}>
+      Link {w.length} · {w.intact ? 'chain intact' : 'chain reported broken'}
+    </p>
+
+    <dl class="cmw-moves" aria-label={`Verdicts across ${w.audits} audits`}>
+      {moves.map((m) => (
+        <div class="cmw-move">
+          <dt><abbr title={m.label}>{m.glyph}</abbr></dt>
+          <dd><b>{m.count}</b> {m.label}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <p class="cmw-rule">
+      Agents may move. Only a human files upstream.
+      <span class="cmw-gate">through the gate: <b>{w.filedThroughGate}</b></span>
+    </p>
+
+    <p class="cmw-witness">
+      Recorded here because checkmate asks to be recorded somewhere it doesn&rsquo;t control. If its history were
+      ever rewritten, the head it reports later would no longer extend this one.
+    </p>
+  </figcaption>
+</figure>
+
+<style>
+  .cmw {
+    --cmw-sq: clamp(1.15rem, 3.6vw, 1.6rem);
+    --cmw-light: color-mix(in oklab, var(--text) 15%, var(--bg));
+    --cmw-dark: color-mix(in oklab, var(--text) 4%, var(--bg));
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.25rem 2rem;
+    align-items: start;
+    margin: 0.4rem 0 1.4rem;
+  }
+
+  /* ── The board ── */
+  .cmw-plate {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas: 'ranks board' '. files';
+    gap: 0.3rem 0.4rem;
+    text-decoration: none;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    border-radius: var(--radius-sm);
+  }
+  .cmw-plate:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 6px;
+  }
+
+  .cmw-ranks {
+    grid-area: ranks;
+    display: grid;
+    grid-template-rows: repeat(8, var(--cmw-sq));
+    align-items: center;
+  }
+  .cmw-files {
+    grid-area: files;
+    display: grid;
+    grid-template-columns: repeat(8, var(--cmw-sq));
+    text-align: center;
+  }
+
+  .cmw-board {
+    grid-area: board;
+    display: grid;
+    grid-template-columns: repeat(8, var(--cmw-sq));
+    grid-template-rows: repeat(8, var(--cmw-sq));
+    outline: 1px solid var(--rule);
+    outline-offset: 3px;
+  }
+
+  .cmw-sq {
+    display: grid;
+    place-items: center;
+    background: var(--cmw-light);
+  }
+  .cmw-sq--dark { background: var(--cmw-dark); }
+
+  /* The piece on each square is its digit: 0 leaves the square empty, f
+     nearly fills it. Read a8 → h1 and you have the head. */
+  .cmw-sq::before {
+    content: '';
+    grid-area: 1 / 1;
+    width: calc(var(--n) * 5%);
+    aspect-ratio: 1;
+    border-radius: 1px;
+    background: var(--gold);
+    opacity: 0.9;
+    animation: cmw-read 480ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    animation-delay: calc(var(--i) * 16ms);
+  }
+
+  .cmw-sq i {
+    grid-area: 1 / 1;
+    font-style: normal;
+    font-size: 0.6rem;
+    position: relative;
+    color: var(--bg);
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+  .cmw-sq--light i { color: var(--text); }
+  .cmw-plate:hover .cmw-sq i,
+  .cmw-plate:focus-visible .cmw-sq i { opacity: 0.85; }
+  .cmw-plate:hover .cmw-sq::before,
+  .cmw-plate:focus-visible .cmw-sq::before { opacity: 0.35; }
+
+  /* The chain being read, a8 to h1. */
+  @keyframes cmw-read {
+    from { transform: scale(0); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cmw-sq::before { animation: none; }
+    .cmw-sq i { transition: none; }
+  }
+
+  /* ── The caption ── */
+  .cmw-cap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    min-width: 0;
+  }
+  .cmw-cap p { margin: 0; }
+
+  .cmw-kicker {
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .cmw-head {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.68rem;
+    color: var(--text);
+    user-select: all;
+    word-break: break-all;
+  }
+  .cmw-head code {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .cmw-chain { color: var(--teal); }
+  .cmw-chain--broken { color: var(--coral); }
+
+  .cmw-moves {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: 0.25rem 1rem;
+    margin: 0.2rem 0 0;
+  }
+  .cmw-move {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+  }
+  .cmw-move dt {
+    min-width: 1.6rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    line-height: 1;
+    color: var(--gold);
+    text-align: right;
+  }
+  .cmw-move abbr { text-decoration: none; cursor: help; }
+  .cmw-move dd { margin: 0; }
+  .cmw-move b,
+  .cmw-gate b { color: var(--text); font-weight: 500; }
+
+  .cmw-rule {
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    font-style: italic;
+    color: var(--text);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem 0.9rem;
+  }
+  .cmw-gate {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 0.68rem;
+    color: var(--text-faint);
+  }
+
+  .cmw-witness {
+    font-size: 0.68rem;
+    line-height: 1.6;
+    color: var(--text-faint);
+    max-width: 46ch;
+  }
+
+  @media (max-width: 560px) {
+    .cmw { grid-template-columns: 1fr; }
+    .cmw-plate { justify-self: start; }
+  }
+</style>

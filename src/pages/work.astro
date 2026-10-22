@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import FieldFigure from '../components/work/FieldFigure';
+import CheckmateWitness from '../components/work/CheckmateWitness.astro';
 import { SITE_TITLE } from '../consts';
 
 /**
@@ -48,6 +49,8 @@ interface Entry {
   note?: string;
   projectHref?: string;
   flagship?: boolean;
+  /** A plate rendered between the title and the body — show, then tell. */
+  figure?: 'checkmate';
 }
 
 const instruments: Entry[] = [
@@ -85,14 +88,14 @@ const instruments: Entry[] = [
     tier: 'live',
     title: 'Checkmate',
     subtitle: 'security-claim ledger',
+    figure: 'checkmate',
     body: [
-      'A private ledger of vulnerability-research audits, written by a human and by agents through the same gate. Every audit runs the same six phases — explain, reproduce, variant sweep, blast radius, score, draft — and every row is SHA-256-linked to the one before it, so a history rewritten later would no longer extend a head recorded anywhere else. Filing upstream is never an agent&rsquo;s move: it is a separate, recorded human decision.',
-      'The public face publishes only aggregates: audits by verdict, which methods found real bugs and which made wrong calls, counted rather than rated at this sample size, plus the current chain head. Targets, claims and unpublished findings stay private until disclosed. It eats its own cooking: a dependency alert against checkmate itself goes into the ledger as its own audit, starting at <em>explain</em>, like anyone else&rsquo;s.',
+      'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. What it lets out is above: the head, the tally, the rule.',
     ],
     evidence: [
       { label: 'Live', title: 'checkmate.mazzeleczzare.com/public', href: 'https://checkmate.mazzeleczzare.com/public', external: true },
     ],
-    note: 'Cloudflare Workers + Durable Objects · source private; the public page is aggregates and the chain head only',
+    note: 'Source private · the public page is aggregates and the chain head only',
   },
   {
     idx: '04',
@@ -432,6 +435,8 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
                     <Fragment set:html={e.title} />
                     {e.subtitle && <span class="entry-sub"> — <Fragment set:html={e.subtitle} /></span>}
                   </h3>
+
+                  {e.figure === 'checkmate' && <CheckmateWitness />}
 
                   {e.body.map((para) => (
                     <p class="entry-para"><Fragment set:html={para} /></p>
