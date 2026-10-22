@@ -83,6 +83,37 @@ const instruments: Entry[] = [
   {
     idx: '03',
     tier: 'live',
+    title: 'Checkmate',
+    subtitle: 'security-claim ledger',
+    body: [
+      'A private ledger of vulnerability-research audits, written by a human and by agents through the same gate. Every audit runs the same six phases — explain, reproduce, variant sweep, blast radius, score, draft — and every row is SHA-256-linked to the one before it, so a history rewritten later would no longer extend a head recorded anywhere else. Filing upstream is never an agent&rsquo;s move: it is a separate, recorded human decision.',
+      'The public face publishes only aggregates: audits by verdict, which methods found real bugs and which made wrong calls, counted rather than rated at this sample size, plus the current chain head. Targets, claims and unpublished findings stay private until disclosed. It eats its own cooking: a dependency alert against checkmate itself goes into the ledger as its own audit, starting at <em>explain</em>, like anyone else&rsquo;s.',
+    ],
+    evidence: [
+      { label: 'Live', title: 'checkmate.mazzeleczzare.com/public', href: 'https://checkmate.mazzeleczzare.com/public', external: true },
+    ],
+    note: 'Cloudflare Workers + Durable Objects · source private; the public page is aggregates and the chain head only',
+  },
+  {
+    idx: '04',
+    tier: 'live',
+    title: 'Research',
+    subtitle: 'observable behavior, accountable interpretation',
+    body: [
+      'The studies site: public evidence, private controls. Two working instruments, each with its own method. <em>Identity Dissolution</em> is controlled generation under a factorial design — self-reference, repetition and recovery, compared across prompt conditions, with raw turns open to inspection and failed observations kept. <em>Persona Integrity</em> is contextual reading with categorical annotation — marked fiction, unmarked simulation, asserted self-description — recording alternatives and uncertainty instead of collapsing them into a score.',
+      'The record comes first: each reviewed release carries its methods, failures and limits, listed in a public JSON index. The site says what it has not done yet, in its own words: <em>a smoke test verifies machinery; it is not a completed research pilot.</em>',
+    ],
+    evidence: [
+      { label: 'Live', title: 'research.mazzeleczzare.com', href: 'https://research.mazzeleczzare.com/', external: true },
+      { label: 'Study', title: 'Identity Dissolution', href: 'https://research.mazzeleczzare.com/studies/identity-dissolution', external: true },
+      { label: 'Study', title: 'Persona Integrity', href: 'https://research.mazzeleczzare.com/studies/persona-integrity', external: true },
+      { label: 'Standards', title: 'Protocol and evidence standards', href: 'https://research.mazzeleczzare.com/method.html', external: true },
+    ],
+    note: 'Smoke-test evidence only so far — no completed pilot yet.',
+  },
+  {
+    idx: '05',
+    tier: 'live',
     title: 'Field Notes',
     subtitle: 'a gallery of working instruments',
     body: [
@@ -94,7 +125,7 @@ const instruments: Entry[] = [
     note: 'Self-contained HTML instruments · no build step',
   },
   {
-    idx: '04 · Founder & Exec. Director',
+    idx: '06 · Founder & Exec. Director',
     tier: 'live',
     title: 'Secure Pride',
     subtitle: 'cybersecurity for the people least served by it',
@@ -112,7 +143,7 @@ const instruments: Entry[] = [
     projectHref: '/project/secure-pride/',
   },
   {
-    idx: '05',
+    idx: '07',
     tier: 'self',
     title: 'Context Synapse',
     subtitle: 'local-first context orchestration',
@@ -127,7 +158,7 @@ const instruments: Entry[] = [
     projectHref: '/project/context-synapse/',
   },
   {
-    idx: '06 · Pre-release',
+    idx: '08 · Pre-release',
     tier: 'self',
     title: 'AI-Native Threat Toolkit',
     subtitle: 'prompt injection & output integrity for civil society',
@@ -144,7 +175,7 @@ const instruments: Entry[] = [
 
 const record: Entry[] = [
   {
-    idx: '07 · Paper',
+    idx: '09 · Paper',
     tier: 'published',
     flagship: true,
     title: 'Intentional Fragility',
@@ -160,7 +191,7 @@ const record: Entry[] = [
     projectHref: '/project/intentional-fragility/',
   },
   {
-    idx: '08 · Essay',
+    idx: '10 · Essay',
     tier: 'published',
     title: 'The Lighthouse Earns Its Floor',
     body: [
@@ -171,7 +202,7 @@ const record: Entry[] = [
     ],
   },
   {
-    idx: '09 · Essay',
+    idx: '11 · Essay',
     tier: 'published',
     title: 'The Concept Is Not the State',
     subtitle: 'what Anthropic&rsquo;s emotion paper actually found',
@@ -184,7 +215,7 @@ const record: Entry[] = [
     projectHref: '/project/cognitive-topology/',
   },
   {
-    idx: '10 · Research note',
+    idx: '12 · Research note',
     tier: 'live',
     title: 'What We Don&rsquo;t Know Yet',
     subtitle: 'iOS Lockdown Mode research',
@@ -197,7 +228,7 @@ const record: Entry[] = [
     ],
   },
   {
-    idx: '11 · Essay',
+    idx: '13 · Essay',
     tier: 'live',
     title: 'The Architecture of Forgetting',
     body: [
@@ -208,7 +239,7 @@ const record: Entry[] = [
     ],
   },
   {
-    idx: '12 · Method, v0.1',
+    idx: '14 · Method, v0.1',
     tier: 'self',
     title: 'Epistemic Fault Injection',
     subtitle: 'measuring integrity under adversarial context',
@@ -221,7 +252,7 @@ const record: Entry[] = [
 
 const editorial: Entry[] = [
   {
-    idx: '13 · 2023',
+    idx: '15 · 2023',
     tier: 'published',
     title: 'Industry Writing',
     subtitle: '80 Level & LinkedIn Pulse',
@@ -234,7 +265,7 @@ const editorial: Entry[] = [
     note: '80 Level · 15 March 2023',
   },
   {
-    idx: '14 · 2022–23',
+    idx: '16 · 2022–23',
     tier: 'published',
     title: 'Clear as Mud',
     subtitle: 'podcast, host & producer',
@@ -248,7 +279,7 @@ const editorial: Entry[] = [
     note: '26+ episodes · long-form interview',
   },
   {
-    idx: '15 · Founding EIC',
+    idx: '17 · Founding EIC',
     tier: 'self',
     title: 'Bloom Magazine',
     subtitle: 'founding editor-in-chief, Butte College',
@@ -261,7 +292,7 @@ const editorial: Entry[] = [
 
 const provenance: Entry[] = [
   {
-    idx: '16 · UC Davis',
+    idx: '18 · UC Davis',
     tier: 'acknowledged',
     title: 'Counterfeit-Banknote Authentication Program',
     subtitle: 'Luck Lab, Center for Mind & Brain',
@@ -275,7 +306,7 @@ const provenance: Entry[] = [
     note: 'Not an author. Acknowledged contributor — role stated exactly, nothing past it.',
   },
   {
-    idx: '17 · OSS',
+    idx: '19 · OSS',
     tier: 'acknowledged',
     title: 'Vulnerability Research',
     subtitle: 'js-yaml merge-key denial-of-service',
@@ -286,10 +317,11 @@ const provenance: Entry[] = [
       { label: 'CVE-2026-59869', title: 'High 7.5 — quadratic CPU via chained merge keys, js-yaml 3.x/4.x', href: 'https://github.com/advisories/GHSA-52cp-r559-cp3m', external: true },
       { label: 'CVE-2026-59868', title: 'Moderate 5.3 — quadratic CPU via merge-key chains, js-yaml 5.x', href: 'https://github.com/advisories/GHSA-g796-fgmg-93mv', external: true },
       { label: 'CVE-2026-53550', title: 'Moderate 5.3 — repeated-alias merge-key DoS, credited alongside five other researchers', href: 'https://github.com/advisories/GHSA-h67p-54hq-rp68', external: true },
+      { label: 'Ledger', title: 'Audited in Checkmate — public aggregates and chain head', href: 'https://checkmate.mazzeleczzare.com/public', external: true },
     ],
   },
   {
-    idx: '18 · OSS',
+    idx: '20 · OSS',
     tier: 'self',
     title: 'ERPLAB Toolbox',
     subtitle: 'open-source contribution',
@@ -299,7 +331,7 @@ const provenance: Entry[] = [
     note: 'Reference: Dr. Steven J. Luck.',
   },
   {
-    idx: '19 · UC Davis',
+    idx: '21 · UC Davis',
     tier: 'self',
     title: 'Laboratory Operations',
     subtitle: 'Luck Lab / Center for Mind & Brain',
@@ -309,7 +341,7 @@ const provenance: Entry[] = [
     note: 'References: Dr. Steven J. Luck · Dr. John Kiat.',
   },
   {
-    idx: '20 · 2015–2018',
+    idx: '22 · 2015–2018',
     tier: 'self',
     title: 'Teaching',
     body: [
