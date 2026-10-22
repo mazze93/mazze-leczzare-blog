@@ -8,13 +8,13 @@
  * The head is the snapshot this site last witnessed — see
  * src/utils/checkmateWitness.ts for why that matters and how it's refreshed.
  *
- * Only what checkmate's own /public page already publishes appears here:
- * aggregates and the chain head. Zero hydration; no motion under
- * prefers-reduced-motion.
+ * checkmate has no public page of its own; this plate is its public face.
+ * Only aggregates and the chain head appear, nothing identifying a target or
+ * a claim. Zero hydration; no motion under prefers-reduced-motion.
  */
 import raw from '../../data/checkmate-witness.json';
 import {
-  CHECKMATE_PUBLIC_URL,
+  WITNESS_HISTORY_URL,
   annotate,
   headToBoard,
   parseWitness,
@@ -35,10 +35,10 @@ const headLines = [w.head.slice(0, 32), w.head.slice(32)];
 <figure class="cmw" aria-labelledby="cmw-cap">
   <a
     class="cmw-plate"
-    href={CHECKMATE_PUBLIC_URL}
+    href={WITNESS_HISTORY_URL}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={`Checkmate's ledger head, link ${w.length}, drawn as a chessboard. Open the public ledger (opens in new tab)`}
+    aria-label={`Checkmate's ledger head, link ${w.length}, drawn as a chessboard. Every head witnessed here (opens in new tab)`}
   >
     <span class="cmw-ranks" aria-hidden="true">
       {[8, 7, 6, 5, 4, 3, 2, 1].map((r) => <span>{r}</span>)}
@@ -83,8 +83,8 @@ const headLines = [w.head.slice(0, 32), w.head.slice(32)];
     </p>
 
     <p class="cmw-witness">
-      Recorded here because checkmate asks to be recorded somewhere it doesn&rsquo;t control. If its history were
-      ever rewritten, the head it reports later would no longer extend this one.
+      Read every Monday through a private gateway and committed here, outside checkmate&rsquo;s control. If its
+      history were ever rewritten, the head it reports later would no longer extend these.
     </p>
   </figcaption>
 </figure>

@@ -3,9 +3,10 @@
  *
  * Checkmate's public page asks readers to record its ledger head "anywhere
  * checkmate doesn't control". This site does: `src/data/checkmate-witness.json`
- * is a dated snapshot of that head, refreshed by
- * `scripts/ops/witness-checkmate.mjs` and committed, so git history here is an
- * independent record. If checkmate's history were ever rewritten, the head it
+ * is a dated snapshot of that head. A weekly workflow refreshes it through
+ * checkmate's private gateway and commits it, so git history here is an
+ * independent record. checkmate itself has no public page: this site is its
+ * only public surface. If checkmate's history were ever rewritten, the head it
  * reports later would no longer extend the one witnessed here.
  *
  * A SHA-256 head is 64 hex digits, and a chessboard has 64 squares. The plate
@@ -15,7 +16,9 @@
  * field. Nothing is passed through just because the endpoint returned it.
  */
 
-export const CHECKMATE_PUBLIC_URL = 'https://checkmate.mazzeleczzare.com/public';
+/** Every head this site has witnessed: the git history of the snapshot. */
+export const WITNESS_HISTORY_URL =
+  'https://github.com/mazze93/mazze-leczzare-blog/commits/main/src/data/checkmate-witness.json';
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const VERDICT_KEY = /^[a-z-]{1,32}$/;
@@ -24,6 +27,8 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 export interface WitnessSnapshot {
   /** Date the head was read, YYYY-MM-DD. */
   witnessedAt: string;
+  /** checkmate's own timestamp for the projection, epoch ms. */
+  generatedAt: number;
   head: string;
   /** Number of links in the chain at `head`. */
   length: number;
@@ -66,6 +71,7 @@ export function parseWitness(raw: unknown): WitnessSnapshot {
 
   return {
     witnessedAt: r.witnessedAt,
+    generatedAt: count(r.generatedAt, 'generatedAt'),
     head: r.head,
     length: count(r.length, 'length'),
     intact: r.intact,
@@ -134,4 +140,23 @@ export function annotate(verdicts: Record<string, number>): Annotation[] {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => ({ key: k, glyph: '·', label: k.replace(/-/g, ' '), count: v }));
   return [...known, ...unknown];
+}
+
+/**
+ * The snapshot in checkmate's own ledger.json shape (the subset this site
+ * keeps), served at /witness/checkmate.json. The witness-hub script that used
+ * to read checkmate's public page reads this instead.
+ */
+export function toLedgerJson(w: WitnessSnapshot) {
+  return {
+    source: 'mazzeleczzare.com witness of checkmate',
+    witnessedAt: w.witnessedAt,
+    generatedAt: w.generatedAt,
+    ledger: {
+      audits: w.audits,
+      verdicts: w.verdicts,
+      filedThroughGate: w.filedThroughGate,
+      chain: { ok: w.intact, length: w.length, head: w.head },
+    },
+  };
 }

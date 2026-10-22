@@ -1,21 +1,25 @@
 #!/usr/bin/env node
 // witness-checkmate.mjs — record checkmate's current ledger head on this site.
 //
-// Reads the public aggregate (the only checkmate surface outside Cloudflare
-// Access), keeps a whitelisted handful of fields, and rewrites
+// checkmate has no public page. Its aggregates are read through the private,
+// read-only CI gateway, which accepts only a Cloudflare Access service token.
+// This script keeps a whitelisted handful of fields and rewrites
 // src/data/checkmate-witness.json. Commit the result: the commit is the
-// witness. Run it whenever you want the plate on /work to catch up.
+// witness. .github/workflows/witness-checkmate.yml runs it weekly.
 //
-//   node scripts/ops/witness-checkmate.mjs           # write the snapshot
-//   node scripts/ops/witness-checkmate.mjs --check   # report only, no write
+//   CHECKMATE_LEDGER_URL=…  CF_ACCESS_CLIENT_ID=…  CF_ACCESS_CLIENT_SECRET=… \
+//     node scripts/ops/witness-checkmate.mjs           # write the snapshot
+//   … node scripts/ops/witness-checkmate.mjs --check   # report only, no write
+//
+// CHECKMATE_LEDGER_URL is the gateway's /ci/public/ledger.json URL. It names
+// an account-specific host, so it lives in a secret, never in this repo.
 //
 // The response is untrusted input. Only integer counts, a boolean, and a
-// 64-hex head are copied; anything else is ignored or makes the script fail.
+// 64-hex head are copied. Anything else is ignored or makes the script fail.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const URL_LEDGER = 'https://checkmate.mazzeleczzare.com/public?format=ledger';
 const OUT = fileURLToPath(new URL('../../src/data/checkmate-witness.json', import.meta.url));
 const check = process.argv.includes('--check');
 
@@ -25,8 +29,24 @@ const die = (msg) => {
 };
 const int = (v, f) => (Number.isInteger(v) && v >= 0 ? v : die(`${f} is not a non-negative integer`));
 
-const res = await fetch(URL_LEDGER, { headers: { accept: 'application/json' }, redirect: 'error' });
-if (!res.ok) die(`HTTP ${res.status} from ${URL_LEDGER}`);
+const { CHECKMATE_LEDGER_URL, CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } = process.env;
+if (!CHECKMATE_LEDGER_URL || !CF_ACCESS_CLIENT_ID || !CF_ACCESS_CLIENT_SECRET) {
+  die('set CHECKMATE_LEDGER_URL, CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET');
+}
+if (!CHECKMATE_LEDGER_URL.startsWith('https://')) die('CHECKMATE_LEDGER_URL must be https');
+
+// redirect: 'error' because a missing or rejected token answers with a
+// redirect to the Access login page, and that must fail rather than parse.
+const res = await fetch(CHECKMATE_LEDGER_URL, {
+  headers: {
+    accept: 'application/json',
+    'cf-access-client-id': CF_ACCESS_CLIENT_ID,
+    'cf-access-client-secret': CF_ACCESS_CLIENT_SECRET,
+  },
+  redirect: 'error',
+}).catch((e) => die(`fetch failed (${e.cause?.code ?? e.message}). A redirect here usually means the Access token was refused`));
+// Never echo the URL: it names the gateway host.
+if (!res.ok) die(`HTTP ${res.status} from the checkmate gateway`);
 const body = await res.json();
 const ledger = body?.ledger ?? die('response has no ledger');
 const chain = ledger.chain ?? die('response has no chain');
@@ -42,6 +62,7 @@ for (const [k, v] of Object.entries(ledger.verdicts ?? {})) {
 
 const next = {
   witnessedAt: new Date().toISOString().slice(0, 10),
+  generatedAt: int(body.generatedAt, 'generatedAt'),
   head: chain.head,
   length: int(chain.length, 'chain.length'),
   intact: chain.ok,

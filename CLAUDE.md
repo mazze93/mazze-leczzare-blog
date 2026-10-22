@@ -142,6 +142,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/about`          | `src/pages/about.astro`             | Researcher page — label/content rows (Info, Research, Current Study, Methods, Publications, Background, Collaborate, Cite, Contact). Content in `src/data/about.ts`, which lists its sources; mounts `SeamCursor` |
 | `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |
 | `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
+| `/work/research-program-operations` | `src/pages/work/research-program-operations.astro` | Résumé page for the research-operations record; carries the one approved published email (see Key Constraints) |
 | `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
 | `/roadmap`        | `src/pages/roadmap.astro`           | Designed status page — phases generated from one in-file list; linked from Footer |
 | `/login`          | `src/pages/login.astro`             | Admin login page                         |
@@ -159,6 +160,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/404`            | `src/pages/404.astro`               | Not-found page                           |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
+| `/witness/checkmate.json` | `src/pages/witness/checkmate.json.ts` | checkmate's head as last witnessed here, in checkmate's ledger.json shape (build-time JSON) |
 | `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record, a-picture-of-what-it-expected, theatre-of-dependencies) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
@@ -301,7 +303,7 @@ Read source for full detail — these are the non-obvious points:
 - **`SeamCursor.astro`** — difference-blended dot + spring-lagged gold ring (k 120, c 18). Mounted on `/about` only. Mounts nothing unless the pointer is fine, `prefers-reduced-motion` is off and `forced-colors` is off; the native cursor is hidden only after mount (`html.has-seam-cursor`), so a script failure leaves the normal pointer. z-index sits on each layer, not the wrapper, so the dot's `mix-blend-mode` blends with the page. Vanilla script, not a React island.
 
 **Work plates:**
-- **`work/CheckmateWitness.astro`** — the Checkmate entry on `/work` shows rather than describes: checkmate's ledger head drawn as a chessboard (64 hex digits → 64 squares, piece size = nibble), verdicts in chess-annotation glyphs (`#` `?` `?!` `∞` `…`), and the human-only filing rule. Data is `src/data/checkmate-witness.json`, a committed snapshot — **the commit is the point**: checkmate asks for its head to be recorded somewhere it doesn't control, and this repo's history is that record. Refresh with `node scripts/ops/witness-checkmate.mjs`; validation lives in `src/utils/checkmateWitness.ts` (pure, tested). Only fields checkmate's own `/public` page publishes may appear here — checkmate is MAX posture and its source is private. Link `/public` with **no trailing slash** (`/public/` hits the Access login). Zero hydration.
+- **`work/CheckmateWitness.astro`** — the Checkmate entry on `/work` (anchor `#checkmate`) shows rather than describes: checkmate's ledger head drawn as a chessboard (64 hex digits → 64 squares, piece size = nibble), verdicts in chess-annotation glyphs (`#` `?` `?!` `∞` `…`), and the human-only filing rule. **This site is checkmate's only public surface** — checkmate's own `/public` page is closed, so never link to `checkmate.mazzeleczzare.com`. Data is `src/data/checkmate-witness.json`, a committed snapshot, and **the commit is the point**: git history here is the off-checkmate record of every head. `.github/workflows/witness-checkmate.yml` refreshes it every Monday 13:00 UTC through checkmate's private CI gateway (Access service token in repo secrets) and pushes to `main`, which deploys. The same snapshot is served at `/witness/checkmate.json` in checkmate's ledger.json shape, for the `checkmate-witness` hub script. Validation lives in `src/utils/checkmateWitness.ts` (pure, tested). Only aggregates and the chain head may appear — checkmate is MAX posture. Zero hydration.
 
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
 
@@ -507,7 +509,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology           |
 | `verify-lockfile.sh`      | Checks `package-lock.json` is in sync                          |
 | `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
-| `witness-checkmate.mjs` | Records checkmate's current public ledger head into `src/data/checkmate-witness.json` (`--check` reports without writing); warns if the chain shrank. Commit the result — it is the witness |
+| `witness-checkmate.mjs` | Records checkmate's ledger head into `src/data/checkmate-witness.json` via the private CI gateway (needs `CHECKMATE_LEDGER_URL`, `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`; `--check` reports without writing); warns if the chain shrank. Run weekly by `witness-checkmate.yml` |
 | `extend-portrait.py`     | Regenerates `src/assets/images/about/mazze-portrait-wide.jpg` (the /about 2:1 hero) from `public/mazze-headshot.jpg` by extending the photo's own backdrop — run it if the headshot changes |
 
 `scripts/bootstrap-dev-toolbelt.sh` — one-time developer environment bootstrap (separate from ops).
@@ -525,6 +527,7 @@ decision log on demand — see **`BUILD_JOURNAL.md`** below.
 | `dependency-review.yml` | PR | Flags new vulnerable dependencies |
 | `docs-integrity.yml` | push / PR | Runs `npm run docs:check` |
 | `lighthouse.yml` | push / PR | Lighthouse CI performance/accessibility audit |
+| `witness-checkmate.yml` | Mondays 13:00 UTC + manual | Reads checkmate's ledger head through the private gateway, commits `src/data/checkmate-witness.json` to `main` (which deploys) |
 
 ## Astro / Frontend Notes
 

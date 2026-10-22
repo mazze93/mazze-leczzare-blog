@@ -42,6 +42,8 @@ DOCUMENTED_PAGES=(
   "src/pages/support.astro"
   "src/pages/rss.xml.js"
   "src/pages/nodes-manifest.json.ts"
+  "src/pages/witness/checkmate.json.ts"
+  "src/pages/work/research-program-operations.astro"
   "src/pages/signal/index.astro"
   "src/pages/tesserae/index.astro"
   "src/pages/blog/artifacts.astro"

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import snapshot from '../data/checkmate-witness.json';
-import { annotate, headToBoard, parseWitness } from './checkmateWitness';
+import { annotate, headToBoard, parseWitness, toLedgerJson } from './checkmateWitness';
 
 const HEAD = '2e93ff8697d95fd97edd56b8c496ecb1649ff4fc66799a110010d3e87a16cedb';
 const valid = {
   witnessedAt: '2026-10-22',
+  generatedAt: 1792646883768,
   head: HEAD,
   length: 177,
   intact: true,
@@ -32,6 +33,7 @@ describe('parseWitness', () => {
     ['string count', { filedThroughGate: '0' }],
     ['non-boolean intact', { intact: 'true' }],
     ['bad date', { witnessedAt: '22/10/2026' }],
+    ['missing generatedAt', { generatedAt: undefined }],
     ['markup in a verdict key', { verdicts: { '<b>': 1 } }],
     ['negative verdict', { verdicts: { open: -2 } }],
   ])('rejects %s', (_name, patch) => {
@@ -68,5 +70,13 @@ describe('annotate', () => {
   it('still renders a verdict it has no glyph for', () => {
     const a = annotate({ 'claim-withdrawn': 1 });
     expect(a).toEqual([{ key: 'claim-withdrawn', glyph: '·', label: 'claim withdrawn', count: 1 }]);
+  });
+});
+
+describe('toLedgerJson', () => {
+  it("keeps checkmate's ledger.json shape so witness-hub can parse it", () => {
+    const j = toLedgerJson(parseWitness(valid));
+    expect(j.generatedAt).toBe(1792646883768);
+    expect(j.ledger.chain).toEqual({ ok: true, length: 177, head: HEAD });
   });
 });

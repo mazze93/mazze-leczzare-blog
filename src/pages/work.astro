@@ -90,12 +90,13 @@ const instruments: Entry[] = [
     subtitle: 'security-claim ledger',
     figure: 'checkmate',
     body: [
-      'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. What it lets out is above: the head, the tally, the rule.',
+      'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. It has no public page. What it lets out is above: the head, the tally, the rule.',
     ],
     evidence: [
-      { label: 'Live', title: 'checkmate.mazzeleczzare.com/public', href: 'https://checkmate.mazzeleczzare.com/public', external: true },
+      { label: 'Live', title: 'Every head witnessed here', href: 'https://github.com/mazze93/mazze-leczzare-blog/commits/main/src/data/checkmate-witness.json', external: true },
+      { label: 'Data', title: 'The latest witness, as JSON', href: '/witness/checkmate.json' },
     ],
-    note: 'Source private · the public page is aggregates and the chain head only',
+    note: 'Source and ledger private · refreshed every Monday',
   },
   {
     idx: '04',
@@ -320,7 +321,6 @@ const provenance: Entry[] = [
       { label: 'CVE-2026-59869', title: 'High 7.5 — quadratic CPU via chained merge keys, js-yaml 3.x/4.x', href: 'https://github.com/advisories/GHSA-52cp-r559-cp3m', external: true },
       { label: 'CVE-2026-59868', title: 'Moderate 5.3 — quadratic CPU via merge-key chains, js-yaml 5.x', href: 'https://github.com/advisories/GHSA-g796-fgmg-93mv', external: true },
       { label: 'CVE-2026-53550', title: 'Moderate 5.3 — repeated-alias merge-key DoS, credited alongside five other researchers', href: 'https://github.com/advisories/GHSA-h67p-54hq-rp68', external: true },
-      { label: 'Ledger', title: 'Audited in Checkmate — public aggregates and chain head', href: 'https://checkmate.mazzeleczzare.com/public', external: true },
     ],
   },
   {
@@ -423,7 +423,7 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
 
           <div class="work-grid">
             {section.entries.map((e) => (
-              <article class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
+              <article id={e.figure} class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
                 <div class="entry-apparatus">
                   <span class="entry-idx">{e.idx}</span>
                   <span class={`chip chip--${e.tier}`}>{TIER_LABEL[e.tier]}</span>
