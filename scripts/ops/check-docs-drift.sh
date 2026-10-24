@@ -393,6 +393,13 @@ else
       return 1
     fi
 
+    # Endpoint routes (src/pages/<path>.json.ts etc.) publish at their own path,
+    # including ones whose last segment carries an extension.
+    local ep
+    for ep in "$REPO_ROOT/src/pages/$path.ts" "$REPO_ROOT/src/pages/$path.js"; do
+      [[ -f "$ep" ]] && return 0
+    done
+
     # A path whose last segment has an extension is a plain asset.
     if [[ "${path##*/}" == *.* ]]; then
       [[ -f "$REPO_ROOT/public/$path" ]] && return 0
