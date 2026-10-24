@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import FieldFigure from '../components/work/FieldFigure';
 import CheckmateWitness from '../components/work/CheckmateWitness.astro';
 import { SITE_TITLE } from '../consts';
+import { WITNESS_HISTORY_URL } from '../utils/checkmateWitness';
 
 /**
  * /work — the publication surface.
@@ -93,7 +94,7 @@ const instruments: Entry[] = [
       'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. It has no public page; the plate above is everything it lets out.',
     ],
     evidence: [
-      { label: 'Live', title: 'Every head witnessed here', href: 'https://github.com/mazze93/mazze-leczzare-blog/commits/main/src/data/checkmate-witness.json', external: true },
+      { label: 'Live', title: 'Every head witnessed here', href: WITNESS_HISTORY_URL, external: true },
       { label: 'Data', title: 'The latest witness, as JSON', href: '/witness/checkmate.json' },
     ],
     note: 'Source and ledger private · refreshed every Monday',

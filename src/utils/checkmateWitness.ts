@@ -16,9 +16,11 @@
  * field. Nothing is passed through just because the endpoint returned it.
  */
 
+import { SITE_REPO_URL } from '../consts';
+
 /** Every head this site has witnessed: the git history of the snapshot. */
 export const WITNESS_HISTORY_URL =
-  'https://github.com/mazze93/mazze-leczzare-blog/commits/main/src/data/checkmate-witness.json';
+  `${SITE_REPO_URL}/commits/main/src/data/checkmate-witness.json`;
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const VERDICT_KEY = /^[a-z-]{1,32}$/;
