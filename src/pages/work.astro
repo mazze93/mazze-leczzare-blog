@@ -3,7 +3,9 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import FieldFigure from '../components/work/FieldFigure';
+import CheckmateWitness from '../components/work/CheckmateWitness.astro';
 import { SITE_TITLE } from '../consts';
+import { WITNESS_HISTORY_URL } from '../utils/checkmateWitness';
 
 /**
  * /work — the publication surface.
@@ -48,6 +50,8 @@ interface Entry {
   note?: string;
   projectHref?: string;
   flagship?: boolean;
+  /** A full-width plate above the entry — show first, then tell. */
+  figure?: 'checkmate';
 }
 
 const instruments: Entry[] = [
@@ -83,6 +87,38 @@ const instruments: Entry[] = [
   {
     idx: '03',
     tier: 'live',
+    title: 'Checkmate',
+    subtitle: 'security-claim ledger',
+    figure: 'checkmate',
+    body: [
+      'A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. It has no public page; the plate above is everything it lets out.',
+    ],
+    evidence: [
+      { label: 'Live', title: 'Every head witnessed here', href: WITNESS_HISTORY_URL, external: true },
+      { label: 'Data', title: 'The latest witness, as JSON', href: '/witness/checkmate.json' },
+    ],
+    note: 'Source and ledger private · refreshed every Monday',
+  },
+  {
+    idx: '04',
+    tier: 'live',
+    title: 'Research',
+    subtitle: 'observable behavior, accountable interpretation',
+    body: [
+      'The studies site: public evidence, private controls. Two working instruments, each with its own method. <em>Identity Dissolution</em> is controlled generation under a factorial design — self-reference, repetition and recovery, compared across prompt conditions, with raw turns open to inspection and failed observations kept. <em>Persona Integrity</em> is contextual reading with categorical annotation — marked fiction, unmarked simulation, asserted self-description — recording alternatives and uncertainty instead of collapsing them into a score.',
+      'The record comes first: each reviewed release carries its methods, failures and limits, listed in a public JSON index. The site says what it has not done yet, in its own words: <em>a smoke test verifies machinery; it is not a completed research pilot.</em>',
+    ],
+    evidence: [
+      { label: 'Live', title: 'research.mazzeleczzare.com', href: 'https://research.mazzeleczzare.com/', external: true },
+      { label: 'Study', title: 'Identity Dissolution', href: 'https://research.mazzeleczzare.com/studies/identity-dissolution', external: true },
+      { label: 'Study', title: 'Persona Integrity', href: 'https://research.mazzeleczzare.com/studies/persona-integrity', external: true },
+      { label: 'Standards', title: 'Protocol and evidence standards', href: 'https://research.mazzeleczzare.com/method.html', external: true },
+    ],
+    note: 'Smoke-test evidence only so far — no completed pilot yet.',
+  },
+  {
+    idx: '05',
+    tier: 'live',
     title: 'Field Notes',
     subtitle: 'a gallery of working instruments',
     body: [
@@ -94,7 +130,7 @@ const instruments: Entry[] = [
     note: 'Self-contained HTML instruments · no build step',
   },
   {
-    idx: '04 · Founder & Exec. Director',
+    idx: '06 · Founder & Exec. Director',
     tier: 'live',
     title: 'Secure Pride',
     subtitle: 'cybersecurity for the people least served by it',
@@ -112,7 +148,7 @@ const instruments: Entry[] = [
     projectHref: '/project/secure-pride/',
   },
   {
-    idx: '05',
+    idx: '07',
     tier: 'self',
     title: 'Context Synapse',
     subtitle: 'local-first context orchestration',
@@ -127,7 +163,7 @@ const instruments: Entry[] = [
     projectHref: '/project/context-synapse/',
   },
   {
-    idx: '06 · Pre-release',
+    idx: '08 · Pre-release',
     tier: 'self',
     title: 'AI-Native Threat Toolkit',
     subtitle: 'prompt injection & output integrity for civil society',
@@ -144,7 +180,7 @@ const instruments: Entry[] = [
 
 const record: Entry[] = [
   {
-    idx: '07 · Paper',
+    idx: '09 · Paper',
     tier: 'published',
     flagship: true,
     title: 'Intentional Fragility',
@@ -160,7 +196,7 @@ const record: Entry[] = [
     projectHref: '/project/intentional-fragility/',
   },
   {
-    idx: '08 · Essay',
+    idx: '10 · Essay',
     tier: 'published',
     title: 'The Lighthouse Earns Its Floor',
     body: [
@@ -171,7 +207,7 @@ const record: Entry[] = [
     ],
   },
   {
-    idx: '09 · Essay',
+    idx: '11 · Essay',
     tier: 'published',
     title: 'The Concept Is Not the State',
     subtitle: 'what Anthropic&rsquo;s emotion paper actually found',
@@ -184,7 +220,7 @@ const record: Entry[] = [
     projectHref: '/project/cognitive-topology/',
   },
   {
-    idx: '10 · Research note',
+    idx: '12 · Research note',
     tier: 'live',
     title: 'What We Don&rsquo;t Know Yet',
     subtitle: 'iOS Lockdown Mode research',
@@ -197,7 +233,7 @@ const record: Entry[] = [
     ],
   },
   {
-    idx: '11 · Essay',
+    idx: '13 · Essay',
     tier: 'live',
     title: 'The Architecture of Forgetting',
     body: [
@@ -208,7 +244,7 @@ const record: Entry[] = [
     ],
   },
   {
-    idx: '12 · Method, v0.1',
+    idx: '14 · Method, v0.1',
     tier: 'self',
     title: 'Epistemic Fault Injection',
     subtitle: 'measuring integrity under adversarial context',
@@ -221,7 +257,7 @@ const record: Entry[] = [
 
 const editorial: Entry[] = [
   {
-    idx: '13 · 2023',
+    idx: '15 · 2023',
     tier: 'published',
     title: 'Industry Writing',
     subtitle: '80 Level & LinkedIn Pulse',
@@ -234,7 +270,7 @@ const editorial: Entry[] = [
     note: '80 Level · 15 March 2023',
   },
   {
-    idx: '14 · 2022–23',
+    idx: '16 · 2022–23',
     tier: 'published',
     title: 'Clear as Mud',
     subtitle: 'podcast, host & producer',
@@ -248,7 +284,7 @@ const editorial: Entry[] = [
     note: '26+ episodes · long-form interview',
   },
   {
-    idx: '15 · Founding EIC',
+    idx: '17 · Founding EIC',
     tier: 'self',
     title: 'Bloom Magazine',
     subtitle: 'founding editor-in-chief, Butte College',
@@ -261,7 +297,7 @@ const editorial: Entry[] = [
 
 const provenance: Entry[] = [
   {
-    idx: '16 · UC Davis',
+    idx: '18 · UC Davis',
     tier: 'acknowledged',
     title: 'Counterfeit-Banknote Authentication Program',
     subtitle: 'Luck Lab, Center for Mind & Brain',
@@ -275,7 +311,7 @@ const provenance: Entry[] = [
     note: 'Not an author. Acknowledged contributor — role stated exactly, nothing past it.',
   },
   {
-    idx: '17 · OSS',
+    idx: '19 · OSS',
     tier: 'acknowledged',
     title: 'Vulnerability Research',
     subtitle: 'js-yaml merge-key denial-of-service',
@@ -289,7 +325,7 @@ const provenance: Entry[] = [
     ],
   },
   {
-    idx: '18 · OSS',
+    idx: '20 · OSS',
     tier: 'self',
     title: 'ERPLAB Toolbox',
     subtitle: 'open-source contribution',
@@ -299,7 +335,7 @@ const provenance: Entry[] = [
     note: 'Reference: Dr. Steven J. Luck.',
   },
   {
-    idx: '19 · UC Davis',
+    idx: '21 · UC Davis',
     tier: 'self',
     title: 'Laboratory Operations',
     subtitle: 'Luck Lab / Center for Mind & Brain',
@@ -309,7 +345,7 @@ const provenance: Entry[] = [
     note: 'References: Dr. Steven J. Luck · Dr. John Kiat.',
   },
   {
-    idx: '20 · 2015–2018',
+    idx: '22 · 2015–2018',
     tier: 'self',
     title: 'Teaching',
     body: [
@@ -388,7 +424,8 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
 
           <div class="work-grid">
             {section.entries.map((e) => (
-              <article class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
+              <article id={e.figure} class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
+                {e.figure === 'checkmate' && <CheckmateWitness />}
                 <div class="entry-apparatus">
                   <span class="entry-idx">{e.idx}</span>
                   <span class={`chip chip--${e.tier}`}>{TIER_LABEL[e.tier]}</span>
