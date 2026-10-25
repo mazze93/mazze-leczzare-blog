@@ -449,10 +449,10 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
                           <a
                             href={ev.href}
                             {...(ev.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                            aria-label={ev.external ? `${ev.title} (opens in new tab)` : ev.title}
                           >
                             <span class="ev-label">{ev.label}</span>
                             <span class="ev-title">{ev.title}</span>
+                            {ev.external && <span class="sr-only"> (opens in new tab)</span>}
                           </a>
                         </li>
                       ))}
