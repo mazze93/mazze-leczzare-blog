@@ -119,7 +119,33 @@ def build(slug: str, ship: bool) -> Path:
         dest = ROOT / "public" / "social" / f"{slug}.pdf"
         shutil.copyfile(pdf_path, dest)
         print(f"── shipped → {dest.relative_to(ROOT)}")
+        ship_images(out, slug, len(deck["slides"]))
     return pdf_path
+
+
+# Web previews for the on-site CarouselStrip. 864px wide covers the strip's
+# largest rendered slide (~430 CSS px) at 2x density; WebP keeps a 9-slide
+# deck well under 1 MB. Alt text is NOT baked in here — the component derives
+# it from slides.json, the same source the PDF was built from.
+WEB_WIDTH = 864
+WEB_QUALITY = 82
+
+
+def ship_images(build_dir: Path, slug: str, count: int) -> None:
+    from PIL import Image
+
+    dest = ROOT / "public" / "social" / slug
+    dest.mkdir(exist_ok=True)
+    for stale in dest.glob("*.webp"):  # a shorter deck must not leave orphans behind
+        stale.unlink()
+    total = 0
+    for i in range(1, count + 1):
+        img = Image.open(build_dir / f"slide-{i:02d}.png").convert("RGB")
+        h = round(img.height * WEB_WIDTH / img.width)
+        path = dest / f"{i:02d}.webp"
+        img.resize((WEB_WIDTH, h), Image.LANCZOS).save(path, "WEBP", quality=WEB_QUALITY, method=6)
+        total += path.stat().st_size
+    print(f"── shipped {count} web previews → {dest.relative_to(ROOT)}/ ({total // 1024} KB total)")
 
 
 def verify_pdf(pdf_path: Path, deck: dict) -> None:
@@ -139,8 +165,12 @@ def verify_pdf(pdf_path: Path, deck: dict) -> None:
     if spaced:
         sys.exit(f"✗ letter-spaced text breaks the text layer on pages {spaced} — reduce letter-spacing")
     writer = PdfWriter(clone_from=reader)  # clone keeps the structure tree
+    # Pin dates to the deck's `issued` field so a rebuild of unchanged content is
+    # byte-identical — otherwise every build rewrites the shipped PDF's timestamps.
+    stamp = "D:" + deck["issued"].replace("-", "") + "000000+00'00'"
     writer.add_metadata({"/Title": deck["title"], "/Author": deck["byline"],
-                         "/Subject": f"Carousel distilling https://{deck['url']}"})
+                         "/Subject": f"Carousel distilling https://{deck['url']}",
+                         "/CreationDate": stamp, "/ModDate": stamp})
     with open(pdf_path, "wb") as fh:
         writer.write(fh)
     tagged = "/StructTreeRoot" in PdfReader(str(pdf_path)).trailer["/Root"]
