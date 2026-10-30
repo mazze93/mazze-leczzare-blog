@@ -1,152 +1,195 @@
 ---
 name: carousel
-description: Turn an existing long-form post on mazze-leczzare-blog into a shareable LinkedIn carousel (a multi-slide square/portrait PDF) and attach it to the site. Use this whenever the user asks to make a carousel, slide deck, or "shareable version" of a post, wants something to post on LinkedIn, or references sharing content more broadly and the underlying material is a blog post on this site. Covers slide-copy distillation, the Design Components build process, PDF assembly, site placement, and linking back from the source post.
+description: Turn an existing long-form post on mazze-leczzare-blog into a shareable LinkedIn carousel (a multi-slide portrait/square PDF) and file it on the site. Use this whenever the user asks to make a carousel, slide deck, or "shareable version" of a post, wants something to post on LinkedIn, or references sharing a post more broadly. Covers slide-copy distillation, the editorial and fact gate, the repo-native build (slides.json → tagged PDF via scripts/carousel/build.py), site placement, and linking back from the source post.
 ---
 
 # Carousel
 
-Distills a long-form post into an 8–10 slide carousel PDF, publishes it as an
-editable canvas, and files it on the site next to the post it came from —
-without re-deriving the visual system or the file conventions from scratch
-each time. Two worked examples exist end to end: `src/content/blog/maestro-in-practice.md`
-(carousel at `public/social/maestro-in-practice.pdf`) and
-`src/content/blog/concept-is-not-the-state.mdx` (carousel at
-`public/social/concept-is-not-the-state.pdf`). Read one before starting if
-you want to see the pattern applied rather than just described.
+Distills a long-form post into an 8–10 slide carousel PDF and files it on the
+site next to the post it came from. The pipeline lives in the repo, so every
+deck is reproducible from one data file:
+
+```
+docs/social/<slug>/slides.json  ──build.py──▶  public/social/<slug>.pdf
+        (the source; committed)                  (the deliverable; committed)
+                                   └──▶ docs/social/<slug>/build/  (PNGs, HTML; gitignored)
+```
+
+**Reference build:** `the-attack-surface-of-security-language` — read its
+`slides.json` and the PDF before starting. The two earlier decks
+(`maestro-in-practice`, `concept-is-not-the-state`) were made with a
+PNG-assembly process this skill has retired: their PDFs have no text layer,
+and their canvas sources were never committed, so they can't be rebuilt.
+Use them as visual-register references only.
+
+## 0. Setup (once per environment)
+
+```bash
+npm ci                                   # @fontsource fonts the build inlines
+python3 -m playwright install chromium   # if `playwright` can't find a browser
+pip install pypdf                        # PDF verification
+```
+
+The repo requires Node ≥ 22 and **npm ≥ 11** with engine-strict on. If
+`npm ci` fails with `EBADENGINE`, install a matching npm. Don't bypass the
+pin with `--engine-strict=false`.
 
 ## 1. Read the source post fully before writing a word of slide copy
 
-Don't distill from a summary of the post or from memory of the conversation
-that produced it — read `src/content/blog/<slug>.md(x)` directly. The
-carousel's job is to compress the post's actual argument, not to restate
-whatever framing came up while discussing it. Note as you read:
-`contentType` (dispatch/artifact/field-note — tells you the post's register),
-`title`/`subtitle`, and the section structure — most posts already have a
-natural slide-per-section shape (executive summary → core findings →
-recommendation → close) that saves you from inventing one.
+Read `src/content/blog/<slug>.md(x)` directly. Don't work from a summary or
+from memory of the conversation that produced it. The carousel compresses the
+post's actual argument. Note `contentType` (dispatch / artifact / field-note:
+the register), title and subtitle, the section structure, and **every
+factual claim with a footnote**. Those become your corroboration list in step 3.
 
-## 2. Pick 8–10 beats, not more
+## 2. Pick 8–10 beats, not more, and write them as data
 
-A carousel that runs long loses LinkedIn's swipe-through rate. Standard
-shape, adapt as needed:
+Write `docs/social/<slug>/slides.json`. Standard shape, adapt as needed:
+cover (title plus a one-line hook sharper than the `description`) → framing →
+2–3 core claims, one per slide → the fix or critique the post turns on (usually
+the strongest slide; don't bury it) → a supporting finding → the human or
+practical stakes → close with a boxed callout and URL. Cut to 8 rather than
+pad to 10.
 
-1. **Cover** — title + a one-line hook (not the post's `description` verbatim
-   — sharper, shorter).
-2. **Framing/context** — what the post is responding to, in plain terms.
-3–4. **Core claims or findings** — the two or three things a reader should
-   walk away knowing, one per slide where possible.
-5. **The critique or the fix** — whatever the post's actual argument turns
-   on. This is usually the strongest slide; don't bury it.
-6. **A supporting finding or stat**, if the post has one worth a slide of
-   its own.
-7. **Why it matters / the bigger frame** — optional, use if the post has a
-   real "so what" beyond the headline claim.
-8. **CTA** — one line back to the full post's URL.
+Rules that came out of real builds:
 
-Every slide needs a short headline plus, usually, one supporting line or a
-2–3 item list. Never pad a thin slide with filler — cut to 8 slides rather
-than stretch to 10.
+- **Every slide carries a `source` note** (post line numbers or the primary
+  source). It isn't rendered. It's what lets the copy be audited.
+- **Keep the post's lists at their real length.** Trimming a 5-item list to 3
+  manufactures a triad, a Claude-ism the post didn't commit. It also drops
+  whatever got cut, which in the reference build was the sharpest item.
+- **Never upgrade a citation.** If the post says a framework *acknowledges
+  context*, the slide can't say the framework *endorses the post's fix*.
+  Labels are the usual place this creeps in.
+- The author's own lines can be used verbatim, including his constructions.
+  The gate below only flags what the carousel introduces.
 
-## 3. Choose the visual register — don't default to the site's Cipher Gothic system
+Slide kinds the renderer supports: `cover`, `statement`, `definition`
+(headword + struck naive reading + governed reading), `senses` (numbered),
+`manifest` (a schema block), `evidence` (citation cards), `close`. Field names
+are in `scripts/carousel/render.py`. Add a kind there rather than hand-writing
+a one-off slide.
 
-The two worked examples deliberately use *different* systems, and that's
-correct, not drift:
+## 3. The gate: prose-touchstone and fact corroboration (not optional)
 
-- **MAESTRO in Practice** (a security research report) uses the site's own
-  Cipher Gothic tokens: obsidian/deep-navy ground, teal/gold/coral accent
-  hierarchy, Cormorant Garamond + DM Mono. Appropriate because the post
-  *is* the kind of studio work the site's primary palette was built for.
-- **The Concept Is Not the State** (a confrontational critique essay) uses a
-  louder, purpose-built system: alternating black/cream/brick-red
-  backgrounds, a heavy Poppins grotesk, a faint grid-paper texture. Chosen
-  because the post argues against a popular framing, and a punchier
-  register serves that better than the site's usual editorial calm.
+Nothing goes to social media without this. The author's reputation as a
+writer is the stake.
 
-Read the post's `contentType` and tone before defaulting to Cipher Gothic.
-`dispatch` (critique/position pieces) and `artifact` (shipped/technical work)
-can both justify a distinct register if the content calls for it; when in
-doubt, ask, or build 2 low-fi direction options and let the user pick — see
-the `design` skill's "Settle the aesthetic with the user" guidance. Whatever
-system you pick, apply it consistently: same chrome (top eyebrow label,
-bottom footer with page count), same closing-line treatment (a boxed
-callout, not a bare line — see the fix applied to `concept-is-not-the-state`
-for why bare closing lines read as unfinished), and **attribution on every
-single slide**, including any full-bleed color/statement slides — a slide
-that gets screenshotted and reshared alone still needs to carry the byline
-back to the site.
+1. **Corroborate every factual claim on a slide against its primary source**,
+   not the post's paraphrase and not a secondary article. Record what you
+   checked and when in that slide's `source` field. If a primary source can't
+   be reached, say so to the user. Don't ship the claim on the strength of the
+   footnote alone.
+2. **Run the copy probe.** `build.py` runs it automatically and fails the build
+   on introduced negation pivots ("not X. It's Y", "X, not Y", "not only…but")
+   or stock filler. It also reports tricolons and three-item lists for you to
+   **curate by hand**: a hit inside the post's own list is a false positive,
+   and a list you trimmed to three is not. Say which is which.
+   ```bash
+   python3 scripts/carousel/copy_probe.py docs/social/<slug>/slides.json src/content/blog/<slug>.md
+   ```
+3. **Probe the probe.** A clean result is provisional until a restated form of
+   the same tic would still be caught. The detector's `self_test()` holds the
+   restated forms that once slipped past. When you find a new miss, add it
+   there in the same commit.
+4. Load the `prose-touchstone` skill for anything the regexes can't see
+   (voice, rhythm, a construction nobody has named yet), and report per
+   claim: held / did not hold / accepted trade-off.
 
-## 4. Build it as a Design Components canvas
+## 4. Choose the visual register
 
-Invoke the `design` skill (it is not optional — it owns the seed/publish
-mechanics, the `.dc.html` format, and the runtime contract pin). Build one
-`.dc.html` artboard per slide (`Main.dc.html` for the cover, `Slide02.dc.html`
-onward), plus a `canvas.json` laying them out in a row with
-`"print": "fixed"` on every artboard — this is a series of single-page
-pieces, not one flowing document. Use the frame size that matches your
-platform target: 1080×1350 (portrait, more feed real estate) or 1080×1080
-(square, safest default) both work for LinkedIn; pick one and hold it across
-every slide in the deck.
+Don't default to the site's palette. Pick the register the argument earns,
+and when in doubt, show the user two low-fi options. Themes live in
+`scripts/carousel/themes/<name>.css`, and `slides.json` names one with
+`"theme"`.
 
-Screenshot-check before publishing (Playwright + the pre-installed Chromium
-at `/opt/pw-browsers/chromium-*/chrome-linux/chrome` — run the script from
-inside the repo directory, or `playwright` won't resolve). Look at every
-slide at the real frame size and fix overflow, cramped type, or dead
-vertical space before you publish — a slide with a headline and a 3-item
-list will look top-heavy and unfinished unless the content block is
-vertically centered in the frame (`display:flex; flex-direction:column;
-justify-content:center` on the content container), not top-anchored.
+| Deck | Register | Why |
+|---|---|---|
+| maestro-in-practice | Cipher Gothic tokens: obsidian, teal/gold/coral, Cormorant + DM Mono | studio research report, the site's own voice |
+| concept-is-not-the-state | black/cream/brick-red, heavy Poppins, grid paper | confrontational critique of a popular framing |
+| the-attack-surface-of-security-language | **Lexicon** (`themes/lexicon.css`): paper and ink, Playfair headwords, mono part-of-speech, one redline accent for diffs | the post argues about *words*, so the deck is a dictionary whose entries get struck and governed |
 
-Publish with the `Artifact` tool per the `design` skill's step 4 (pin
-`contract`, declare capabilities from the roster, one favicon emoji held
-stable). This gives the user an editable, sharable link to the canvas
-itself — hand it over even though the PDF is the actual deliverable that
-goes on the site.
+Whatever the register, these stay fixed:
 
-## 5. Assemble the PDF from the checked screenshots, don't wait on the in-editor export
+- the same chrome on every slide: running head (eyebrow + guide word) and
+  footer (byline · mazzeleczzare.com · page count). A slide reshared alone
+  still carries the byline home.
+- a boxed callout for the closing line, never a bare line (bare lines read as
+  unfinished).
+- content blocks vertically centered, so short slides don't sit top-heavy.
+- one frame size held across the deck: 1080×1350 (portrait, more feed) or
+  1080×1080 (square).
 
-The canvas editor's "Export PDF" is a manual, browser-only toolbar action —
-there's no way to trigger it from here. Since you already rendered every
-slide as a PNG for the visual check in step 4, assemble those directly into
-a multi-page PDF instead of asking the user to export by hand:
+A new theme has to pass `contrast.py`. Contrast numbers in a theme's header
+comment are **measured, not estimated**. In the reference build, the estimates
+were wrong in every row. Two more rules learned the hard way:
 
-```python
-from PIL import Image
-imgs = [Image.open(f).convert('RGB') for f in ['Main.png', 'Slide02.png', ...]]
-imgs[0].save('out.pdf', save_all=True, append_images=imgs[1:])
+- **Mono tracking ≤ .08em.** Above that, Chromium positions each glyph
+  separately, and the PDF text layer reads "D I S P A T C H". `build.py`
+  fails on it.
+- **Type sizes are set for a phone.** A 1080px slide is shown at roughly
+  380px in the feed, so nothing below 25px in the frame (about 9px on a
+  phone). Body copy ≥ 36px.
+
+## 5. Build, look, fix
+
+```bash
+python3 scripts/carousel/build.py <slug>          # gates + render + checks
+python3 scripts/carousel/build.py <slug> --ship   # …and copy PDF to public/social/
 ```
 
-(`pip install Pillow` into a scratch venv if the environment's Python
-doesn't have it — don't touch the site's own Node toolchain for this.) This
-produces a page-per-slide PDF at the exact resolution you already verified
-visually, which is what actually matters for a LinkedIn upload.
+The build fails loudly at each stage: copy gate → contrast → render (one
+self-contained HTML, fonts inlined) → layout (DOM overflow and gutter check)
+→ **one tagged `page.pdf()` call** → PDF verify (page count = slides, text
+layer on every page, no letter-spaced runs, structure tree intact, metadata
+set). The PDF is printed from the HTML rather than assembled from
+screenshots, so it keeps selectable, searchable, screen-readable text.
+
+Passing checks aren't the same as looking. Open
+`docs/social/<slug>/build/slide-NN.png` (make a contact sheet) and judge every
+slide at frame size: diff markers that inherit a strikethrough, wrapped lines
+hanging off the marker instead of the text, URLs breaking mid-word, and
+inconsistent placement between slides with long and short words were all
+caught this way, not by a check. Send the user the contact sheet once
+it's clean, before filing.
+
+Want an editable or shareable link for review? Publish
+`build/carousel.html` with the `Artifact` tool. It's optional. The committed
+source of truth is `slides.json`.
 
 ## 6. File it on the site
 
-- PDF goes at `public/social/<slug>.pdf`, `<slug>` matching the source
-  post's URL slug exactly — this convention is documented in CLAUDE.md's
-  Directory Structure section.
-- Add one line to the end of the source post's prose (not frontmatter),
-  matching the "Formal companion" pattern already used for `/papers/`:
-
+- `--ship` puts the PDF at `public/social/<slug>.pdf` (slug = the post's URL
+  slug exactly, per CLAUDE.md's Directory Structure).
+- Add one line at the end of the post's prose, before `## Sources` if there
+  is one:
   ```markdown
-  > **Shareable version:** [an N-slide carousel (PDF)](/social/<slug>.pdf) distilling <one clause naming what it covers> — built for LinkedIn, sized for anywhere else.
+  > **Shareable version:** [an N-slide carousel (PDF)](/social/<slug>.pdf) distilling <what it covers> — built for LinkedIn, sized for anywhere else.
   ```
+  That line is prose. Run it past the same gate as the slides (no
+  manufactured triad in "what it covers").
+- Don't add it to `writing/index.astro`. Carousels are derivative
+  collateral.
+- `npm run check` and `npm run docs:check` must pass. Then **resolve the link
+  in the build**, don't grep for it: confirm
+  `dist/blog/<slug>/index.html` links `/social/<slug>.pdf` and that
+  `dist/social/<slug>.pdf` is byte-identical to the built PDF.
 
-- Do **not** add it to `writing/index.astro`'s catalogue — that page lists
-  primary works, and a carousel is derivative promotional collateral for a
-  post that's already listed there. Linking from the post itself is the
-  right amount of visibility.
-- Run `npm run check` and `npm run docs:check` after editing the post (the
-  new prose line and the PDF path both need to resolve cleanly) — see
-  `publish-essay`'s validation step for why this matters even for a
-  small-looking change.
+## 7. Ship, and confirm it's live
 
-## Worked examples
+Commit `slides.json`, the PDF, and the post edit together on a branch, and
+open a PR. Merging to `main` deploys to Cloudflare Pages, which is publishing,
+so get the user's explicit go first. After deploy, fetch the live post and the
+live PDF URL. Cloudflare rewrites pages at the edge, and only the live URL
+proves the deploy.
 
-`public/social/maestro-in-practice.pdf` (9 slides, 1080×1350, Cipher Gothic
-register) and `public/social/concept-is-not-the-state.pdf` (8 slides,
-1080×1080, black/cream/red register) were both built with this exact
-process in the same session. Diff their source posts' final paragraphs to
-see the "Shareable version" line pattern applied twice, and compare the two
-`.dc.html` systems to see how the register changes while the structural
-conventions (chrome, footer attribution, boxed closing lines) stay fixed.
+Posting to LinkedIn itself is a separate, explicit step the user takes or
+approves. Hand them the PDF and, if they ask, post copy that's been through
+the same gate.
+
+## Known debt
+
+- `maestro-in-practice.pdf` and `concept-is-not-the-state.pdf` have no text
+  layer and no committed source. Rebuilding them means writing their
+  `slides.json` and a theme for each register. Until then they're
+  image-only on the site.

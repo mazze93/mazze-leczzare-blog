@@ -116,9 +116,13 @@ public/
                       #   one — 1080-wide multi-page decks distilling a post's argument,
                       #   linked from that post with a "Shareable version" line. Not
                       #   cataloged in /writing (they're derivative collateral, not a
-                      #   primary work). Built via the `carousel` skill.
+                      #   primary work). Built via the `carousel` skill from
+                      #   docs/social/<slug>/slides.json by scripts/carousel/build.py.
 
 scripts/ops/          # Local operational scripts (not part of the site build)
+scripts/carousel/     # Carousel pipeline: build.py (slides.json → tagged PDF), render.py
+                      #   (templates), copy_probe.py (prose gate), contrast.py, themes/*.css
+docs/social/<slug>/   # Carousel source: slides.json (committed); build/ is gitignored
 docs/operations/      # Agent operations protocol and memory files
 docs/journal/         # Live session journal (PLAN/DECISIONS/CHECKPOINT); archive/ holds closed ones
 BUILD_JOURNAL.md      # Burst-workflow operating manual + Stratum ledger discipline (root)
