@@ -181,7 +181,10 @@ Commit `slides.json`, the PDF, and the post edit together on a branch, and
 open a PR. Merging to `main` deploys to Cloudflare Pages, which is publishing,
 so get the user's explicit go first. After deploy, fetch the live post and the
 live PDF URL. Cloudflare rewrites pages at the edge, and only the live URL
-proves the deploy.
+proves the deploy. Branch previews (`*.mazzeleczzare.pages.dev`) sit behind
+Cloudflare Access, so an agent can't use them for this check (don't sign in
+on the user's behalf). The live check happens on mazzeleczzare.com after the
+merge.
 
 Posting to LinkedIn itself is a separate, explicit step the user takes or
 approves. Hand them the PDF and, if they ask, post copy that's been through
