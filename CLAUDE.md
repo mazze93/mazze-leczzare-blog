@@ -78,6 +78,8 @@ src/
     layout.ts         #   pure — deterministic (seeded) node position/style from a Zone
     nodes.ts          #   pure — aggregates raw collection entries into project nodes
     collectNodes.ts   #   astro:content wrapper — calls getCollection + nodes.ts.aggregateNodes
+    carousel.ts       #   pure — slides.json → Deck (alt text per slide, preview paths, links)
+    collectDecks.ts   #   import.meta.glob wrapper — discovers docs/social/*/slides.json
   layouts/            # BlogPost.astro, HomepageLayout.astro
   pages/              # File-based routes
   styles/             # global.css, homepage.css, compass.css, constellation-pages.css,
@@ -160,6 +162,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/gay-wandering/` | `src/pages/gay-wandering/index.astro` | The book ("Book" in the header nav); own `--gw-*` palette |
 | `/work/research-program-operations/` | `src/pages/work/research-program-operations.astro` | Résumé page — carries the one approved published email (see Key Constraints) |
 | `/404`            | `src/pages/404.astro`               | Not-found page                           |
+| `/social`         | `src/pages/social/index.astro`      | Carousels — every deck with a `slides.json`, newest first, each as a `CarouselStrip`; PDFs in `public/social/` share the prefix without clashing. Linked from the footer |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
 | `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record, a-picture-of-what-it-expected, theatre-of-dependencies) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
@@ -282,7 +285,6 @@ Read source for full detail — these are the non-obvious points:
 
 **MDX prose components** (`src/components/blog/` — blog-specific variants):
 - **`blog/PullQuote.astro`** — blog-specific pull-quote variant.
-- **`blog/Triptych.astro`** — blog-specific triptych variant.
 - **`blog/MentorQuote.astro`** — attributed mentor/interview quote block.
 - **`blog/VerseBlock.astro`** — verse block variant used within blog posts.
 
@@ -293,15 +295,18 @@ Read source for full detail — these are the non-obvious points:
 **Seam / dividers:**
 - **`Seam.astro`** — the one source for the Kintsugi gold-seam geometry (see Design Systems). Presentational, no client directive; `orientation="horizontal"|"vertical"`. Imported by `SectionBreak`, both `PullQuote`s and `AuthorCoda` — import it rather than re-authoring the path.
 
+**Carousels:**
+- **`CarouselStrip.astro`** — the on-site face of a LinkedIn carousel deck: a scroll-snap strip ("glide + focus" — centred slide forward, neighbours recede, gold-seam progress), prev/next + ←/→/Home/End, polite counter. **Mounted automatically** by `BlogPost.astro` after `.prose` for any post with `docs/social/<post id>/slides.json` (the route passes `postId`), and once per deck on `/social/`. Alt text is derived per slide from slides.json (`src/utils/carousel.ts`, pure + tested), never "Slide N"; decks without a slides.json (the two legacy image-only PDFs) never get a strip. Vanilla script, not a React island; without JS it is still a swipeable list. Images: `public/social/<slug>/NN.webp` from `build.py --ship`. Behaviour is checked by `scripts/carousel/strip_check.py` against `npm run preview`.
+
 **Also MDX-mountable:** `SectionBreak.astro` (decorative in-prose divider, `aria-hidden`), `blog/ArtifactEmbed.astro` (iframes a `public/artifacts/*.html` file with caption + fullscreen link).
 
 **Navigation:**
 - **`Header.astro`** — masthead. `minimal` prop drops the nav links entirely (used by the homepage, where `AirlockStrip` is the door). The full nav is `Work · Writing · Book · Store · About · Studio ▾ · │ · Stratum● · Stele●`, where the teal dot marks running software rather than another essay. `Book` → `/gay-wandering/`, `Store` → `/store/` (the on-site landing for `store.mazzeleczzare.com`). **Studio is a disclosure parent, not a peer link:** it opens a menu holding The bench (`/studio/`), Signal, and Tesserae. Those two are thin fragment surfaces, and giving each a top-level slot spent nav width out of proportion to their content — Tesserae had no link at all and was an unreachable route. Implemented as a `<button aria-expanded>` + `hidden` `<ul>`, not a CSS hover menu (hover menus are unreachable by keyboard and unusable on touch); Escape returns focus to the trigger, `focusin`/click outside closes, ArrowDown opens onto the first item. The toggle is vanilla JS in the component's existing `<script>` block — deliberately not a React island, per Key Constraints. **Below 1000px the masthead is two rows** (brand + utilities, then the links on their own wrapping row) — one row needs ~910px, and before 2026-09-25 nothing wrapped, so the page scrolled sideways on phones and tablets. If you add a nav link, re-check that one row still fits at 1001px. On phones (≤640px) the Studio menu anchors to the header as an inset panel rather than to its button. That script also listens for `compass:state` to refract the brand compass.
-- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, `/tesserae/`, and `/roadmap/` as siblings, so the nested and meta surfaces stay one click away from any page. "Writing" points at `/writing/` to match the header (not `/blog/`). Also the single mount point for `<StoreAnnounce />`.
+- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, `/tesserae/`, `/social/`, and `/roadmap/` as siblings, so the nested and meta surfaces stay one click away from any page. "Writing" points at `/writing/` to match the header (not `/blog/`). Also the single mount point for `<StoreAnnounce />`.
 - **`StoreAnnounce.astro`** — one-time, dismissable corner card pointing at `store.mazzeleczzare.com`. Gated on `STORE_ANNOUNCE_ENABLED` in `src/consts.ts` (**enabled** since 2026-09-09; set `false` to pull it); when off, the `<aside>` isn't emitted and the scoped `<style>`/`<script>` are inert. Never blocks the page, appears only after dwell/scroll, honours `prefers-reduced-motion`, remembers dismissal in `localStorage['store-announce-v1']` (bump `STORE_ANNOUNCE_KEY` to re-show after a copy change). Vanilla JS, not a React island (per Key Constraints).
 
 **Cursor:**
-- **`SeamCursor.astro`** — difference-blended dot + spring-lagged gold ring (k 120, c 18). Mounted on `/about` only. Mounts nothing unless the pointer is fine, `prefers-reduced-motion` is off and `forced-colors` is off; the native cursor is hidden only after mount (`html.has-seam-cursor`), so a script failure leaves the normal pointer. z-index sits on each layer, not the wrapper, so the dot's `mix-blend-mode` blends with the page. Vanilla script, not a React island.
+- **`SeamCursor.astro`** — difference-blended dot + spring-lagged gold ring (k 120, c 18). Mounted site-wide from `Header.astro` (this line previously said `/about` only, which had drifted; corrected 2026-10-30). In screenshots it shows as an inverse-colour disc wherever the mouse was left — not a component bug. Mounts nothing unless the pointer is fine, `prefers-reduced-motion` is off and `forced-colors` is off; the native cursor is hidden only after mount (`html.has-seam-cursor`), so a script failure leaves the normal pointer. z-index sits on each layer, not the wrapper, so the dot's `mix-blend-mode` blends with the page. Vanilla script, not a React island.
 
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
 

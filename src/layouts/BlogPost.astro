@@ -8,6 +8,8 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import PostQuoteShare from '../components/PostQuoteShare';
 import AuthorCoda from '../components/AuthorCoda.astro';
+import CarouselStrip from '../components/CarouselStrip.astro';
+import { deckFor } from '../utils/collectDecks';
 import {
   SITE_AUTHOR,
   SITE_DEFAULT_OG_IMAGE,
@@ -31,6 +33,8 @@ type Props = {
   heroDim?: boolean;
   contentType?: 'artifact' | 'dispatch' | 'field-note';
   repoUrl?: string;
+  /** The post's collection id (= URL slug); lets the layout find its carousel deck. */
+  postId?: string;
   frontmatter?: {
     title?: string;
     description?: string;
@@ -64,6 +68,8 @@ const heroDim = resolved.heroDim !== false;
 const HeroSvg = typeof heroImage === 'function' ? heroImage : undefined;
 const contentType = resolved.contentType ?? 'field-note';
 const repoUrl = resolved.repoUrl;
+// A post with docs/social/<id>/slides.json gets its carousel strip after the prose.
+const deck = deckFor(props.postId);
 
 // Resolve a string path for OG/social meta, in priority order:
 //   1. an explicit heroImageOG frontmatter override
@@ -480,6 +486,7 @@ const articleSchema = {
       <div class="prose">
         <slot />
       </div>
+      {deck && <CarouselStrip deck={deck} />}
       <AuthorCoda contentType={contentType} repoUrl={repoUrl} />
       <PostQuoteShare client:load title={title} path={Astro.url.pathname} />
     </article>
