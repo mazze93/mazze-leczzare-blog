@@ -1,0 +1,152 @@
+{
+  "slug": "the-attack-surface-of-security-language",
+  "title": "The Attack Surface of Security Language",
+  "url": "mazzeleczzare.com/blog/the-attack-surface-of-security-language",
+  "eyebrow": "Dispatch · Security engineering",
+  "byline": "Mazze LeCzzare",
+  "theme": "lexicon",
+  "frame": {
+    "width": 1080,
+    "height": 1350
+  },
+  "slides": [
+    {
+      "kind": "cover",
+      "headword": "trusted",
+      "pos": "adj.",
+      "title": "The Attack Surface of Security Language",
+      "body": "Your security controls run on vocabulary. Who owns the definitions?",
+      "source": "post title; hook distilled from §intro + §Who Defines Normal",
+      "exec": "user.trusted: allow()",
+      "exec_caption": "The word becomes executable: if user dot trusted, allow."
+    },
+    {
+      "kind": "statement",
+      "label": "The premise",
+      "headline": "Security tooling is sold as if it were about attackers.",
+      "body": "Most of the time, it is about ordinary lives.",
+      "list": [
+        "The volunteer locked out of a shared account",
+        "The administrator working past midnight",
+        "The user who does not resemble the model's idea of a person"
+      ],
+      "coda": "The system does not ask who they are. It asks whether they fit.",
+      "source": "post lines 19–21 (author's wording)",
+      "guide": "ordinary lives"
+    },
+    {
+      "kind": "definition",
+      "label": "Detection is not perception",
+      "headword": "anomalous",
+      "pos": "adj.",
+      "definition": "A distance from a chosen baseline.",
+      "body": "Every baseline encodes a population it considers ordinary. Whoever falls outside it pays in friction: repeated challenges and lost time, until the tool gets abandoned.",
+      "source": "post lines 33–37; strike renders the author's line 35 ('An anomaly is not a threat') as a diff",
+      "struck": "a threat"
+    },
+    {
+      "kind": "definition",
+      "label": "Labels compress",
+      "headword": "trusted",
+      "pos": "adj.",
+      "definition": "Trust granted by someone, for a purpose, within a scope, under conditions that can change.",
+      "body": "The adjective hides every one of those clauses. That compression is an operational risk.",
+      "source": "post lines 51–57; strike renders line 55 ('compresses all of that into a character judgment')",
+      "struck": "a character judgment"
+    },
+    {
+      "kind": "senses",
+      "label": "One word, three states",
+      "headword": "authorized",
+      "pos": "adj.",
+      "list": [
+        "Authenticated successfully",
+        "Permitted to perform this action",
+        "Approved in advance"
+      ],
+      "body": "Collapse them into one word and you create gaps an attacker can use and an operator may not notice until after the incident.",
+      "source": "post line 96"
+    },
+    {
+      "kind": "manifest",
+      "label": "The fix: a load-bearing lexicon",
+      "headline": "If changing a word's definition would alter an alert, permission, workflow, escalation path, or user consequence, govern it like code.",
+      "manifest": [
+        [
+          "term",
+          "authorized"
+        ],
+        [
+          "definition",
+          "one state, stated precisely"
+        ],
+        [
+          "owner",
+          "who may change it"
+        ],
+        [
+          "scope",
+          "where it applies"
+        ],
+        [
+          "failure_modes",
+          "known, written down"
+        ],
+        [
+          "evidence",
+          "what supports the baseline"
+        ],
+        [
+          "review",
+          "a date"
+        ],
+        [
+          "contested",
+          "interpretations on record"
+        ]
+      ],
+      "source": "post lines 82–94",
+      "manifest_file": "lexicon/authorized.yaml",
+      "guide": "load-bearing"
+    },
+    {
+      "kind": "evidence",
+      "label": "The frameworks already admit context",
+      "items": [
+        [
+          "NIST AI RMF 1.0",
+          "describes AI systems as inherently socio-technical, shaped by human behavior and social dynamics."
+        ],
+        [
+          "NIST CSF 2.0",
+          "places GOVERN at the center of its functions, starting with organizational context."
+        ]
+      ],
+      "body": "The next step is to ask what that admission requires of the categories those systems use.",
+      "source": "post line 41; corroborated against airc.nist.gov AI RMF and NIST.CSWP.29 (2026-10-30)",
+      "guide": "context"
+    },
+    {
+      "kind": "statement",
+      "label": "The human cost",
+      "headline": "A false positive leaves a social residue.",
+      "list": [
+        "Volunteers stop reporting suspicious behavior",
+        "Administrators build workarounds",
+        "Users learn the system's idea of legitimate excludes them",
+        "The alert stream becomes a second inbox"
+      ],
+      "coda": "Measure friction alongside detection. After every block, ask what behavior the system produced.",
+      "source": "post lines 140–148 (all four residues kept)",
+      "guide": "friction"
+    },
+    {
+      "kind": "close",
+      "label": "Categories must remain repairable",
+      "callout": "The moment a word becomes load-bearing, it becomes part of the attack surface.",
+      "cta": "Read the full dispatch",
+      "source": "post line 162 (author's closing line)",
+      "guide": "repairable"
+    }
+  ]
+}

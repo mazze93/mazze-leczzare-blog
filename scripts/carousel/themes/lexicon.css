@@ -1,0 +1,163 @@
+/* ==========================================================================
+   Lexicon — carousel theme
+   A dictionary-specimen register for posts whose argument is about words:
+   warm paper and ink, Playfair headwords, mono parts-of-speech, and a single
+   editor's-redline accent used for diff marks and manifest keys.
+
+   Fonts: @font-face blocks are injected by render.py (base64 from
+   node_modules/@fontsource) so the HTML is self-contained. Families used:
+   "Playfair Display" 400/700/900 (+italic), "Literata" 400/600 (+italic),
+   "DM Mono" 400/500.
+
+   Contrast (WCAG — measured by scripts/carousel/contrast.py, not estimated;
+   rerun it after any token change):
+     ink on paper ............ 15.5:1   ink-2 on paper .......... 8.2:1
+     red on paper ............  6.1:1   red on paper-deep ....... 5.5:1
+     on-ink on ink ........... 14.9:1   on-ink-2 on ink ......... 8.5:1
+     red-ink on ink ..........  7.5:1
+
+   Tracking: DM Mono letter-spacing must stay <= .08em — at .12em Chromium
+   emits per-glyph positioning and the PDF text layer reads "D I S P A T C H"
+   (measured 2026-10-30; build.py's verify_pdf fails the build if it recurs).
+
+   Z-index: .grain overlay is z 0 (decorative, aria-hidden); all content z 1.
+   ========================================================================== */
+
+/* ── Tokens ──────────────────────────────────────────────────────────── */
+:root {
+  --paper:      #F1EBDF;
+  --paper-deep: #E7DFCF;
+  --ink:        #17140F;
+  --ink-2:      #4A4339;
+  --rule:       #BFB39C;
+  --red:        #A32A1C;
+  --on-ink:     #EFE7D8;
+  --on-ink-2:   #B9AF9E;
+  --red-ink:    #EE8A78;
+  --rule-ink:   #4B443A;
+
+  --serif-display: "Playfair Display", Georgia, serif;
+  --serif-text:    "Literata", Georgia, serif;
+  --mono:          "DM Mono", ui-monospace, monospace;
+
+  --frame-w: 1080px;
+  --frame-h: 1350px;
+  --pad-x: 96px;
+}
+
+/* ── Page geometry: one slide per PDF page ───────────────────────────── */
+@page { size: 1080px 1350px; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--ink); }
+body { font-family: var(--serif-text); -webkit-font-smoothing: antialiased; }
+
+.slide {
+  position: relative;
+  width: var(--frame-w);
+  height: var(--frame-h);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 72px var(--pad-x) 64px;
+  break-after: page;
+  background: var(--paper);
+  color: var(--ink);
+}
+.slide:last-child { break-after: auto; }
+.slide.ink { background: var(--ink); color: var(--on-ink); }
+
+/* Decorative paper grain — faint ruled lines, like a ledger page. */
+.grain {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 53px, rgba(23,20,15,.045) 53px 54px);
+}
+.ink .grain { background-image: repeating-linear-gradient(to bottom, transparent 0 53px, rgba(239,231,216,.035) 53px 54px); }
+
+/* ── Chrome: running head + footer ───────────────────────────────────── */
+.head, .foot {
+  position: relative; z-index: 1;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 25px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-2);
+}
+.head { padding-bottom: 18px; border-bottom: 2px solid var(--ink); }
+.foot { padding-top: 18px; border-top: 1px solid var(--rule); }
+.ink .head, .ink .foot { color: var(--on-ink-2); }
+.ink .head { border-bottom-color: var(--on-ink); }
+.ink .foot { border-top-color: var(--rule-ink); }
+.head .guide { font-family: var(--serif-display); font-style: italic; text-transform: none; letter-spacing: 0; font-size: 28px; color: var(--ink); }
+.ink .head .guide { color: var(--on-ink); }
+.foot .by b { font-weight: 500; color: var(--ink); }
+.ink .foot .by b { color: var(--on-ink); }
+
+/* ── Content block: vertically centred so short slides never sit top-heavy ── */
+.body {
+  position: relative; z-index: 1; flex: 1;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 36px; padding: 40px 0;
+}
+
+/* ── Type ────────────────────────────────────────────────────────────── */
+.label { font-family: var(--mono); font-size: 28px; letter-spacing: .06em; text-transform: uppercase; color: var(--red); }
+.ink .label { color: var(--red-ink); }
+.headline { font-family: var(--serif-display); font-weight: 700; font-size: 72px; line-height: 1.06; letter-spacing: -.01em; }
+.lede { font-size: 40px; line-height: 1.35; }
+.text { font-size: 36px; line-height: 1.42; color: var(--ink-2); }
+.ink .text { color: var(--on-ink-2); }
+.coda { font-family: var(--serif-display); font-style: italic; font-size: 44px; line-height: 1.25; padding-top: 28px; border-top: 1px solid var(--rule); }
+.ink .coda { border-top-color: var(--rule-ink); }
+
+/* Headword entry, dictionary style */
+/* pos always sits under the headword, so long and short words read alike */
+.entry { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.headword { font-family: var(--serif-display); font-weight: 900; font-size: 168px; line-height: .95; letter-spacing: -.02em; }
+.pos { font-family: var(--mono); font-size: 34px; font-style: italic; color: var(--ink-2); }
+.ink .pos { color: var(--on-ink-2); }
+
+/* Diff-marked sense: struck-through naive reading, then the governed one */
+/* Three columns — number · diff marker · text — so wrapped lines hang on the
+   text edge and the marker never inherits the strikethrough. */
+.sense { display: grid; grid-template-columns: 60px 44px 1fr; row-gap: 16px; align-items: baseline; }
+.sense .n { grid-column: 1; font-family: var(--serif-display); font-weight: 700; font-size: 44px; color: var(--red); }
+.sense .mk { font-family: var(--mono); font-size: 36px; color: var(--red); }
+.sense .mk.add { grid-column: 2; }
+.sense .del { font-size: 38px; color: var(--red); text-decoration: line-through; text-decoration-thickness: 3px; }
+.sense .def { grid-column: 3; font-size: 46px; line-height: 1.28; font-weight: 600; }
+
+/* Lists */
+.list { list-style: none; display: flex; flex-direction: column; gap: 22px; }
+.list li { font-size: 38px; line-height: 1.3; padding-left: 52px; position: relative; }
+.list li::before { content: ""; position: absolute; left: 0; top: .62em; width: 30px; height: 2px; background: var(--red); }
+.ink .list li::before { background: var(--red-ink); }
+.list.numbered { counter-reset: s; }
+.list.numbered li { padding-left: 72px; font-size: 44px; }
+.list.numbered li::before { counter-increment: s; content: counter(s) "."; background: none; width: auto; height: auto; top: 0;
+  font-family: var(--serif-display); font-weight: 700; color: var(--red); }
+
+/* Manifest — the lexicon entry as a governed schema */
+.manifest { background: var(--ink); color: var(--on-ink); border-radius: 6px; padding: 40px 44px;
+  font-family: var(--mono); font-size: 32px; line-height: 1.62; }
+.manifest .k { color: var(--red-ink); }
+.manifest .c { color: var(--on-ink-2); }
+.manifest .file { display: block; font-size: 25px; letter-spacing: .06em; text-transform: uppercase; color: var(--on-ink-2);
+  border-bottom: 1px solid var(--rule-ink); padding-bottom: 14px; margin-bottom: 18px; }
+
+/* Evidence cards */
+.cite { border-left: 4px solid var(--red); padding: 6px 0 6px 34px; }
+.cite .src { font-family: var(--mono); font-size: 28px; letter-spacing: .06em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+.cite p { font-size: 38px; line-height: 1.36; }
+
+/* Cover */
+.cover .headword { font-size: 230px; font-style: italic; font-weight: 700; color: var(--on-ink); }
+.exec { font-family: var(--mono); font-size: 34px; color: var(--on-ink-2); }
+.exec .k { color: var(--red-ink); }
+.cover .title { font-family: var(--serif-display); font-weight: 700; font-size: 80px; line-height: 1.04; }
+.cover .lede { color: var(--on-ink-2); }
+
+/* Close — boxed callout, never a bare closing line */
+.callout { border: 3px solid var(--red-ink); padding: 56px 52px; position: relative; }
+.callout p { font-family: var(--serif-display); font-weight: 700; font-size: 70px; line-height: 1.12; }
+.callout::after { content: ""; position: absolute; inset: 12px; border: 1px solid var(--rule-ink); pointer-events: none; }
+.cta { font-family: var(--mono); font-size: 28px; line-height: 1.5; color: var(--on-ink-2); }
+.cta b { display: block; font-weight: 500; color: var(--on-ink); font-size: 32px; }
+.cta .slug { display: block; white-space: nowrap; }
