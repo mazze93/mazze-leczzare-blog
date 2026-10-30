@@ -216,3 +216,6 @@ march_claude_blog/
 files/
 .design-sync/.cache/
 .design-sync/learnings/
+
+# Carousel build intermediates (reproducible from slides.json via scripts/carousel/build.py)
+docs/social/*/build/

@@ -167,6 +167,8 @@ This essay emerged from work on governed AI workflows, security tooling for unde
 
 The practical test is simple: if a term can change what a system permits, blocks, escalates, or records, it deserves more than a definition in a glossary. It deserves an owner, evidence, a failure mode, and a way back.
 
+> **Shareable version:** [a 9-slide carousel (PDF)](/social/the-attack-surface-of-security-language.pdf) distilling the dispatch into dictionary entries: the words that carry operational force, and the schema that would govern them — built for LinkedIn, sized for anywhere else.
+
 ## Sources
 
 [^1]: NIST. [Artificial Intelligence Risk Management Framework (AI RMF 1.0).](https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf)
