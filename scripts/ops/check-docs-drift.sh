@@ -42,6 +42,8 @@ DOCUMENTED_PAGES=(
   "src/pages/support.astro"
   "src/pages/rss.xml.js"
   "src/pages/nodes-manifest.json.ts"
+  "src/pages/witness/checkmate.json.ts"
+  "src/pages/work/research-program-operations.astro"
   "src/pages/signal/index.astro"
   "src/pages/tesserae/index.astro"
   "src/pages/blog/artifacts.astro"
@@ -390,6 +392,13 @@ else
       [[ -f "$REPO_ROOT/dist/$path" || -f "$REPO_ROOT/dist/$path/index.html" ]] && return 0
       return 1
     fi
+
+    # Endpoint routes (src/pages/<path>.json.ts etc.) publish at their own path,
+    # including ones whose last segment carries an extension.
+    local ep
+    for ep in "$REPO_ROOT/src/pages/$path.ts" "$REPO_ROOT/src/pages/$path.js"; do
+      [[ -f "$ep" ]] && return 0
+    done
 
     # A path whose last segment has an extension is a plain asset.
     if [[ "${path##*/}" == *.* ]]; then

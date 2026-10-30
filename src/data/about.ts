@@ -12,6 +12,9 @@
  *   github.com/mazze93/authority-without-assertion  README, research.yaml, preregistration.md
  *   github.com/mazze93/{temenos,aletheia,apatea,rustpress}  README
  *   github.com/mazze93/stratum, /work, public/papers/*.pdf, public/mazze-leczzare-cv.pdf
+ * Added 2026-10-22:
+ *   /work#checkmate  (checkmate's only public surface; the ledger is private)
+ *   research.mazzeleczzare.com          home page, /method.html
  */
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -159,8 +162,9 @@ export const ROLES: Role[] = [
   {
     org: 'Independent',
     role: 'AI security research',
+    href: 'https://research.mazzeleczzare.com/',
     body: [
-      'The research program above, run in public: open repositories, preregistered protocols, and instruments that report their own limits.',
+      'The research program above, run in public: open repositories, preregistered protocols, and instruments that report their own limits. The studies live at <a href="https://research.mazzeleczzare.com/">research.mazzeleczzare.com</a>; vulnerability-research audits are kept in <a href="/work/#checkmate">Checkmate</a>, a private hash-chained ledger.',
     ],
   },
   {
