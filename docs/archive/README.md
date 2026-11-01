@@ -19,6 +19,12 @@ verified unreachable before the move — none of it was doing anything.
 | `tailwind.config.mjs` | repo root | Tailwind was never wired up: no integration in `astro.config.mjs`, no `@import "tailwindcss"`, zero utility classes in `src/`. The `tailwindcss` devDependency went with it. The theme block is kept here as a record of which CSS variables were once meant to reach utility consumers. |
 | `atkinson-{bold,regular}.woff` | `public/fonts/` | The only unreferenced font files in the repo — legacy `.woff` from `0063889 source repo import`, superseded by the `atkinsonhyperlegible-*.woff2` that `/intentional-fragility/` ships locally. |
 
+## `retired-2026-10-30/`
+
+| File | Was | Why it moved |
+| --- | --- | --- |
+| `blog-Triptych.astro` | `src/components/blog/Triptych.astro` | Imported by zero posts; `we-all-float-on.mdx` uses the top-level `src/components/Triptych.astro`, which stays. Retired when the carousel strip was built (that strip borrows Triptych's visual idiom but not its code). It was the only consumer of `--font-caps` / Cormorant SC, which `global.css` still loads for pending landing/astrolabe work; the other unused `blog/*` components named in that comment were left in place. |
+
 To restore any of these: `git mv` it back and re-add whatever wiring it needs
 (an import, a mount, a dependency). Nothing here is referenced by the build, so
 restoring is additive and safe.

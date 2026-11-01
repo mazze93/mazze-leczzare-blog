@@ -1,0 +1,78 @@
+name: Witness checkmate
+
+# Weekly: read checkmate's ledger head through its private, read-only CI
+# gateway and commit it to src/data/checkmate-witness.json. The commit is the
+# witness (an off-checkmate record of the head), and the push to main is what
+# deploys the refreshed plate on /work through Cloudflare Pages.
+#
+# 13:00 UTC Monday = 09:00 ET in daylight time, 08:00 ET in winter. Cron has
+# no time zones; this stays on UTC rather than drifting twice a year.
+#
+# Secrets (repo settings → Secrets and variables → Actions):
+#   CHECKMATE_LEDGER_URL     the gateway's /ci/public/ledger.json URL
+#   CHECKMATE_ACCESS_ID      Cloudflare Access service token, client id
+#   CHECKMATE_ACCESS_SECRET  Cloudflare Access service token, client secret
+# The token should be used for this job only, so it can be revoked on its own.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: witness-checkmate
+  cancel-in-progress: false
+
+jobs:
+  witness:
+    name: Record the head and deploy
+    runs-on: ubuntu-latest
+    steps:
+      # Pinned to full commit SHAs, as in ci.yml: a tag can be repointed.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Read the head
+        env:
+          CHECKMATE_LEDGER_URL: ${{ secrets.CHECKMATE_LEDGER_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CHECKMATE_ACCESS_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CHECKMATE_ACCESS_SECRET }}
+        run: node scripts/ops/witness-checkmate.mjs
+
+      # The plate and /witness/checkmate.json both parse this file at build
+      # time. Prove it parses here, so a bad snapshot never reaches main.
+      - name: Validate the snapshot
+        run: |
+          npm ci --ignore-scripts
+          npx vitest run src/utils/checkmateWitness.test.ts
+
+      # Committed every week even when the head is unchanged: "witnessed"
+      # moves forward, and an unchanged head is itself an observation.
+      - name: Commit the witness
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/checkmate-witness.json
+          if git diff --cached --quiet; then
+            echo "Snapshot identical (already witnessed today). Nothing to commit."
+            exit 0
+          fi
+          head=$(node -p "require('./src/data/checkmate-witness.json').head.slice(0, 12)")
+          length=$(node -p "require('./src/data/checkmate-witness.json').length")
+          git commit -q -F - <<EOF
+          chore(witness): checkmate head ${head}… at link ${length}
+
+          Weekly witness from .github/workflows/witness-checkmate.yml.
+
+          Signed-off-by: Mazze LeCzzare Frazer <mazze@mazzeleczzare.com>
+          EOF
+          git push origin HEAD:main

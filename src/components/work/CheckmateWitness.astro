@@ -1,0 +1,599 @@
+---
+/**
+ * CheckmateWitness — the Checkmate plate on /work.
+ *
+ * checkmate has no public page of its own; this plate is its public face. It
+ * shows the project instead of describing it, and every mark is data:
+ *
+ * - The board is the ledger head. A SHA-256 head is 64 hex digits; a board has
+ *   64 squares. Read a8 → h1, each square carries one digit as a gold block
+ *   whose height is that digit's value (0 leaves the square bare).
+ * - The queen's crown is the audits. One point per audit, so it grows as the
+ *   ledger does; a filled pearl is a decided verdict, an empty setting is an
+ *   audit still open. The orb is the chain: whole while intact, cracked with a
+ *   gold seam if checkmate ever reports it broken. The socket in the band is
+ *   the one jewel only a human sets: advisories filed upstream.
+ * - The game record is the verdicts in chess annotation (# ? ?! ∞ …).
+ *
+ * Only aggregates and the chain head appear, nothing identifying a target or a
+ * claim. The plate is deliberately dark in both themes (a lit vitrine), like
+ * /gay-wandering/ — so its palette is local --cm-* tokens, not theme tokens.
+ * Zero hydration. Motion is scroll-driven where supported, absent otherwise,
+ * and off under prefers-reduced-motion.
+ */
+import '@fontsource/playfair-display/latin-700-italic.css';
+import raw from '../../data/checkmate-witness.json';
+import {
+  WITNESS_HISTORY_URL,
+  crownPearls,
+  gameRecord,
+  headToBoard,
+  parseWitness,
+} from '../../utils/checkmateWitness';
+
+export interface Props {}
+
+const w = parseWitness(raw);
+const board = headToBoard(w.head);
+const pearls = crownPearls(w.verdicts);
+const record = gameRecord(pearls);
+const witnessed = new Date(`${w.witnessedAt}T12:00:00Z`).toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+// ── Crown geometry (viewBox 0 0 400 300) ──────────────────────────────────
+// Points rise on a gentle arc, centre highest; the outline flares from a
+// narrower band, the way a queen's coronet does.
+const points = Math.max(pearls.length, 3);
+const x = (i: number) => 46 + (i * 308) / (points - 1);
+const peakY = (px: number) => 100 + 44 * ((px - 200) / 154) ** 2;
+const valleyY = (px: number) => 192 + 8 * ((px - 200) / 154) ** 2;
+const peaks = Array.from({ length: points }, (_, i) => ({ x: x(i), y: peakY(x(i)) }));
+const f = (n: number) => n.toFixed(1);
+let outline = `M 84 262 L ${f(peaks[0].x)} ${f(peaks[0].y)}`;
+for (let i = 1; i < points; i++) {
+  const vx = (peaks[i - 1].x + peaks[i].x) / 2;
+  outline += ` L ${f(vx)} ${f(valleyY(vx))} L ${f(peaks[i].x)} ${f(peaks[i].y)}`;
+}
+outline += ' L 316 262 Q 200 286 84 262 Z';
+const crownLabel =
+  `A queen's crown with ${pearls.length} points, one per audit: ` +
+  `${pearls.filter((p) => p.decided).length} decided, ${pearls.filter((p) => !p.decided).length} still open. ` +
+  `${w.intact ? 'The orb is whole: the chain is intact.' : 'The orb is cracked: checkmate reports the chain broken.'} ` +
+  `The band's socket holds ${w.filedThroughGate} advisories filed upstream by a human.`;
+---
+
+<figure class="cm" aria-labelledby="cm-cap">
+  <!-- ── Left: the crown over the board ── -->
+  <div class="cm-stage">
+    <svg class="cm-crown" viewBox="0 0 400 300" role="img" aria-label={crownLabel}>
+      <defs>
+        <pattern id="cm-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(32)">
+          <line x1="0" y1="0" x2="0" y2="5" class="cm-hatch" />
+        </pattern>
+        <linearGradient id="cm-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" class="cm-body-top" />
+          <stop offset="1" class="cm-body-bottom" />
+        </linearGradient>
+        <radialGradient id="cm-orb" cx="0.36" cy="0.32" r="0.7">
+          <stop offset="0" class="cm-orb-hi" />
+          <stop offset="0.55" class="cm-orb-mid" />
+          <stop offset="1" class="cm-orb-lo" />
+        </radialGradient>
+      </defs>
+
+      <g class="cm-crown-body">
+        <path d={outline} fill="url(#cm-body)" />
+        <path d={outline} fill="url(#cm-hatch)" />
+        <path d={outline} class="cm-stroke cm-draw" pathLength="1" />
+        <path d="M 76 224 Q 200 244 324 224" class="cm-stroke cm-thin" />
+        <path d="M 82 248 Q 200 268 318 248" class="cm-stroke cm-thin" />
+      </g>
+
+      <!-- the socket only a human fills -->
+      <g class={`cm-socket ${w.filedThroughGate > 0 ? 'cm-socket--set' : ''}`}>
+        <path d="M 200 226 L 212 237 L 200 248 L 188 237 Z" />
+        {w.filedThroughGate > 0 && <text x="200" y="241" text-anchor="middle">{w.filedThroughGate}</text>}
+      </g>
+
+      <!-- one pearl per audit -->
+      {peaks.map((p, i) => {
+        const pearl = pearls[i];
+        return pearl ? (
+          <circle
+            cx={f(p.x)}
+            cy={f(p.y - 11)}
+            r="7.5"
+            class={`cm-pearl ${pearl.decided ? 'cm-pearl--set' : ''}`}
+            style={`--i:${i}`}
+          >
+            <title>{`${pearl.glyph}  ${pearl.label}`}</title>
+          </circle>
+        ) : null;
+      })}
+
+      <!-- the orb is the chain -->
+      <line x1="200" y1="66" x2="200" y2={f(peakY(200) - 20)} class="cm-stroke" />
+      <circle cx="200" cy="50" r="16" fill="url(#cm-orb)" class="cm-orb" />
+      {!w.intact && <path d="M 191 37 L 199 47 L 195 53 L 205 61 L 208 66" class="cm-crack" />}
+    </svg>
+
+    <div class="cm-pit" aria-hidden="true">
+      <div class="cm-board">
+        {board.map((sq) => (
+          <span class={`cm-sq cm-sq--${sq.tone}`} style={`--n:${sq.nibble};--r:${8 - Number(sq.name[1])}`}>
+            {sq.nibble > 0 ? (
+              <span class="cm-blk"><i>{sq.char}</i></span>
+            ) : (
+              <i class="cm-bare">{sq.char}</i>
+            )}
+          </span>
+        ))}
+        <span class="cm-files">{[...'abcdefgh'].map((c) => <span>{c}</span>)}</span>
+        <span class="cm-ranks">{[8, 7, 6, 5, 4, 3, 2, 1].map((r) => <span>{r}</span>)}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Right: the record ── -->
+  <figcaption class="cm-copy" id="cm-cap">
+    <p class="cm-kicker">Checkmate · witnessed {witnessed}</p>
+
+    <p class="cm-links-count">
+      <span class="cm-numeral">{w.length}</span>
+      <span class="cm-numeral-label">
+        links in the chain<br />
+        <span class={w.intact ? 'cm-intact' : 'cm-broken'}>{w.intact ? 'intact' : 'reported broken'}</span>
+      </span>
+    </p>
+
+    <p class="cm-rule">
+      Agents may move.<br /><span>Only a human files upstream.</span>
+    </p>
+
+    <div class="cm-record">
+      <p class="cm-record-head">Game record · {w.audits} audits</p>
+      <ol class="cm-moves">
+        {record.map(([n, a, b]) => (
+          <li>
+            <span class="cm-mn">{n}.</span>
+            <abbr title={a.label} class={a.decided ? '' : 'cm-open'}>{a.glyph}</abbr>
+            {b && <abbr title={b.label} class={b.decided ? '' : 'cm-open'}>{b.glyph}</abbr>}
+          </li>
+        ))}
+      </ol>
+      <p class="cm-legend">
+        <span><b>#</b> class closed</span>
+        <span><b>?</b> claim failed</span>
+        <span><b>?!</b> partially held</span>
+        <span><b>∞</b> unclear</span>
+        <span><b>…</b> still to move</span>
+      </p>
+    </div>
+
+    <p class="cm-head" aria-label={`Ledger head ${w.head}`}>
+      <span>a8</span><code>{w.head.slice(0, 32)}</code><br />
+      <span>→h1</span><code>{w.head.slice(32)}</code>
+    </p>
+
+    <p class="cm-witness">
+      Read every Monday through a private gateway and committed here, outside checkmate&rsquo;s reach. If its
+      history were ever rewritten, the head it reports later would no longer extend these.
+      <a href={WITNESS_HISTORY_URL} target="_blank" rel="noopener noreferrer">Every head witnessed here ↗</a>
+    </p>
+  </figcaption>
+</figure>
+
+<style>
+  /* ── Plate palette. Deliberately dark in both themes; see header. ── */
+  .cm {
+    --cm-ink: #07090e;
+    --cm-ink-2: #0e121b;
+    --cm-sq-light: #1c2230;
+    --cm-sq-dark: #0b0e15;
+    --cm-gold: #cda24e;
+    --cm-gold-hi: #f4d29a;
+    --cm-gold-lo: #8a6f33;
+    --cm-gold-deep: #3f3112;
+    --cm-line: rgba(205, 162, 78, 0.26);
+    --cm-text: #ece5d3;
+    --cm-dim: #a39a85;
+    --cm-teal: #5ccfcf;
+    --cm-coral: #f07178;
+
+    --b: clamp(12rem, 19vw, 17rem); /* board edge */
+    --unit: calc(var(--b) / 105); /* block height per nibble */
+
+    grid-column: 1 / -1;
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.75rem);
+    margin: 0 0 0.5rem;
+    padding: clamp(1.75rem, 4.5vw, 3.75rem);
+    color: var(--cm-text);
+    background:
+      radial-gradient(ellipse 60% 55% at 28% 30%, rgba(205, 162, 78, 0.2), transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% 100%, rgba(92, 207, 207, 0.06), transparent 70%),
+      repeating-linear-gradient(118deg, rgba(205, 162, 78, 0.028) 0 1px, transparent 1px 7px),
+      linear-gradient(180deg, var(--cm-ink-2), var(--cm-ink));
+    box-shadow:
+      0 1px 0 rgba(244, 210, 154, 0.08) inset,
+      0 40px 90px -40px rgba(0, 0, 0, 0.9);
+    overflow: clip;
+  }
+
+  /* Engraved double rule with corner ticks — a plate in a folio. */
+  .cm::before,
+  .cm::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .cm::before {
+    inset: 0.7rem;
+    border: 1px solid var(--cm-line);
+    outline: 1px solid rgba(205, 162, 78, 0.1);
+    outline-offset: 4px;
+  }
+  .cm::after {
+    inset: 0.7rem;
+    background:
+      linear-gradient(var(--cm-gold), var(--cm-gold)) top left / 22px 1px,
+      linear-gradient(var(--cm-gold), var(--cm-gold)) top left / 1px 22px,
+      linear-gradient(var(--cm-gold), var(--cm-gold)) bottom right / 22px 1px,
+      linear-gradient(var(--cm-gold), var(--cm-gold)) bottom right / 1px 22px;
+    background-repeat: no-repeat;
+  }
+
+  /* ── Stage: crown over board ── */
+  .cm-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .cm-crown {
+    width: min(100%, calc(var(--b) * 1.32));
+    height: auto;
+    overflow: visible;
+    position: relative;
+    z-index: 2;
+    margin-bottom: calc(var(--b) * -0.1);
+  }
+  .cm-hatch { stroke: var(--cm-gold); stroke-opacity: 0.32; stroke-width: 0.8; }
+  .cm-body-top { stop-color: var(--cm-gold); stop-opacity: 0.32; }
+  .cm-body-bottom { stop-color: var(--cm-gold-deep); stop-opacity: 0.55; }
+  .cm-orb-hi { stop-color: var(--cm-gold-hi); }
+  .cm-orb-mid { stop-color: var(--cm-gold); }
+  .cm-orb-lo { stop-color: var(--cm-gold-deep); }
+
+  .cm-stroke {
+    fill: none;
+    stroke: var(--cm-gold);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .cm-thin { stroke-width: 0.9; stroke-opacity: 0.7; }
+  .cm-orb { stroke: var(--cm-gold-hi); stroke-width: 0.8; }
+  .cm-crack {
+    fill: none;
+    stroke: var(--cm-gold-hi);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px var(--cm-coral));
+  }
+
+  .cm-pearl {
+    fill: var(--cm-ink);
+    stroke: var(--cm-gold);
+    stroke-width: 1.4;
+    stroke-dasharray: 2.2 2.2;
+  }
+  .cm-pearl--set {
+    fill: var(--cm-gold-hi);
+    stroke: var(--cm-gold);
+    stroke-dasharray: none;
+  }
+
+  .cm-socket path {
+    fill: var(--cm-ink);
+    stroke: var(--cm-gold-hi);
+    stroke-width: 1.2;
+  }
+  .cm-socket--set path { fill: var(--cm-teal); }
+  .cm-socket text {
+    font: 500 10px var(--font-mono);
+    fill: var(--cm-ink);
+  }
+
+  /* ── The board, tilted into the light ── */
+  .cm-pit {
+    perspective: 1700px;
+    perspective-origin: 50% 10%;
+    width: calc(var(--b) * 1.6);
+    max-width: 100%;
+    height: calc(var(--b) * 0.98);
+    display: grid;
+    place-items: center;
+  }
+
+  .cm-board {
+    position: relative;
+    width: var(--b);
+    height: var(--b);
+    display: grid;
+    grid-template: repeat(8, 1fr) / repeat(8, 1fr);
+    transform: rotateX(57deg) rotateZ(-45deg);
+    transform-style: preserve-3d;
+    box-shadow:
+      0 0 0 1px var(--cm-line),
+      0 0 0 calc(var(--b) * 0.035) var(--cm-ink-2),
+      0 0 0 calc(var(--b) * 0.035 + 1px) var(--cm-gold-lo),
+      0 0 calc(var(--b) * 0.25) rgba(205, 162, 78, 0.16);
+  }
+
+  .cm-sq {
+    position: relative;
+    transform-style: preserve-3d;
+    display: grid;
+    place-items: center;
+    background: var(--cm-sq-light);
+  }
+  .cm-sq--dark { background: var(--cm-sq-dark); }
+
+  .cm-bare {
+    font: 400 calc(var(--b) / 32) var(--font-mono);
+    font-style: normal;
+    color: var(--cm-gold-lo);
+  }
+
+  /* A block: top face lifted by its digit, two walls dropped to the board.
+     After rotateZ(-45deg) the +y and -x edges face the viewer. */
+  .cm-blk {
+    --h: calc(var(--n) * var(--unit));
+    position: absolute;
+    inset: 15%;
+    display: grid;
+    place-items: center;
+    transform-style: preserve-3d;
+    transform: translateZ(var(--h));
+    background: linear-gradient(135deg, var(--cm-gold-hi), var(--cm-gold) 70%);
+    box-shadow: 0 0 calc(var(--b) / 22) rgba(244, 210, 154, 0.35);
+  }
+  .cm-blk::before,
+  .cm-blk::after {
+    content: '';
+    position: absolute;
+  }
+  .cm-blk::before {
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: var(--h);
+    transform-origin: top;
+    transform: rotateX(-90deg);
+    background: linear-gradient(var(--cm-gold), var(--cm-gold-lo));
+  }
+  .cm-blk::after {
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: var(--h);
+    transform-origin: right;
+    transform: rotateY(-90deg);
+    background: linear-gradient(270deg, var(--cm-gold-lo), var(--cm-gold-deep));
+  }
+  .cm-blk i {
+    font: 500 calc(var(--b) / 30) var(--font-mono);
+    font-style: normal;
+    color: var(--cm-ink);
+    opacity: 0.7;
+  }
+
+  .cm-files,
+  .cm-ranks {
+    position: absolute;
+    display: grid;
+    font: 400 calc(var(--b) / 26) var(--font-caps);
+    color: var(--cm-gold);
+    pointer-events: none;
+  }
+  .cm-files {
+    left: 0;
+    right: 0;
+    top: calc(100% + var(--b) * 0.045);
+    grid-template-columns: repeat(8, 1fr);
+    text-align: center;
+  }
+  .cm-ranks {
+    top: 0;
+    bottom: 0;
+    right: calc(100% + var(--b) * 0.045);
+    grid-template-rows: repeat(8, 1fr);
+    align-items: center;
+  }
+
+  /* ── The record ── */
+  .cm-copy {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2vw, 1.5rem);
+    min-width: 0;
+    align-self: center;
+  }
+  .cm-copy p { margin: 0; }
+
+  .cm-kicker {
+    font: 500 0.9rem var(--font-caps);
+    letter-spacing: 0.16em;
+    text-transform: lowercase;
+    font-variant: small-caps;
+    color: var(--cm-gold);
+  }
+
+  .cm-links-count {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    line-height: 0.8;
+  }
+  .cm-numeral {
+    font: 300 clamp(5.5rem, 12vw, 9.5rem) var(--font-display);
+    letter-spacing: -0.04em;
+    color: var(--cm-gold-hi);
+    text-shadow: 0 0 40px rgba(205, 162, 78, 0.35);
+    font-variant-numeric: lining-nums;
+  }
+  .cm-numeral-label {
+    font: 400 0.72rem var(--font-mono);
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cm-dim);
+    padding-bottom: 0.9rem;
+  }
+  .cm-intact { color: var(--cm-teal); }
+  .cm-intact::before { content: '● '; }
+  .cm-broken { color: var(--cm-coral); }
+
+  .cm-rule {
+    font: italic 700 clamp(1.5rem, 2.7vw, 2.3rem) / 1.12 'Playfair Display', var(--font-display);
+    color: var(--cm-text);
+    letter-spacing: -0.01em;
+  }
+  .cm-rule span { color: var(--cm-gold); }
+
+  .cm-record {
+    border-top: 1px solid var(--cm-line);
+    padding-top: 0.9rem;
+  }
+  .cm-record-head,
+  .cm-legend {
+    font: 400 0.68rem var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cm-dim);
+  }
+  .cm-moves {
+    list-style: none;
+    margin: 0.65rem 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.4rem;
+  }
+  .cm-moves li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+  }
+  .cm-mn {
+    font: 400 0.8rem var(--font-mono);
+    color: var(--cm-dim);
+  }
+  .cm-moves abbr {
+    font: 500 1.5rem var(--font-display);
+    color: var(--cm-gold-hi);
+    text-decoration: none;
+    cursor: help;
+    min-width: 1.3rem;
+  }
+  .cm-moves abbr.cm-open { color: var(--cm-dim); }
+  .cm-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+  .cm-legend b {
+    font: 500 0.95rem var(--font-display);
+    color: var(--cm-gold);
+    margin-right: 0.15rem;
+  }
+
+  .cm-head {
+    font: 400 0.7rem / 1.7 var(--font-mono);
+    color: var(--cm-text);
+    word-break: break-all;
+    user-select: all;
+  }
+  .cm-head span {
+    display: inline-block;
+    width: 2.6rem;
+    color: var(--cm-gold-lo);
+    user-select: none;
+  }
+  .cm-head code {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .cm-witness {
+    font: 400 0.7rem / 1.65 var(--font-mono);
+    color: var(--cm-dim);
+    max-width: 48ch;
+  }
+  .cm-witness a {
+    display: block;
+    width: fit-content;
+    margin-top: 0.5rem;
+    color: var(--cm-gold-hi);
+    text-decoration: underline;
+    text-decoration-color: var(--cm-line);
+    text-underline-offset: 3px;
+    min-height: 44px;
+    line-height: 44px;
+  }
+  .cm-witness a:hover { text-decoration-color: var(--cm-gold); }
+  .cm-witness a:focus-visible {
+    outline: 2px solid var(--cm-gold-hi);
+    outline-offset: 2px;
+  }
+
+  /* ── Motion: scroll-driven, so it happens when the plate is seen ── */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .cm-blk {
+        animation: cm-rise linear both;
+        animation-timeline: view();
+        animation-range: entry calc(10% + var(--r) * 4%) cover calc(38% + var(--r) * 2%);
+      }
+      .cm-draw {
+        stroke-dasharray: 1;
+        animation: cm-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 35%;
+      }
+      .cm-pearl,
+      .cm-orb {
+        animation: cm-light linear both;
+        animation-timeline: view();
+        animation-range: entry 25% cover 45%;
+      }
+    }
+  }
+  @keyframes cm-rise { from { transform: translateZ(0); } }
+  @keyframes cm-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes cm-light { from { opacity: 0; } }
+
+  /* ── Narrow: crown, board, then the record ── */
+  @media (max-width: 860px) {
+    .cm {
+      grid-template-columns: 1fr;
+      --b: clamp(11rem, 50vw, 18rem);
+    }
+  }
+</style>

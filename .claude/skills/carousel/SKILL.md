@@ -170,6 +170,17 @@ source of truth is `slides.json`.
   manufactured triad in "what it covers").
 - Don't add it to `writing/index.astro`. Carousels are derivative
   collateral.
+- **The on-site strip needs no wiring.** `--ship` also writes
+  `public/social/<slug>/NN.webp`, and any post whose id matches a
+  `docs/social/<slug>/slides.json` gets a `CarouselStrip` after its prose and
+  an entry on `/social/`. Alt text comes from `slides.json`, so a slide with
+  thin fields gets thin alt text: fix the data, not the component. With
+  `npm run preview` running, check it:
+  ```bash
+  python3 scripts/carousel/strip_check.py <slug>   # nav, keys, focus ring, phone, reduced motion, no-JS
+  ```
+- Rebuilds are byte-reproducible (PDF dates pinned to `issued`). If `--ship`
+  changes a committed PDF or preview, the content really changed.
 - `npm run check` and `npm run docs:check` must pass. Then **resolve the link
   in the build**, don't grep for it: confirm
   `dist/blog/<slug>/index.html` links `/social/<slug>.pdf` and that

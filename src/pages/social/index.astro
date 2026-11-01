@@ -1,0 +1,77 @@
+---
+/**
+ * /social/ — every carousel deck with a source (docs/social/<slug>/slides.json),
+ * newest first, each as a live CarouselStrip linking back to its post.
+ *
+ * Shares the URL prefix with the PDFs in public/social/ — the static files
+ * resolve as files, this page as /social/index.html; there is no clash.
+ * Not listed in /writing (carousels are derivative collateral); reached
+ * from the footer and from each post's strip.
+ */
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CarouselStrip from '../../components/CarouselStrip.astro';
+import { SITE_TITLE } from '../../consts';
+import { allDecks } from '../../utils/collectDecks';
+
+const decks = allDecks();
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <BaseHead
+    title={`Carousels — ${SITE_TITLE}`}
+    description="Posts from this site distilled into slide decks for LinkedIn and anywhere else. Swipe through them here, or download the PDF."
+  />
+</head>
+<body>
+  <Header />
+  <main class="soc-main">
+    <header class="soc-header">
+      <span class="soc-eyebrow">Shareable versions · {decks.length} {decks.length === 1 ? 'deck' : 'decks'}</span>
+      <h1 class="soc-title">Carousels</h1>
+      <p class="soc-desc">
+        Posts from this site, distilled into slides for LinkedIn and sized for
+        anywhere else. Each deck links back to the full post, and each one
+        downloads as a PDF with real, selectable text.
+      </p>
+      <div class="soc-rule" aria-hidden="true"></div>
+    </header>
+
+    {decks.length > 0 ? (
+      <div class="soc-list">
+        {decks.map((deck) => <CarouselStrip deck={deck} variant="index" />)}
+      </div>
+    ) : (
+      <p class="soc-empty">No decks yet.</p>
+    )}
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  /* Header mirrors /tesserae/ so the index surfaces read as one family. */
+  .soc-main { width: calc(100% - 2rem); margin: 0 auto; padding: 0 1rem 3rem; }
+  .soc-header { max-width: 900px; margin: 0 auto; padding: 4em 0 2.5em; }
+  .soc-eyebrow {
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-faint);
+  }
+  .soc-title {
+    font-family: var(--font-display); font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 300;
+    color: var(--text); margin: 0.2em 0 0.3em; line-height: 1; letter-spacing: 0.01em;
+  }
+  .soc-desc {
+    font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-dim);
+    line-height: 1.75; margin: 0; max-width: 58ch;
+  }
+  .soc-rule {
+    height: 1px; margin-top: 2rem; opacity: 0.55;
+    background: linear-gradient(to right, transparent, var(--gold-seam) 15%, var(--rule) 55%, transparent);
+  }
+  .soc-list { display: flex; flex-direction: column; gap: 2rem; }
+  .soc-empty { text-align: center; font-family: var(--font-mono); color: var(--text-dim); }
+</style>

@@ -1,0 +1,316 @@
+---
+/**
+ * CarouselStrip — the on-site face of a LinkedIn carousel deck.
+ *
+ * A horizontal scroll-snap strip of the deck's slides ("glide + focus"):
+ * swipe, drag-scroll, arrow keys, or the prev/next controls move one slide
+ * at a time; the centred slide sits forward and the rest recede; a gold
+ * seam fills left→right as progress. Mounted automatically at the end of
+ * any post with a deck (BlogPost.astro) and on /social/.
+ *
+ * Data: a Deck from src/utils/collectDecks.ts (slides.json → carousel.ts).
+ * Images: public/social/<slug>/NN.webp from `build.py --ship`.
+ *
+ * Accessibility (WAI-APG carousel pattern, scroll-based variant):
+ *   - section[aria-roledescription=carousel] labelled by its heading
+ *   - each slide: role=group, aria-roledescription=slide, "N of M" label,
+ *     and alt text derived from the slide's own words (never "Slide 3")
+ *   - the track is a focusable scroll region; ←/→/Home/End move by slide
+ *   - position is announced politely; controls are real <button>s
+ * Without JS: a native, swipeable, keyboard-scrollable strip. The controls
+ *   ship `hidden` and only appear once the script has wired them.
+ * Motion: prefers-reduced-motion → no scale, no smooth scroll, no
+ *   transitions; slides still dim/undim so position stays legible.
+ *
+ * Vanilla script, not a React island (CLAUDE.md: islands discipline).
+ * Colours are site tokens only, so Haven/Ink light mode applies untouched.
+ * Z-index: none needed — controls sit outside the track in normal flow.
+ */
+import type { Deck } from '../utils/carousel';
+
+interface Props {
+  deck: Deck;
+  /** 'post' = end-of-post variant; 'index' = /social/ listing (shows post link) */
+  variant?: 'post' | 'index';
+  /** Heading level, so the strip nests correctly in each page's outline */
+  headingLevel?: 2 | 3;
+}
+
+const { deck, variant = 'post', headingLevel = 2 } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const id = `cs-${deck.slug}`;
+const total = deck.slides.length;
+const pad2 = (n: number) => String(n).padStart(2, '0');
+---
+
+<section
+  class:list={["cs", variant === "index" && "cs--index"]}
+  data-carousel
+  id={id}
+  aria-roledescription="carousel"
+  aria-labelledby={`${id}-title`}
+  style={`--cs-ratio: ${deck.ratio};`}
+>
+  <header class="cs__head">
+    <div class="cs__accent" aria-hidden="true"></div>
+    <p class="cs__eyebrow">
+      {variant === 'post' ? 'Shareable version' : deck.eyebrow ?? 'Carousel'}
+      <span aria-hidden="true"> · </span>{total} slides
+    </p>
+    <H class="cs__title" id={`${id}-title`}>
+      {variant === 'post' ? 'The short version' : deck.title}
+    </H>
+  </header>
+
+  <ol class="cs__track" tabindex="0" aria-label={`${deck.title}: slides`} data-track>
+    {deck.slides.map((s) => (
+      <li
+        class="cs__slide"
+        role="group"
+        aria-roledescription="slide"
+        aria-label={`${s.index} of ${total}`}
+        data-slide
+        data-active={s.index === 1 ? '' : undefined}
+      >
+        <img
+          src={s.src}
+          alt={s.alt}
+          width={deck.width}
+          height={deck.height}
+          loading={s.index <= 2 ? 'eager' : 'lazy'}
+          decoding="async"
+          draggable="false"
+        />
+      </li>
+    ))}
+  </ol>
+
+  <div class="cs__bar">
+    <div class="cs__controls" data-controls hidden>
+      <button type="button" class="cs__btn" data-prev aria-controls={id} aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <p class="cs__count" aria-live="polite" aria-atomic="true">
+        <span class="sr-only">Slide </span><span data-current>{pad2(1)}</span>
+        <span aria-hidden="true"> / </span><span class="sr-only"> of </span>{pad2(total)}
+      </p>
+      <button type="button" class="cs__btn" data-next aria-controls={id} aria-label="Next slide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </div>
+
+    <div class="cs__seam" aria-hidden="true"><span class="cs__seam-fill" data-progress></span></div>
+
+    <p class="cs__links">
+      {variant === 'index' && <a href={deck.postHref}>Read the post</a>}
+      <a href={deck.pdfHref} download>
+        Download PDF<span class="sr-only"> of {deck.title}</span>
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  /* ── Frame ─────────────────────────────────────────────────────────── */
+  .cs {
+    --cs-w: clamp(220px, 66vw, 400px); /* one slide's width; 66vw leaves both neighbours peeking on phones — the swipe cue */
+    --cs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    width: min(1100px, calc(100% - 2em));
+    margin: 1rem auto 4rem;
+  }
+
+  /* ── Head: Triptych's idiom — accent rule, mono eyebrow, display title ── */
+  .cs__head { width: min(720px, 100%); margin: 0 auto 1.75rem; padding: 0 1em; }
+  /* On /social/ the head and bar align with the page's 900px header column. */
+  .cs--index .cs__head, .cs--index .cs__bar { width: min(900px, 100%); padding: 0; }
+  .cs__accent {
+    width: 3.5rem; height: 2px; margin-bottom: 1rem;
+    background: linear-gradient(90deg, var(--gold-seam-deep), var(--gold-seam-bright));
+  }
+  .cs__eyebrow {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-dim); margin: 0 0 0.4rem;
+  }
+  .cs__title {
+    font-family: var(--font-display); font-weight: 500; font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+    line-height: 1.15; color: var(--prose-heading, var(--text)); margin: 0;
+  }
+
+  /* ── Track: native scroll-snap does the gliding ─────────────────────── */
+  .cs__track {
+    list-style: none; margin: 0; padding: 0.75rem 0 1.25rem;
+    display: flex; gap: clamp(0.75rem, 2.4vw, 1.75rem);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    /* Padding lets the first and last slides reach the centre. */
+    padding-inline: calc(50% - var(--cs-w) / 2);
+    scroll-padding-inline: calc(50% - var(--cs-w) / 2);
+    scrollbar-width: none;
+  }
+  .cs__track::-webkit-scrollbar { display: none; }
+  /* Soft edges: slides drift out of view instead of being sliced by the frame.
+     #000 here is mask alpha, not a palette colour — themes don't apply to it.
+     A mask also clips the element's own focus outline, so it is dropped while
+     the track has keyboard focus: the ring stays fully visible. */
+  .cs__track {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  }
+  .cs__track:focus-visible { -webkit-mask-image: none; mask-image: none; }
+  .cs__track:focus-visible { outline: 2px solid var(--gold-seam-bright); outline-offset: 4px; border-radius: 4px; }
+
+  .cs__slide {
+    flex: 0 0 var(--cs-w);
+    scroll-snap-align: center;
+    aspect-ratio: var(--cs-ratio);
+    transform: scale(0.9);
+    opacity: 0.42;
+    transition: transform 0.55s var(--cs-ease), opacity 0.55s var(--cs-ease);
+  }
+  .cs__slide[data-active] { transform: scale(1); opacity: 1; }
+  .cs__slide img {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+    border: 1px solid var(--rule); border-radius: 3px;
+    box-shadow: 0 1.25rem 2.5rem -1.5rem rgba(0, 0, 0, 0.55);
+    user-select: none;
+  }
+
+  /* ── Bar: controls · gold-seam progress · links ─────────────────────── */
+  .cs__bar {
+    width: min(720px, 100%); margin: 0 auto; padding: 0 1em;
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.25rem;
+  }
+  .cs__controls { display: flex; align-items: center; gap: 0.5rem; }
+  .cs__controls[hidden] { display: none; }
+  .cs__btn {
+    inline-size: 2.75rem; block-size: 2.75rem; /* 44px touch target */
+    display: grid; place-items: center; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--rule); color: var(--text);
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+  }
+  .cs__btn svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .cs__btn:hover:not(:disabled) { border-color: var(--gold-seam); color: var(--gold-seam-bright); }
+  .cs__btn:focus-visible { outline: 2px solid var(--gold-seam-bright); outline-offset: 2px; }
+  .cs__btn:disabled { opacity: 0.4; cursor: default; }
+  .cs__count {
+    font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em;
+    color: var(--text-dim); margin: 0 0.4rem; min-width: 4.5ch; text-align: center;
+  }
+
+  .cs__seam { height: 2px; background: var(--hairline); border-radius: 1px; overflow: hidden; }
+  .cs__seam-fill {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--gold-seam-deep), var(--gold-seam-bright));
+    transform-origin: left; transform: scaleX(var(--cs-progress, 0));
+    transition: transform 0.2s linear;
+  }
+
+  .cs__links { display: flex; gap: 1.25rem; margin: 0; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; }
+  .cs__links a { color: var(--gold-seam-bright); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-block: 0.6rem; }
+  .cs__links a:hover { border-bottom-color: var(--gold-seam-bright); }
+  .cs__links a:focus-visible { outline: 2px solid var(--gold-seam-bright); outline-offset: 3px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ── Phones: controls and links stack under the seam ────────────────── */
+  @media (max-width: 640px) {
+    /* Track bleeds edge to edge so neighbours visibly peek (the swipe cue);
+       head and bar keep their own inset padding. */
+    .cs { width: 100%; }
+    .cs__bar { grid-template-columns: 1fr; gap: 0.9rem; }
+    .cs__controls { justify-content: center; }
+    .cs__seam { order: -1; }
+    .cs__links { justify-content: center; }
+  }
+
+  /* ── Reduced motion: keep the dimming (it carries position), drop movement ── */
+  @media (prefers-reduced-motion: reduce) {
+    .cs__slide, .cs__seam-fill, .cs__btn { transition: none; }
+    .cs__slide { transform: none; }
+  }
+
+  /* ── Forced colours: dimming is invisible there, so outline the active slide ── */
+  @media (forced-colors: active) {
+    .cs__slide { opacity: 1; }
+    .cs__slide[data-active] img { outline: 3px solid CanvasText; }
+  }
+</style>
+
+<script>
+  /**
+   * Wires every [data-carousel] on the page. Native scrolling stays the
+   * engine; this script only (1) marks the slide nearest the centre active,
+   * (2) drives the counter + seam, and (3) adds buttons/keys that move by
+   * one slide. Side effects: toggles data-active on slides, sets
+   * --cs-progress on the seam, un-hides the controls.
+   */
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+
+  function nearestIndex(track: HTMLElement, slides: HTMLElement[]): number {
+    const mid = track.getBoundingClientRect().left + track.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    slides.forEach((s, i) => {
+      const r = s.getBoundingClientRect();
+      const d = Math.abs(r.left + r.width / 2 - mid);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+
+  function wire(root: HTMLElement): void {
+    const track = root.querySelector<HTMLElement>('[data-track]');
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-slide]'));
+    const controls = root.querySelector<HTMLElement>('[data-controls]');
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-next]');
+    const current = root.querySelector<HTMLElement>('[data-current]');
+    const fill = root.querySelector<HTMLElement>('[data-progress]');
+    if (!track || !slides.length || !controls || !prev || !next || !current || !fill) return;
+
+    let active = 0;
+
+    const render = (i: number): void => {
+      if (i !== active || !slides[i].hasAttribute('data-active')) {
+        slides.forEach((s, j) => s.toggleAttribute('data-active', j === i));
+        active = i;
+        current.textContent = pad2(i + 1);
+      }
+      prev.disabled = i === 0;
+      next.disabled = i === slides.length - 1;
+      fill.style.setProperty('--cs-progress', String(slides.length > 1 ? i / (slides.length - 1) : 1));
+    };
+
+    const goTo = (i: number): void => {
+      const target = slides[Math.max(0, Math.min(slides.length - 1, i))];
+      // scrollIntoView would also scroll the page vertically; scroll the track only.
+      const left = target.offsetLeft - (track.clientWidth - target.clientWidth) / 2;
+      track.scrollTo({ left, behavior: reduceMotion() ? 'auto' : 'smooth' });
+    };
+
+    let frame = 0;
+    track.addEventListener('scroll', () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => render(nearestIndex(track, slides)));
+    }, { passive: true });
+
+    prev.addEventListener('click', () => goTo(active - 1));
+    next.addEventListener('click', () => goTo(active + 1));
+
+    track.addEventListener('keydown', (e: KeyboardEvent) => {
+      const keys: Record<string, number> = { ArrowLeft: active - 1, ArrowRight: active + 1, Home: 0, End: slides.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault(); // replace the browser's pixel-step scroll with slide-step
+      goTo(keys[e.key]);
+    });
+
+    // Clicking a receding slide brings it to centre.
+    slides.forEach((s, i) => s.addEventListener('click', () => { if (i !== active) goTo(i); }));
+
+    controls.hidden = false;
+    render(nearestIndex(track, slides));
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(wire);
+</script>

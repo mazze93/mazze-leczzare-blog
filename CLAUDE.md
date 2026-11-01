@@ -73,11 +73,14 @@ src/
   content/blog/       # Markdown/MDX blog posts (Content Collection)
   content/signal/     # Signal transmissions (Content Collection)
   content/tesserae/   # Tesserae — mosaic-tile fragments (Content Collection)
+  data/               # Page content kept apart from layout (about.ts) + checkmate-witness.json snapshot
   utils/              # Constellation logic, split pure-vs-Astro for testability (see Constellation System below):
     decay.ts          #   pure — age/committed/resolved → Zone ("undefined"|"experiment"|"signal"|"resolved")
     layout.ts         #   pure — deterministic (seeded) node position/style from a Zone
     nodes.ts          #   pure — aggregates raw collection entries into project nodes
     collectNodes.ts   #   astro:content wrapper — calls getCollection + nodes.ts.aggregateNodes
+    carousel.ts       #   pure — slides.json → Deck (alt text per slide, preview paths, links)
+    collectDecks.ts   #   import.meta.glob wrapper — discovers docs/social/*/slides.json
   layouts/            # BlogPost.astro, HomepageLayout.astro
   pages/              # File-based routes
   styles/             # global.css, homepage.css, compass.css, constellation-pages.css,
@@ -145,6 +148,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/about`          | `src/pages/about.astro`             | Researcher page — label/content rows (Info, Research, Current Study, Methods, Publications, Background, Collaborate, Cite, Contact). Content in `src/data/about.ts`, which lists its sources; mounts `SeamCursor` |
 | `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |
 | `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
+| `/work/research-program-operations` | `src/pages/work/research-program-operations.astro` | Résumé page for the research-operations record; carries the one approved published email (see Key Constraints) |
 | `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
 | `/roadmap`        | `src/pages/roadmap.astro`           | Designed status page — phases generated from one in-file list; linked from Footer |
 | `/login`          | `src/pages/login.astro`             | Admin login page                         |
@@ -160,8 +164,10 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/gay-wandering/` | `src/pages/gay-wandering/index.astro` | The book ("Book" in the header nav); own `--gw-*` palette |
 | `/work/research-program-operations/` | `src/pages/work/research-program-operations.astro` | Résumé page — carries the one approved published email (see Key Constraints) |
 | `/404`            | `src/pages/404.astro`               | Not-found page                           |
+| `/social`         | `src/pages/social/index.astro`      | Carousels — every deck with a `slides.json`, newest first, each as a `CarouselStrip`; PDFs in `public/social/` share the prefix without clashing. Linked from the footer |
 | `/store`          | `src/pages/store.astro`             | Brief landing for `store.mazzeleczzare.com` (Claude Code plugins/skills); links out |
 | `/nodes-manifest.json` | `src/pages/nodes-manifest.json.ts` | Constellation node manifest (build-time JSON) |
+| `/witness/checkmate.json` | `src/pages/witness/checkmate.json.ts` | checkmate's head as last witnessed here, in checkmate's ledger.json shape (build-time JSON) |
 | `/artifacts/*`    | `public/artifacts/*.html`           | Self-contained HTML artifacts (tessera-claude-anchor, tessera-cognitive-topology, tessera-class-closure, tree-of-knowledge, publication-surface, the-break-is-the-record, a-picture-of-what-it-expected, theatre-of-dependencies) — static files, no build step. **Only path granted `ARTIFACT_CSP`** — the one place CDN fonts are permitted |
 | `/essays/the-breakthrough-artifact.html` | `public/essays/…`  | Standalone artifact, linked from `/writing/`. Fonts self-hosted from `/fonts/*` |
 | `/intentional-fragility/` | `public/intentional-fragility/index.html` | Standalone page; ships its own `fonts/` subdirectory (relative `./fonts/` URLs) |
@@ -282,7 +288,6 @@ Read source for full detail — these are the non-obvious points:
 
 **MDX prose components** (`src/components/blog/` — blog-specific variants):
 - **`blog/PullQuote.astro`** — blog-specific pull-quote variant.
-- **`blog/Triptych.astro`** — blog-specific triptych variant.
 - **`blog/MentorQuote.astro`** — attributed mentor/interview quote block.
 - **`blog/VerseBlock.astro`** — verse block variant used within blog posts.
 
@@ -293,15 +298,21 @@ Read source for full detail — these are the non-obvious points:
 **Seam / dividers:**
 - **`Seam.astro`** — the one source for the Kintsugi gold-seam geometry (see Design Systems). Presentational, no client directive; `orientation="horizontal"|"vertical"`. Imported by `SectionBreak`, both `PullQuote`s and `AuthorCoda` — import it rather than re-authoring the path.
 
+**Carousels:**
+- **`CarouselStrip.astro`** — the on-site face of a LinkedIn carousel deck: a scroll-snap strip ("glide + focus" — centred slide forward, neighbours recede, gold-seam progress), prev/next + ←/→/Home/End, polite counter. **Mounted automatically** by `BlogPost.astro` after `.prose` for any post with `docs/social/<post id>/slides.json` (the route passes `postId`), and once per deck on `/social/`. Alt text is derived per slide from slides.json (`src/utils/carousel.ts`, pure + tested), never "Slide N"; decks without a slides.json (the two legacy image-only PDFs) never get a strip. Vanilla script, not a React island; without JS it is still a swipeable list. Images: `public/social/<slug>/NN.webp` from `build.py --ship`. Behaviour is checked by `scripts/carousel/strip_check.py` against `npm run preview`.
+
 **Also MDX-mountable:** `SectionBreak.astro` (decorative in-prose divider, `aria-hidden`), `blog/ArtifactEmbed.astro` (iframes a `public/artifacts/*.html` file with caption + fullscreen link).
 
 **Navigation:**
 - **`Header.astro`** — masthead. `minimal` prop drops the nav links entirely (used by the homepage, where `AirlockStrip` is the door). The full nav is `Work · Writing · Book · Store · About · Studio ▾ · │ · Stratum● · Stele●`, where the teal dot marks running software rather than another essay. `Book` → `/gay-wandering/`, `Store` → `/store/` (the on-site landing for `store.mazzeleczzare.com`). **Studio is a disclosure parent, not a peer link:** it opens a menu holding The bench (`/studio/`), Signal, and Tesserae. Those two are thin fragment surfaces, and giving each a top-level slot spent nav width out of proportion to their content — Tesserae had no link at all and was an unreachable route. Implemented as a `<button aria-expanded>` + `hidden` `<ul>`, not a CSS hover menu (hover menus are unreachable by keyboard and unusable on touch); Escape returns focus to the trigger, `focusin`/click outside closes, ArrowDown opens onto the first item. The toggle is vanilla JS in the component's existing `<script>` block — deliberately not a React island, per Key Constraints. **Below 1000px the masthead is two rows** (brand + utilities, then the links on their own wrapping row) — one row needs ~910px, and before 2026-09-25 nothing wrapped, so the page scrolled sideways on phones and tablets. If you add a nav link, re-check that one row still fits at 1001px. On phones (≤640px) the Studio menu anchors to the header as an inset panel rather than to its button. That script also listens for `compass:state` to refract the brand compass.
-- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, `/tesserae/`, and `/roadmap/` as siblings, so the nested and meta surfaces stay one click away from any page. "Writing" points at `/writing/` to match the header (not `/blog/`). Also the single mount point for `<StoreAnnounce />`.
+- **`Footer.astro`** — carries a flatter list than the header, including `/studio/`, `/signal/`, `/tesserae/`, `/social/`, and `/roadmap/` as siblings, so the nested and meta surfaces stay one click away from any page. "Writing" points at `/writing/` to match the header (not `/blog/`). Also the single mount point for `<StoreAnnounce />`.
 - **`StoreAnnounce.astro`** — one-time, dismissable corner card pointing at `store.mazzeleczzare.com`. Gated on `STORE_ANNOUNCE_ENABLED` in `src/consts.ts` (**enabled** since 2026-09-09; set `false` to pull it); when off, the `<aside>` isn't emitted and the scoped `<style>`/`<script>` are inert. Never blocks the page, appears only after dwell/scroll, honours `prefers-reduced-motion`, remembers dismissal in `localStorage['store-announce-v1']` (bump `STORE_ANNOUNCE_KEY` to re-show after a copy change). Vanilla JS, not a React island (per Key Constraints).
 
 **Cursor:**
-- **`SeamCursor.astro`** — difference-blended dot + spring-lagged gold ring (k 120, c 18). Mounted on `/about` only. Mounts nothing unless the pointer is fine, `prefers-reduced-motion` is off and `forced-colors` is off; the native cursor is hidden only after mount (`html.has-seam-cursor`), so a script failure leaves the normal pointer. z-index sits on each layer, not the wrapper, so the dot's `mix-blend-mode` blends with the page. Vanilla script, not a React island.
+- **`SeamCursor.astro`** — difference-blended dot + spring-lagged gold ring (k 120, c 18). Mounted site-wide from `Header.astro` (this line previously said `/about` only, which had drifted; corrected 2026-10-30). In screenshots it shows as an inverse-colour disc wherever the mouse was left — not a component bug. Mounts nothing unless the pointer is fine, `prefers-reduced-motion` is off and `forced-colors` is off; the native cursor is hidden only after mount (`html.has-seam-cursor`), so a script failure leaves the normal pointer. z-index sits on each layer, not the wrapper, so the dot's `mix-blend-mode` blends with the page. Vanilla script, not a React island.
+
+**Work plates:**
+- **`work/CheckmateWitness.astro`** — the Checkmate entry on `/work` (anchor `#checkmate`) is a full-width plate that shows rather than describes, and every mark is data. The ledger head is a tilted 3D chessboard (64 hex digits → 64 squares, block height = nibble, pure CSS `preserve-3d`). A queen's crown carries the audits: one point per audit, filled pearl = decided, empty setting = open; the orb is the chain (cracked with a gold seam if checkmate reports it broken); the band's socket is the human-only filing count. Verdicts appear as a chess game record (`#` `?` `?!` `∞` `…`). The plate is **deliberately dark in both themes** (local `--cm-*` palette, like `/gay-wandering/`), imports Playfair Display 700 italic for itself only, and animates with scroll-driven `view()` timelines (static where unsupported, off under reduced motion). **This site is checkmate's only public surface** — checkmate's own `/public` page is closed, so never link to `checkmate.mazzeleczzare.com`. Data is `src/data/checkmate-witness.json`, a committed snapshot, and **the commit is the point**: git history here is the off-checkmate record of every head. `.github/workflows/witness-checkmate.yml` refreshes it every Monday 13:00 UTC through checkmate's private CI gateway (Access service token in repo secrets) and pushes to `main`, which deploys. The same snapshot is served at `/witness/checkmate.json` in checkmate's ledger.json shape, for the `checkmate-witness` hub script. Validation lives in `src/utils/checkmateWitness.ts` (pure, tested). Only aggregates and the chain head may appear — checkmate is MAX posture. Zero hydration.
 
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
 
@@ -507,6 +518,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology           |
 | `verify-lockfile.sh`      | Checks `package-lock.json` is in sync                          |
 | `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
+| `witness-checkmate.mjs` | Records checkmate's ledger head into `src/data/checkmate-witness.json` via the private CI gateway (needs `CHECKMATE_LEDGER_URL`, `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`; `--check` reports without writing); warns if the chain shrank. Run weekly by `witness-checkmate.yml` |
 | `extend-portrait.py`     | Regenerates `src/assets/images/about/mazze-portrait-wide.jpg` (the /about 2:1 hero) from `public/mazze-headshot.jpg` by extending the photo's own backdrop — run it if the headshot changes |
 
 `scripts/bootstrap-dev-toolbelt.sh` — one-time developer environment bootstrap (separate from ops).
@@ -524,6 +536,7 @@ decision log on demand — see **`BUILD_JOURNAL.md`** below.
 | `dependency-review.yml` | PR | Flags new vulnerable dependencies |
 | `docs-integrity.yml` | push / PR | Runs `npm run docs:check` |
 | `lighthouse.yml` | push / PR | Lighthouse CI performance/accessibility audit |
+| `witness-checkmate.yml` | Mondays 13:00 UTC + manual | Reads checkmate's ledger head through the private gateway, commits `src/data/checkmate-witness.json` to `main` (which deploys) |
 
 ## Astro / Frontend Notes
 
