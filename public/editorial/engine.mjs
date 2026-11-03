@@ -22,7 +22,7 @@ const CHECKS = [
     note: "Absolute language: identify scope, exception, or supporting evidence." },
   { id: "causality", severity: "review", pattern: /\b(causes?|proves?|therefore|ensures?|makes? .*? inevitable)\b/gi,
     note: "Causal leap: separate a correlation or prediction from a demonstrated intervention." },
-  { id: "quantification", severity: "source", pattern: /\b\d+(?:\.\d+)?\s?(?:%|percent|million|billion|times)\b/gi,
+  { id: "quantification", severity: "source", pattern: /\b\d+(?:\.\d+)?\s?(?:%|percent|million|billion|times)(?=\W|$)/gi,
     note: "Quantitative claim: verify source, denominator, context, and measurement date." },
   { id: "attribution", severity: "review", pattern: /\b(research shows|studies show|experts say|according to research)\b/gi,
     note: "Attributed claim: link the actual source and check that the inference follows." },
