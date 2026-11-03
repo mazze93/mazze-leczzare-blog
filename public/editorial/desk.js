@@ -8,6 +8,7 @@ const $ = (id) => document.getElementById(id);
 const storageName = "mazze-editorial-desk-v1";
 let db, drafts = [], active = null, selection = null, selectedProposalId = null, saveTimer = null;
 let findings = [], currentTool = "write";
+let bearingCorpus = null, bearingPoint = 0, bearingExcluded = new Set();
 const status = (message) => { $("save-state").textContent = message; };
 const fail = (message) => { $("desk-error").textContent = String(message); $("desk-error").hidden = false; status("Action failed"); };
 const clearError = () => { $("desk-error").hidden = true; };
@@ -82,7 +83,10 @@ async function choose(d) {
   $("draft-status").value = d.status;
   $("draft-body").value = d.body;
   $("selected-text").value = ""; $("replacement-text").value = ""; $("revision-reason").value = "";
-  updateBodyUI(); renderProposals(); renderSnapshots(); renderCarousel();
+  bearingCorpus = d.bearingCorpus || null;
+  bearingPoint = bearingCorpus ? Math.max(0, ...bearingCorpus.ledger.map(e => e.seq)) : 0;
+  bearingExcluded = new Set();
+  updateBodyUI(); renderProposals(); renderSnapshots(); renderCarousel(); renderBearing();
   $("bearing-findings").replaceChildren();
   renderList(); status("Saved locally · " + d.status);
 }
@@ -193,6 +197,112 @@ function runBearing() {
     el.append(b);
   }
 }
+
+/**
+ * Authoritative-in-scope Bearing fold: this is the browser twin shipped and
+ * parity-tested by intentional-fragility. Validation and provenance checking
+ * remain the Python engine's responsibility; the UI never invents support.
+ */
+function parseBearingExport(raw) {
+  const input = raw.trim().replace(/^\/\*[^]*?\*\/\s*/, "");
+  const json = input.startsWith("window.CORPUS =")
+    ? input.slice("window.CORPUS =".length).trim().replace(/;\s*$/, "")
+    : input;
+  const data = JSON.parse(json);
+  if (!data || !Array.isArray(data.ledger) || !Array.isArray(data.frames) ||
+      !data.claims || typeof data.claims !== "object" || Array.isArray(data.claims)) {
+    throw new Error("Not a supported Bearing data.js corpus export.");
+  }
+  if (data.ledger.length > 100000 || data.frames.length > 1000 ||
+      Object.keys(data.claims).length > 10000) throw new Error("Bearing export exceeds local safety bounds.");
+  if (data.ledger.some(e => !Number.isSafeInteger(e.seq) || e.seq < 1)) {
+    throw new Error("Bearing ledger contains an invalid sequence number.");
+  }
+  return data;
+}
+function bearingSnapshot() {
+  if (!bearingCorpus) return null;
+  const fold = window.BearingFold;
+  if (!fold?.fold) throw new Error("Bearing fold module unavailable.");
+  const frames = bearingCorpus.frames.filter(f => !bearingExcluded.has(f) && !(bearingCorpus.nonCounting || []).includes(f));
+  const states = fold.fold(bearingCorpus.ledger, Object.keys(bearingCorpus.claims),
+    bearingPoint, new Set(frames), new Set(bearingCorpus.nonCounting || []));
+  return { point: bearingPoint, frames, claims: states };
+}
+function renderBearing() {
+  const el = $("bearing-workspace"), info = $("bearing-state");
+  el.hidden = !bearingCorpus;
+  if (!bearingCorpus) {
+    info.textContent = "No Bearing claim graph imported. No evidence verdicts are available.";
+    $("bearing-results").replaceChildren(); return;
+  }
+  const max = Math.max(0, ...bearingCorpus.ledger.map(e => e.seq));
+  bearingPoint = Math.min(bearingPoint, max);
+  $("bearing-point").max = String(max);
+  $("bearing-point").value = String(bearingPoint);
+  $("bearing-point-value").textContent = String(bearingPoint) + " / " + max;
+  info.textContent = Object.keys(bearingCorpus.claims).length + " claims · " + max +
+    " ledger events · " + bearingCorpus.frames.length + " declared frames. Fold is derived, not stored.";
+  const frameList = $("bearing-frames"); frameList.replaceChildren();
+  for (const frame of bearingCorpus.frames) {
+    const label = document.createElement("label"), input = document.createElement("input");
+    const provenanceOnly = (bearingCorpus.nonCounting || []).includes(frame);
+    input.type = "checkbox"; input.checked = !provenanceOnly && !bearingExcluded.has(frame);
+    input.disabled = provenanceOnly; input.setAttribute("aria-label", "Count frame " + frame);
+    input.addEventListener("change", () => {
+      if (input.checked) bearingExcluded.delete(frame); else bearingExcluded.add(frame);
+      renderBearingResults();
+    });
+    const text = document.createElement("span");
+    text.textContent = frame + (provenanceOnly ? " · provenance only (never counts)" : "");
+    label.append(input, text); frameList.append(label);
+  }
+  renderBearingResults();
+}
+function renderBearingResults() {
+  const el = $("bearing-results"); el.replaceChildren();
+  if (!bearingCorpus) return;
+  const state = bearingSnapshot();
+  for (const [id, value] of Object.entries(state.claims)) {
+    const claim = bearingCorpus.claims[id], box = document.createElement("div");
+    const button = document.createElement("button"); button.type = "button";
+    button.textContent = (value?.tier || "not asserted") + " · " +
+      (claim?.title || id) + " · " + (value?.frames?.length || 0) + " independent frame(s)";
+    const detail = document.createElement("div"); detail.hidden = true;
+    button.addEventListener("click", () => {
+      detail.hidden = !detail.hidden;
+      if (detail.hidden) return;
+      detail.replaceChildren();
+      const p = document.createElement("p");
+      p.textContent = "Claim: " + id + " · Frames: " + (value?.frames?.join(", ") || "none");
+      detail.append(p);
+      if (value) {
+        for (const frame of state.frames) {
+          const without = new Set(state.frames.filter(f => f !== frame));
+          const next = window.BearingFold.fold(bearingCorpus.ledger, [id], bearingPoint,
+            without, new Set(bearingCorpus.nonCounting || []))[id];
+          const line = document.createElement("p");
+          line.textContent = "Without " + frame + ": " + (next?.tier || "not asserted") +
+            " (" + (next?.robustness || 0) + " frame(s))";
+          detail.append(line);
+        }
+      }
+    });
+    box.append(button, detail); el.append(box);
+  }
+}
+async function importBearingFile(file) {
+  if (!file || file.size > 8_000_000) throw new Error("Bearing corpus file must be under 8 MB.");
+  const parsed = parseBearingExport(await file.text());
+  if (!window.BearingFold?.fold) throw new Error("Bearing fold module did not load.");
+  // Require that this exact export parses in the actual fold before accepting.
+  const max = Math.max(0, ...parsed.ledger.map(e => e.seq));
+  window.BearingFold.fold(parsed.ledger, Object.keys(parsed.claims), max,
+    new Set(parsed.frames), new Set(parsed.nonCounting || []));
+  current().bearingCorpus = bearingCorpus = parsed;
+  bearingPoint = max; bearingExcluded = new Set(); queueSave(); renderBearing();
+}
+
 function renderCarousel() {
   const el = $("slide-list"); el.replaceChildren();
   const deck = active?.carousel; if (!deck) return;
@@ -264,7 +374,7 @@ async function restore(file) {
 function compiled() {
   const d = current();
   return reportHTML({ title: d.title, body: d.body, findings: bearingAnalysis(d.body),
-    revisions: d.revisions, source: d.source ? "Published original: " + d.source + " (working revision)" : "New unpublished draft" });
+    revisions: d.revisions, bearingGraph: bearingSnapshot(), source: d.source ? "Published original: " + d.source + " (working revision)" : "New unpublished draft" });
 }
 function bind(id, callback) {
   $(id).addEventListener("click", async () => { clearError(); try { await callback(); } catch (error) { fail(error.message || String(error)); } });
@@ -293,6 +403,15 @@ async function init() {
   });
   bind("capture", capture); bind("propose", addProposal); bind("accept", () => decide(true)); bind("reject", () => decide(false));
   bind("run-bearing", runBearing);
+  $("bearing-file").addEventListener("change", async (event) => {
+    clearError(); try { await importBearingFile(event.target.files?.[0]); }
+    catch (error) { fail(error.message); } finally { event.target.value = ""; }
+  });
+  $("bearing-point").addEventListener("input", () => {
+    bearingPoint = Number($("bearing-point").value);
+    $("bearing-point-value").textContent = String(bearingPoint) + " / " + $("bearing-point").max;
+    renderBearingResults();
+  });
   bind("generate-carousel", () => {
     const d = current(); d.carousel = buildCarousel(d); d.carouselSource = d.body;
     queueSave(); renderCarousel();
