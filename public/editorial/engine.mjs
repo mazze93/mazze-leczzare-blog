@@ -107,7 +107,7 @@ export function buildCarousel({ title, body, slug, issued }) {
   };
 }
 
-export function reportHTML({ title, body, findings = [], revisions = [], source = "Working draft", timestamp }) {
+export function reportHTML({ title, body, findings = [], revisions = [], bearingGraph = null, source = "Working draft", timestamp }) {
   const published = escapeHTML(timestamp || new Date().toISOString());
   const titleSafe = escapeHTML(title || "Untitled");
   const row = (f) => `<li><strong>${escapeHTML(f.kind)}</strong> — ${escapeHTML(f.note)}
@@ -115,6 +115,7 @@ export function reportHTML({ title, body, findings = [], revisions = [], source 
   const rev = (r) => `<li><time>${escapeHTML(r.at)}</time> — ${escapeHTML(r.action)}:
     ${escapeHTML(r.before?.slice(0,150) || "")}</li>`;
   const safeBody = escapeHTML(body || "").replace(/\n/g, "<br>");
+  const bearingRows = bearingGraph?.claims ? Object.entries(bearingGraph.claims).map(([id, state]) => `<li><strong>${escapeHTML(id)}</strong> — ${escapeHTML(state?.tier || "not yet asserted")} · independent frames: ${escapeHTML(state?.frames?.join(", ") || "none")}</li>`).join("") : "";
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>${titleSafe} — editorial report</title><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -127,9 +128,10 @@ li{margin:0 0 1rem;break-inside:avoid}button{padding:.6rem 1rem}
 </style></head><body><button type="button" onclick="window.print()">Print / Save as PDF</button>
 <header><p class="meta">EDITORIAL DESK · WORKING COPY · NOT AN INDEPENDENT FACT CHECK</p><h1>${titleSafe}</h1>
 <p class="meta">Source: ${escapeHTML(source)} · Generated: ${published}</p>
-<p class="meta">Words: ${wordCount(body)} · Bearing flags: ${findings.length} · Recorded revisions: ${revisions.length}</p></header>
+<p class="meta">Words: ${wordCount(body)} · Prose prompts: ${findings.length} · Recorded revisions: ${revisions.length}</p></header>
 <main><h2>Revision record</h2><ol>${revisions.map(rev).join("") || "<li>No accepted edits recorded.</li>"}</ol>
-<h2>Bearing review prompts</h2><ol>${findings.map(row).join("") || "<li>No configured heuristic matches. This is not evidence of factual accuracy.</li>"}</ol>
+<h2>Bearing evidence fold</h2><p>${bearingGraph ? "Read-point " + escapeHTML(bearingGraph.point) + "; selected frames: " + escapeHTML(bearingGraph.frames.join(", ")) : "No imported Bearing graph; no evidentiary verdict available."}</p><ol>${bearingRows || "<li>No derived claim state.</li>"}</ol>
+<h2>Prose review prompts (non-evidentiary)</h2><ol>${findings.map(row).join("") || "<li>No configured heuristic matches. This is not evidence of factual accuracy.</li>"}</ol>
 <h2>Working source text</h2><div class="prose">${safeBody}</div></main>
 <footer><p class="meta">Source-text preservation is the governing constraint. Findings require editorial review.</p></footer>
 </body></html>`;
