@@ -1,0 +1,169 @@
+---
+import BaseHead from '../../../components/BaseHead.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import { SITE_TITLE } from '../../../consts';
+import { getCollection } from 'astro:content';
+
+// Only public posts are embedded as importable originals. A draft: true
+// document must NEVER enter the generated static admin HTML.
+const originals = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <BaseHead title={`Editorial Desk | ${SITE_TITLE}`} description="Private local-first authoring and editorial tools." />
+  <meta name="robots" content="noindex, nofollow" />
+</head>
+<body>
+  <Header />
+  <main class="desk">
+    <div class="masthead">
+      <div><p class="eyebrow">PRIVATE STUDIO / AUTHORING</p>
+        <h1>The Editorial Desk</h1>
+        <p class="lede">Source preserved. Every revision deliberate.</p></div>
+      <a href="/admin/" class="link">← Admin dashboard</a>
+    </div>
+    <p class="notice"><strong>Local-first:</strong> drafts and history are held in this browser's IndexedDB, not in GitHub or Cloudflare.
+      Back up your work using Export archive; clearing site data or changing devices will not move drafts automatically.
+      No edit here changes the published site.</p>
+    <div class="workspace">
+      <aside class="library" aria-label="Writing library">
+        <div class="aside-head"><h2>Drafting table</h2><button id="new-draft" type="button">+ New</button></div>
+        <div id="draft-list" role="list" class="draft-list" aria-label="Local drafts"></div>
+        <h3>Published originals</h3>
+        <p class="hint">Import creates a separate local working copy.</p>
+        <div id="source-list" class="source-list">
+          {originals.map((post) => (
+            <button type="button" class="source-import" data-source={post.id} title={`Create a revision of ${post.data.title}`}>
+              <span>{post.data.title}</span><small>Import working copy</small>
+            </button>
+          ))}
+        </div>
+        <div class="archive">
+          <button id="export-archive" type="button">Export archive JSON</button>
+          <label for="archive-file" class="file-label">Restore archive JSON</label>
+          <input id="archive-file" type="file" accept=".json,application/json" />
+        </div>
+      </aside>
+
+      <section class="editor" aria-label="Writing workspace">
+        <div class="toolbar"><span id="save-state" role="status" aria-live="polite">Choose or create a draft</span>
+          <button id="snapshot" type="button">Save checkpoint</button>
+          <button id="export-md" type="button">Export Markdown</button>
+        </div>
+        <div id="empty" class="empty">Open a working copy or create a new essay. Published originals remain unchanged.</div>
+        <div id="editing" hidden>
+          <label for="draft-title">Title</label>
+          <input id="draft-title" type="text" maxlength="200" placeholder="Untitled essay" />
+          <div class="meta-fields">
+            <label for="draft-status">Editorial status
+              <select id="draft-status">
+                <option value="draft">Draft</option><option value="review">In review</option>
+                <option value="approved">Approved</option><option value="staged">Staged for PR</option>
+              </select>
+            </label>
+            <label for="draft-slug">Slug <input id="draft-slug" maxlength="80" spellcheck="false" /></label>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Writing tools">
+            <button type="button" data-tool="write" aria-selected="true">Writing</button>
+            <button type="button" data-tool="bearing" aria-selected="false">Bearing</button>
+            <button type="button" data-tool="carousel" aria-selected="false">Carousel</button>
+            <button type="button" data-tool="report" aria-selected="false">PDF report</button>
+          </div>
+          <div id="tool-write" class="tool-panel">
+            <div class="section-head"><h2>Manuscript</h2><span id="word-count"></span></div>
+            <div class="split">
+              <div><label for="draft-body">Markdown / MDX source</label>
+                <textarea id="draft-body" spellcheck="true" rows="24" placeholder="Begin here…"></textarea>
+              </div>
+              <div><h3>Reading preview</h3><div id="preview" class="preview" aria-label="Textual preview"></div>
+                <p class="hint">Prose preview supports headings, paragraphs, lists and quotes. MDX components require the real Astro preview.</p></div>
+            </div>
+            <section class="revision">
+              <div class="section-head"><h3>Targeted revision</h3><button type="button" id="capture">Capture selected passage</button></div>
+              <label for="selected-text">Selected original (read-only)</label><textarea id="selected-text" readonly rows="3"></textarea>
+              <label for="replacement-text">Proposed replacement</label><textarea id="replacement-text" rows="4"></textarea>
+              <label for="revision-reason">Reason / editorial decision</label>
+              <input id="revision-reason" placeholder="What changes, and why?" maxlength="500" />
+              <div class="actions"><button id="propose" type="button">Record proposal</button><button id="accept" type="button">Accept selected proposal</button><button id="reject" type="button">Reject selected proposal</button></div>
+              <div id="proposals" class="proposal-list" aria-label="Revision proposals"></div>
+            </section>
+            <section class="revision">
+              <div class="section-head"><h3>Checkpoint history</h3><button id="restore-snapshot" type="button">Restore selected checkpoint</button></div>
+              <select id="snapshot-list" aria-label="Saved checkpoints"></select>
+              <p class="hint">Restoring captures the current working copy first; no checkpoint is deleted.</p>
+            </section>
+          </div>
+          <section id="tool-bearing" class="tool-panel" hidden>
+            <div class="section-head"><h2>Bearing · editorial probes</h2><button id="run-bearing" type="button">Run analysis</button></div>
+            <p class="hint">Deterministic prompts for certainty, causal claims, quantities, attribution, and framing. Matches are not factual errors or source verification.</p>
+            <div id="bearing-findings" class="finding-list"></div>
+          </section>
+          <section id="tool-carousel" class="tool-panel" hidden>
+            <div class="section-head"><h2>Carousel · slide generator</h2><button id="generate-carousel" type="button">Generate deck</button></div>
+            <p class="hint">Extracts slide candidates from your current manuscript. Edit copy below, then export the exact slides.json consumed by the existing Python build pipeline.</p>
+            <div id="slide-list" class="slide-list"></div>
+            <button id="export-carousel" type="button">Download slides.json</button>
+          </section>
+          <section id="tool-report" class="tool-panel" hidden>
+            <h2>PDF report · compiler</h2>
+            <p>Compile your current manuscript, accepted revision log, and Bearing review prompts into a styled, print-ready document. This browser produces the final PDF using its <strong>Print / Save as PDF</strong> dialog.</p>
+            <div class="actions"><button id="print-report" type="button">Open printable report</button><button id="export-report" type="button">Download HTML report</button></div>
+            <p class="hint">This is an editorial audit report, not an independently fact-checked research report. PDF tagging depends on your browser's print implementation.</p>
+          </section>
+        </div>
+      </section>
+    </div>
+    <p id="desk-error" class="error" role="alert" hidden></p>
+  </main>
+  <!-- Published-only originals. Rendered as escaped text, never executed. -->
+  <div id="published-seeds" hidden>
+    {originals.map((post) => (
+      <textarea data-id={post.id} data-title={post.data.title} data-date={post.data.pubDate.toISOString().slice(0,10)}>{post.body}</textarea>
+    ))}
+  </div>
+  <Footer />
+  <script is:inline type="module" src="/editorial/desk.js"></script>
+</body>
+</html>
+<style>
+  main.desk{width:100%;max-width:none;background:#0b111a;color:#f1ece3;min-height:90vh;padding:2rem clamp(1rem,3vw,3rem) 5rem}
+  .masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap;max-width:1500px;margin:0 auto 1.5rem}
+  .eyebrow,h3{letter-spacing:.09em;text-transform:uppercase;color:#c49b67;font:600 .72rem/1.5 'DM Mono',monospace}
+  h1{font:normal clamp(2.4rem,5vw,4.6rem)/1.1 'Cormorant Garamond',Georgia,serif;margin:.15rem 0}
+  h2{font:normal 1.5rem/1.2 'Cormorant Garamond',Georgia,serif;margin:0}
+  .lede,.hint{color:#b4b8c1}.lede{margin:.3rem 0}.hint{font-size:.79rem;line-height:1.6}
+  .link{color:#dbac75}.notice{padding:1rem 1.2rem;border:1px solid #625844;border-radius:10px;background:#211f1a;font-size:.84rem;line-height:1.6;max-width:1500px;margin:0 auto 1.5rem}
+  .workspace{display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:1.1rem;max-width:1500px;margin:auto;align-items:start}
+  .library,.editor{border:1px solid #303d4e;background:#101c29;border-radius:12px;padding:1.2rem}
+  .aside-head,.toolbar,.section-head,.actions{display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap}
+  .library{position:sticky;top:1rem;max-height:90vh;overflow:auto}.library h3{margin:1.5rem 0 .2rem}
+  .draft-list,.source-list,.proposal-list,.finding-list,.slide-list{display:grid;gap:.5rem;margin-top:.8rem}
+  .draft-list button,.source-import{display:flex;flex-direction:column;align-items:start;gap:.3rem;text-align:left;width:100%;padding:.65rem;border-radius:6px;border:1px solid #334457;background:#152433;color:#efe5d6;cursor:pointer}
+  .draft-list button[aria-current="true"]{border-color:#d8a45c;background:#29303a}
+  small{color:#b1b9c0;font-size:.72rem}.archive{display:grid;gap:.7rem;margin-top:1.6rem}
+  button,.file-label{border:1px solid #8c7560;color:#f0d6ab;background:#282730;padding:.5rem .8rem;border-radius:5px;font:500 .8rem/1.5 'DM Sans',sans-serif;cursor:pointer}
+  button:hover,.file-label:hover{background:#3b3440}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #e0ad63;outline-offset:2px}
+  input,textarea,select{width:100%;color:#f0ece3;background:#0a1421;border:1px solid #455263;border-radius:6px;padding:.7rem;font:inherit;box-sizing:border-box}
+  label{display:block;font-size:.82rem;color:#c4cbd1;margin:.85rem 0 .4rem}
+  #draft-title{font:normal 2rem 'Cormorant Garamond',Georgia,serif}.meta-fields{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .tabs{display:flex;border-bottom:1px solid #405062;gap:.3rem;margin:1.5rem 0;padding-bottom:.3rem;flex-wrap:wrap}
+  .tabs button{border:0;background:transparent;color:#9aa8b9}.tabs button[aria-selected="true"]{color:#e7b66f;border-bottom:2px solid #e7b66f}
+  .tool-panel{min-width:0}.section-head{margin:1rem 0}.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem}
+  #draft-body{min-height:520px;font:14px/1.7 'DM Mono',monospace;resize:vertical}
+  .preview{background:#efe9dc;color:#202735;min-height:480px;max-height:700px;overflow:auto;padding:2rem;font:1.05rem/1.8 Georgia,serif;overflow-wrap:anywhere}
+  .preview h2,.preview h3{font-family:Georgia,serif;letter-spacing:normal;text-transform:none;color:#202735}
+  .preview blockquote{border-left:3px solid #a67b48;padding-left:1rem;color:#5b5045}
+  .revision{border-top:1px solid #344258;margin-top:1.5rem;padding-top:1rem}
+  .proposal-list>div,.finding-list>button,.slide-list>article{border:1px solid #455369;padding:1rem;border-radius:7px;background:#162536;overflow-wrap:anywhere}
+  .proposal-list pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  .finding-list>button{text-align:left;color:inherit;width:100%;display:block}.slide-list label{margin:.4rem 0}
+  .slide-list input,.slide-list textarea{margin-bottom:.5rem}
+  .error{max-width:1500px;margin:1rem auto;color:#ffc6aa;padding:1rem;border:1px solid #be7356}
+  .empty{padding:3rem 1rem;text-align:center;color:#adb9c6}[hidden]{display:none!important}
+  @media(max-width:1000px){.split{grid-template-columns:1fr}}
+  @media(max-width:680px){.workspace{grid-template-columns:1fr}.library{position:static;max-height:320px}.meta-fields{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+</style>
