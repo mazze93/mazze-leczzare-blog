@@ -97,9 +97,25 @@ const originals = (await getCollection('blog', ({ data }) => !data.draft))
             </section>
           </div>
           <section id="tool-bearing" class="tool-panel" hidden>
-            <div class="section-head"><h2>Bearing · editorial probes</h2><button id="run-bearing" type="button">Run analysis</button></div>
-            <p class="hint">Deterministic prompts for certainty, causal claims, quantities, attribution, and framing. Matches are not factual errors or source verification.</p>
-            <div id="bearing-findings" class="finding-list"></div>
+            <div class="section-head"><h2>Bearing · evidence-graph fold</h2></div>
+            <p class="hint">The actual Intentional Fragility Bearing fold, derived from an append-only claim/evidence ledger. Import the JSON-compatible <code>data.js</code> created by <code>bearing export</code>. Parsing does not execute uploaded JavaScript.</p>
+            <label for="bearing-file">Import Bearing corpus export (.js or .json)</label>
+            <input id="bearing-file" type="file" accept=".js,.json,application/json,text/javascript" />
+            <p id="bearing-state" role="status" aria-live="polite">No evidence graph loaded for this working copy. No verdicts can be derived.</p>
+            <div id="bearing-workspace" hidden>
+              <label for="bearing-point">Ledger read-point: <output id="bearing-point-value"></output></label>
+              <input id="bearing-point" type="range" min="0" max="0" value="0" />
+              <h3>Independent evidence frames</h3>
+              <div id="bearing-frames" class="frame-grid"></div>
+              <h3>Derived claim state</h3>
+              <div id="bearing-results" class="finding-list"></div>
+              <p class="hint">Click a claim to see leave-one-frame-out re-derivations. Author/provenance-only frames never contribute to robustness. This visual fold does not replace <code>bearing validate</code> or <code>bearing audit</code> in the Python engine.</p>
+            </div>
+            <div class="revision">
+              <div class="section-head"><h3>Prose review prompts · not Bearing</h3><button id="run-bearing" type="button">Run prose probes</button></div>
+              <p class="hint">Keyword-based editorial checks are not evidence grades and cannot change the Bearing graph.</p>
+              <div id="bearing-findings" class="finding-list"></div>
+            </div>
           </section>
           <section id="tool-carousel" class="tool-panel" hidden>
             <div class="section-head"><h2>Carousel · slide generator</h2><button id="generate-carousel" type="button">Generate deck</button></div>
@@ -125,6 +141,7 @@ const originals = (await getCollection('blog', ({ data }) => !data.draft))
     ))}
   </div>
   <Footer />
+  <script is:inline src="/editorial/bearing-fold.js"></script>
   <script is:inline type="module" src="/editorial/desk.js"></script>
 </body>
 </html>
@@ -159,7 +176,10 @@ const originals = (await getCollection('blog', ({ data }) => !data.draft))
   .revision{border-top:1px solid #344258;margin-top:1.5rem;padding-top:1rem}
   .proposal-list>div,.finding-list>button,.slide-list>article{border:1px solid #455369;padding:1rem;border-radius:7px;background:#162536;overflow-wrap:anywhere}
   .proposal-list pre{white-space:pre-wrap;overflow-wrap:anywhere}
-  .finding-list>button{text-align:left;color:inherit;width:100%;display:block}.slide-list label{margin:.4rem 0}
+  .finding-list>button{text-align:left;color:inherit;width:100%;display:block}
+  .frame-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.5rem;margin:1rem 0}
+  .frame-grid label{display:flex;gap:.5rem;align-items:center;border:1px solid #364457;border-radius:6px;padding:.55rem;margin:0}
+  .frame-grid input{width:auto}.slide-list label{margin:.4rem 0}
   .slide-list input,.slide-list textarea{margin-bottom:.5rem}
   .error{max-width:1500px;margin:1rem auto;color:#ffc6aa;padding:1rem;border:1px solid #be7356}
   .empty{padding:3rem 1rem;text-align:center;color:#adb9c6}[hidden]{display:none!important}
