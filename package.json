@@ -27,7 +27,9 @@
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "docs:check": "bash scripts/ops/verify-docs-integrity.sh && bash scripts/ops/check-docs-drift.sh"
+    "docs:check": "bash scripts/ops/verify-docs-integrity.sh && bash scripts/ops/check-docs-drift.sh",
+    "test:editorial": "node --test scripts/editorial/engine.test.mjs",
+    "editorial:pdf": "node scripts/editorial/compile-report.mjs"
   },
   "type": "module",
   "engines": {

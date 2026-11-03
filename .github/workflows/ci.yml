@@ -41,6 +41,11 @@ jobs:
       - name: Test
         run: npm test
 
+      # The Editorial Desk is implemented with browser-native ES modules under
+      # public/ and would otherwise escape the Vitest src/** discovery.
+      - name: Editorial Desk regression tests
+        run: npm run test:editorial
+
       - name: Type-check + build
         run: npm run check
 
