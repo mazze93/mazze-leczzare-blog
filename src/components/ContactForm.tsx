@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { TURNSTILE_SITE_KEY } from '../consts';
+import { formatUsd, serviceFromSearch, type ServiceOffer } from '../data/services';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -28,6 +29,7 @@ declare global {
         container: HTMLElement,
         options: {
           sitekey: string;
+          size?: 'normal' | 'compact';
           callback: (token: string) => void;
           'expired-callback'?: () => void;
           'error-callback'?: () => void;
@@ -72,9 +74,18 @@ export default function ContactForm() {
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [feedback, setFeedback] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [service, setService] = useState<ServiceOffer | undefined>(undefined);
   const startedAt = useMemo(() => Date.now(), []);
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    const selected = serviceFromSearch(window.location.search);
+    setService(selected);
+    if (selected) {
+      setForm((current) => ({ ...current, message: current.message || selected.inquiryTemplate }));
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +98,9 @@ export default function ContactForm() {
 
         widgetIdRef.current = window.turnstile.render(widgetContainerRef.current, {
           sitekey: TURNSTILE_SITE_KEY,
+          // The normal widget is 300px wide; the 320px contact card has less
+          // room. Compact also stays usable if the viewport narrows later.
+          size: 'compact',
           callback: (token) => setTurnstileToken(token),
           'expired-callback': () => setTurnstileToken(''),
           'error-callback': () => setTurnstileToken(''),
@@ -140,6 +154,7 @@ export default function ContactForm() {
           ...form,
           startedAt,
           turnstileToken,
+          ...(service ? { service: service.id } : {}),
         }),
       });
 
@@ -151,7 +166,7 @@ export default function ContactForm() {
 
       setSubmitState('success');
       setFeedback(payload.message || 'Message sent.');
-      setForm(initialState);
+      setForm({ ...initialState, message: service?.inquiryTemplate ?? '' });
     } catch (error) {
       setSubmitState('error');
       setFeedback(error instanceof Error ? error.message : 'Unable to send your message right now.');
@@ -163,6 +178,14 @@ export default function ContactForm() {
   return (
     <form className="contact-form" onSubmit={onSubmit} action="/api/contact" method="post" noValidate>
       <input type="hidden" name="startedAt" value={String(startedAt)} />
+      {service && (
+        <div className="service-inquiry" role="note">
+          <h2>{service.name}</h2>
+          <p>{formatUsd(service.priceUsd)} · One repository · Scope confirmed before payment.</p>
+          <p>Please send a description rather than private code or credentials. <a href={service.path}>Review the scope</a>.</p>
+          <input type="hidden" name="service" value={service.id} />
+        </div>
+      )}
 
       <div className="field-group honeypot" aria-hidden="true">
         <label htmlFor="company">Company</label>
