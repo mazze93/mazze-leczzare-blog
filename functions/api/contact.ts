@@ -1,4 +1,5 @@
 import { signOutboundRequest } from "../utils/webBotAuth";
+import { formatUsd, getServiceOffer } from "../../src/data/services";
 
 interface Env {
   CONTACT_FROM_EMAIL?: string;
@@ -16,6 +17,7 @@ type ContactPayload = {
   company?: unknown;
   startedAt?: unknown;
   turnstileToken?: unknown;
+  service?: unknown;
 };
 
 type ParsedContactPayload = {
@@ -207,6 +209,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         email: formData.get("email"),
         message: formData.get("message"),
         company: formData.get("company"),
+        service: formData.get("service"),
         startedAt: Number(formData.get("startedAt") || 0),
         turnstileToken:
           formData.get("turnstileToken") || formData.get("cf-turnstile-response"),
@@ -214,6 +217,15 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     }
   } catch {
     return json({ ok: false, error: "Invalid request payload." }, 400);
+  }
+
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return json({ ok: false, error: "Invalid request payload." }, 400);
+  }
+
+  const service = getServiceOffer(payload.service);
+  if (payload.service !== undefined && payload.service !== null && payload.service !== '' && !service) {
+    return json({ ok: false, error: "Unknown service. Please return to the offer page." }, 400);
   }
 
   const { name, email, message, company, startedAt, turnstileToken } =
@@ -296,11 +308,16 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const submittedAt = new Date().toISOString();
 
   const deliveryPayload = {
-    subject: `${subjectPrefix}: ${safeName}`,
+    subject: `${subjectPrefix}: ${service ? `${service.name} — ` : ''}${safeName}`,
     submittedAt,
     name: safeName,
     email,
     message,
+    ...(service ? {
+      service: service.id,
+      offerVersion: service.version,
+      quotedPrice: formatUsd(service.priceUsd),
+    } : {}),
     ...(configuredFromEmail ? { fromEmail: configuredFromEmail } : {}),
   };
 
@@ -313,7 +330,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     );
     return json({
       ok: true,
-      message: "Message sent. Thanks for reaching out.",
+      message: service
+        ? "Scope request sent. I will confirm fit and availability before any payment."
+        : "Message sent. Thanks for reaching out.",
     });
   } catch (error) {
     console.error("Contact webhook delivery failed", error);
