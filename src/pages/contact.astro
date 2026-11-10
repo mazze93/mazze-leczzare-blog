@@ -31,7 +31,7 @@ import { SITE_TITLE } from '../consts';
         </div>
       </section>
     </main>
-    <Footer />
+    <Footer promoteStore={false} />
   </body>
 </html>
 
@@ -67,6 +67,27 @@ import { SITE_TITLE } from '../consts';
     backdrop-filter: blur(18px);
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
   }
+
+  :global(.service-inquiry) {
+    padding: 1.1rem;
+    border-left: 3px solid var(--gold);
+    background: var(--surface);
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+
+  :global(.service-inquiry h2) {
+    margin: 0 0 .6rem;
+    font: 600 1.6rem/1.2 var(--font-display);
+  }
+
+  :global(.service-inquiry p) {
+    margin: .5rem 0 0;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  :global(.service-inquiry a) { color: var(--text); }
 
   .eyebrow {
     margin: 0 0 1rem;

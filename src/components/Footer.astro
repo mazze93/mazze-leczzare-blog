@@ -1,6 +1,8 @@
 ---
 import { SITE_EMAIL, SITE_GITHUB_URL } from '../consts';
 import StoreAnnounce from './StoreAnnounce.astro';
+export interface Props { promoteStore?: boolean; }
+const { promoteStore = true } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
@@ -25,6 +27,7 @@ const year = new Date().getFullYear();
         <a href="/social/">Carousels</a>
         <a href="/about/">About</a>
         <a href="/work/">Work</a>
+        <a href="/hire/">Hire me</a>
         <a href="/store/">Store</a>
         <a href="/security/">Security</a>
         <a href="/support/">Support</a>
@@ -49,7 +52,7 @@ const year = new Date().getFullYear();
   </div>
 </footer>
 
-<StoreAnnounce />
+{promoteStore && <StoreAnnounce />}
 
 <style>
 footer {

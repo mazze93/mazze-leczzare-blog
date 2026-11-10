@@ -144,6 +144,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/blog/field-notes` | `src/pages/blog/field-notes.astro`| Blog filtered to `contentType: 'field-note'` (essays) |
 | `/blog/dispatches` | `src/pages/blog/dispatches.astro`  | Blog filtered to `contentType: 'dispatch'` (position pieces/critiques) |
 | `/blog/artifacts` | `src/pages/blog/artifacts.astro`    | Blog filtered to `contentType: 'artifact'` (posts shipping repos/transcripts/skills) |
+| `/hire/` | `src/pages/hire/index.astro` | Fixed-scope repository hardening offer; service record in `src/data/services.ts`; contact inquiry at `/contact/?service=github-hardening`. |
 | `/contact`        | `src/pages/contact.astro`           | ContactForm island                       |
 | `/about`          | `src/pages/about.astro`             | Researcher page — label/content rows (Info, Research, Current Study, Methods, Publications, Background, Collaborate, Cite, Contact). Content in `src/data/about.ts`, which lists its sources; mounts `SeamCursor` |
 | `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |

@@ -1,0 +1,125 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { SITE_TITLE, SITE_GITHUB_URL } from '../../consts';
+import { HARDENING_SPRINT as offer, formatUsd } from '../../data/services';
+
+const deliverables = [
+  ['01', 'A baseline you can inspect', 'An inventory of branch rules, Actions permissions, dependency updates and the existing release path. Each gap names its evidence and the change proposed.'],
+  ['02', 'Reviewable implementation', 'Pull requests for agreed workflow and policy changes, plus an owner-approved settings change plan. Actions references are verified and pinned; token permissions are narrowed to the work each job needs.'],
+  ['03', 'Proof the controls work', 'A controlled failing check and a legitimate passing PR, where your plan supports enforcement. You receive the check names, observed results and exceptions; unverified controls stay labeled unverified.'],
+  ['04', 'A usable handoff', 'Before/after settings, a change log, rollback steps and a 45-minute walkthrough. Seven calendar days of follow-up for defects in the agreed changes.'],
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`${offer.name} | ${SITE_TITLE}`} description={`A fixed-scope GitHub repository hardening engagement: reviewed changes, tested branch and CI controls, dependency maintenance and a documented handoff. ${formatUsd(offer.priceUsd)}.`} />
+  </head>
+  <body>
+    <Header />
+    <main class="sprint" id="main-content">
+      <section class="opening" aria-labelledby="offer-title">
+        <div class="opening-copy">
+          <p class="eyebrow">Work with {SITE_TITLE} / Security engineering</p>
+          <h1 id="offer-title">GitHub hardening.<br />Changes you can inspect.</h1>
+          <p class="offer-summary">One repository · Up to three workflows · {formatUsd(offer.priceUsd)}</p>
+          <p class="intro">Branch rules, CI permissions and dependency updates should support the way your team ships. I review one GitHub repository, implement the agreed controls and leave you with evidence that they work.</p>
+          <a class="primary" href={offer.requestPath}>Discuss your repository <span aria-hidden="true">↗</span></a>
+          <p class="quiet">A scope request comes first. Payment follows an agreed proposal.</p>
+        </div>
+        <aside class="scope-card" aria-labelledby="scope-title">
+          <p class="eyebrow">One bounded engagement</p>
+          <h2 id="scope-title">{offer.name}</h2>
+          <p class="price">{formatUsd(offer.priceUsd)}</p>
+          <dl>
+            <div><dt>Scope</dt><dd>{offer.scope}</dd></div>
+            <div><dt>Delivery</dt><dd>{offer.turnaround}</dd></div>
+            <div><dt>Payment</dt><dd>{formatUsd(offer.depositUsd)} to schedule; {formatUsd(offer.priceUsd - offer.depositUsd)} after the agreed handoff. PayPal Business invoices, sent after scope confirmation.</dd></div>
+          </dl>
+          <p class="quiet">Client review, access or agreed test-window delays pause the schedule. We confirm a revised handoff date in writing.</p>
+          <a href="#fit">Check whether it fits <span aria-hidden="true">↓</span></a>
+        </aside>
+      </section>
+
+      <section class="section" aria-labelledby="deliverables-title">
+        <div class="section-heading"><p class="eyebrow">The work</p><h2 id="deliverables-title">Changes you can review.<br />Evidence you can keep.</h2></div>
+        <ol class="deliverables">
+          {deliverables.map(([number, title, text]) => <li><span class="number" aria-hidden="true">{number}</span><div><h3>{title}</h3><p>{text}</p></div></li>)}
+        </ol>
+        <a class="text-link" href="/downloads/github-hardening-sample.md" download>Download an illustrative handoff report <span aria-hidden="true">↗</span></a>
+        <p class="quiet">The sample is fictional and shows the report format. It is not a customer result.</p>
+      </section>
+
+      <section class="section split" id="fit" aria-labelledby="fit-title">
+        <div><p class="eyebrow">Fit before commitment</p><h2 id="fit-title">For a small team<br />with a working build.</h2><p>You own or administer a GitHub repository, use GitHub Actions and want a more deliberate path from pull request to release.</p></div>
+        <div class="fit-details">
+          <h3>What needs to be in place</h3>
+          <ul><li>One repository with up to three existing Actions workflows and a passing build/test baseline.</li><li>A named owner who can approve changes and demonstrate any plan-dependent settings.</li><li>A GitHub plan that supports the controls you want. Private repositories may need a paid plan; we confirm this before payment.</li></ul>
+          <h3>What stays outside this scope</h3>
+          <p>Application penetration testing, incident response, a CI migration, extensive build repair, self-hosted runner hardening and regulatory certification. Container/release-signing work is scoped separately. New requirements receive a separate proposal.</p>
+          <p>Changes land through your review process. I do not need your password or a token sent through the contact form.</p>
+        </div>
+      </section>
+
+      <section class="section split" aria-labelledby="proof-title">
+        <div><p class="eyebrow">Inspect the underlying work</p><h2 id="proof-title">The method is public.</h2><p>I build and maintain the tools and runbooks behind this work. You can read the implementation before discussing an engagement.</p></div>
+        <ul class="proof-links">
+          <li><a href={`${SITE_GITHUB_URL}/github-hardening-skills`}>GitHub hardening runbooks <span aria-hidden="true">↗</span></a><p>Branch rules, repository settings, CI, dependency updates and disclosure policy.</p></li>
+          <li><a href={`${SITE_GITHUB_URL}/secure-container-template`}>Container and release reference <span aria-hidden="true">↗</span></a><p>A public Python template with non-root runtime, pinned Actions and published supply-chain artifacts. Additional implementation is separately scoped.</p></li>
+          <li><a href="/work/">The broader engineering record <span aria-hidden="true">↗</span></a><p>Published work, running tools and the limits of the evidence behind them.</p></li>
+        </ul>
+      </section>
+
+      <section class="section closing" aria-labelledby="start-title">
+        <p class="eyebrow">Start with the repository</p><h2 id="start-title">Tell me what you ship.</h2>
+        <p>Send a link or a brief description, your GitHub plan and what is getting in the way. I will confirm fit, availability and the written scope before asking for a deposit.</p>
+        <a class="primary" href={offer.requestPath}>Request this sprint <span aria-hidden="true">↗</span></a>
+        <p class="quiet">{formatUsd(offer.priceUsd)} · {offer.scope} · No payment through this form</p>
+      </section>
+    </main>
+    <Footer promoteStore={false} />
+  </body>
+</html>
+
+<style>
+  .sprint { --sprint-accent: var(--gold); --sprint-accent-light: #755827; max-width: 1120px; width: 100%; margin: auto; padding: 4.5rem 2rem 0; }
+  :global([data-theme='light']) .sprint { --sprint-accent: var(--sprint-accent-light); }
+  .opening { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 1fr); gap: clamp(2rem, 6vw, 6rem); align-items: start; padding-bottom: 5rem; position: relative; }
+  .opening::before { content: ''; position: absolute; inset: -3rem -1rem 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 12% 20%, rgba(var(--gold-rgb), .09), transparent 60%); }
+  .eyebrow { font: .7rem/1.7 var(--font-mono); text-transform: uppercase; letter-spacing: .12em; color: var(--sprint-accent); margin: 0 0 1.5rem; }
+  h1 { font: 500 clamp(3.7rem, 6.5vw, 5.8rem)/.94 var(--font-display); letter-spacing: -.035em; margin: 0 0 1.75rem; color: var(--text); }
+  .intro { font: 400 1.24rem/1.7 var(--font-prose); margin: 0 0 2rem; max-width: 37rem; }
+  .offer-summary { font: .75rem/1.8 var(--font-mono); margin: 0 0 1.5rem; color: var(--text); }
+  .primary { display: inline-flex; justify-content: space-between; align-items: center; gap: 1.75rem; min-height: 48px; padding: .8rem 1.2rem; color: var(--bg); background: var(--sprint-accent); font: 500 .85rem/1.5 var(--font-mono); text-decoration: none; border: 1px solid var(--sprint-accent); }
+  .primary:hover { color: var(--text); background: var(--surface); }
+  a:focus-visible { outline: 2px solid var(--teal); outline-offset: 5px; }
+  .quiet { font: .75rem/1.7 var(--font-mono); color: var(--text-dim); max-width: 42rem; margin-top: 1rem; }
+  .scope-card { border: 1px solid var(--sprint-accent); border-top-width: 4px; padding: 1.6rem; background: var(--surface); }
+  .scope-card .eyebrow { margin-bottom: 1rem; }
+  .scope-card h2 { font: 500 1.8rem/1.08 var(--font-display); margin: 0; }
+  .price { font: 500 2.2rem/1.3 var(--font-display); color: var(--sprint-accent); margin: 1.2rem 0 1.7rem; }
+  dl { margin: 0; } dl > div { padding: 1rem 0; border-top: 1px solid var(--rule); }
+  dt { font: .7rem/1.5 var(--font-mono); color: var(--text-dim); margin-bottom: .4rem; } dd { margin: 0; font: 1rem/1.6 var(--font-prose); }
+  .scope-card > a { display: inline-flex; gap: .7rem; align-items: center; min-height: 44px; font: .75rem/1.5 var(--font-mono); color: var(--text); }
+  .section { border-top: 1px solid var(--rule); padding: 3.5rem 0; scroll-margin-top: 10rem; }
+  h2 { font: 500 clamp(2.3rem, 4vw, 3.4rem)/1.05 var(--font-display); letter-spacing: -.02em; margin: 0 0 1.5rem; }
+  h3 { font: 600 1.4rem/1.3 var(--font-display); margin: 0 0 .65rem; }
+  .section p:not(.eyebrow):not(.quiet) { font: 1rem/1.8 var(--font-prose); }
+  .deliverables { list-style: none; padding: 0; margin: 2rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem 3rem; }
+  .deliverables li { display: grid; grid-template-columns: 2rem 1fr; gap: 1rem; }
+  .number { font: .75rem/1.6 var(--font-mono); color: var(--sprint-accent); padding-top: .2rem; }
+  .deliverables p { margin: 0; }
+  .text-link { color: var(--text); display: inline-flex; align-items: center; min-height: 44px; font: .8rem/1.6 var(--font-mono); text-underline-offset: .3em; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(2rem, 7vw, 7rem); }
+  .fit-details ul { padding-left: 1.1rem; margin: .5rem 0 2rem; font: 1rem/1.8 var(--font-prose); }
+  .fit-details li + li { margin-top: .65rem; }
+  .proof-links { list-style: none; padding: 0; margin: 0; }
+  .proof-links li + li { border-top: 1px solid var(--rule); padding-top: 1.3rem; margin-top: 1.3rem; }
+  .proof-links a { min-height: 44px; display: inline-flex; align-items: center; gap: .75rem; font: 600 1.25rem/1.3 var(--font-display); color: var(--text); }
+  .proof-links p { margin: .4rem 0 0; color: var(--text-dim); }
+  .closing { padding-bottom: 5rem; } .closing > p { max-width: 42rem; }
+  @media (max-width: 760px) { .sprint { padding: 2.5rem 1.25rem 0; } .opening, .split { grid-template-columns: minmax(0, 1fr); gap: 2rem; } .opening { padding-bottom: 3rem; } .deliverables { grid-template-columns: 1fr; gap: 1.8rem; } .section { padding: 2.5rem 0; } h1 { font-size: clamp(3.25rem, 13vw, 5rem); } .primary { font-size: .74rem; } }
+</style>
