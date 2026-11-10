@@ -1,8 +1,6 @@
 ---
 import { SITE_EMAIL, SITE_GITHUB_URL } from '../consts';
-import StoreAnnounce from './StoreAnnounce.astro';
-export interface Props { promoteStore?: boolean; }
-const { promoteStore = true } = Astro.props;
+import { HARDENING_SPRINT } from '../data/services';
 const year = new Date().getFullYear();
 ---
 
@@ -27,7 +25,7 @@ const year = new Date().getFullYear();
         <a href="/social/">Carousels</a>
         <a href="/about/">About</a>
         <a href="/work/">Work</a>
-        <a href="/hire/">Hire me</a>
+        <a href={HARDENING_SPRINT.path}>Hire me</a>
         <a href="/store/">Store</a>
         <a href="/security/">Security</a>
         <a href="/support/">Support</a>
@@ -51,8 +49,6 @@ const year = new Date().getFullYear();
     <span class="footer-meta">Built with Astro</span>
   </div>
 </footer>
-
-{promoteStore && <StoreAnnounce />}
 
 <style>
 footer {

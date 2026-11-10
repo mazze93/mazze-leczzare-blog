@@ -31,16 +31,30 @@ const deliverables = [
           <p class="quiet">A scope request comes first. Payment follows an agreed proposal.</p>
         </div>
         <aside class="scope-card" aria-labelledby="scope-title">
-          <p class="eyebrow">One bounded engagement</p>
-          <h2 id="scope-title">{offer.name}</h2>
-          <p class="price">{formatUsd(offer.priceUsd)}</p>
-          <dl>
-            <div><dt>Scope</dt><dd>{offer.scope}</dd></div>
-            <div><dt>Delivery</dt><dd>{offer.turnaround}</dd></div>
-            <div><dt>Payment</dt><dd>{formatUsd(offer.depositUsd)} to schedule; {formatUsd(offer.priceUsd - offer.depositUsd)} after the agreed handoff. PayPal Business invoices, sent after scope confirmation.</dd></div>
-          </dl>
-          <p class="quiet">Client review, access or agreed test-window delays pause the schedule. We confirm a revised handoff date in writing.</p>
-          <a href="#fit">Check whether it fits <span aria-hidden="true">↓</span></a>
+          <div class="scope-paper">
+            <div class="scope-cover">
+              <p class="eyebrow">One bounded engagement</p>
+              <h2 id="scope-title">{offer.name}</h2>
+              <p class="price">{formatUsd(offer.priceUsd)}</p>
+            </div>
+            <details class="scope-fold" open>
+              <summary>
+                <span class="fold-closed">Unfold scope</span>
+                <span class="fold-open">Fold scope</span>
+                <span class="fold-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="scope-inside">
+                <dl>
+                  <div class="scope-leaf"><dt><span aria-hidden="true">01</span> Scope</dt><dd>{offer.scope}</dd></div>
+                  <div class="scope-leaf"><dt><span aria-hidden="true">02</span> Delivery</dt><dd>{offer.turnaround}</dd></div>
+                  <div class="scope-leaf"><dt><span aria-hidden="true">03</span> Payment</dt><dd>{formatUsd(offer.depositUsd)} to schedule and {formatUsd(offer.priceUsd - offer.depositUsd)} after the agreed handoff. PayPal Business invoices follow written scope acceptance.</dd></div>
+                </dl>
+                <p class="quiet">Client review, access or agreed test-window delays pause the schedule. We confirm a revised handoff date in writing.</p>
+                <a class="scope-fit" href="#fit">Check whether it fits <span aria-hidden="true">↓</span></a>
+              </div>
+            </details>
+          </div>
+          <div class="scope-stack" aria-hidden="true"><span></span><span></span><span></span></div>
         </aside>
       </section>
 
@@ -80,7 +94,7 @@ const deliverables = [
         <p class="quiet">{formatUsd(offer.priceUsd)} · {offer.scope} · No payment through this form</p>
       </section>
     </main>
-    <Footer promoteStore={false} />
+    <Footer />
   </body>
 </html>
 
@@ -95,15 +109,122 @@ const deliverables = [
   .offer-summary { font: .75rem/1.8 var(--font-mono); margin: 0 0 1.5rem; color: var(--text); }
   .primary { display: inline-flex; justify-content: space-between; align-items: center; gap: 1.75rem; min-height: 48px; padding: .8rem 1.2rem; color: var(--bg); background: var(--sprint-accent); font: 500 .85rem/1.5 var(--font-mono); text-decoration: none; border: 1px solid var(--sprint-accent); }
   .primary:hover { color: var(--text); background: var(--surface); }
-  a:focus-visible { outline: 2px solid var(--teal); outline-offset: 5px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--teal); outline-offset: 5px; }
   .quiet { font: .75rem/1.7 var(--font-mono); color: var(--text-dim); max-width: 42rem; margin-top: 1rem; }
-  .scope-card { border: 1px solid var(--sprint-accent); border-top-width: 4px; padding: 1.6rem; background: var(--surface); }
+  .scope-card {
+    --fold-ease: cubic-bezier(.2, .7, .2, 1);
+    --fold-line: color-mix(in srgb, var(--sprint-accent) 62%, var(--rule));
+    position: relative;
+    isolation: isolate;
+    margin-block-end: 1rem;
+  }
+  .scope-paper {
+    position: relative;
+    border: 1px solid var(--fold-line);
+    border-top: 3px solid var(--sprint-accent);
+    background: var(--surface);
+    box-shadow: 0 16px 34px color-mix(in srgb, var(--bg) 44%, transparent);
+  }
+  .scope-cover {
+    position: relative;
+    padding: clamp(1.25rem, 3vw, 1.8rem) clamp(1.25rem, 3vw, 1.8rem) .9rem;
+    background: linear-gradient(148deg, rgba(var(--gold-rgb), .12), transparent 64%);
+  }
+  .scope-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto auto;
+    width: 2.2rem;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--fold-line), rgba(var(--gold-rgb), .12));
+    clip-path: polygon(100% 0, 100% 100%, 0 0);
+    pointer-events: none;
+  }
   .scope-card .eyebrow { margin-bottom: 1rem; }
   .scope-card h2 { font: 500 1.8rem/1.08 var(--font-display); margin: 0; }
-  .price { font: 500 2.2rem/1.3 var(--font-display); color: var(--sprint-accent); margin: 1.2rem 0 1.7rem; }
-  dl { margin: 0; } dl > div { padding: 1rem 0; border-top: 1px solid var(--rule); }
-  dt { font: .7rem/1.5 var(--font-mono); color: var(--text-dim); margin-bottom: .4rem; } dd { margin: 0; font: 1rem/1.6 var(--font-prose); }
-  .scope-card > a { display: inline-flex; gap: .7rem; align-items: center; min-height: 44px; font: .75rem/1.5 var(--font-mono); color: var(--text); }
+  .price { font: 500 2.2rem/1.3 var(--font-display); color: var(--sprint-accent); margin: 1rem 0 0; }
+  .scope-fold summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .6rem clamp(1.25rem, 3vw, 1.8rem);
+    list-style: none;
+    border-block: 1px solid var(--rule);
+    color: var(--text);
+    background: rgba(var(--gold-rgb), .045);
+    font: .75rem/1.5 var(--font-mono);
+    cursor: pointer;
+  }
+  .scope-fold summary::-webkit-details-marker { display: none; }
+  .scope-fold summary:hover { color: var(--sprint-accent); }
+  .scope-fold summary:focus-visible { outline-offset: -4px; }
+  .fold-open, .scope-fold[open] .fold-closed { display: none; }
+  .scope-fold[open] .fold-open { display: inline; }
+  .fold-icon {
+    width: .9rem;
+    height: .9rem;
+    border: 1px solid var(--fold-line);
+    background: linear-gradient(135deg, transparent 47%, var(--sprint-accent) 48% 52%, rgba(var(--gold-rgb), .14) 53%);
+    transform: rotate(45deg);
+    transition: transform 360ms var(--fold-ease);
+  }
+  .scope-fold[open] .fold-icon { transform: rotate(135deg); }
+  .scope-inside { padding: 0 clamp(1.25rem, 3vw, 1.8rem) .65rem; perspective: 720px; }
+  .scope-inside dl { margin: 0; }
+  .scope-leaf {
+    padding: .85rem 0;
+    border-bottom: 1px solid var(--rule);
+    transform-origin: top;
+  }
+  .scope-leaf:nth-child(2) { --leaf-delay: 35ms; }
+  .scope-leaf:nth-child(3) { --leaf-delay: 70ms; }
+  dt { font: .7rem/1.5 var(--font-mono); color: var(--text-dim); margin-bottom: .35rem; }
+  dt span { color: var(--sprint-accent); margin-inline-end: .45em; }
+  dd { margin: 0; font: 1rem/1.6 var(--font-prose); }
+  .scope-fit { display: inline-flex; gap: .7rem; align-items: center; min-height: 44px; font: .75rem/1.5 var(--font-mono); color: var(--text); }
+  .scope-stack { position: absolute; inset: auto 0 0; z-index: -1; pointer-events: none; }
+  .scope-stack span {
+    position: absolute;
+    inset: auto 4% -.4rem;
+    height: 1.65rem;
+    clip-path: polygon(0 0, 100% 0, 94% 100%, 6% 100%);
+    background: linear-gradient(142deg, var(--fold-line), var(--surface) 64%);
+    border-bottom: 1px solid var(--fold-line);
+    transform: translateY(var(--rest, 0rem)) rotate(var(--angle, 0deg));
+    transition: transform 440ms var(--fold-ease);
+  }
+  .scope-stack span:nth-child(1) { --rest: .18rem; --fall: .85rem; --angle: -2deg; inset-inline: 9% 3%; }
+  .scope-stack span:nth-child(2) { --rest: .04rem; --fall: .59rem; --angle: 1.5deg; inset-inline: 4% 11%; }
+  .scope-stack span:nth-child(3) { --rest: -.1rem; --fall: .27rem; --angle: -.6deg; }
+  .scope-card:has(.scope-fold:not([open])) .scope-stack span { transform: translateY(var(--fall)) rotate(var(--angle)); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .opening-copy, .scope-card { animation: sprint-rise 300ms var(--fold-ease, ease-out) both; }
+    .scope-card { animation-delay: 75ms; }
+    .scope-fold[open] .scope-leaf { animation: sprint-unfold 310ms var(--fold-ease) var(--leaf-delay, 0ms) both; }
+  }
+  @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+    .scope-fold { interpolate-size: allow-keywords; }
+    .scope-fold::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition: block-size 380ms var(--fold-ease), content-visibility 380ms allow-discrete;
+    }
+    .scope-fold[open]::details-content { block-size: auto; }
+    .scope-fold:not([open]) .scope-leaf {
+      transform: rotateX(-48deg) scale(.96);
+      opacity: .25;
+      transition: transform 270ms var(--fold-ease), opacity 210ms ease;
+    }
+  }
+  @keyframes sprint-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes sprint-unfold { from { opacity: .25; transform: rotateX(-48deg) scale(.96); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .scope-fold::details-content { transition: none; }
+    .scope-fold .scope-leaf, .fold-icon, .scope-stack span { transition: none; }
+  }
   .section { border-top: 1px solid var(--rule); padding: 3.5rem 0; scroll-margin-top: 10rem; }
   h2 { font: 500 clamp(2.3rem, 4vw, 3.4rem)/1.05 var(--font-display); letter-spacing: -.02em; margin: 0 0 1.5rem; }
   h3 { font: 600 1.4rem/1.3 var(--font-display); margin: 0 0 .65rem; }
