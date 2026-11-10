@@ -27,6 +27,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Seam from '../components/Seam.astro';
 import { SITE_EMAIL, SITE_GITHUB_URL } from '../consts';
+import { HARDENING_SPRINT } from '../data/services';
 import {
   PROGRAM, PROPOSITION, QUESTIONS, CURRENT_STUDY, INSTRUMENTS,
   METHODS, PUBLICATIONS, ROLES, CITATION,
@@ -259,7 +260,7 @@ const [wideAvif, wideWebp, sqAvif, sqWebp, sqJpg] = await Promise.all([
         <div class="ab-row__body ab-prose">
           <p class="ab-lede">I’m looking for researchers willing to disagree with this work in public, and to put their names beside the parts that survive.</p>
           <p>Concretely: critique of study design before data exists, independent annotation, replication on a corpus I didn’t choose, and co-authorship. If you can design the experiment that would prove the architecture wrong, I want to hear it.</p>
-          <p>I also take on a small amount of security consulting for teams whose systems touch sensitive data.</p>
+          <p>I also take on a small amount of security consulting for teams whose systems touch sensitive data, including a <a href={HARDENING_SPRINT.path}>GitHub repository hardening sprint</a>.</p>
           <p class="ab-coda">I build systems that break in the right places — and I’d rather show you the seam than hide it.</p>
         </div>
       </section>

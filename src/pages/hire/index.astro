@@ -2,8 +2,27 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import { SITE_TITLE, SITE_GITHUB_URL } from '../../consts';
+import { SITE_AUTHOR, SITE_TITLE, SITE_GITHUB_URL, SITE_URL } from '../../consts';
 import { HARDENING_SPRINT as offer, formatUsd } from '../../data/services';
+
+const description = `Harden one GitHub repository and up to three GitHub Actions workflows for ${formatUsd(offer.priceUsd)}. Get reviewed branch rules, CI permissions, and a documented handoff.`;
+const canonical = new URL(offer.path, Astro.site ?? SITE_URL).href;
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  '@id': `${canonical}#service`,
+  name: offer.name,
+  serviceType: 'GitHub repository and GitHub Actions hardening',
+  description,
+  url: canonical,
+  provider: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_URL },
+  offers: {
+    '@type': 'Offer',
+    url: canonical,
+    price: offer.priceUsd,
+    priceCurrency: 'USD',
+  },
+};
 
 const deliverables = [
   ['01', 'A baseline you can inspect', 'An inventory of branch rules, Actions permissions, dependency updates and the existing release path. Each gap names its evidence and the change proposed.'],
@@ -16,7 +35,8 @@ const deliverables = [
 <!doctype html>
 <html lang="en">
   <head>
-    <BaseHead title={`${offer.name} | ${SITE_TITLE}`} description={`A fixed-scope GitHub repository hardening engagement: reviewed changes, tested branch and CI controls, dependency maintenance and a documented handoff. ${formatUsd(offer.priceUsd)}.`} />
+    <BaseHead title={`GitHub Repository & Actions Hardening | ${SITE_TITLE}`} description={description} />
+    <script type="application/ld+json" set:html={JSON.stringify(serviceSchema).replace(/</g, '\\u003c')} />
   </head>
   <body>
     <Header />
