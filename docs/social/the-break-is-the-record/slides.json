@@ -1,0 +1,98 @@
+{
+  "slug": "the-break-is-the-record",
+  "title": "The Break Is the Record",
+  "url": "mazzeleczzare.com/blog/the-break-is-the-record",
+  "eyebrow": "Field Note · Verification",
+  "byline": "Mazze LeCzzare",
+  "issued": "2026-11-10",
+  "theme": "lexicon",
+  "frame": {
+    "width": 1080,
+    "height": 1350
+  },
+  "slides": [
+    {
+      "kind": "cover",
+      "headword": "verified",
+      "pos": "adj.",
+      "title": "The Break Is the Record",
+      "body": "Notes on building a verification pipeline, first pointed at the world, then at itself.",
+      "source": "post title; body = subtitle with the clause 'without quite meaning to' cut for length",
+      "exec": "note.verified: build_on(note)",
+      "exec_caption": "The label becomes permission: if the note says verified, build on it."
+    },
+    {
+      "kind": "statement",
+      "label": "The seed claim",
+      "headline": "Anthropic suspended two of its own models under U.S. export controls, then restored them weeks later.",
+      "body": "Dates, an agency, a resolution. Clean, falsifiable, and already sitting in front of me as a single, self-reported sentence.",
+      "coda": "That last part is the whole essay.",
+      "source": "post §intro, paras 1-2 (author's wording, 'of this year' and model names cut). Fact: anthropic.com/news/fable-mythos-access (directive Jun 12, 2026) and anthropic.com/news/redeploying-fable-5 (controls lifted Jun 30; access restored per Jul 1 update), read 2026-11-10",
+      "guide": "seed"
+    },
+    {
+      "kind": "definition",
+      "label": "Mechanism and reason",
+      "headword": "suspended",
+      "pos": "v.",
+      "struck": "to comply with export controls",
+      "definition": "after a reported jailbreak that got the model to identify software vulnerabilities.",
+      "body": "A claim that states the mechanism while omitting the reason is technically true in the way an alibi can be technically true.",
+      "source": "post §What the sources actually said, para 2 (body verbatim). Fact: anthropic.com/news/redeploying-fable-5, read 2026-11-10: 'Amazon researchers had found a method of bypassing Fable 5's safeguards: prompting it so that it identified a number of software vulnerabilities'"
+    },
+    {
+      "kind": "senses",
+      "label": "One verb, two outcomes",
+      "headword": "restored",
+      "pos": "v.",
+      "list": [
+        "Fable 5: back to users globally, with an improved safety classifier",
+        "Mythos 5: back to a set of U.S. organizations, under a separate government approval"
+      ],
+      "body": "Completeness failures are the ones that pass every fact-check and still leave you with a wrong picture.",
+      "source": "post §What the sources actually said, paras 3-4. Fact: anthropic.com/news/redeploying-fable-5, read 2026-11-10: Fable 5 'to users globally on the Claude Platform, Claude.ai, Claude Code, and Claude Cowork'; 'we trained an improved safety classifier'; Mythos 5 restored 'for a set of US organizations, following the US government's approval on June 26'. Post's 'vetted' and 'every surface' dropped: the primary source says neither"
+    },
+    {
+      "kind": "statement",
+      "label": "Then it found itself",
+      "headline": "The ledger gained a line that read clean and closed open questions.",
+      "body": "It said a named act and regulatory section had been confirmed by outside analysis. Read directly, that analysis framed the legal question as unresolved.",
+      "coda": "The addition to the ledger had rounded an open question up to a settled fact.",
+      "source": "post §Then it found itself, paras 2 and 4 (coda verbatim). The pipeline's own history: the post is the authority",
+      "guide": "ledger"
+    },
+    {
+      "kind": "statement",
+      "label": "Verify before you build on it",
+      "headline": "That has to include the pipeline's own output.",
+      "body": "An unverified claim sitting in a note already marked verified is wearing the credibility of everything that checked out before it.",
+      "source": "post §Then it found itself, paras 3 and 5 (author's wording, compressed)",
+      "guide": "own output"
+    },
+    {
+      "kind": "statement",
+      "label": "The tool taught me something too",
+      "headline": "A note with two duplicate keys in its frontmatter becomes invisible to structured queries.",
+      "body": "Silently, with no error raised anywhere. It looks completely normal to a human.",
+      "coda": "I had reasoned about the tool without testing it. The correction cost nothing but five minutes and a little pride.",
+      "source": "post §The tool taught me something too, paras 3-4 (author's wording; coda line 1 compresses 'I reasoned confidently about a system's behavior without testing it')",
+      "guide": "frontmatter"
+    },
+    {
+      "kind": "statement",
+      "label": "What's left standing",
+      "headline": "I corrected it, logged the correction, and left the original wrong version visible.",
+      "body": "Quietly fixing it and moving on would have erased the only evidence that the check actually happened.",
+      "source": "post §Then it found itself, final para (author's wording)",
+      "guide": "visible"
+    },
+    {
+      "kind": "close",
+      "label": "The gold in the seam",
+      "callout": "Pretending the break never happened would have cost more than showing it.",
+      "cta": "Read the full field note",
+      "source": "post closing line (author's wording)",
+      "guide": "seam"
+    }
+  ]
+}
