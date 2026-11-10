@@ -3,6 +3,7 @@ import { SITE_TITLE, COMPASS_LABEL } from '../consts';
 import ThemeToggle from './ThemeToggle';
 import CompassLink from './CompassLink.astro';
 import SeamCursor from './SeamCursor.astro';
+import { HARDENING_SPRINT } from '../data/services';
 
 /**
  * minimal — masthead only (brand + utilities), no atlas nav. For pages that
@@ -54,6 +55,7 @@ const { minimal = false } = Astro.props;
       </div>
     )}
     <div class="nav-util">
+      <a href={HARDENING_SPRINT.path} class="util-link offer-link" aria-current={Astro.url.pathname === HARDENING_SPRINT.path ? 'page' : undefined}>Hire</a>
       <a href="https://github.com/mazze93" target="_blank" rel="noopener noreferrer" class="util-link">GitHub</a>
       <ThemeToggle client:load />
     </div>
@@ -83,7 +85,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 2em;
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: 0 1.5em;
   min-height: 56px;
@@ -279,6 +281,21 @@ nav {
   border-color: rgba(var(--accent-rgb), 0.3);
 }
 
+.offer-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-color: transparent;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-seam);
+  text-underline-offset: 0.3em;
+}
+
+.offer-link[aria-current="page"] { color: var(--teal); }
+
 :global(.theme-toggle) {
   font-family: var(--font-mono);
   font-size: 0.72em;
@@ -312,16 +329,15 @@ nav {
   border-radius: var(--radius-sm);
 }
 
-/* Two-row masthead below 1000px.
-   The full nav (brand + nine links + GitHub + theme toggle) needs ~910px on one
+/* Two-row masthead at narrower widths.
+   The full nav (brand + links + utilities) needs room on one
    line. Previously nothing wrapped between 641px and ~960px, and below 640px the
    nav wrapped but .nav-links did not, so the links row ran ~500px wide on a
    375px phone: the whole page scrolled sideways and Stratum/Stele sat off-screen.
    Fix: brand + utilities stay on row one; the links drop to their own
    full-width row and wrap within it, so no viewport width can overflow.
-   1000px (not the measured ~960px) leaves headroom for font-metric variance.
-   If a link is added to the nav, re-check that one row still fits at 1001px. */
-@media (max-width: 1000px) {
+   Re-check the first single-row width when changing navigation. */
+@media (max-width: 1060px) {
   nav {
     flex-wrap: wrap;
     column-gap: 1em;
@@ -346,9 +362,9 @@ nav {
     padding: 0 1em;
     min-height: 48px;
   }
-  .util-link { display: none; }
+  .util-link:not(.offer-link) { display: none; }
   :global(.theme-toggle) { display: inline-flex; }
-  /* Two-row wrapping now comes from the 1000px rule above (wrap, don't
+  /* Two-row wrapping comes from the rule above (wrap, don't
      overflow-x: auto, so the absolutely-positioned Studio menu isn't clipped);
      here only the phone-size tightening remains. */
   .nav-links { margin-left: -0.5em; row-gap: 0; order: 2; }

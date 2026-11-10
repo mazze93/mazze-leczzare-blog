@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import FieldFigure from '../components/work/FieldFigure';
 import CheckmateWitness from '../components/work/CheckmateWitness.astro';
 import { SITE_TITLE } from '../consts';
+import { HARDENING_SPRINT, formatUsd } from '../data/services';
 import { WITNESS_HISTORY_URL } from '../utils/checkmateWitness';
 
 /**
@@ -383,6 +384,9 @@ const sections: { rn: string; label: string; id: string; entries: Entry[] }[] = 
         <h1 class="page-title">I build systems that cannot conceal their own state.</h1>
         <p class="page-desc">
           Agentic systems fail by a single move: a generated claim becomes operational truth merely because it was persisted or repeated. My work refuses that move at every layer I can reach — runtime, build process, memory, prose. The full archive lives in <a href="/writing/">Writing</a> and <a href="/studio/">Studio</a>.
+        </p>
+        <p class="page-desc page-desc--adjacent">
+          Need this applied to your repository? <a href={HARDENING_SPRINT.path}>{HARDENING_SPRINT.name} — {formatUsd(HARDENING_SPRINT.priceUsd)}</a>, with reviewed changes and a documented handoff.
         </p>
         <p class="page-desc page-desc--adjacent">
           For the research-operations record behind this — lab operations, training programs, and scientific communication — see <a href="/work/research-program-operations/">Research Program Operations</a>.

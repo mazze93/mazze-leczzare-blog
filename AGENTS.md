@@ -44,6 +44,7 @@ npm run test       # vitest run — unit tests for src/**/*.test.ts
 | `/`                | `src/pages/index.astro`             |
 | `/blog`            | `src/pages/blog/index.astro`        |
 | `/blog/[slug]/`    | `src/pages/blog/[...slug].astro`    |
+| `/hire/` | `src/pages/hire/index.astro` |
 | `/contact`         | `src/pages/contact.astro`           |
 | `/about`           | `src/pages/about.astro`               |
 | `/work`            | `src/pages/work.astro`              |
