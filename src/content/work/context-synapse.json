@@ -1,0 +1,26 @@
+{
+  "section": "instruments",
+  "order": 6,
+  "idx": "07",
+  "tier": "self",
+  "title": "Context Synapse",
+  "subtitle": "local-first context orchestration",
+  "body": [
+    "A local-first context-orchestration framework in Swift: probabilistic modeling of what a system has learned about you over time, entirely on-device, with interfaces for interrogating and correcting what it thinks it knows. Research project and privacy commitment, written into the same codebase."
+  ],
+  "evidence": [
+    {
+      "label": "Site",
+      "title": "contextsynapse.mazzeleczzare.com",
+      "href": "https://contextsynapse.mazzeleczzare.com/",
+      "external": true
+    },
+    {
+      "label": "Essay",
+      "title": "On Decay, Rot, and the Goblin at the Gate",
+      "href": "/blog/on-decay-rot-and-the-goblin-at-the-gate/"
+    }
+  ],
+  "note": "In development. The project site is up (lighthouse anchors, context-rot scoring, and Edgar — the drift watcher); no public release of the framework itself yet.",
+  "projectHref": "/project/context-synapse/"
+}

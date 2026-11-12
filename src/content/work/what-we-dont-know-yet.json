@@ -1,0 +1,19 @@
+{
+  "section": "record",
+  "order": 3,
+  "idx": "12 · Research note",
+  "tier": "live",
+  "title": "What We Don&rsquo;t Know Yet",
+  "subtitle": "iOS Lockdown Mode research",
+  "body": [
+    "A security research note that opens by retracting its own prior work: the earlier visualization <em>looked</em> solid — colors, numbers, decision trees — and underneath was assumption stacked on assumption. This version inverts it. The questions are explicit, the assumptions are labeled, and the uncertainties are the deliverable rather than the embarrassment. A learning structure where a confidence structure used to be.",
+    "It is the clearest single demonstration of the thesis applied to my own output: <em>a system that cannot conceal its own state includes the person writing it.</em>"
+  ],
+  "evidence": [
+    {
+      "label": "Note",
+      "title": "Read the research note",
+      "href": "/blog/what-we-dont-know-yet/"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "section": "instruments",
+  "order": 2,
+  "idx": "03",
+  "tier": "live",
+  "title": "Checkmate",
+  "subtitle": "security-claim ledger",
+  "figure": "checkmate",
+  "body": [
+    "A private ledger of vulnerability-research audits, kept by a human and by agents. Each claim is worked through six phases toward a verdict, and every row is hashed to the one before it. It has no public page; the plate above is everything it lets out."
+  ],
+  "evidence": [
+    {
+      "label": "Live",
+      "title": "Every head witnessed here",
+      "ref": "checkmate-witness-history",
+      "external": true
+    },
+    {
+      "label": "Data",
+      "title": "The latest witness, as JSON",
+      "href": "/witness/checkmate.json"
+    }
+  ],
+  "note": "Source and ledger private · refreshed every Monday"
+}

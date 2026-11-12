@@ -1,0 +1,201 @@
+---
+import CheckmateWitness from './CheckmateWitness.astro';
+import TierChip from './TierChip.astro';
+import { evidenceHref, type WorkEntryData } from '../../data/work';
+
+/**
+ * One ledger row of /work: apparatus in the margin (index, tier, caveat),
+ * prose in the body, evidence links under it. Entries render as siblings
+ * inside a flex column — `.entry:last-child` relies on that.
+ */
+interface Props {
+  entry: WorkEntryData;
+}
+
+const { entry: e } = Astro.props;
+---
+<article id={e.figure} class={`entry entry--${e.tier} ${e.flagship ? 'entry--flagship' : ''}`}>
+  {e.figure === 'checkmate' && <CheckmateWitness />}
+  <div class="entry-apparatus">
+    <span class="entry-idx">{e.idx}</span>
+    <TierChip tier={e.tier} />
+    {e.note && <p class="entry-note">{e.note}</p>}
+  </div>
+
+  <div class="entry-body">
+    <h3 class="entry-title">
+      <Fragment set:html={e.title} />
+      {e.subtitle && <span class="entry-sub"> — <Fragment set:html={e.subtitle} /></span>}
+    </h3>
+
+    {e.body.map((para) => (
+      <p class="entry-para"><Fragment set:html={para} /></p>
+    ))}
+
+    {e.evidence && (
+      <ul class="entry-evidence" role="list">
+        {e.evidence.map((ev) => (
+          <li>
+            <a
+              href={evidenceHref(ev)}
+              {...(ev.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              <span class="ev-label">{ev.label}</span>
+              <span class="ev-title">{ev.title}</span>
+              {ev.external && <span class="sr-only"> (opens in new tab)</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {e.projectHref && (
+      <a class="entry-link" href={e.projectHref}>
+        Full project
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+    )}
+  </div>
+</article>
+
+<style>
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+    gap: 1.1rem 2.5rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--rule);
+    transition: background-color var(--transition-fast);
+  }
+  .entry:last-child { border-bottom: 1px solid var(--rule); }
+  .entry:hover,
+  .entry:focus-within { background: rgba(var(--accent-rgb), 0.03); }
+
+  /* The spine, literally — a gold rule marks the flagship entry. */
+  .entry--flagship {
+    border-left: 2px solid var(--gold);
+    padding-left: 1.5rem;
+  }
+
+  .entry-apparatus {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-family: var(--font-mono);
+  }
+
+  .entry-idx {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+  }
+
+  .entry-note {
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: var(--text-faint);
+    margin: 0;
+    max-width: 24ch;
+  }
+
+  .entry-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+    line-height: 1.25;
+    color: var(--text);
+    margin: 0 0 0.7rem;
+  }
+
+  .entry-sub {
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text-faint);
+  }
+
+  .entry-para {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: var(--text-dim);
+    margin: 0 0 0.8rem;
+    max-width: 66ch;
+  }
+  .entry-para :global(em) { color: var(--text); font-style: italic; }
+
+  /* Quieter tiers read quieter. The rule the page is about. */
+  .entry--self .entry-para { color: var(--text-faint); }
+
+  .entry-evidence {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .entry-evidence a {
+    display: flex;
+    align-items: baseline;
+    gap: 1em;
+    padding: 0.5em 0;
+    text-decoration: none;
+  }
+  .entry-evidence a:hover .ev-title,
+  .entry-evidence a:focus-visible .ev-title { color: var(--teal); }
+
+  .ev-label {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    width: 5.5em;
+    flex-shrink: 0;
+  }
+  .ev-label::before { content: '↗ '; color: var(--coral); }
+
+  .ev-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--text);
+    transition: color var(--transition-fast);
+    overflow-wrap: anywhere;
+  }
+
+  .entry-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-decoration: none;
+    transition: gap var(--transition-fast);
+  }
+  .entry-link:hover { gap: 0.75rem; }
+  .entry-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  @media (max-width: 760px) {
+    .entry {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+    .entry-apparatus {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem 0.9rem;
+    }
+    .entry-note { max-width: none; flex-basis: 100%; }
+  }
+
+  @media (max-width: 600px) {
+    .entry--flagship { padding-left: 1rem; }
+    .ev-label { width: 4.6em; }
+  }
+</style>

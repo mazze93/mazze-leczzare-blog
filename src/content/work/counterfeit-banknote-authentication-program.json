@@ -1,0 +1,21 @@
+{
+  "section": "provenance",
+  "order": 0,
+  "idx": "18 · UC Davis",
+  "tier": "acknowledged",
+  "title": "Counterfeit-Banknote Authentication Program",
+  "subtitle": "Luck Lab, Center for Mind & Brain",
+  "body": [
+    "Applied security research by cognitive methods: how fast, and by what neural signature, people detect counterfeit currency. Selected by Dr. Steven J. Luck to run the full data-collection paradigm — EEG/ERP, eye-tracking, and behavioral testing with community volunteers — with nightly custody of forensic counterfeit specimens. Trained visiting researcher Daniel Dodgson on the lab&rsquo;s ERP/ERPLAB standard; the resulting study, funded by four central banks, is Dodgson &amp; Raymond, <em>Scientific Reports</em> 12:2076 (2022), where this work is acknowledged.",
+    "This is the line my current research continues: adversarial artifacts, human and machine detectors, and the measured gap between them."
+  ],
+  "evidence": [
+    {
+      "label": "Paper",
+      "title": "doi.org/10.1038/s41598-022-05972-8",
+      "href": "https://doi.org/10.1038/s41598-022-05972-8",
+      "external": true
+    }
+  ],
+  "note": "Not an author. Acknowledged contributor — role stated exactly, nothing past it."
+}

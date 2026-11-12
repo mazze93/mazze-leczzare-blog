@@ -1,0 +1,20 @@
+{
+  "section": "instruments",
+  "order": 4,
+  "idx": "05",
+  "tier": "live",
+  "title": "Field Notes",
+  "subtitle": "a gallery of working instruments",
+  "body": [
+    "Small, complete machines that demonstrate one idea each, in the browser, with no dependencies: a kintsugi circuit breaker that renders its own failure history as visible golden seams; a Physarum-inspired routing solver that grows a network backbone and shows every candidate edge it discarded; a decision-telemetry tree that keeps the clean record and its buried shadow on the same screen. Each one is the thesis at demo scale: <em>the break is the record, not the failure.</em>"
+  ],
+  "evidence": [
+    {
+      "label": "Live",
+      "title": "fieldnotes.mazzeleczzare.com",
+      "href": "https://fieldnotes.mazzeleczzare.com/",
+      "external": true
+    }
+  ],
+  "note": "Self-contained HTML instruments · no build step"
+}

@@ -1,0 +1,30 @@
+{
+  "section": "record",
+  "order": 0,
+  "idx": "09 · Paper",
+  "tier": "published",
+  "title": "Intentional Fragility",
+  "subtitle": "Bayesian context decay & semantic rot in local-first LLM orchestration",
+  "flagship": true,
+  "body": [
+    "The design argument under all of it: systems that degrade gracefully and <em>signal their own decay</em> beat brittle systems that fail silently. Formalizes context decay as a Bayesian process, names semantic rot as a distinct failure mode from forgetting, and argues for forgetting as an accountable, logged operation rather than an accident of window size."
+  ],
+  "evidence": [
+    {
+      "label": "Spine",
+      "title": "Read the standing statement",
+      "href": "/intentional-fragility/"
+    },
+    {
+      "label": "Paper",
+      "title": "Accountable Forgetting in Local-First AI (PDF)",
+      "href": "/papers/intentional-fragility.pdf"
+    },
+    {
+      "label": "Instrument",
+      "title": "Theatre of Dependencies — a slime mold stages your upgrade ritual",
+      "href": "/theatre-of-dependencies/"
+    }
+  ],
+  "projectHref": "/project/intentional-fragility/"
+}
