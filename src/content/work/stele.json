@@ -1,0 +1,21 @@
+{
+  "section": "instruments",
+  "order": 1,
+  "idx": "02",
+  "tier": "live",
+  "title": "STELE",
+  "subtitle": "directive compiler & integrity layer",
+  "body": [
+    "The governance layer above the ledger: STELE compiles standing directives into per-project postures, so an AI collaborator inherits constraints as <em>compiled state</em>, not vibes. An integrity state machine watches the session — thirteen tripwires against role-flattening and authority drift, a hard lockout when integrity cannot be re-established, a full audit trail, and narrative export so the record leaves with you.",
+    "Stratum records what was decided. STELE constrains what a session is <em>allowed to become</em> — the axis that holds while the field distorts around it. Same thesis, opposite direction of enforcement."
+  ],
+  "evidence": [
+    {
+      "label": "Live",
+      "title": "stele.mazzeleczzare.com",
+      "href": "https://stele.mazzeleczzare.com/",
+      "external": true
+    }
+  ],
+  "note": "React 19 · TypeScript · Vite · Anthropic API"
+}

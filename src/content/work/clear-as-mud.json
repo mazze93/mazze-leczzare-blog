@@ -1,0 +1,26 @@
+{
+  "section": "editorial",
+  "order": 1,
+  "idx": "16 · 2022–23",
+  "tier": "published",
+  "title": "Clear as Mud",
+  "subtitle": "podcast, host & producer",
+  "body": [
+    "Founded and hosted a long-form interview podcast at mudstack — twenty-six-plus episodes across Spotify and Apple, half-hour to forty-five-minute conversations with studio directors, technical designers, and founders about the parts of the work that don&rsquo;t make it into the press release. Built and ran as the company&rsquo;s sole content function alongside its blog, webinars, and documentation."
+  ],
+  "evidence": [
+    {
+      "label": "Spotify",
+      "title": "Listen on Spotify",
+      "href": "https://open.spotify.com/show/50eMqYFskikUzz4EuoYTyf",
+      "external": true
+    },
+    {
+      "label": "Apple",
+      "title": "Listen on Apple Podcasts",
+      "href": "https://podcasts.apple.com/us/podcast/clear-as-mud/id1632032801",
+      "external": true
+    }
+  ],
+  "note": "26+ episodes · long-form interview"
+}

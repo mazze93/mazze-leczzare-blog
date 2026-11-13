@@ -1,0 +1,39 @@
+{
+  "section": "instruments",
+  "order": 5,
+  "idx": "06 · Founder & Exec. Director",
+  "tier": "live",
+  "title": "Secure Pride",
+  "subtitle": "cybersecurity for the people least served by it",
+  "body": [
+    "A privacy-first cybersecurity nonprofit for LGBTQ+ and other at-risk civil-society organizations — communities for whom a breach is not an inconvenience but an outing. I founded it and serve as Executive Director and security engineer, working with a records-and-governance co-investigator. Program spans three initiatives: a CLI-first <em>Cyber-Defense Audit Suite</em> (DNS hardening, TLS validation, secrets scanning, passive by default), the sixteen-section <em>Stonewall Standard DPA</em> — a reusable data-processing agreement for nonprofits handling community-sensitive data, published in parallel legal and plain-English text — and the threat toolkit in the next entry.",
+    "The design rule is the thesis under adversity: sovereignty must be <em>architecturally enforced</em>, never contractually promised. Identifiers masked in every log, no analytics or session replay, no community-sensitive data passed to external model endpoints, and three data tiers with collection minimized at the most sensitive one. The public aegis-icons pack ships WCAG-AA, dark-mode, low-stimulation iconography — accessibility treated as a security property, because a control nobody can operate is a control that fails."
+  ],
+  "evidence": [
+    {
+      "label": "Site",
+      "title": "securepride.org",
+      "href": "https://securepride.org/",
+      "external": true
+    },
+    {
+      "label": "Source",
+      "title": "github.com/Secure-Pride",
+      "href": "https://github.com/Secure-Pride",
+      "external": true
+    },
+    {
+      "label": "Models",
+      "title": "huggingface.co/SecurePride",
+      "href": "https://huggingface.co/SecurePride",
+      "external": true
+    },
+    {
+      "label": "Essay",
+      "title": "From Erasure to Signal: Building Secure Pride",
+      "href": "/blog/secure-pride-origin/"
+    }
+  ],
+  "note": "501(c)-track nonprofit · zero-trust · WCAG AA. Audit Suite & Stonewall DPA are described on the org card; public repos not yet published.",
+  "projectHref": "/project/secure-pride/"
+}

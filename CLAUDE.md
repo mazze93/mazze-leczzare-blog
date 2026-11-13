@@ -42,9 +42,10 @@ Run a single test file or case with vitest directly, e.g.
 `src/utils/` pure logic (decay, layout, node aggregation) and the admin
 dashboard's post-filtering/sorting — run `npm run test` when touching those.
 
-A `pre-push` git hook (installed via the `prepare` script into
-`.git/hooks/pre-push`) blocks pushes if `public/` has untracked files that
-would silently be missing from the deploy.
+Git hooks live in `.githooks/` (tracked); the `prepare` script points
+`core.hooksPath` at it, so worktrees and fresh clones get them too. `pre-push`
+blocks pushes if `public/` has untracked files that would silently be missing
+from the deploy.
 
 ## Site Identity (`src/consts.ts`)
 

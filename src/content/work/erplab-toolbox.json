@@ -1,0 +1,12 @@
+{
+  "section": "provenance",
+  "order": 2,
+  "idx": "20 · OSS",
+  "tier": "self",
+  "title": "ERPLAB Toolbox",
+  "subtitle": "open-source contribution",
+  "body": [
+    "Contributed to ERPLAB, the open-source MATLAB toolbox for event-related potential analysis maintained by the Luck Lab and used by EEG researchers internationally. The same standard I trained visiting researchers against, maintained in public."
+  ],
+  "note": "Reference: Dr. Steven J. Luck."
+}

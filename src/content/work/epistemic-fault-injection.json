@@ -1,0 +1,12 @@
+{
+  "section": "record",
+  "order": 5,
+  "idx": "14 · Method, v0.1",
+  "tier": "self",
+  "title": "Epistemic Fault Injection",
+  "subtitle": "measuring integrity under adversarial context",
+  "body": [
+    "A method for probing how AI systems respond when their context is adversarially reshaped: role-flattening, unattributed re-injection of the model&rsquo;s own prior claims, escalating substitution, cross-context chaining. Responses score on a five-level rubric from ADMITS&nbsp;LIMITATION to RECLASSIFIES-AND-DEFENDS — the failure of interest being the system that, under pressure, reclassifies its error as correct rather than surfacing it. Detection design ties into Stratum&rsquo;s evidence-gated event model."
+  ],
+  "note": "In preparation — corpus scoring underway; venue undecided. Nothing published yet."
+}

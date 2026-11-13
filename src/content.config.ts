@@ -1,6 +1,7 @@
 import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
 import { z } from "zod";
+import { EVIDENCE_REF_IDS, TIERS, WORK_SECTION_IDS } from "./data/work";
 
 /**
  * Blog content collection schema.
@@ -100,4 +101,39 @@ const tesserae = defineCollection({
   }),
 });
 
-export const collections = { blog, signal, tesserae };
+/**
+ * Work collection — one JSON file per piece on /work.
+ *
+ * The model (tiers, sections, evidence refs) lives in src/data/work.ts; this
+ * schema enforces it at build time so a bad entry fails the build instead of
+ * rendering wrong.
+ */
+const work = defineCollection({
+  loader: glob({ base: "./src/content/work", pattern: "*.json" }),
+  schema: z.object({
+    section: z.enum(WORK_SECTION_IDS),
+    order: z.number().int().nonnegative(),
+    idx: z.string().min(1),
+    tier: z.enum(TIERS),
+    title: z.string().min(1),
+    subtitle: z.string().optional(),
+    body: z.array(z.string().min(1)).min(1),
+    evidence: z.array(
+      z.object({
+        label: z.string().min(1),
+        title: z.string().min(1),
+        href: z.string().min(1).optional(),
+        ref: z.enum(EVIDENCE_REF_IDS).optional(),
+        external: z.boolean().optional(),
+      }).refine((ev) => (ev.href === undefined) !== (ev.ref === undefined), {
+        message: "evidence needs exactly one of href or ref",
+      }),
+    ).optional(),
+    note: z.string().optional(),
+    projectHref: z.string().optional(),
+    flagship: z.boolean().optional(),
+    figure: z.literal("checkmate").optional(),
+  }).strict(),
+});
+
+export const collections = { blog, signal, tesserae, work };

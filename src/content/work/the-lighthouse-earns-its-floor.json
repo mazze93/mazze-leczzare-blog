@@ -1,0 +1,17 @@
+{
+  "section": "record",
+  "order": 1,
+  "idx": "10 · Essay",
+  "tier": "published",
+  "title": "The Lighthouse Earns Its Floor",
+  "body": [
+    "On earned trust in human–AI handoffs: nothing self-promotes to authoritative — not a summary, not a confident claim, not a lighthouse — until it has verified the floor it stands on. The essay behind Stratum&rsquo;s authority tiers, written before the tiers were code."
+  ],
+  "evidence": [
+    {
+      "label": "Essay",
+      "title": "Read the full piece",
+      "href": "/blog/the-lighthouse-earns-its-floor/"
+    }
+  ]
+}
