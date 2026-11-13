@@ -1,0 +1,171 @@
+---
+/**
+ * EvalPipeline — the budget eval pipeline as a static SVG figure.
+ *
+ * Used by "Evals on a Fixed Budget". Pure presentational: no props, no
+ * client directive, no script. Vertical layout so it stays legible in a
+ * phone-width prose column. Every colour is a site token (Kintsugi in dark,
+ * Haven/Ink mappings in light), so the figure follows the theme toggle.
+ * Gold marks the one step that can cost money, matching the seam's meaning
+ * elsewhere on the site: the place where the cost shows.
+ */
+const caption =
+  'Generation is the only step that can cost money. Scoring, re-scoring and reporting reuse the same log, and an unexpected trigger goes to private disclosure before it reaches the report.';
+---
+
+<figure class="evp">
+  <svg
+    viewBox="0 0 480 660"
+    role="img"
+    aria-labelledby="evp-title evp-desc"
+    class="evp-svg"
+  >
+    <title id="evp-title">An eval pipeline on a budget: pay once to generate, then score and report for free</title>
+    <desc id="evp-desc">
+      Five steps in a column: gate the harness, smoke test locally, estimate cost,
+      generate outputs (the only paid step, highlighted), and score on an idle
+      machine. A decision follows: unexpected trigger? Yes leads to disclose
+      privately, which then leads to report results once fixed. No leads
+      straight to report results.
+    </desc>
+    <defs>
+      <marker id="evp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" class="evp-head" />
+      </marker>
+    </defs>
+
+    <!-- Connectors -->
+    <g class="evp-line" fill="none">
+      <path d="M240 76V104" marker-end="url(#evp-arrow)" />
+      <path d="M240 156V184" marker-end="url(#evp-arrow)" />
+      <path d="M240 236V264" marker-end="url(#evp-arrow)" />
+      <path d="M240 316V344" marker-end="url(#evp-arrow)" />
+      <path d="M240 396V426" marker-end="url(#evp-arrow)" />
+      <path d="M130 460V534" marker-end="url(#evp-arrow)" />
+      <path d="M350 460V534" marker-end="url(#evp-arrow)" />
+      <path d="M130 586V620H350V586" marker-end="url(#evp-arrow)" />
+    </g>
+
+    <!-- Column steps -->
+    <g>
+      <rect x="90" y="24" width="300" height="52" rx="8" class="evp-box" />
+      <text x="240" y="47" class="evp-name">Gate the harness</text>
+      <text x="240" y="65" class="evp-sub">self-tests + pytest · free</text>
+    </g>
+    <g>
+      <rect x="90" y="104" width="300" height="52" rx="8" class="evp-box" />
+      <text x="240" y="127" class="evp-name">Smoke test locally</text>
+      <text x="240" y="145" class="evp-sub">1 sample, local model · free</text>
+    </g>
+    <g>
+      <rect x="90" y="184" width="300" height="52" rx="8" class="evp-box" />
+      <text x="240" y="207" class="evp-name">Estimate cost</text>
+      <text x="240" y="225" class="evp-sub">tokens × price, per model</text>
+    </g>
+    <g>
+      <rect x="90" y="264" width="300" height="52" rx="8" class="evp-box evp-paid" />
+      <text x="240" y="287" class="evp-name">Generate outputs</text>
+      <text x="240" y="305" class="evp-sub evp-sub-paid">--no-score --batch --cache</text>
+    </g>
+    <g>
+      <rect x="90" y="344" width="300" height="52" rx="8" class="evp-box" />
+      <text x="240" y="367" class="evp-name">Score on an idle machine</text>
+      <text x="240" y="385" class="evp-sub">inspect score ×5 · free</text>
+    </g>
+
+    <!-- Decision -->
+    <g>
+      <polygon points="130,460 240,426 350,460 240,494" class="evp-box" />
+      <text x="240" y="465" class="evp-name evp-q">Unexpected trigger?</text>
+    </g>
+    <text x="114" y="500" class="evp-edge" text-anchor="end">yes</text>
+    <text x="366" y="500" class="evp-edge" text-anchor="start">no</text>
+
+    <!-- Outcomes -->
+    <g>
+      <rect x="30" y="534" width="200" height="52" rx="8" class="evp-box" />
+      <text x="130" y="557" class="evp-name">Disclose privately</text>
+      <text x="130" y="575" class="evp-sub">keep the log off the web</text>
+    </g>
+    <g>
+      <rect x="250" y="534" width="200" height="52" rx="8" class="evp-box" />
+      <text x="350" y="557" class="evp-name">Report results</text>
+      <text x="350" y="575" class="evp-sub">README table, tagged</text>
+    </g>
+    <text x="240" y="642" class="evp-edge" text-anchor="middle">report the flag once it is fixed</text>
+  </svg>
+  <figcaption class="evp-caption">{caption}</figcaption>
+</figure>
+
+<style>
+  .evp {
+    margin: 2.5em auto;
+    max-width: 480px;
+  }
+
+  .evp-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .evp-line {
+    stroke: var(--text-dim);
+    stroke-width: 1.25;
+  }
+
+  .evp-head {
+    fill: var(--text-dim);
+  }
+
+  .evp-box {
+    fill: none;
+    stroke: var(--text-dim);
+    stroke-width: 1.25;
+  }
+
+  /* The one paid step: gold seam stroke, faint gold wash. */
+  .evp-paid {
+    stroke: var(--gold);
+    stroke-width: 2;
+    fill: rgba(var(--gold-rgb), 0.12);
+  }
+
+  .evp-name {
+    fill: var(--prose-heading, var(--text));
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    text-anchor: middle;
+  }
+
+  .evp-q {
+    font-size: 15px;
+  }
+
+  .evp-sub {
+    fill: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    text-anchor: middle;
+  }
+
+  .evp-sub-paid {
+    fill: var(--prose-text, var(--text));
+  }
+
+  .evp-edge {
+    fill: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+  }
+
+  .evp-caption {
+    margin-top: 1em;
+    font-family: var(--font-prose);
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: var(--text-dim);
+    text-align: center;
+  }
+</style>
