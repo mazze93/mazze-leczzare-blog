@@ -1,0 +1,45 @@
+---
+/**
+ * LicenseNotice — the one-line licence statement under a CC BY post.
+ *
+ * Rendered by BlogPost.astro after the prose for every post whose `license`
+ * is "cc-by-4.0" (the default). Covers the text only; images keep their own
+ * terms unless a post says otherwise. Pure presentational, no client directive.
+ */
+import { CONTENT_LICENSE, SITE_AUTHOR } from '../../consts';
+
+interface Props {
+  year: number;
+}
+
+const { year } = Astro.props;
+---
+
+<p class="license-notice">
+  © {year} {SITE_AUTHOR}. Text licensed under
+  <a href={CONTENT_LICENSE.url} rel="license">{CONTENT_LICENSE.name}</a>: share and adapt it,
+  with credit and a link back here. Images are not included unless noted.
+</p>
+
+<style>
+  .license-notice {
+    width: 720px;
+    max-width: calc(100% - 2em);
+    margin: 2.5em auto 0;
+    padding: 0 1em;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    color: var(--text-faint);
+  }
+  .license-notice a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .license-notice a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+</style>
