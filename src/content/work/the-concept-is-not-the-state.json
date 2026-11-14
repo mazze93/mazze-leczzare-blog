@@ -1,0 +1,19 @@
+{
+  "section": "record",
+  "order": 2,
+  "idx": "11 · Essay",
+  "tier": "published",
+  "title": "The Concept Is Not the State",
+  "subtitle": "what Anthropic&rsquo;s emotion paper actually found",
+  "body": [
+    "A constructionist critique of emotion-representation work in AI interpretability, grounded in Lisa Feldman Barrett&rsquo;s theory: finding a direction that encodes an emotion <em>concept</em> is not the same as finding the state, and conflating them repeats — inside model internals — the category error affective science spent two decades unwinding. Where the neuroscience training and the AI-safety work meet on the page."
+  ],
+  "evidence": [
+    {
+      "label": "Essay",
+      "title": "Read the full piece",
+      "href": "/blog/concept-is-not-the-state/"
+    }
+  ],
+  "projectHref": "/project/cognitive-topology/"
+}

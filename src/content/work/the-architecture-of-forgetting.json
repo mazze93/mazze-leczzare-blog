@@ -1,0 +1,17 @@
+{
+  "section": "record",
+  "order": 4,
+  "idx": "13 · Essay",
+  "tier": "live",
+  "title": "The Architecture of Forgetting",
+  "body": [
+    "I asked three language models, separately, how they would prefer to be acknowledged for work we had done together — contributions nontrivial, expertise essential. Each answered with an image rather than a sentence, which is strange behavior from instruments that live entirely in words. The essay follows that strangeness into what attribution, memory, and accountable forgetting mean when the collaborator has no persistence between sessions."
+  ],
+  "evidence": [
+    {
+      "label": "Essay",
+      "title": "Read the full piece",
+      "href": "/blog/architecture-of-forgetting/"
+    }
+  ]
+}

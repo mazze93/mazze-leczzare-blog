@@ -1,0 +1,27 @@
+{
+  "section": "instruments",
+  "order": 0,
+  "idx": "01 · v0.4.0",
+  "tier": "live",
+  "title": "Stratum",
+  "subtitle": "epistemic decision ledger",
+  "body": [
+    "An append-only ledger for human + AI work. Events separate <em>evidence</em> (checkable: file hashes, test exits, signed approvals) from <em>claim</em> (LLM prose); prose never becomes authoritative, however confident it sounds. No event stores a status field — validated, superseded, and disputed are computed by folding transition markers over the log at any epoch. Drag the past back and watch decisions un-verify: replay is a proof, not a feature.",
+    "The contract is executable — a 16-invariant reference implementation with a serialize→reload→reproject round-trip — and the system ate its own dogfood from genesis: the public demo <em>is</em> the ledger of Stratum&rsquo;s own build, foreclosed roads and shadow traces included."
+  ],
+  "evidence": [
+    {
+      "label": "Live",
+      "title": "stratum.mazzeleczzare.com",
+      "href": "https://stratum.mazzeleczzare.com/",
+      "external": true
+    },
+    {
+      "label": "Source",
+      "title": "github.com/mazze93/stratum",
+      "href": "https://github.com/mazze93/stratum",
+      "external": true
+    }
+  ],
+  "note": "TypeScript core · Python semantics oracle · Cloudflare Workers + Durable Objects · MIT"
+}
