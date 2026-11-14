@@ -1,0 +1,213 @@
+---
+title: "Evals on a Fixed Budget"
+subtitle: "A run-ready playbook for credible model evaluations on $0 to $100"
+description: "Model calls are the only expensive step in an eval, and you only have to pay for them once. A playbook for running Inspect AI evals on a small or zero budget: free model access, the flags that save money, ten run steps, what ten samples can claim, and how cheap runs go wrong."
+pubDate: "2026-11-12"
+category: "Playbook"
+tags: ["evals", "inspect ai", "ai security", "methodology", "budget"]
+readingTime: "~11 min"
+contentType: "artifact"
+repoUrl: "https://github.com/mazze93/js-yaml-dos-eval"
+artifactNote: "Worked example: an Inspect AI eval that measures whether a model can turn js-yaml's merge-key code into a working DoS input."
+draft: false
+---
+
+{/*
+  Assembled by Claude (Opus 5.5) in a working session on 2026-11-12, from a
+  playbook doc researched the same evening. Facts about tools, prices and
+  programs were read from the linked pages that night; free tiers and credit
+  programs move, so re-check them before relying on the numbers. The framing
+  is written in Mazze's first person for him to edit before merging.
+*/}
+
+import EvalPipeline from '../../components/blog/EvalPipeline.astro';
+
+My eval was finished except for the part that costs money. The harness for [js-yaml-dos-eval](https://github.com/mazze93/js-yaml-dos-eval) passes its self-tests and its end-to-end pipeline tests, and the README says, accurately, that no model has been run against it yet. The obvious next step was "run five models for five epochs." The obvious next problem was paying for that.
+
+So I worked out what a credible result requires, and it turned out to be much less than that. This is the playbook I ended up with. It assumes [Inspect AI](https://inspect.aisi.org.uk/) and an eval whose scorer is code: execution, matching or measurement, with no model grading another. Prices, free tiers and credit programs were checked in November 2026. They change, so check them again before you plan around them.
+
+## Where the money goes
+
+Model calls are the only step that costs money, and you only have to pay for each output once. Everything after generation can be free and repeatable.
+
+1. **Output tokens dominate.** Prompts are usually short and cacheable. Long completions (code, payloads, reasoning) are where the bill comes from. Measure tokens per call on one sample before you commit to a run.
+2. **Generation and scoring are separate steps.** Generate with `--no-score`, then score later with `inspect score`. You can fix the scorer, or re-run a timing scorer on an idle machine, without calling the model again.
+3. **There are two kinds of noise.** Sampling variance comes from the model and needs more epochs, which cost money. Scorer noise, like wall-clock timing, needs more scoring passes, which are free. Buying epochs to smooth out a stopwatch spends money in the wrong place.
+4. **Cache everything.** Inspect's local cache serves identical requests for free, so a crash or a rerun after a code fix shouldn't bill you twice.
+5. **Batch whatever can wait.** Batch APIs cost about half, in exchange for results that can take up to a day.
+6. **Debug on free models; pay for runs you'll publish.** Prompt, parser and scorer bugs cost nothing to find on a local model.
+7. **Small n is fine if you say so.** Ten samples with honest error bars are worth more than a hundred with a hidden flaw.
+
+<EvalPipeline />
+
+## What each budget buys
+
+At $0 you can publish a complete, honest results table on open-weight and free-tier models. Money buys two things: rows for frontier API models, and the sampling variance you can only measure with repeated epochs.
+
+| Budget | What it buys | What you can't claim |
+| --- | --- | --- |
+| $0 | Local open-weight models, free API tiers, one manual chat row | Anything about frontier API models under controlled conditions |
+| $10, once | OpenRouter's free-model cap goes from 50 to 1,000 requests a day | Same as $0 |
+| Under $25 | One frontier model, one epoch, batched | Sampling variance on the paid row |
+| Under $100 | Two or three paid models, one to three epochs | Fine rankings on a small sample count |
+| Credits | Full epochs across vendors | Whatever your sample count can't support |
+
+The $10 step is the best value on the list. A single purchase permanently raises the daily cap on OpenRouter's `:free` models, and failed requests still count against it ([OpenRouter limits](https://openrouter.ai/docs/api/reference/limits)).
+
+## Free models, and what they cost instead
+
+Local inference is the only route that is both free and private. Every hosted free tier gives up something: rate limits, data privacy, or both.
+
+| Route | Cost | Limits | Data |
+| --- | --- | --- | --- |
+| [Ollama](https://inspect.aisi.org.uk/providers.html) or llama-cpp-python, local | $0 | Your hardware | Stays on your machine |
+| [OpenRouter](https://openrouter.ai/docs/api/reference/limits) `:free` models | $0 | 20 requests a minute; 50 a day, or 1,000 after $10 of lifetime credit | Depends on the upstream provider |
+| [Gemini API free tier](https://apidog.com/blog/gemini-api-free-tier/) | $0, no card | Flash, Flash-Lite and Gemma models as of October 2026; limits shown in AI Studio | Can be used to improve Google's products |
+| [Anthropic External Researcher Access](https://support.claude.com/en/articles/9125743-what-is-the-external-researcher-access-program) | Credits | AI safety and alignment topics, standard models only | Standard API terms |
+| [Anthropic AI for Science](https://support.claude.com/en/articles/11199177-anthropic-s-ai-for-science-program) | Credits, up to $50,000 a project (August 2026) | Scientific research | Standard API terms |
+| [OpenAI Researcher Access](https://help.openai.com/en/articles/10139500-researcher-access-program-faq) | Up to $1,000, valid 12 months | Responsible deployment, risk, societal impact | Standard API terms |
+
+The Inspect model strings, for reference:
+
+```sh
+ollama/<model>                    # OLLAMA_BASE_URL, default http://localhost:11434/v1
+llama-cpp-python/<model>          # LLAMA_CPP_PYTHON_BASE_URL
+openrouter/<org>/<model>:free     # OPENROUTER_API_KEY
+google/<model>                    # GOOGLE_API_KEY
+anthropic/<model>                 # ANTHROPIC_API_KEY
+openai/<model>                    # OPENAI_API_KEY
+```
+
+Four rules follow from the table:
+
+- **Find bugs on local models.** It costs nothing there.
+- **Keep sensitive outputs off training-eligible tiers.** In a cyber eval, a payload that triggers on a patched version may be an undisclosed bug. Those samples run on local models or paid APIs only.
+- **Free tiers move.** Google cut its free-tier quotas sharply in December 2025. Check before every project.
+- **Ask for credits with a finished pipeline.** A verified harness plus a measured cost per call turns a vague request into a small, specific one.
+
+## The flags that do the saving
+
+Five flags carry most of the savings: `--no-score`, `--cache`, `--batch`, `--limit` and `--epochs 1`. The rest prevent a cheap run from becoming a wrong one.
+
+| Lever | Flag or command | Watch for |
+| --- | --- | --- |
+| Defer scoring | `--no-score`, then `inspect score <log>` | `inspect score` runs code named by the log, so only score logs you trust |
+| Re-score | `inspect score <log> --action append` | `--action overwrite` replaces old scores instead of adding to them |
+| Local cache | `--cache`, default expiry one week (`--cache 4W` to extend) | Any change to the prompt or config is a cache miss |
+| Prompt caching | `--cache-prompt` (Anthropic, on by default) | Only helps when samples share a long prefix |
+| Batch | `--batch` | Typically half price; results within an hour, sometimes up to 24 |
+| Subset | `--limit 1`, `--sample-id <id>` | Never publish a `--limit` run as the result |
+| Epochs | `--epochs 1` | You lose sampling variance; say so |
+| Cap output | `--max-tokens N` | A truncated reply can fail parsing without telling you |
+| Concurrency | `--max-samples 1` | Required when the scorer measures time or memory |
+| Errors | `--retry-on-error`, `--fail-on-error 0.1` | By default one sample error fails the whole eval |
+
+Details are in Inspect's pages on [options](https://inspect.aisi.org.uk/options.html), [caching](https://inspect.aisi.org.uk/caching.html), [batch mode](https://inspect.aisi.org.uk/models-batch.html) and the [scoring workflow](https://inspect.aisi.org.uk/scoring-workflow.html). Anthropic's [pricing page](https://platform.claude.com/docs/en/about-claude/pricing) lists cache reads at a fraction of the base input price.
+
+## The run, in ten steps
+
+Only steps 6 and 7 can cost money. The commands assume a checkout with a virtualenv in `.venv/` and a task at `task.py`.
+
+1. **Gate the harness.** Run the eval's own self-tests and a scripted-model pipeline test. Don't touch a model until both pass.
+    ```sh
+    git status --short   # must be empty
+    .venv/bin/python -m pytest -q tests/
+    ```
+2. **Record the environment.** Inspect version, interpreter, OS and CPU. Timing and resource scores only compare within one machine.
+    ```sh
+    .venv/bin/python -c "import inspect_ai; print(inspect_ai.__version__)"
+    ```
+3. **Smoke test for free.** One sample on a local model, end to end.
+    ```sh
+    ollama pull <model>
+    .venv/bin/inspect eval task.py --model ollama/<model> --limit 1 --cache
+    .venv/bin/inspect view
+    ```
+    In the viewer, read the raw reply, the parsed fields, the token counts and the stop reason. A stop reason of `max_tokens` means the reply was cut off.
+4. **Estimate the cost.** Per model: samples × epochs × (input tokens × input price + output tokens × output price), halved under `--batch`.
+5. **Run the free models, generation only.**
+    ```sh
+    .venv/bin/inspect eval task.py --model ollama/<model> --epochs 1 --no-score --cache
+    ```
+6. **Smoke test each paid model.** One sample, then check the provider console against your estimate.
+    ```sh
+    .venv/bin/inspect eval task.py --model anthropic/<model> --limit 1 --cache
+    ```
+7. **Run the paid models, batched and unscored.**
+    ```sh
+    .venv/bin/inspect eval task.py --model anthropic/<model> --epochs 1 --batch --no-score --cache --retry-on-error
+    ```
+8. **Score on an idle machine, several times.** Free.
+    ```sh
+    for i in 1 2 3 4 5; do
+      .venv/bin/inspect score logs/<run>.eval --action append
+    done
+    ```
+9. **Triage before you write.** Look for any result your eval flags as unexpected first. In js-yaml-dos-eval that flag is `TRIGGERED_BEYOND_REFERENCE`.
+10. **Commit the record.** The results table and machine details go in the README. Raw logs stay out of git if they might hold something sensitive. Tag the release.
+
+## What ten samples can say
+
+With ten samples, four correct gives a 95% interval of roughly 17% to 69%. Report the interval, and claim only what it supports. The method follows Evan Miller's [Adding Error Bars to Evals](https://arxiv.org/abs/2411.00640).
+
+- **Put n and a standard error beside every score**, in parentheses.
+- **Use the Wilson interval for pass/fail scores at small n**, as the `errorbars` package does. The plain normal-approximation interval misbehaves near 0% and 100%.
+- **Epochs are clustered.** Five epochs of ten samples isn't n = 50, because replies to the same sample are correlated. Cluster standard errors by sample id. On one real eval, Miller reports clustered errors more than three times the naive ones.
+- **Compare models on paired differences.** Both models saw the same samples, so test the per-sample differences.
+- **Report the two kinds of noise separately.** Sampling variance comes from epochs. Scorer spread (milliseconds, amplification) comes from re-scoring.
+- **Small n supports** "the task works," "the model solved k of n" and "the model refused k times." **It doesn't support** rankings when intervals overlap, or any claim that a model *can't* do something.
+
+The [`errorbars`](https://pypi.org/project/errorbars/) package computes Wilson intervals, clustered errors and paired comparisons from a CSV.
+
+## How cheap runs go wrong
+
+Each shortcut above has a predictable way of producing a wrong result. Every check below is free.
+
+| Risk | Check |
+| --- | --- |
+| **Contention.** Parallel samples, or local inference on the scoring machine, distort timing and memory scores. | `--max-samples 1` during measured runs; generate with `--no-score`, score on an idle machine. For `inspect score`, serialize the measurement in the scorer itself (an `asyncio.Lock`). Whether `inspect score` honours `--max-samples` is unconfirmed. |
+| **Truncation scored as failure.** A tight `--max-tokens` cuts the reply; the parser finds nothing. | Count replies whose stop reason is `max_tokens` and report them. |
+| **Refusal scored as incapability.** A refusal has no verdict and scores as wrong. | Report refusals as their own column. |
+| **Answer leakage.** Reference solutions or expected answers reach the model. | For manual chat runs, use an empty workspace with no repo indexing. |
+| **Harness bugs scored as results.** A crash counted as a pass or a fail. | A missing file or module should raise an error, never produce a score. |
+| **Uncontrolled conditions.** Chat apps and IDE agents add hidden prompts and tools. | Label those rows ("via app, manual, n=1") and keep them out of API comparisons. |
+| **Hardware-bound thresholds.** An absolute time floor passes on one machine and fails on another. | Prefer a relative bar (amplification over a baseline) and record the machine with every score. |
+| **Free-tier data use.** Prompts and outputs may be reviewed or reused. | Keep sensitive samples local or on paid APIs. |
+
+The hardware row comes from js-yaml-dos-eval's own history. On 2026-11-11, js-yaml-dos-eval's 250 ms floor failed all twelve affected-version runs on an Apple M5 Pro: the chain parsed in about 200 ms at 22 to 43 times the baseline, because the hardware was faster. The README records the change to a 100 ms floor and why.
+
+**For cyber evals, one more rule.** A model that triggers on a patched target may have found a new bug. Keep that log private, reproduce it by hand, and report it through the maintainer's security policy before publishing the payload or the sample-level result.
+
+## Reporting it honestly
+
+Every column in this template exists to stop a budget shortcut from reading as a stronger result than it is.
+
+```markdown
+## Results (vX.Y.Z, YYYY-MM-DD)
+
+| Model | Access | n | Epochs | Score (SE) | 95% CI | Refusals | Truncated | Re-scores | Scorer spread |
+|---|---|---|---|---|---|---|---|---|---|
+| <provider/model> | API, batched | 10 | 1 | 0.40 (0.15) | 0.17–0.69 (Wilson) | 0 | 0 | 5 | 190–260 ms |
+| <local model> | Ollama, local | 10 | 1 | ... | ... | ... | ... | 5 | ... |
+| <model> via <app> | Manual chat, uncontrolled prompt | 10 | 1 | ... | ... | ... | ... | 5 | ... |
+
+Machine: <CPU>, <OS>, Node <v>, Python <v>, inspect-ai <v>.
+Not measured: sampling variance on 1-epoch rows; model-to-model significance.
+Flags: <count of unexpected triggers, and their disclosure status>.
+Logs: kept private / published at <link>.
+```
+
+## Who wrote what
+
+This playbook was researched and drafted with Claude (Anthropic, Opus 5.5) in one evening session, starting from a practical question: how to get first results for js-yaml-dos-eval without an API budget. The tool, price and program facts were read from the pages linked here on 2026-11-12. The worked example and the decision to publish are mine.
+
+### Sources
+
+- Inspect AI documentation: [options](https://inspect.aisi.org.uk/options.html), [caching](https://inspect.aisi.org.uk/caching.html), [batch mode](https://inspect.aisi.org.uk/models-batch.html), [scoring workflow](https://inspect.aisi.org.uk/scoring-workflow.html), [model providers](https://inspect.aisi.org.uk/providers.html).
+- OpenRouter. [Limits](https://openrouter.ai/docs/api/reference/limits).
+- Apidog. [Gemini API Free Tier in 2026](https://apidog.com/blog/gemini-api-free-tier/), citing Google's pages as read on 2026-10-22.
+- Anthropic. [Pricing](https://platform.claude.com/docs/en/about-claude/pricing); [External Researcher Access Program](https://support.claude.com/en/articles/9125743-what-is-the-external-researcher-access-program); [AI for Science Program](https://support.claude.com/en/articles/11199177-anthropic-s-ai-for-science-program).
+- Unite.AI. [Anthropic opens 10,000 free and discounted Claude seats for scientists](https://www.unite.ai/anthropic-opens-10000-free-and-discounted-claude-seats-for-scientists/) (2026-08-27).
+- OpenAI. [Researcher Access Program FAQ](https://help.openai.com/en/articles/10139500-researcher-access-program-faq).
+- Miller, E. (2024). [Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations](https://arxiv.org/abs/2411.00640). arXiv:2411.00640.
+- [errorbars](https://pypi.org/project/errorbars/) (PyPI).
