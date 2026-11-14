@@ -9,9 +9,12 @@ import FormattedDate from '../components/FormattedDate.astro';
 import PostQuoteShare from '../components/PostQuoteShare';
 import AuthorCoda from '../components/AuthorCoda.astro';
 import CarouselStrip from '../components/CarouselStrip.astro';
+import LicenseNotice from '../components/blog/LicenseNotice.astro';
 import { deckFor } from '../utils/collectDecks';
 import {
+  CONTENT_LICENSE,
   SITE_AUTHOR,
+  SITE_AUTHOR_ORCID,
   SITE_DEFAULT_OG_IMAGE,
   SITE_TITLE,
   SITE_URL,
@@ -33,6 +36,8 @@ type Props = {
   heroDim?: boolean;
   contentType?: 'artifact' | 'dispatch' | 'field-note';
   repoUrl?: string;
+  /** Essay-text licence; CC BY 4.0 unless the post opts out. */
+  license?: 'cc-by-4.0' | 'all-rights-reserved';
   /** The post's collection id (= URL slug); lets the layout find its carousel deck. */
   postId?: string;
   frontmatter?: {
@@ -68,6 +73,9 @@ const heroDim = resolved.heroDim !== false;
 const HeroSvg = typeof heroImage === 'function' ? heroImage : undefined;
 const contentType = resolved.contentType ?? 'field-note';
 const repoUrl = resolved.repoUrl;
+// Markdown pages using this layout through frontmatter carry no licence field;
+// only collection posts (which get the schema default) are CC BY.
+const isOpenLicensed = props.license === 'cc-by-4.0';
 // A post with docs/social/<id>/slides.json gets its carousel strip after the prose.
 const deck = deckFor(props.postId);
 
@@ -122,7 +130,9 @@ const articleSchema = {
     '@type': 'Person',
     name: SITE_AUTHOR,
     url: SITE_URL,
+    sameAs: [SITE_AUTHOR_ORCID],
   },
+  ...(isOpenLicensed ? { license: CONTENT_LICENSE.url } : {}),
   publisher: {
     '@type': 'Person',
     name: SITE_AUTHOR,
@@ -151,6 +161,15 @@ const articleSchema = {
     modifiedTime={(updatedDate ?? pubDate).toISOString()}
   />
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <!-- Citation metadata (Highwire tags), read by scholarly indexers and DOI
+       registrars. ORCID ties the essay to the author's record. -->
+  <meta name="citation_title" content={title} />
+  <meta name="citation_author" content={SITE_AUTHOR} />
+  <meta name="citation_author_orcid" content={SITE_AUTHOR_ORCID} />
+  <meta name="citation_publication_date" content={pubDate.toISOString().slice(0, 10)} />
+  <meta name="citation_public_url" content={new URL(Astro.url.pathname, SITE_URL).toString()} />
+  <meta name="citation_language" content="en" />
+  {isOpenLicensed && <link rel="license" href={CONTENT_LICENSE.url} />}
   <style>
     /* ── Page ground: depth ──
        A soft lift at the top of the viewport, a faint gold warmth bottom-right,
@@ -487,6 +506,7 @@ const articleSchema = {
         <slot />
       </div>
       {deck && <CarouselStrip deck={deck} />}
+      {isOpenLicensed && <LicenseNotice year={pubDate.getUTCFullYear()} />}
       <AuthorCoda contentType={contentType} repoUrl={repoUrl} />
       <PostQuoteShare client:load title={title} path={Astro.url.pathname} />
     </article>
