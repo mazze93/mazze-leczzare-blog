@@ -53,24 +53,43 @@ export function absolutizeUrls(html: string, siteUrl: string): string {
  * <script> and <style> blocks, inline event handlers, and Astro's scoping
  * attributes. Text, links, images, figures and iframes stay.
  *
- * This is cleanup of our own build output, not a sanitizer for untrusted
- * input: every post is authored in this repository.
+ * Every post is authored in this repository, but the feed is archived and
+ * rendered by other services, so each removal repeats until nothing changes
+ * (a removal can't splice a new `<script` or `on…=` together) and end tags
+ * match loosely (`</script >`).
  */
 export function stripForFeed(html: string): string {
-  return html
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[a-z][^>]*>/gi, stripTagAttributes);
+  let out = replaceUntilStable(html, /<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  out = replaceUntilStable(out, /<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, '');
+  // An opening tag with no end tag would hide everything after it from the
+  // block patterns above; drop any that are left.
+  out = replaceUntilStable(out, /<\/?(?:script|style)\b[^>]*>/gi, '');
+  return out.replace(/<[a-z][^>]*>/gi, stripTagAttributes);
 }
 
 /**
- * Removes inline event handlers and Astro scoping attributes from one opening
- * tag. Runs per tag, so prose that quotes `onerror="…"` keeps its text.
+ * Removes inline event handlers (quoted or unquoted) and Astro scoping
+ * attributes from one opening tag. Runs per tag, so prose that quotes
+ * `onerror="…"` keeps its text.
  */
 function stripTagAttributes(tag: string): string {
-  return tag
-    .replace(/\s+on[a-z]+=(["'])(?:(?!\1)[\s\S])*\1/gi, '')
-    .replace(/\s+data-astro-[a-z0-9-]+(=(["'])[^"']*\2)?/gi, '');
+  const withoutHandlers = replaceUntilStable(
+    tag,
+    /\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,
+    '',
+  );
+  return withoutHandlers.replace(/\s+data-astro-[a-z0-9-]+(?:=(?:"[^"]*"|'[^']*'))?/gi, '');
+}
+
+/** Applies `pattern` repeatedly until the string stops changing. */
+function replaceUntilStable(input: string, pattern: RegExp, replacement: string): string {
+  let previous: string;
+  let current = input;
+  do {
+    previous = current;
+    current = current.replace(pattern, replacement);
+  } while (current !== previous);
+  return current;
 }
 
 /** Rendered post HTML → self-contained feed HTML. */

@@ -42,6 +42,25 @@ describe('absolutizeUrls', () => {
 });
 
 describe('stripForFeed', () => {
+  it('drops a script whose end tag has trailing space', () => {
+    expect(stripForFeed('<p>a</p><script>x()</script ><p>b</p>')).toBe('<p>a</p><p>b</p>');
+  });
+
+  it('leaves no script tag when removal would splice one together', () => {
+    const out = stripForFeed('<scr<script></script>ipt>alert(1)</script>');
+    expect(out).not.toMatch(/<script/i);
+  });
+
+  it('drops an unterminated script or style tag', () => {
+    expect(stripForFeed('<p>a</p><script src="/x.js">')).toBe('<p>a</p>');
+    expect(stripForFeed('<style>p{}<p>b</p>')).not.toMatch(/<style/i);
+  });
+
+  it('drops unquoted and spaced handlers', () => {
+    expect(stripForFeed('<img src="/a.png" onerror=alert(1)>')).toBe('<img src="/a.png">');
+    expect(stripForFeed('<a href="/x" onclick = "go()">x</a>')).toBe('<a href="/x">x</a>');
+  });
+
   it('keeps prose that quotes an event handler', () => {
     const html = '<p>Payloads like onerror="alert(1)" still render as text.</p>';
     expect(stripForFeed(html)).toBe(html);
