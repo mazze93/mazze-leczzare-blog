@@ -6,6 +6,8 @@ category: "Essay"
 tags: ["astro", "cloudflare", "static-first", "building", "essay"]
 heroImage: "../../assets/images/blog/writers-desk-create-hero.jpg"
 project: static-first
+# Held back from DOIs: site announcement, not scholarship.
+archive: false
 ---
 
 This site is not meant to be a feed mill.

@@ -28,6 +28,14 @@ const blog = defineCollection({
     featured: z.boolean().optional(),
     slug: z.string().optional(),
     draft: z.boolean().optional(),
+    // ── licensing and scholarly archiving ──
+    // Essay text is CC BY 4.0 by default. "all-rights-reserved" opts one post
+    // out: no licence notice, and it never enters the scholarly feed.
+    license: z.enum(["cc-by-4.0", "all-rights-reserved"]).default("cc-by-4.0"),
+    // false keeps a CC BY post out of /feed.json, so Rogue Scholar never
+    // registers a DOI for it. A DOI cannot be withdrawn, so leaving a post out
+    // is the reversible choice; turning this back on is not.
+    archive: z.boolean().default(true),
     // ── content type classification ──
     contentType: z.enum(['artifact', 'dispatch', 'field-note']).default('field-note'),
     repoUrl: z.string().url().optional(),
