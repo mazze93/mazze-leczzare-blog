@@ -1,0 +1,20 @@
+{
+  "section": "editorial",
+  "order": 0,
+  "idx": "15 · 2023",
+  "tier": "published",
+  "title": "Industry Writing",
+  "subtitle": "80 Level & LinkedIn Pulse",
+  "body": [
+    "Feature writing for 80 Level, one of the game industry&rsquo;s larger trade publications, plus long-form technical and strategy pieces on digital asset management and publisher relations. The GDC piece is a networking guide written for introverts that says plainly what most conference advice hides — that sharing creative work is a vulnerable act and the anxiety is legitimate. Same instinct as the rest of this page, in a different register: <em>name the internal state instead of performing past it.</em>"
+  ],
+  "evidence": [
+    {
+      "label": "Article",
+      "title": "Networking at GDC 2023",
+      "href": "https://80.lv/articles/networking-at-gdc-2023-tips-for-artists-game-developers-and-industry-leaders",
+      "external": true
+    }
+  ],
+  "note": "80 Level · 15 March 2023"
+}
