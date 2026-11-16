@@ -1,7 +1,7 @@
 ---
 title: "MAESTRO in Practice"
 subtitle: "Threats, mitigations, and outcomes across 12 case studies"
-description: "A field study of MAESTRO, the Cloud Security Alliance's seven-layer threat-modeling framework for agentic AI — twelve documented applications, a per-layer threat catalog, and eight prioritized recommendations, with every headline figure traced back to how confidently it's actually sourced."
+description: "A self-published comparative review of documented applications of MAESTRO, the Cloud Security Alliance's seven-layer threat-modeling framework for agentic AI — twelve documented applications, a per-layer threat catalog, and eight prioritized recommendations, with every headline figure traced back to how confidently it's actually sourced."
 pubDate: 2026-08-23
 category: "Research"
 tags: ["security", "AI", "agentic AI", "threat modeling", "MAESTRO", "MCP", "multi-agent systems"]
