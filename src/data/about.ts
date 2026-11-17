@@ -148,12 +148,12 @@ export const METHODS: Method[] = [
 // ── Publications & record ──────────────────────────────────────────────────
 
 export const PUBLICATIONS: Publication[] = [
-  { title: 'MAESTRO in Practice: Threats, mitigations, and outcomes across 12 case studies', kind: 'Field study (PDF, 42 pp.)', year: '2026', href: '/papers/maestro-in-practice.pdf' },
+  { title: 'MAESTRO in Practice: Threats, mitigations, and outcomes across 12 case studies', kind: 'Comparative review (self-published PDF, 42 pp.)', year: '2026', href: '/papers/maestro-in-practice.pdf' },
   { title: 'Intentional Fragility: Bayesian Context Decay and Semantic Rot in Local-First LLM Orchestration', kind: 'Working paper (draft)', year: '2026', href: '/papers/intentional-fragility.pdf' },
   { title: 'The Concept Is Not the State', kind: 'Essay — interpretability & affective science', year: '2026', href: '/blog/concept-is-not-the-state/' },
   { title: 'What We Don’t Know Yet: iOS Lockdown Mode research', kind: 'Research note', year: '2026', href: '/blog/what-we-dont-know-yet/' },
   { title: 'CVE-2026-59869, CVE-2026-59868 — js-yaml merge-key denial of service', kind: 'Vulnerability reports', year: '2026', href: 'https://github.com/advisories/GHSA-52cp-r559-cp3m', note: 'Plus credited analysis on CVE-2026-53550.' },
-  { title: 'Dodgson & Raymond, “Banknote authenticity is signalled by rapid neural responses,” Scientific Reports 12:2076', kind: 'Acknowledged contributor', year: '2022', href: 'https://doi.org/10.1038/s41598-022-05972-8' },
+  { title: 'The Break Is the Record', kind: 'Self-published essay', year: '2026', href: '/blog/the-break-is-the-record/' },
 ];
 
 // ── Background (dated) ─────────────────────────────────────────────────────
@@ -169,8 +169,7 @@ export const ROLES: Role[] = [
   },
   {
     org: 'Secure Pride',
-    role: 'Founder & Executive Director',
-    years: '2026 — Today',
+    role: 'Founder',
     href: 'https://securepride.org',
     body: [
       'A privacy-first cybersecurity nonprofit for LGBTQ+ and other at-risk civil-society organizations — the applied setting for the research, and the population with the highest exposure and the least instrumentation.',
@@ -179,17 +178,16 @@ export const ROLES: Role[] = [
   {
     org: 'mudstack',
     role: 'Content & Community',
-    years: '2022 — 2024',
+    years: '2022 — 2023',
     body: [
       'The company’s whole content function: technical posts, webinars, documentation, and <em>Clear as Mud</em>, a long-form interview podcast with studio directors, technical designers and founders.',
     ],
   },
   {
-    org: 'UC Davis · Luck Lab',
-    role: 'Research & Lab Operations',
-    years: '2018 — 2020',
+    org: 'UC Davis · Luck Lab and Bliss-Moreau Lab',
+    role: 'Lab Manager Assistant; then Junior Specialist',
     body: [
-      'Ran data collection for a counterfeit-banknote authentication program — EEG/ERP, eye-tracking and behavioral testing — measuring where human detection of a security feature succeeds and fails against real adversarial artifacts. Managed lab operations and trained incoming researchers on the lab’s ERP standard. B.S., Quantitative Psychology & Neuroscience, 2020; Regents Scholar.',
+      'I contributed eye-tracking and biobehavioral research expertise to an international counterfeit-banknote identification study. My laboratory work included research workflows and researcher training. B.S., Quantitative Psychology (neuroscience emphasis), 2020; Regents Scholar.',
     ],
   },
   {
