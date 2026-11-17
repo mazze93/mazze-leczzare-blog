@@ -12,7 +12,8 @@ introduced. Exit code 1 if any introduced hit remains, so it can gate a build.
 
 Probes (countable proxies for the editorial gate):
   negation_pivot  "not X. It's Y" / "isn't X, it's Y" / "not only … but"
-                  / "X, not Y" / "rather than" — the mold, not the words.
+                  / "X, not Y" / "rather than" / reversed "is A. It is not B."
+                  / opening "Not X, Y." — the mold, not the words.
   triad           exactly-three-item lists and "a, b, and c" tricolons.
   em_dash         em-dash use (a cadence tell when dense).
   hedge_filler    stock filler: "truly", "crucially", "in today's",
@@ -37,11 +38,21 @@ NEGATION_PIVOT = [
     re.compile(r"\brather\s+than\b", re.I),
     # period-joined form — the shape the first prose-touchstone regex missed
     re.compile(r"\bnot\s+\w[^.?!]{0,60}\.\s+(?:It|This|That)(?:'s|\s+is)\b"),
+    # reversed order, "X is A. It is not B." — the essay itself uses this mold
+    # and the forward-only patterns above never saw it (2026-11-10). The match
+    # spans both sentences so `introduced()` compares the whole pair, not the
+    # stock fragment ". it is not".
+    re.compile(r"[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
+    # opening "Not X, Y." — sentence-initial, no "it's" to anchor on (2026-11-10)
+    re.compile(r"(?:^|(?<=[.!?]\s))not\s+(?:a\s+|an\s+|the\s+)?[\w'-]+,\s+[\w'-]+", re.I),
 ]
 # "a, b, and c" AND the asyndetic "a, b, c" — the first draft of this probe
 # only caught the conjoined form and missed "repeated challenges, lost time,
 # tools abandoned" (2026-10-30). Probing the probe is the point.
-TRICOLON = re.compile(r"\b[\w'-]+(?:\s+[\w'-]+){0,3},\s+[\w'-]+(?:\s+[\w'-]+){0,3},\s+(?:(?:and|or)\s+)?[\w'-]+(?:\s+[\w'-]+){0,3}[.:;]", re.I)
+# Items run up to 8 words: the 4-word cap missed "I corrected it, logged the
+# correction, and left the original wrong version visible." (2026-11-10).
+TRICOLON_ITEM = r"[\w'-]+(?:\s+[\w'-]+){0,7}"
+TRICOLON = re.compile(rf"\b{TRICOLON_ITEM},\s+{TRICOLON_ITEM},\s+(?:(?:and|or)\s+)?{TRICOLON_ITEM}[.:;]", re.I)
 EM_DASH = re.compile(r"—")
 FILLER = re.compile(r"\b(?:truly|crucially|in today's|it's worth noting|delve|landscape|game-?changer|unlock|seamless)\b", re.I)
 
@@ -97,21 +108,37 @@ def run_probes(slides: dict, post_text: str) -> dict[str, list[str]]:
     return {k: sorted(set(v)) for k, v in report.items()}
 
 
+NEGATION_CASES = [
+    "The control is not a detector. It's a policy.",   # period-joined
+    "The control isn't a detector, it's a policy.",    # comma-joined
+    "This is not only a tool but a stance.",
+    "Govern it as code, not vibes.",
+    "The break is the record. It is not the failure.",  # reversed (2026-11-10)
+    "The log is a ledger. It’s not a backup.",          # reversed, curly apostrophe
+    "This is a policy. It isn't a detector.",           # reversed, contraction
+    "Not a fix, a record.",                             # opening "Not X, Y"
+]
+TRICOLON_CASES = [
+    "It costs time, trust, and money.",
+    "It costs repeated challenges, lost time, tools abandoned.",
+    "I corrected it, logged the correction, and left the original wrong version visible.",  # long items
+]
+# Must stay silent: the reversed-pivot pattern needs a negated second sentence.
+CLEAN_CASES = ["The break is the record. It is what the check left behind."]
+
+
 def self_test() -> None:
     """Probe the probe: restated forms of the mold must still fire."""
     post = ""
-    cases = [
-        "The control is not a detector. It's a policy.",   # period-joined
-        "The control isn't a detector, it's a policy.",    # comma-joined
-        "This is not only a tool but a stance.",
-        "Govern it as code, not vibes.",
-    ]
-    for c in cases:
+    for c in NEGATION_CASES:
         hits = run_probes({"slides": [{"body": c}]}, post)["negation_pivot"]
         assert hits, f"probe blind to: {c!r}"
-    for c in ["It costs time, trust, and money.", "It costs repeated challenges, lost time, tools abandoned."]:
+    for c in TRICOLON_CASES:
         hits = run_probes({"slides": [{"body": c}]}, post)["tricolon"]
         assert hits, f"tricolon probe blind to: {c!r}"
+    for c in CLEAN_CASES:
+        hits = run_probes({"slides": [{"body": c}]}, post)["negation_pivot"]
+        assert not hits, f"negation probe false positive on: {c!r}"
 
 
 # ── Entry point ───────────────────────────────────────────────────────────
@@ -128,7 +155,9 @@ def main(argv: list[str]) -> int:
         print(f"{probe:15} {len(hits)}")
         for h in hits:
             print(f"    · {h}")
-    print("\nself-test: negation probe 4/4, tricolon probe 2/2 restated forms")
+    print(f"\nself-test: negation probe {len(NEGATION_CASES)}/{len(NEGATION_CASES)}, "
+          f"tricolon probe {len(TRICOLON_CASES)}/{len(TRICOLON_CASES)} restated forms, "
+          f"{len(CLEAN_CASES)} clean case(s) silent")
     return 1 if blocking else 0
 
 
