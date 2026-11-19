@@ -39,7 +39,6 @@ const deploymentTerminologyFiles = discoveredDocs.filter((file) => {
     'README.md',
     'AGENTS.md',
     'CONTRIBUTING.md',
-    '.github/copilot-instructions.md',
     '.github/pull_request_template.md',
     'docs/operations/AGENT_OPERATIONS_PROTOCOL.md',
     'docs/operations/memory/README.md',
