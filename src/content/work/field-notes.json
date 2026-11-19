@@ -14,6 +14,12 @@
       "title": "fieldnotes.mazzeleczzare.com",
       "href": "https://fieldnotes.mazzeleczzare.com/",
       "external": true
+    },
+    {
+      "label": "Source",
+      "title": "github.com/mazze93/field-notes",
+      "href": "https://github.com/mazze93/field-notes",
+      "external": true
     }
   ],
   "note": "Self-contained HTML instruments · no build step"

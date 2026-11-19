@@ -1,8 +1,8 @@
 {
   "section": "instruments",
   "order": 6,
-  "idx": "07",
-  "tier": "self",
+  "idx": "07 · v0.3.0",
+  "tier": "live",
   "title": "Context Synapse",
   "subtitle": "local-first context orchestration",
   "body": [
@@ -10,9 +10,21 @@
   ],
   "evidence": [
     {
-      "label": "Site",
+      "label": "Live",
       "title": "contextsynapse.mazzeleczzare.com",
       "href": "https://contextsynapse.mazzeleczzare.com/",
+      "external": true
+    },
+    {
+      "label": "Source",
+      "title": "github.com/mazze93/context-synapse",
+      "href": "https://github.com/mazze93/context-synapse",
+      "external": true
+    },
+    {
+      "label": "Tag",
+      "title": "v0.3.0 — 21 September 2026",
+      "href": "https://github.com/mazze93/context-synapse/releases/tag/v0.3.0",
       "external": true
     },
     {
@@ -21,6 +33,6 @@
       "href": "/blog/on-decay-rot-and-the-goblin-at-the-gate/"
     }
   ],
-  "note": "In development. The project site is up (lighthouse anchors, context-rot scoring, and Edgar — the drift watcher); no public release of the framework itself yet.",
+  "note": "Swift · macOS · no dependencies · MIT. Experimental: the API is not frozen before v1.0.",
   "projectHref": "/project/context-synapse/"
 }

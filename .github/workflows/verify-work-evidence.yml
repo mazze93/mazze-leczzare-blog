@@ -1,0 +1,80 @@
+name: Verify work evidence
+
+# Weekly: re-open every evidence link on /work, look up every GitHub source,
+# and hold each tier to what it finds (src/utils/workProvenance.ts). The result
+# is committed to src/data/work-attestation.json; /work renders it as the
+# "checked <date>" line under each link, and the push to main deploys that.
+# Git history of the file is the record of every run.
+#
+# 14:00 UTC Monday, an hour after witness-checkmate.yml, so the two weekly
+# pushes to main never race.
+#
+# Findings are committed even when they are errors. The page then says
+# "unreachable at last check" instead of a stale "checked", and this job fails
+# after the push so the break is loud. Fix the entry; the next run clears it.
+
+on:
+  schedule:
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify-work-evidence
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Check every link and commit the record
+    runs-on: ubuntu-latest
+    steps:
+      # Pinned to full commit SHAs, as in ci.yml: a tag can be repointed.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # The build is what lets site paths (/blog/…, /papers/…) be resolved.
+      - name: Build
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: Verify
+        id: verify
+        continue-on-error: true
+        env:
+          # Read-only use: api.github.com repo metadata, for the rate limit.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/ops/verify-work-evidence.mjs
+
+      - name: Commit the record
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/work-attestation.json
+          if git diff --cached --quiet; then
+            echo "Record unchanged. Nothing to commit."
+            exit 0
+          fi
+          summary=$(node -p "const a=require('./src/data/work-attestation.json'); Object.keys(a.links).length + ' links, ' + a.findings.length + ' findings'")
+          git commit -q -F - <<EOF
+          chore(attest): /work evidence — ${summary}
+
+          Weekly run of .github/workflows/verify-work-evidence.yml.
+
+          Signed-off-by: Mazze LeCzzare Frazer <mazze@mazzeleczzare.com>
+          EOF
+          git push origin HEAD:main
+
+      - name: Fail on error findings
+        if: steps.verify.outcome == 'failure'
+        run: |
+          echo "::error::verify-work-evidence reported error-level findings; see the Verify step."
+          exit 1
