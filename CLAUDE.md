@@ -83,6 +83,7 @@ src/
     collectNodes.ts   #   astro:content wrapper — calls getCollection + nodes.ts.aggregateNodes
     carousel.ts       #   pure — slides.json → Deck (alt text per slide, preview paths, links)
     collectDecks.ts   #   import.meta.glob wrapper — discovers docs/social/*/slides.json
+    turnstileTrustedTypes.ts # Trusted Types policy for ContactForm's Turnstile loader (one exact URL)
   layouts/            # BlogPost.astro, HomepageLayout.astro
   pages/              # File-based routes
   styles/             # global.css, homepage.css, compass.css, constellation-pages.css,
@@ -581,10 +582,17 @@ Two tools close most of that gap:
 **Still only visible live:** Cloudflare's own edge rewrites (Rocket Loader,
 Cloudflare Fonts) and dashboard WAF rate limits. Check the live URL for those.
 
-**Open finding from the first run (2026-11-18):** Trusted Types reports
-`ContactForm.tsx` assigning a raw string to `HTMLScriptElement.src` for the
-Turnstile loader. Enforcing `require-trusted-types-for` in production needs a
-policy for it first.
+**Trusted Types (resolved 2026-11-18):** the first run's only site-code
+violation, the Turnstile loader in `ContactForm.tsx` assigning a raw string to
+`HTMLScriptElement.src`, now goes through `src/utils/turnstileTrustedTypes.ts`.
+That module creates one policy, `turnstile-script-url`, behind a
+`trustedTypes.createPolicy` feature check. Its `createScriptURL` accepts the
+exact Turnstile URL and throws on anything else (pinned by
+`turnstileTrustedTypes.test.ts`). Where Trusted Types is unsupported, the plain
+string is assigned. `/contact/` now reports only dev-toolbar tooling. Production
+does **not** enforce Trusted Types yet: `functions/utils/csp.ts` is unchanged.
+Enforcing it there is a separate change. It should add a `trusted-types
+turnstile-script-url` allowlist and recheck every page, not only `/contact/`.
 
 ## Astro / Frontend Notes
 
