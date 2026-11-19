@@ -5,7 +5,7 @@
 - [ ] If `package.json` scripts changed, I updated all canonical docs in this PR:
   - [ ] `README.md`
   - [ ] `AGENTS.md`
-  - [ ] `.github/copilot-instructions.md`
+  - [ ] `CLAUDE.md`
   - [ ] Related operational docs
 
 ## Deployment wording guardrail (required)

@@ -8,7 +8,7 @@ Thanks for contributing to `mazze-leczzare-blog`.
    - If you add, remove, or rename any `package.json` script, update all canonical docs in the same pull request:
      - `README.md`
      - `AGENTS.md`
-     - `.github/copilot-instructions.md`
+     - `CLAUDE.md`
      - operational docs that reference scripts
 
 2. **Deployment wording must match current runtime model**
