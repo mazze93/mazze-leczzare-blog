@@ -1,3 +1,5 @@
+import { ARTIFACT_CSP, DEFAULT_CSP } from "./utils/csp";
+
 interface KVNamespace {
   get(key: string): Promise<string | null>;
 }
@@ -196,26 +198,7 @@ async function htmlToMarkdown(html: string): Promise<string> {
 }
 
 // ── Security headers ─────────────────────────────────────────────────────────
-
-const BASE_CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
-  "img-src 'self' data: blob:",
-  "connect-src 'self' https://challenges.cloudflare.com",
-  // 'self' lets a post embed its own /artifacts/*.html (ArtifactEmbed). Without
-  // it every embed was blank in production: the parent page's frame-src only
-  // allowed Turnstile. Found 2026-10-08 by loading the live
-  // /blog/the-break-is-the-record/ in Chromium; `astro preview` runs no
-  // middleware, so no local check could see it. The artifact side already
-  // permits it (frame-ancestors 'self'); every other page keeps 'none'.
-  "frame-src 'self' https://challenges.cloudflare.com",
-  "form-action 'self'",
-  "base-uri 'self'",
-  "upgrade-insecure-requests",
-].join("; ");
-
-const DEFAULT_CSP = `${BASE_CSP}; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'`;
-const ARTIFACT_CSP = `${BASE_CSP}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'self'`;
+// The policy itself lives in ./utils/csp.ts, shared with the dev server.
 
 function withSecurityHeaders(response: Response, isArtifact: boolean): Response {
   const headers = new Headers(response.headers);

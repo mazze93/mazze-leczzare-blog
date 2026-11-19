@@ -3,10 +3,25 @@ import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import react from "@astrojs/react";
+import { fileURLToPath } from "node:url";
+import { devCspReporter, edgeHeaders } from "./scripts/dev/edgeHeaders.ts";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://mazzeleczzare.com",
+
+  // Loopback only, fixed port. A security researcher's dev server should not be
+  // reachable from the LAN, and a silently bumped port breaks .claude/launch.json
+  // and the Reporting-Endpoints origin. Pass --host to expose it on purpose.
+  server: { host: "127.0.0.1", port: 4321 },
+
+  vite: {
+    server: { strictPort: true },
+    // Dev only (apply: "serve"): sends public/_headers and the production CSP
+    // (as report-only, plus Trusted Types) on `astro dev`. Production headers
+    // still come from functions/_middleware.ts and public/_headers alone.
+    plugins: [edgeHeaders({ headersFile: fileURLToPath(new URL("./public/_headers", import.meta.url)) })],
+  },
 
   // Code blocks used to be a single dark Shiki theme (Astro's github-dark
   // default), so every <pre class="astro-code"> stayed a black slab in light
@@ -80,5 +95,8 @@ export default defineConfig({
       ],
     }),
     react(),
+    // Dev only: forwards CSP / Trusted Types violation events to the dev report
+    // endpoint above. Injects nothing into `astro build`.
+    devCspReporter(),
   ],
 });

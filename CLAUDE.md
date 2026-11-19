@@ -26,7 +26,8 @@ Security engineering, technical writing, and essays at the intersection of infra
 ## Key Commands
 
 ```bash
-npm run dev        # Astro dev server (localhost:4321)
+npm run dev        # Astro dev server (127.0.0.1:4321) — production headers, report-only CSP + Trusted Types
+npm run dev:edge   # astro build, then the Pages runtime locally (127.0.0.1:8788) — see Local edge parity
 npm run build      # Static build → dist/
 npm run preview    # Preview dist/ locally
 npm run check      # astro build && tsc (repo-standard validation)
@@ -100,6 +101,7 @@ functions/
     logout.ts         # Cloudflare Pages Function — admin logout
     ingest.ts         # Cloudflare Pages Function — authenticated content ingest (commits to main)
   utils/
+    csp.ts             # The site CSP — single source for the middleware (enforced) and astro dev (report-only)
     webBotAuth.ts      # RFC 9421 Ed25519 request signing (Web Bot Auth) for this site's outbound requests
 
 public/
@@ -123,6 +125,7 @@ public/
                       #   primary work). Built via the `carousel` skill from
                       #   docs/social/<slug>/slides.json by scripts/carousel/build.py.
 
+scripts/dev/          # edgeHeaders.ts — astro dev header parity + CSP report sink (dev only; see Local edge parity)
 scripts/ops/          # Local operational scripts (not part of the site build)
 scripts/carousel/     # Carousel pipeline: build.py (slides.json → tagged PDF), render.py
                       #   (templates), copy_probe.py (prose gate), contrast.py, themes/*.css
@@ -389,6 +392,8 @@ Runs on every request before any function. Three responsibilities:
 **3. Security headers**
 - Sets `Content-Security-Policy` and `X-Frame-Options` on every response via
   `withSecurityHeaders()` — this lives here, **not** in `public/_headers`.
+  The policy strings live in `functions/utils/csp.ts`, which the dev server
+  also reads; change the policy there, never inline.
 - Artifact-aware: `/artifacts/*` gets a relaxed `ARTIFACT_CSP`/`SAMEORIGIN`
   (allows Google Fonts, frameable by same origin); everything else gets
   `DEFAULT_CSP`/`DENY`.
@@ -543,6 +548,44 @@ decision log on demand — see **`BUILD_JOURNAL.md`** below.
 | `lighthouse.yml` | push / PR | Lighthouse CI performance/accessibility audit |
 | `witness-checkmate.yml` | Mondays 13:00 UTC + manual | Reads checkmate's ledger head through the private gateway, commits `src/data/checkmate-witness.json` to `main` (which deploys) |
 
+## Local edge parity
+
+Neither `astro dev` nor `astro preview` runs the Cloudflare layer, so before
+2026-11-18 the CSP, `_headers`, Functions, the `/admin` guard and Markdown for
+Agents were all invisible locally — and two breakages were found only on the
+live site (the `frame-src` miss of 2026-10-08, Rocket Loader in #202/#203).
+Two tools close most of that gap:
+
+- **`npm run dev`** — `scripts/dev/edgeHeaders.ts` (wired in `astro.config.mjs`,
+  dev only) sends `public/_headers` (minus HSTS) and enforces `X-Frame-Options`
+  per path, and sends the production CSP from `functions/utils/csp.ts` as
+  `Content-Security-Policy-Report-Only` plus `require-trusted-types-for 'script'`.
+  Report-only means Vite's HMR keeps working while every violation and every
+  DOM XSS sink write is reported. Reports reach `/__dev/csp-report` via an
+  injected `securitypolicyviolation` forwarder (immediate), `report-to`
+  (Chromium, batched up to a minute) and `report-uri` (Firefox, Safari). Each
+  distinct violation prints once in the terminal; dev-toolbar/Vite violations
+  are recorded but not printed. `curl http://127.0.0.1:4321/__dev/csp-report`
+  lists everything as JSON. `DEV_CSP=off` turns the CSP half off;
+  `DEV_CSP_TOOLING=1` prints the toolbar noise. Bound to `127.0.0.1` with
+  `strictPort` — pass `--host` to expose it deliberately.
+- **`npm run dev:edge`** — `astro build`, then `wrangler pages dev dist` on
+  `127.0.0.1:8788`: the real middleware (enforced CSP, `/admin` JWT guard,
+  Markdown for Agents), every `functions/api/*` route, `_headers` and
+  `_redirects`. KV bindings are local simulations under `.wrangler/state`
+  (gitignored) and never touch the deployed namespaces. Secrets come from
+  `.dev.vars` (copy `.dev.vars.example`); without it the Functions fail closed
+  (`/api/login` → 503, `/admin/` → `/login`), which is itself worth testing.
+  `wrangler` is pinned exactly in `devDependencies` — bump it deliberately.
+
+**Still only visible live:** Cloudflare's own edge rewrites (Rocket Loader,
+Cloudflare Fonts) and dashboard WAF rate limits. Check the live URL for those.
+
+**Open finding from the first run (2026-11-18):** Trusted Types reports
+`ContactForm.tsx` assigning a raw string to `HTMLScriptElement.src` for the
+Turnstile loader. Enforcing `require-trusted-types-for` in production needs a
+policy for it first.
+
 ## Astro / Frontend Notes
 
 - **Scoped styles don't reach runtime-injected nodes** — Astro scopes component styles to build-time DOM. Canvas elements or JS-created nodes won't receive scoped styles; use `is:global` or inline styles for those.
@@ -563,5 +606,5 @@ decision log on demand — see **`BUILD_JOURNAL.md`** below.
 - **`src/consts.ts` is the single source of truth** for site identity — import from there.
 - **`npm run check` is the repo-standard validation** — run before committing any code change.
 - **Draft posts** — use `draft: true` in frontmatter, never delete in-progress posts.
-- **Deployment platform is Cloudflare Pages** — not Workers, not Vercel. Do not use Workers adapter terminology. Local preview uses `npm run preview`, not `wrangler dev`.
+- **Deployment platform is Cloudflare Pages** — not Workers, not Vercel. Do not use Workers adapter terminology. `npm run preview` previews the static build; `npm run dev:edge` (`wrangler pages dev`) is the one sanctioned local Pages runtime — see Local edge parity. Never `wrangler dev`, which is the Workers command.
 - **JWT_SECRET must be ≥ 32 chars** — middleware and login fail closed if this is not met.
