@@ -2,6 +2,14 @@
 import CheckmateWitness from './CheckmateWitness.astro';
 import TierChip from './TierChip.astro';
 import { evidenceHref, type WorkEntryData } from '../../data/work';
+import attestationData from '../../data/work-attestation.json';
+import { attestationLine, type Attestation } from '../../utils/workProvenance';
+
+// What the last verify-work-evidence run saw for a link. Links it never
+// checked (computed refs, links added since) render without a line.
+const attestation = attestationData as Attestation;
+const checkFor = (ev: { href?: string }) =>
+  ev.href ? attestationLine(attestation.links[ev.href], attestation.checkedAt) : null;
 
 /**
  * One ledger row of /work: apparatus in the margin (index, tier, caveat),
@@ -34,18 +42,24 @@ const { entry: e } = Astro.props;
 
     {e.evidence && (
       <ul class="entry-evidence" role="list">
-        {e.evidence.map((ev) => (
-          <li>
-            <a
-              href={evidenceHref(ev)}
-              {...(ev.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            >
-              <span class="ev-label">{ev.label}</span>
-              <span class="ev-title">{ev.title}</span>
-              {ev.external && <span class="sr-only"> (opens in new tab)</span>}
-            </a>
-          </li>
-        ))}
+        {e.evidence.map((ev) => {
+          const check = checkFor(ev);
+          return (
+            <li>
+              <a
+                href={evidenceHref(ev)}
+                {...(ev.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                <span class="ev-label">{ev.label}</span>
+                <span class="ev-title">{ev.title}</span>
+                {ev.external && <span class="sr-only"> (opens in new tab)</span>}
+              </a>
+              {check && (
+                <span class={`ev-check ${check.startsWith('unreachable') ? 'ev-check--fail' : ''}`}>{check}</span>
+              )}
+            </li>
+          );
+        })}
       </ul>
     )}
 
@@ -164,6 +178,21 @@ const { entry: e } = Astro.props;
     overflow-wrap: anywhere;
   }
 
+  /* The machine's line under a link: what the last verify run saw. Indented to
+     the title column (label width + gap), quieter than the claim it backs. */
+  .ev-check {
+    display: block;
+    margin: -0.3em 0 0.35em;
+    padding-left: calc(5.5 * 0.64rem + 1rem);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+  }
+  .ev-check::before { content: '✓ '; color: var(--teal); }
+  .ev-check--fail { color: var(--coral); }
+  .ev-check--fail::before { content: '! '; color: var(--coral); }
+
   .entry-link {
     display: inline-flex;
     align-items: center;
@@ -197,5 +226,6 @@ const { entry: e } = Astro.props;
   @media (max-width: 600px) {
     .entry--flagship { padding-left: 1rem; }
     .ev-label { width: 4.6em; }
+    .ev-check { padding-left: calc(4.6 * 0.64rem + 1rem); }
   }
 </style>

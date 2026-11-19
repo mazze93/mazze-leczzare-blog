@@ -15,6 +15,12 @@
       "title": "stele.mazzeleczzare.com",
       "href": "https://stele.mazzeleczzare.com/",
       "external": true
+    },
+    {
+      "label": "Source",
+      "title": "github.com/mazze93/stele",
+      "href": "https://github.com/mazze93/stele",
+      "external": true
     }
   ],
   "note": "React 19 · TypeScript · Vite · Anthropic API"

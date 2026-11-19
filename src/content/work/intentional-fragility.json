@@ -24,6 +24,12 @@
       "label": "Instrument",
       "title": "Theatre of Dependencies — a slime mold stages your upgrade ritual",
       "href": "/theatre-of-dependencies/"
+    },
+    {
+      "label": "Source",
+      "title": "github.com/mazze93/theatre-of-dependencies",
+      "href": "https://github.com/mazze93/theatre-of-dependencies",
+      "external": true
     }
   ],
   "projectHref": "/project/intentional-fragility/"
