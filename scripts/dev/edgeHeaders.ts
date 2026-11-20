@@ -34,6 +34,26 @@ export const REPORT_PATH = "/__dev/csp-report";
 const REPORT_GROUP = "csp-dev";
 const MAX_REPORT_BYTES = 64 * 1024;
 const DEV_SKIPPED_HEADERS = new Set(["strict-transport-security"]);
+const INLINE_SCRIPT_UNSAFE_CHARS = /[<>\/\u2028\u2029]/g;
+
+function escapeInlineScriptString(value: string): string {
+  return JSON.stringify(value).replace(INLINE_SCRIPT_UNSAFE_CHARS, (ch) => {
+    switch (ch) {
+      case "<":
+        return "\\u003C";
+      case ">":
+        return "\\u003E";
+      case "/":
+        return "\\u002F";
+      case "\u2028":
+        return "\\u2028";
+      case "\u2029":
+        return "\\u2029";
+      default:
+        return ch;
+    }
+  });
+}
 
 // ── public/_headers ──────────────────────────────────────────────────────────
 
@@ -172,7 +192,7 @@ export function isDevTooling(v: Violation): boolean {
  * minute, and some embedded browsers never send them; the event is immediate
  * and works in every engine. The body uses the Reporting API shape.
  */
-export const DEV_REPORTER_SCRIPT = `addEventListener("securitypolicyviolation",function(e){try{navigator.sendBeacon(${JSON.stringify(
+export const DEV_REPORTER_SCRIPT = `addEventListener("securitypolicyviolation",function(e){try{navigator.sendBeacon(${escapeInlineScriptString(
   REPORT_PATH,
 )},JSON.stringify({type:"csp-violation",url:location.href,body:{documentURL:e.documentURI,effectiveDirective:e.effectiveDirective,blockedURL:e.blockedURI,sourceFile:e.sourceFile,lineNumber:e.lineNumber,columnNumber:e.columnNumber,sample:e.sample,disposition:e.disposition}}))}catch(_){}});`;
 
