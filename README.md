@@ -27,7 +27,8 @@ Security engineering, technical writing, and essays from Mazze LeCzzare — foun
 
 ```bash
 npm install        # Install dependencies
-npm run dev        # Dev server → localhost:4321
+npm run dev        # Dev server → 127.0.0.1:4321, with production headers + report-only CSP
+npm run dev:edge   # Build, then Pages Functions + middleware + _headers locally → 127.0.0.1:8788
 npm run build      # Static build → dist/
 npm run preview    # Preview built site locally
 npm run check      # Build + TypeScript check (repo-standard validation)

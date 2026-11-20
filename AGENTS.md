@@ -16,7 +16,8 @@ Personal blog for Mazze LeCzzare Frazer. Astro 7 static site deployed to **Cloud
 ## Canonical Commands (from `package.json`)
 
 ```bash
-npm run dev        # Astro dev server on localhost:4321
+npm run dev        # Astro dev server on 127.0.0.1:4321 (production headers, report-only CSP)
+npm run dev:edge   # Build, then Pages Functions + middleware + _headers on 127.0.0.1:8788
 npm run build      # Static build → dist/
 npm run preview    # Preview dist/ locally
 npm run check      # astro build && tsc — repo-standard validation
@@ -35,7 +36,7 @@ npm run test       # vitest run — unit tests for src/**/*.test.ts
 - **No external analytics** — telemetry is first-party only via `functions/api/share-event.ts`.
 - **No published email** — contact goes through `functions/api/contact.ts`. One approved exception: the résumé contact line on `/work/research-program-operations/` (see CLAUDE.md).
 - **JWT_SECRET must be ≥ 32 chars** — middleware and login fail closed if not met.
-- **Deployment platform is Cloudflare Pages** — do not use Workers adapter terminology. Local preview uses `npm run preview`, not wrangler's local server command.
+- **Deployment platform is Cloudflare Pages** — do not use Workers adapter terminology. `npm run preview` previews the static build; `npm run dev:edge` is the one sanctioned way to run the Pages runtime (Functions, middleware, `_headers`) locally. See CLAUDE.md, Local edge parity.
 
 ## Routes
 

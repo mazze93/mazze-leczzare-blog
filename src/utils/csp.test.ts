@@ -3,8 +3,9 @@ import { onRequest } from "../../functions/_middleware";
 
 /**
  * Pins the CSP contract that ArtifactEmbed depends on. `astro preview` runs no
- * middleware, so a broken frame policy is invisible locally — this test is the
- * only pre-deploy check that a post can frame its own /artifacts/*.html.
+ * middleware; `npm run dev:edge` does, but only when someone runs it — so this
+ * test is the one automatic pre-deploy check that a post can frame its own
+ * /artifacts/*.html. The policy itself lives in functions/utils/csp.ts.
  */
 
 const env = {} as never; // non-admin paths never read env
