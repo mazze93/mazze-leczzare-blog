@@ -8,7 +8,7 @@ import { SITE_STORE_URL, STORE_ANNOUNCE_ENABLED } from '../consts';
  * Non-negotiables:
  *  - Ships behind STORE_ANNOUNCE_ENABLED (false by default). The <aside> is not
  *    emitted until that is flipped on — this is visitor-facing. The scoped
- *    <style>/<script> are always emitted (a few hundred bytes) but inert with
+ *    style and script blocks are always emitted (a few hundred bytes) but inert with
  *    no element to act on; Astro hoists them, so they can't live inside the
  *    conditional.
  *  - Never blocks the page: no overlay, no scroll lock, fixed to a corner.

@@ -1,0 +1,41 @@
+---
+import { TIER_LABEL, type Tier } from '../../data/work';
+
+interface Props {
+  tier: Tier;
+}
+
+const { tier } = Astro.props;
+---
+<span class={`chip chip--${tier}`}>{TIER_LABEL[tier]}</span>
+
+<style>
+  /* Visual weight tracks evidence strength — this is the humility mechanism
+     made visible, not decoration. Do not equalize them. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    padding: 0.28em 0.62em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .chip::before {
+    content: '';
+    width: 0.42em;
+    height: 0.42em;
+    background: currentColor;
+    flex: none;
+  }
+  .chip--live { color: var(--teal); }
+  .chip--published { color: var(--gold); }
+  .chip--acknowledged { color: var(--text-dim); }
+  .chip--self { color: var(--text-faint); }
+</style>

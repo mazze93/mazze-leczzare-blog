@@ -16,7 +16,7 @@ Security engineering, technical writing, and essays at the intersection of infra
 | Edge functions | Cloudflare Pages Functions (`functions/`) |
 | Styles | Hand-authored CSS custom properties only — see Styles section. No Tailwind (retired 2026-08-03) |
 | Fonts | Mostly `@fontsource` `@import`s in `global.css`/`homepage.css`: Cormorant Garamond, Cormorant SC, DM Mono, DM Sans, Literata (blog prose body — `--font-prose`), Playfair Display; Space Grotesk Variable + Crimson Pro on `/cipher-gothic/` only. Inter is the exception — declared with explicit `@font-face` rules pointing at the already-deployed `/fonts/inter-*.woff2` (see Fonts note below). `BaseHead.astro` preloads exactly one file — Cormorant Garamond latin-400 — imported through Vite with `?url`, never a hardcoded path. |
-| RSS | `@astrojs/rss` — feed at `/rss.xml`, auto-generated from blog content collection |
+| RSS | `@astrojs/rss` — feed at `/rss.xml`, auto-generated from blog content collection (summaries). `/feed.json` is the full-text scholarly feed (JSON Feed 1.1) that Rogue Scholar harvests for DOIs |
 | Sitemap | `@astrojs/sitemap` (auto-generated) |
 | Email | `mimetext` + Cloudflare Email binding (`cloudflare:email`) |
 | Type checking | TypeScript 7 strict mode + `tsc` via `npm run check` |
@@ -42,9 +42,10 @@ Run a single test file or case with vitest directly, e.g.
 `src/utils/` pure logic (decay, layout, node aggregation) and the admin
 dashboard's post-filtering/sorting — run `npm run test` when touching those.
 
-A `pre-push` git hook (installed via the `prepare` script into
-`.git/hooks/pre-push`) blocks pushes if `public/` has untracked files that
-would silently be missing from the deploy.
+Git hooks live in `.githooks/` (tracked); the `prepare` script points
+`core.hooksPath` at it, so worktrees and fresh clones get them too. `pre-push`
+blocks pushes if `public/` has untracked files that would silently be missing
+from the deploy.
 
 ## Site Identity (`src/consts.ts`)
 
@@ -155,6 +156,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/login`          | `src/pages/login.astro`             | Admin login page                         |
 | `/admin`          | `src/pages/admin/index.astro`       | Admin dashboard (JWT auth-gated)         |
 | `/rss.xml`        | `src/pages/rss.xml.js`              | RSS feed endpoint                        |
+| `/feed.json`      | `src/pages/feed.json.ts`            | Scholarly feed: full text of every post that passes `isArchivable()` (`src/utils/scholarlyFeed.ts`, pure + tested), author = ORCID iD. Rogue Scholar registers a DOI per item; a DOI cannot be withdrawn |
 | `/signal`, `/signal/[slug]/` | `src/pages/signal/`      | Transmissions (signal collection)        |
 | `/tesserae`, `/tesserae/[slug]/` | `src/pages/tesserae/`| Mosaic tiles (tesserae collection)       |
 | `/writing`        | `src/pages/writing/index.astro`     | The catalogue — all published work by form |
@@ -249,6 +251,8 @@ too, for zone-aware styling outside the hero itself.
   featured?: boolean        // optional — pinned/curated flag
   slug?: string             // optional — explicit URL slug override
   draft?: boolean           // optional — true hides post from all listings
+  license?: 'cc-by-4.0' | 'all-rights-reserved' // default cc-by-4.0 — essay text licence; shows LicenseNotice under the prose (LICENSE-CONTENT.md)
+  archive?: boolean         // default true — false keeps a CC BY post out of /feed.json, so no DOI is registered
   contentType?: 'artifact' | 'dispatch' | 'field-note' // optional — default 'field-note'; drives /blog/{artifacts,dispatches,field-notes}
   repoUrl?: string          // optional — linked repo, for contentType: 'artifact'
   artifactNote?: string     // optional — annotation for contentType: 'artifact'
@@ -501,7 +505,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 
 1. Create `src/content/blog/your-slug.md` (or `.mdx`)
 2. Required frontmatter: `title`, `description`, `pubDate` (YYYY-MM-DD format).
-3. Optional frontmatter: `subtitle`, `heroImage`, `heroImageAlt`, `heroImageOG`, `updatedDate`, `author`, `tags`, `category`, `readingTime`, `featured`, `slug`. Set `draft: true` to hide from all listings.
+3. Optional frontmatter: `subtitle`, `heroImage`, `heroImageAlt`, `heroImageOG`, `updatedDate`, `author`, `tags`, `category`, `readingTime`, `featured`, `slug`. Set `draft: true` to hide from all listings. New posts are CC BY 4.0 and enter `/feed.json` (and so get a Rogue Scholar DOI) by default: set `license: "all-rights-reserved"` or `archive: false` **before** the first deploy if a post should not.
 4. MDX posts can import components with relative paths: `import Verse from '../../components/Verse.astro'`
 5. Blog images: place hero images in `src/assets/images/blog/` and reference them in frontmatter as a relative path from the post file (e.g. `heroImage: ../../assets/images/blog/hero.jpg`). Astro processes these through the image pipeline. OG override images (`heroImageOG`) remain URL strings pointing to `public/`.
 6. All `<p>` in `.prose` automatically get share buttons via `PostQuoteShare`.

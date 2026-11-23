@@ -1,6 +1,7 @@
 import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
 import { z } from "zod";
+import { EVIDENCE_REF_IDS, TIERS, WORK_SECTION_IDS } from "./data/work";
 
 /**
  * Blog content collection schema.
@@ -27,6 +28,14 @@ const blog = defineCollection({
     featured: z.boolean().optional(),
     slug: z.string().optional(),
     draft: z.boolean().optional(),
+    // ── licensing and scholarly archiving ──
+    // Essay text is CC BY 4.0 by default. "all-rights-reserved" opts one post
+    // out: no licence notice, and it never enters the scholarly feed.
+    license: z.enum(["cc-by-4.0", "all-rights-reserved"]).default("cc-by-4.0"),
+    // false keeps a CC BY post out of /feed.json, so Rogue Scholar never
+    // registers a DOI for it. A DOI cannot be withdrawn, so leaving a post out
+    // is the reversible choice; turning this back on is not.
+    archive: z.boolean().default(true),
     // ── content type classification ──
     contentType: z.enum(['artifact', 'dispatch', 'field-note']).default('field-note'),
     repoUrl: z.string().url().optional(),
@@ -100,4 +109,39 @@ const tesserae = defineCollection({
   }),
 });
 
-export const collections = { blog, signal, tesserae };
+/**
+ * Work collection — one JSON file per piece on /work.
+ *
+ * The model (tiers, sections, evidence refs) lives in src/data/work.ts; this
+ * schema enforces it at build time so a bad entry fails the build instead of
+ * rendering wrong.
+ */
+const work = defineCollection({
+  loader: glob({ base: "./src/content/work", pattern: "*.json" }),
+  schema: z.object({
+    section: z.enum(WORK_SECTION_IDS),
+    order: z.number().int().nonnegative(),
+    idx: z.string().min(1),
+    tier: z.enum(TIERS),
+    title: z.string().min(1),
+    subtitle: z.string().optional(),
+    body: z.array(z.string().min(1)).min(1),
+    evidence: z.array(
+      z.object({
+        label: z.string().min(1),
+        title: z.string().min(1),
+        href: z.string().min(1).optional(),
+        ref: z.enum(EVIDENCE_REF_IDS).optional(),
+        external: z.boolean().optional(),
+      }).refine((ev) => (ev.href === undefined) !== (ev.ref === undefined), {
+        message: "evidence needs exactly one of href or ref",
+      }),
+    ).optional(),
+    note: z.string().optional(),
+    projectHref: z.string().optional(),
+    flagship: z.boolean().optional(),
+    figure: z.literal("checkmate").optional(),
+  }).strict(),
+});
+
+export const collections = { blog, signal, tesserae, work };

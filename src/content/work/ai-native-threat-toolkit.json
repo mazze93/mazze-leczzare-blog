@@ -1,0 +1,21 @@
+{
+  "section": "instruments",
+  "order": 7,
+  "idx": "08 · Pre-release",
+  "tier": "self",
+  "title": "AI-Native Threat Toolkit",
+  "subtitle": "prompt injection & output integrity for civil society",
+  "body": [
+    "The applied edge of the research line: prompt-injection detection patterns, LLM output-integrity checking, AI-assisted phishing classification, and threat-brief generation from open-source feeds — built for organizations that are already being targeted and have no security team. Same claim as Stratum, moved from the ledger to the wire: <em>a generated output does not become trustworthy by arriving confidently.</em>",
+    "This is where the attack-surface research proposal lands if it succeeds — civil-society orgs are the population with the highest exposure and the least instrumentation, which is exactly why they are the right place to measure."
+  ],
+  "evidence": [
+    {
+      "label": "Org card",
+      "title": "huggingface.co/SecurePride",
+      "href": "https://huggingface.co/SecurePride",
+      "external": true
+    }
+  ],
+  "note": "In development. No public repo yet — do not read this as shipped."
+}
