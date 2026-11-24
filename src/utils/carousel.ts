@@ -149,6 +149,16 @@ export function toDeck(raw: RawDeck): Deck {
   };
 }
 
+/**
+ * True when every file the strip links to is on disk: each slide preview
+ * and the PDF. A deck whose slides.json merged before `build.py --ship`
+ * ran would otherwise render broken images and a dead Download PDF link.
+ * `exists` takes a site path ("/social/x.pdf"); the caller maps it to disk.
+ */
+export function isShipped(deck: Deck, exists: (sitePath: string) => boolean): boolean {
+  return exists(deck.pdfHref) && deck.slides.every((s) => exists(s.src));
+}
+
 /** Newest first by `issued`, then title — for the /social/ index. */
 export function sortDecks(decks: Deck[]): Deck[] {
   return [...decks].sort(

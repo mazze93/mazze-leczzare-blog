@@ -1,9 +1,19 @@
 # Spec: cognitive-topology → Stratum ingress client (reshape)
 
-**Spec id:** ct-reshape · **Spec version:** 0.6.0 (supersedes the 0.5.0 draft — open dependency resolved from source) · **Target:** cognitive-topology 0.2.0
-**Status:** Draft — reframe direction ratified 2026-08-18 ("full approval for 1"); this document
-awaits ratification of its content before execution. Never yet posted to the ledger.
-**Posture:** HIGH. **Date:** 2026-08-18. **Executor:** Claude Code.
+**Spec id:** ct-reshape · **Spec version:** 0.7.0 (re-baselines 0.6.0 against Stratum source and the T1 build) · **Target:** cognitive-topology 0.2.0
+**Status:** Ratified 2026-11-15 by Mazze ("Ratify the spec"). Recorded in Stratum's
+`data/ingress-trace.jsonl` as `ig-006` (decision) and `ig-007` (ratification). Reframe direction
+ratified 2026-08-18 ("full approval for 1"). 0.6.0 was never ratified as content: its header said
+Draft while the changelog said ratified 2026-09-06. That date belongs to `ct-001`, which ratified
+the reshape decision `ct-000`, not this document.
+**Posture:** HIGH. **Date:** 2026-11-15 (direction 2026-08-18). **Executor:** Claude Code.
+
+**Revision note, 0.7.0.** Folds the re-baseline the 2026-10-21 decision council asked for, and the
+T1 build (Stratum PR #101, merged at `3553a6c`, verified as `ig-005`). §5 is corrected against
+source in four places. `packages/*` paths become Stratum's real layout (`core/`, `worker/`, `cli/`,
+`reference/`). T1 is marked delivered upstream. T3 is split out as ContextSynapse work. The open
+questions are listed in §13. The phantom T6 and "five tiers" were already gone in 0.6.0. The
+working record is Stratum `docs/journal/2026-11-11-ct-reshape-t1/REBASELINE.md`.
 
 **Revision note.** v0.3.0 was a draft, never executed or committed to the ledger. v0.4.0 folded
 seven defects from an external architectural review. v0.5.0 folds a review *of that correction*.
@@ -61,14 +71,14 @@ Depth: ContextSynapse and Stratum enforce the **same** epistemic boundary at dif
 "said/written/ratified." That shared boundary is the spine of the reshape. INGRESS-I1 is defined
 once here and referenced elsewhere; it is not redefined.
 
-### Source-confirmed (2026-09-06) — no residual ontology unknowns
+### Source-confirmed (2026-09-06, re-checked 2026-11-11 at Stratum `fe353a6`)
 
 The event contract (§4), the **HTTP envelope + auth + idempotency** (§5), and the **birth-status
-legality** (§9) are all confirmed against `github.com/mazze93/stratum` (`worker/src/index.ts`,
-`core/src/contract.ts`, `reference/tessera_projection.py`). The only fill-in is the `schema_version`
-integer (one lookup in `data/genesis-trace.jsonl`). Work order: **T1 (build client + fixtures against
-the confirmed envelope; read `schema_version`) → T2–T4 (repoint/reduce/reposition) → T5a (verify) →
-T5b (human ratify).**
+legality** (§9) are confirmed against `github.com/mazze93/stratum` (`worker/src/index.ts`,
+`core/src/contract.ts`, `core/src/serialize.ts`, `reference/tessera_projection.py`). Stratum's
+`docs/API.md` is the cited upstream reference. Work order: **T1 is delivered** (Stratum
+`cli/lib/ingress.mjs` and `stratum emit`). T2 and T4 wait on a home for the plugin source (§13).
+T3 is split out (§7). Then **T5a (verify) → T5b (human ratify).**
 
 ## 1. Intent
 
@@ -140,7 +150,7 @@ Verified against the validated reference. Evidence: MEMORY_MODEL §§1–8, `che
 `evidence[]` (verified); the model's reasoning → `claim` (narrative). Mis-tiering is a defect
 class, gated by §6 tests.
 
-## 5. The event envelope — CONFIRMED from source (github.com/mazze93/stratum, checked 2026-09-06)
+## 5. The event envelope — CONFIRMED from source (github.com/mazze93/stratum; checked 2026-09-06, corrected 2026-11-11)
 
 Read directly via the repo file API — no longer proposed. `POST /api/logs/{logId}/events` (Hono →
 `StratumLogDO`, one DO per log, single-writer gate). Body is one snake_case event **record** — the
@@ -155,20 +165,32 @@ Content-Type: application/json
   "id": "<stable deterministic id>",           # the idempotency key — see below
   "type": "decision|foreclosure|verification|supersession|contradiction|ratification|rejection|dispute|invalidation|trust_root_revoked",
   "agent_id": "cognitive-topology",            # the ingress client's identity
-  "schema_version": <int>,                     # current contract rev — the one fill-in (read from data/genesis-trace.jsonl)
-  "birth_status": "asserted|pending_evidence|ratified",  # originating/invalidation only; ratified requires is_trust_root
+  "schema_version": 1 | 2,                    # PER EVENT; above 2 refused (contract.ts:118)
+  "birth_status": "asserted|pending_evidence|ratified",  # required on EVERY record (serialize.ts:223-225); markers carry "asserted"; ratified requires is_trust_root
   "claim": { "narrative": "<LLM prose>" },     # claim is a DICT with a narrative key; never authoritative
-  "evidence": [ { "kind": "test_exit|diff_sha|file_hash|signed_approval|policy_authority",
-                  "ref": "<value>", "checked_at": "<ISO-8601|null>", "signer": null } ],
+  "evidence": [ { "kind": "<string>",          # free string, no wire enum (serialize.ts:192-193)
+                  "ref": "<value>", "checked_at": "<ISO-8601|null>", "signer": null,
+                  "binding": { "type": "reproducible_check", "command": "<cmd>", "repo": "<host/owner/name>",
+                               "commit": "<40-hex>", "expect_exit": 0 } } ],  # v2 only; see below
   "targets": ["<event-id>"],                   # originating ≤1; markers/invalidation exactly 1; [] for roots
-  "is_trust_root": false
+  "is_trust_root": false,
+  "timestamp": "<ISO-8601>"                    # optional
 }
 ```
-Responses: 201 append · 400 parse · **409 guard violation (incl. duplicate id)** · 401 unauthorized · 413 cap.
+Unknown keys are dropped, not refused (`serialize.ts:209-261`).
+Responses: 201 append · 400 parse · **409 guard violation or duplicate id (ambiguous)** · 401
+unauthorized · 404 unknown event · 413 cap (5000 events) · 500 `load_failure`.
 
-- **Idempotency — confirmed.** `EpisodicLog.append` refuses a duplicate `id` (→ 409). So the client's
-  stable emission identity **is** the event `id` — a digest of the canonical masked emission (§0). A retry
-  re-POSTs the same id and gets 409; no duplicate is ever created. There is no header to invent.
+- **Evidence by version.** Under v1 a typed `checked_at` counts as checked. Under v2 `checked_at` is
+  metadata, and only a well-formed `reproducible_check` binding counts (`contract.ts:134-155`), so
+  automated verifications are emitted as v2. A v2 `ratification` is refused until the authority
+  registry exists (`core/src/log.ts`, ADR-003 §4); ratifications stay v1 until then.
+- **Idempotency — confirmed, with one correction.** `EpisodicLog.append` refuses a duplicate `id`, so
+  the client's stable emission identity **is** the event `id`, a digest of the canonical masked
+  emission (§0), and no duplicate is ever created. But every guard refusal is also 409
+  (`worker/src/index.ts:23-24`, `core/src/log.ts:49-51`), so status alone can't tell "already landed"
+  from "refused". On 409 the client reads the event back (`GET /api/logs/{logId}/events/{id}`) and
+  compares. There is no header to invent.
 - **`/tessera` read — confirmed.** `GET /api/logs/{logId}/projection?epoch=N` returns the fold
   (`recent_decisions` + `foreclosed_options`, each with `authority`/`status`/`revision_chain`); omit
   `epoch` for head. CLI equivalent: `stratum tessera`.
@@ -176,9 +198,13 @@ Responses: 201 append · 400 parse · **409 guard violation (incl. duplicate id)
   ratified}` for `decision`/`foreclosure`; `TRANSITIONS[pending_evidence] ⊇ {validated}` via a checked
   `verification` (I1). A `decision` born `pending_evidence` → `validated` is legal in both the Python
   oracle and the TS port. No fallback needed.
-- **Only fill-in left:** the `schema_version` integer and the `agent_id` string. Neither is a held-open dependency.
+- **Choices left to the client:** the `agent_id` string, and `schema_version` per event (2 for
+  verifications, 1 for ratifications until the registry exists). Neither is a held-open dependency.
 
 ## 6. Acceptance criteria (falsifiable)
+
+T1's criteria were met upstream in Stratum rather than in the plugin, because the plugin source
+has no repository (§13). See the T1 row in §7 and Stratum `cli/test/ingress.test.ts`.
 
 - [ ] `/tessera` **reads a fold** and renders the projection at the current epoch.
 - [ ] `templates/tessera.schema.yaml` **removed as a writable state file** (archived, T4).
@@ -213,18 +239,22 @@ of authority is born `asserted` and ratified at T5b.
 
 | # | Role | Change → proposition | Files | Emits |
 |---|---|---|---|---|
-| **T1** | Researcher→Executor | Confirm §5 envelope + idempotency + legality; build client + validator + fixtures. Proposition (born `pending_evidence`, §9): *"envelope, idempotency, and birth-status model match Stratum source."* | `docs/stratum-ingress.md`, `plugins/topology-core/lib/stratum.<ext>`, `tests/fixtures/*.json` | `verification` → the T1 proposition (evidence: source inspection + fixture pass + validator pass) |
-| **T2** | Executor | Repoint `/tessera` to **read the projection**; delete YAML path; Historian→Chronicle | `commands/tessera.md` | `supersession` → the Tessera-as-file contract |
-| **T3** | Executor | Reduce `memory` skill: defer ranking to ContextSynapse fold; carry+protect Lighthouse; drop tier-store + Curator-as-writer language | `skills/memory/SKILL.md` | `supersession` → the tier-store memory model |
-| **T4** | Architect | Reposition docs + manifests; bump 0.2.0; archive superseded contracts with a carry-forward note | `topology.md`, `README.md`, both manifests, `templates/tessera.schema.yaml`→`docs/superseded/` | `decision` (asserted; "v0.2.0 ingress positioning adopted"), ratified at T5b |
+| **T1** | Researcher→Executor | Confirm §5 envelope + idempotency + legality; build client + validator + fixtures. Proposition (born `pending_evidence`, §9): *"envelope, idempotency, and birth-status model match Stratum source."* | **Delivered upstream:** Stratum `cli/lib/ingress.mjs`, `stratum emit`, `docs/API.md` (PR #101, `3553a6c`). The plugin path `plugins/topology-core/lib/stratum.<ext>` had no home (`ig-002`). | `verification` → Stratum `ig-000`, recorded as `ig-005` (v2, bound to the ingress suite at `3553a6c`) |
+| **T2** | Executor | Repoint `/tessera` to **read the projection**; delete YAML path; Historian→Chronicle. **Held** until the plugin source has a home (§13) | `commands/tessera.md` | `supersession` → the Tessera-as-file contract |
+| **T3** | — | **Split out.** Reducing the `memory` skill toward ContextSynapse's fold is ContextSynapse work, not ingress. It is not executed under this spec. | — | — |
+| **T4** | Architect | Reposition docs + manifests; bump 0.2.0; archive superseded contracts with a carry-forward note. **Held** with T2 (§13) | `topology.md`, `README.md`, both manifests, `templates/tessera.schema.yaml`→`docs/superseded/` | `decision` (asserted; "v0.2.0 ingress positioning adopted"), ratified at T5b |
 | **T5a** | Verifier | Run §11. Proposition (born `pending_evidence`, §9): *"the reshape meets §6."* Emit verification with the acceptance suite as checked evidence | — | `verification` → the T5a proposition |
 | **T5b** | Human authority | Review T5a evidence; **ratify** the completed reshape | — | `ratification` → the reshape/release decision (axiomatic) |
 
-The `pending_evidence` propositions (T1, T5a, ct-011) share **one** dependency — the §9 legality —
+The `pending_evidence` propositions (T5a, ct-011) share **one** dependency — the §9 legality —
 so one confirmation clears them and one fallback covers them. Survivors (do not touch):
 `spec.template.md`, `handoff.schema.yaml`. Superseded contracts are archived, never deleted.
 
 ## 8. Foreclosed options — recorded as `foreclosure` events
+
+**Cathedral target, not retired.** The twelve roles, the memory tiers and the cognitive workbench
+are deferred to later bricks. A foreclosure here closes an option for this reshape only; the
+*Reopen* line says when it comes back.
 
 - `/tessera` as a YAML writer — *reason:* a hand-editable state file can lie; violates the fold and
   Chronicle serialization. *Reopen:* never.
@@ -255,8 +285,11 @@ Sequenced so **nothing posts on an ontology not yet verified.**
   `evidence: []`. Distinct from `ct-000` — it asserts the *contract's content*, not the reframe.
 - `ct-012` **verification** → `ct-011`, `evidence: [{kind: file_hash, ref: "reference/tessera_projection.py@main",
   checked_at: 2026-09-06}, {kind: file_hash, ref: "core/src/contract.ts@main", checked_at: 2026-09-06}]`
-  → folds `ct-011` to `validated` / `authoritative_verified`. This is a *real* verification: the checked
-  evidence is this session's direct read of the two source files.
+  → folds `ct-011` to `validated` / `authoritative_verified`.
+  **Not postable as written (0.7.0).** These are v1 `file_hash` entries with a `ref` of `…@main` and a
+  typed `checked_at`: no digest, no commit. Posted as is, `ct-012` would fold `ct-011` to verified on
+  a timestamp a model typed. Rewrite it as a v2 verification with a `reproducible_check` binding
+  (`stratum verify ct-011 --run "<check>"`) before it is posted.
 
 > **Resolved — the dependency was checked at the guard level.** Whether an originating `decision` may be
 > *born* `pending_evidence` is answered by `reference/tessera_projection.py::_guard_originating`, which
@@ -284,10 +317,10 @@ acceptance tests" — the trade Stratum already argues for. Acknowledging the pe
    `reference/tessera_projection.py::_guard_originating` permits `pending_evidence` for `decision`, and
    the status LTS folds `pending_evidence --verification(checked)--> validated`; `core/src/contract.ts`
    is the byte-identical port. No fallback needed.
-1. **Envelope + idempotency evidence:** `docs/stratum-ingress.md` cites `worker/src/index.ts`
-   (`POST /api/logs/{logId}/events`, auth tiers) + `core/src/contract.ts` + `reference/…` with
-   `checked_at`; the client emits the confirmed record shape; idempotency-by-`id` (dup → 409) is tested;
-   the only fill-in (`schema_version`) is read from `data/genesis-trace.jsonl`.
+1. **Envelope + idempotency evidence — DONE upstream (T1).** Stratum `docs/API.md` cites
+   `worker/src/index.ts`, `core/src/contract.ts` and `core/src/serialize.ts`; `stratum emit` sends the
+   confirmed record shape; idempotency by `id`, including the read-back on an ambiguous 409, is
+   tested in `cli/test/ingress.test.ts`.
 2. **Executable fixtures:** valid fixture passes the validator; unchecked-verification and
    multi-parent fixtures are rejected.
 3. **Fold, not file:** no writer path to `tessera.schema.yaml`; `/tessera` renders a projection or
@@ -307,13 +340,13 @@ acceptance tests" — the trade Stratum already argues for. Acknowledging the pe
 handoff:
   from_agent: architect
   to_agent: executor            # Claude Code, on the machine with the stratum repo
-  reason: "execute the ratified cognitive-topology → Stratum ingress reshape (v0.5.0)"
-  spec_ref: ct-reshape@0.5.0
+  reason: "execute the ratified cognitive-topology → Stratum ingress reshape (v0.7.0)"
+  spec_ref: ct-reshape@0.7.0
   acceptance_criteria: [see §6]
   context_refs:
     - specs/cognitive-topology-reshape.spec.md
     - cognitive-topology/ (v0.1.0, in outputs)
-    - packages/worker + packages/core + tessera_projection.py   # §5 residuals; confirm here
+    - core/ + worker/ + cli/ + reference/tessera_projection.py   # Stratum layout; docs/API.md is the cited reference
     - MEMORY_MODEL.md rev 3                     # §4 event contract (validated oracle)
     - RUNTIME.md §1,§8.2,§10.6,I6               # emission discipline, Chronicle, no-rewrite
     - ENGRAM×ContextSynapse spec §III,§VII      # memory ranking + Lighthouse
@@ -324,17 +357,27 @@ handoff:
     - "tier emissions: ratification=axiomatic, verification=checked-evidence, prose=claim"
     - "single-parent only; reject diamonds client-side"
     - "never rewrite committed history; supersede by appending a marker"
-    - "idempotency = digest(canonical masked emission) used as the event id; dup id → 409 (confirmed)"
+    - "idempotency = digest(canonical masked emission) used as the event id; 409 is dup OR refused, so read the event back"
     - "two-mode degradation: unconfigured = graceful; configured-but-unavailable = integrity failure"
     - "emit only said/written/ratified, never inferred context"
-  confirmed_envelope:                     # §5, read from source 2026-09-06 — no longer proposed
+  confirmed_envelope:                     # §5, read from source 2026-09-06, corrected 2026-11-11
     - "POST /api/logs/{logId}/events (logId in path); Bearer STRATUM_TOKEN; body = snake_case record"
-    - "record: {id, type, agent_id, schema_version, birth_status?, claim:{narrative}, evidence[], targets[], is_trust_root}"
+    - "record: {id, type, agent_id, schema_version, birth_status, claim:{narrative}, evidence[], targets[], is_trust_root, timestamp?}"
     - "GET /api/logs/{logId}/projection?epoch= for the /tessera read; CLI: stratum tessera"
-    - "only fill-in: the schema_version int (read data/genesis-trace.jsonl)"
+    - "schema_version per event: 2 for verifications (bound evidence only), 1 for ratifications until the registry"
   prior_findings:
     - "three collisions with shipped Stratum: tessera-as-file, tiers-as-stores, roles-now"
     - "Historian renamed Chronicle, serialized single-writer (RUNTIME §8.2)"
     - "seven defects (external review) + boundary/idempotency/proposition refinements (v0.4–0.5)"
-    - "v0.6.0: envelope + birth-status legality confirmed from mazze93/stratum source; no open deps"
+    - "v0.6.0: envelope + birth-status legality confirmed from mazze93/stratum source"
+    - "v0.7.0: §5 corrected in four places; T1 delivered upstream; T3 split out; ratified 2026-11-15"
 ```
+
+## 13. Open questions (not settled by the 2026-11-15 ratification)
+
+1. **Where the plugin source lives.** The cognitive-topology plugin is in no GitHub repository (the
+   changelog puts it at `~/code/cognitive-topology`, local). T2 and T4 can't start until it has a
+   home that a session can read and write.
+2. **A narrower token for automated writers** (Stratum `ig-004`). Today one `STRATUM_TOKEN` reads
+   every private log and writes to all of them. A write-only token scoped to one log is proposed and
+   awaits Mazze. Ratifying this spec does not adopt it.
