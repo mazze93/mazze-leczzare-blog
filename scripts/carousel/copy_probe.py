@@ -44,17 +44,19 @@ NEGATION_PIVOT = [
     # stock fragment ". it is not". The first sentence must make an
     # affirmative is/was/are claim: "Save the file. It is not uploaded
     # automatically." is an instruction, not a pivot (Greptile, 2026-11-24).
-    # Contracted claims count too: "The log's a ledger." (Greptile, 2026-11-24).
-    re.compile(r"[^.?!;]*(?:\b(?:is|was|are)\b|\w['’](?:s|re)\b)[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
+    # Contracted claims count too: "The log's a ledger." A contraction is
+    # told from a possessive ("the user's guide") by what follows it: an
+    # article, determiner or adverb, not a noun (Greptile, 2026-11-24).
+    re.compile(r"[^.?!;]*(?:\b(?:is|was|are)\b|\w['’]re\b|\w['’]s\s+(?:a|an|the|not|just|only|never|always|still|more|less|my|your|our|their|his|her|its|what|how)\b)[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
     # opening "Not X, Y." — sentence-initial, no "it's" to anchor on (2026-11-10).
     # X runs up to 6 words and the match runs to the sentence end, so
     # "Not a quick fix, a lasting record." fires and `introduced()` compares
     # the whole sentence, not the stub "not a fix, a" (Greptile, 2026-11-24).
-    # Adverbial openers ("Not long ago,", "Not surprisingly,") and a Y that
+    # Named adverbial openers ("Not long ago,", "Not surprisingly,") and a Y that
     # starts a new clause ("..., we saved the file.") are not contrasts.
     re.compile(
         r"(?:^|(?<=[.!?]\s))not\s+"
-        r"(?!(?:long\s+ago|yet|now|once|always|until|since|unlike|\w+ly)\b)"
+        r"(?!(?:long\s+ago|yet|now|once|always|until|since|unlike|surprisingly|unsurprisingly|necessarily|really|exactly|quite|entirely)\b)"
         r"(?:a\s+|an\s+|the\s+)?[\w'-]+(?:\s+[\w'-]+){0,5},\s+"
         r"(?!(?:i|we|you|he|she|they|it|there|but)\b)[^.?!]+",
         re.I,
@@ -133,6 +135,7 @@ NEGATION_CASES = [
     "This is a policy. It isn't a detector.",           # reversed, contraction
     "Not a fix, a record.",                             # opening "Not X, Y"
     "Not a quick fix, a lasting record.",               # opening, multiword X (2026-11-24)
+    "Not supply, demand.",                              # opening, -ly noun is not an adverb (2026-11-24)
 ]
 TRICOLON_CASES = [
     "It costs time, trust, and money.",
@@ -146,6 +149,7 @@ CLEAN_CASES = [
     "Save the file. It is not uploaded automatically.",  # instruction, not a pivot (2026-11-24)
     "Not long ago, we saved the file.",                  # time phrase, not a pivot (2026-11-24)
     "Not surprisingly, the build failed.",               # adverbial opener (2026-11-24)
+    "Read the user's guide. It is not uploaded automatically.",  # possessive, not a claim (2026-11-24)
 ]
 # (slide, post): a pivot the post does not contain verbatim must still fire,
 # even when the post holds a pivot with the same opening.
