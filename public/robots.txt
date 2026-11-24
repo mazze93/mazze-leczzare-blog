@@ -1,20 +1,17 @@
+# Policy: search engines and AI answers may read and cite these pages;
+# AI model training may not.
+#
+# Cloudflare prepends its own managed block to this file (bot preference
+# sync, zone setting "AI training: disallow"). That block disallows the known
+# training crawlers (GPTBot, ClaudeBot, Google-Extended, CCBot and others).
+# Do not add named groups for those crawlers here: a second group for the same
+# user-agent merges with Cloudflare's and can contradict it, and a named group
+# replaces the * group below for that bot, dropping the /admin/ and /login/
+# rules. Change the training policy in Cloudflare, not here.
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /admin/
 Disallow: /login/
 
-User-agent: Bingbot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: GPTBot
-Disallow: /
-
 Sitemap: https://mazzeleczzare.com/sitemap-index.xml
-
-Content-Signal: ai-train=no, search=yes, ai-input=no
