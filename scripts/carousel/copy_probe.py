@@ -12,7 +12,8 @@ introduced. Exit code 1 if any introduced hit remains, so it can gate a build.
 
 Probes (countable proxies for the editorial gate):
   negation_pivot  "not X. It's Y" / "isn't X, it's Y" / "not only … but"
-                  / "X, not Y" / "rather than" — the mold, not the words.
+                  / "X, not Y" / "rather than" / reversed "is A. It is not B."
+                  / opening "Not X, Y." — the mold, not the words.
   triad           exactly-three-item lists and "a, b, and c" tricolons.
   em_dash         em-dash use (a cadence tell when dense).
   hedge_filler    stock filler: "truly", "crucially", "in today's",
@@ -37,11 +38,39 @@ NEGATION_PIVOT = [
     re.compile(r"\brather\s+than\b", re.I),
     # period-joined form — the shape the first prose-touchstone regex missed
     re.compile(r"\bnot\s+\w[^.?!]{0,60}\.\s+(?:It|This|That)(?:'s|\s+is)\b"),
+    # reversed order, "X is A. It is not B." — the essay itself uses this mold
+    # and the forward-only patterns above never saw it (2026-11-10). The match
+    # spans both sentences so `introduced()` compares the whole pair, not the
+    # stock fragment ". it is not". The first sentence must make an
+    # affirmative is/was/are claim: "Save the file. It is not uploaded
+    # automatically." is an instruction, not a pivot (Greptile, 2026-11-24).
+    # Contracted claims count too: "The log's permanent.", "It's evidence."
+    # Regex cannot tell "the log's permanent" from "the user's guide", so any
+    # 's counts. Recall over precision: a missed pivot ships under Mazze's
+    # name, a false hit costs one rewrite (decided 2026-11-24 after four
+    # rounds of Greptile edge cases on #217).
+    re.compile(r"[^.?!;]*(?:\b(?:is|was|are)\b|\w['’](?:s|re)\b)[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
+    # opening "Not X, Y." — sentence-initial, no "it's" to anchor on (2026-11-10).
+    # X runs up to 6 words and the match runs to the sentence end, so
+    # "Not a quick fix, a lasting record." fires and `introduced()` compares
+    # the whole sentence, not the stub "not a fix, a" (Greptile, 2026-11-24).
+    # Named adverbial openers ("Not long ago,", "Not surprisingly,") and a Y that
+    # starts a new clause ("..., we saved the file.") are not contrasts.
+    re.compile(
+        r"(?:^|(?<=[.!?]\s))not\s+"
+        r"(?!(?:long\s+ago|yet|now|once|always|until|since|unlike|surprisingly|unsurprisingly|necessarily|really|exactly|quite|entirely)\b)"
+        r"(?:a\s+|an\s+|the\s+)?[\w'-]+(?:\s+[\w'-]+){0,5},\s+"
+        r"(?!(?:i|we|you|he|she|they|it|there|but)\b)[^.?!]+",
+        re.I,
+    ),
 ]
 # "a, b, and c" AND the asyndetic "a, b, c" — the first draft of this probe
 # only caught the conjoined form and missed "repeated challenges, lost time,
 # tools abandoned" (2026-10-30). Probing the probe is the point.
-TRICOLON = re.compile(r"\b[\w'-]+(?:\s+[\w'-]+){0,3},\s+[\w'-]+(?:\s+[\w'-]+){0,3},\s+(?:(?:and|or)\s+)?[\w'-]+(?:\s+[\w'-]+){0,3}[.:;]", re.I)
+# Items run up to 8 words: the 4-word cap missed "I corrected it, logged the
+# correction, and left the original wrong version visible." (2026-11-10).
+TRICOLON_ITEM = r"[\w'-]+(?:\s+[\w'-]+){0,7}"
+TRICOLON = re.compile(rf"\b{TRICOLON_ITEM},\s+{TRICOLON_ITEM},\s+(?:(?:and|or)\s+)?{TRICOLON_ITEM}[.:;]", re.I)
 EM_DASH = re.compile(r"—")
 FILLER = re.compile(r"\b(?:truly|crucially|in today's|it's worth noting|delve|landscape|game-?changer|unlock|seamless)\b", re.I)
 
@@ -97,21 +126,57 @@ def run_probes(slides: dict, post_text: str) -> dict[str, list[str]]:
     return {k: sorted(set(v)) for k, v in report.items()}
 
 
+NEGATION_CASES = [
+    "The control is not a detector. It's a policy.",   # period-joined
+    "The control isn't a detector, it's a policy.",    # comma-joined
+    "This is not only a tool but a stance.",
+    "Govern it as code, not vibes.",
+    "The break is the record. It is not the failure.",  # reversed (2026-11-10)
+    "The log is a ledger. It’s not a backup.",          # reversed, curly apostrophe
+    "The log’s a ledger. It is not a backup.",          # reversed, contracted first claim (2026-11-24)
+    "The log’s permanent. It is not temporary.",        # contraction + adjective (2026-11-24)
+    "It’s evidence. It is not proof.",                  # contraction + bare noun (2026-11-24)
+    "This is a policy. It isn't a detector.",           # reversed, contraction
+    "Not a fix, a record.",                             # opening "Not X, Y"
+    "Not a quick fix, a lasting record.",               # opening, multiword X (2026-11-24)
+    "Not supply, demand.",                              # opening, -ly noun is not an adverb (2026-11-24)
+]
+TRICOLON_CASES = [
+    "It costs time, trust, and money.",
+    "It costs repeated challenges, lost time, tools abandoned.",
+    "I corrected it, logged the correction, and left the original wrong version visible.",  # long items
+]
+# Must stay silent: the reversed-pivot pattern needs an affirmative first
+# sentence and a negated second one. Known, accepted false hits (recall over
+# precision, see NEGATION_PIVOT): a possessive first sentence ("Read the
+# user's guide. It is not…") and an unlisted adverb opener ("Not
+# unexpectedly, …"). Rewrite the line or add the adverb to the opener list.
+CLEAN_CASES = [
+    "The break is the record. It is what the check left behind.",
+    "Save the file. It is not uploaded automatically.",  # instruction, not a pivot (2026-11-24)
+    "Not long ago, we saved the file.",                  # time phrase, not a pivot (2026-11-24)
+    "Not surprisingly, the build failed.",               # adverbial opener (2026-11-24)
+]
+# (slide, post): a pivot the post does not contain verbatim must still fire,
+# even when the post holds a pivot with the same opening.
+SOURCE_DIFF_CASES = [("Not a fix, a record.", "Not a fix, a workaround.")]
+
+
 def self_test() -> None:
     """Probe the probe: restated forms of the mold must still fire."""
     post = ""
-    cases = [
-        "The control is not a detector. It's a policy.",   # period-joined
-        "The control isn't a detector, it's a policy.",    # comma-joined
-        "This is not only a tool but a stance.",
-        "Govern it as code, not vibes.",
-    ]
-    for c in cases:
+    for c in NEGATION_CASES:
         hits = run_probes({"slides": [{"body": c}]}, post)["negation_pivot"]
         assert hits, f"probe blind to: {c!r}"
-    for c in ["It costs time, trust, and money.", "It costs repeated challenges, lost time, tools abandoned."]:
+    for c in TRICOLON_CASES:
         hits = run_probes({"slides": [{"body": c}]}, post)["tricolon"]
         assert hits, f"tricolon probe blind to: {c!r}"
+    for c in CLEAN_CASES:
+        hits = run_probes({"slides": [{"body": c}]}, post)["negation_pivot"]
+        assert not hits, f"negation probe false positive on: {c!r}"
+    for c, src in SOURCE_DIFF_CASES:
+        hits = run_probes({"slides": [{"body": c}]}, src)["negation_pivot"]
+        assert hits, f"negation probe exempted a changed pivot: {c!r} vs post {src!r}"
 
 
 # ── Entry point ───────────────────────────────────────────────────────────
@@ -128,7 +193,10 @@ def main(argv: list[str]) -> int:
         print(f"{probe:15} {len(hits)}")
         for h in hits:
             print(f"    · {h}")
-    print("\nself-test: negation probe 4/4, tricolon probe 2/2 restated forms")
+    print(f"\nself-test: negation probe {len(NEGATION_CASES)}/{len(NEGATION_CASES)}, "
+          f"tricolon probe {len(TRICOLON_CASES)}/{len(TRICOLON_CASES)} restated forms, "
+          f"{len(CLEAN_CASES)} clean case(s) silent, "
+          f"{len(SOURCE_DIFF_CASES)} changed-pivot case(s) caught")
     return 1 if blocking else 0
 
 
