@@ -44,10 +44,12 @@ NEGATION_PIVOT = [
     # stock fragment ". it is not". The first sentence must make an
     # affirmative is/was/are claim: "Save the file. It is not uploaded
     # automatically." is an instruction, not a pivot (Greptile, 2026-11-24).
-    # Contracted claims count too: "The log's a ledger." A contraction is
-    # told from a possessive ("the user's guide") by what follows it: an
-    # article, determiner or adverb, not a noun (Greptile, 2026-11-24).
-    re.compile(r"[^.?!;]*(?:\b(?:is|was|are)\b|\w['’]re\b|\w['’]s\s+(?:a|an|the|not|just|only|never|always|still|more|less|my|your|our|their|his|her|its|what|how)\b)[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
+    # Contracted claims count too: "The log's permanent.", "It's evidence."
+    # Regex cannot tell "the log's permanent" from "the user's guide", so any
+    # 's counts. Recall over precision: a missed pivot ships under Mazze's
+    # name, a false hit costs one rewrite (decided 2026-11-24 after four
+    # rounds of Greptile edge cases on #217).
+    re.compile(r"[^.?!;]*(?:\b(?:is|was|are)\b|\w['’](?:s|re)\b)[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
     # opening "Not X, Y." — sentence-initial, no "it's" to anchor on (2026-11-10).
     # X runs up to 6 words and the match runs to the sentence end, so
     # "Not a quick fix, a lasting record." fires and `introduced()` compares
@@ -132,6 +134,8 @@ NEGATION_CASES = [
     "The break is the record. It is not the failure.",  # reversed (2026-11-10)
     "The log is a ledger. It’s not a backup.",          # reversed, curly apostrophe
     "The log’s a ledger. It is not a backup.",          # reversed, contracted first claim (2026-11-24)
+    "The log’s permanent. It is not temporary.",        # contraction + adjective (2026-11-24)
+    "It’s evidence. It is not proof.",                  # contraction + bare noun (2026-11-24)
     "This is a policy. It isn't a detector.",           # reversed, contraction
     "Not a fix, a record.",                             # opening "Not X, Y"
     "Not a quick fix, a lasting record.",               # opening, multiword X (2026-11-24)
@@ -143,13 +147,15 @@ TRICOLON_CASES = [
     "I corrected it, logged the correction, and left the original wrong version visible.",  # long items
 ]
 # Must stay silent: the reversed-pivot pattern needs an affirmative first
-# sentence and a negated second one.
+# sentence and a negated second one. Known, accepted false hits (recall over
+# precision, see NEGATION_PIVOT): a possessive first sentence ("Read the
+# user's guide. It is not…") and an unlisted adverb opener ("Not
+# unexpectedly, …"). Rewrite the line or add the adverb to the opener list.
 CLEAN_CASES = [
     "The break is the record. It is what the check left behind.",
     "Save the file. It is not uploaded automatically.",  # instruction, not a pivot (2026-11-24)
     "Not long ago, we saved the file.",                  # time phrase, not a pivot (2026-11-24)
     "Not surprisingly, the build failed.",               # adverbial opener (2026-11-24)
-    "Read the user's guide. It is not uploaded automatically.",  # possessive, not a claim (2026-11-24)
 ]
 # (slide, post): a pivot the post does not contain verbatim must still fire,
 # even when the post holds a pivot with the same opening.
