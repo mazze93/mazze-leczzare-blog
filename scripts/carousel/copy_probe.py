@@ -41,10 +41,15 @@ NEGATION_PIVOT = [
     # reversed order, "X is A. It is not B." — the essay itself uses this mold
     # and the forward-only patterns above never saw it (2026-11-10). The match
     # spans both sentences so `introduced()` compares the whole pair, not the
-    # stock fragment ". it is not".
-    re.compile(r"[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
-    # opening "Not X, Y." — sentence-initial, no "it's" to anchor on (2026-11-10)
-    re.compile(r"(?:^|(?<=[.!?]\s))not\s+(?:a\s+|an\s+|the\s+)?[\w'-]+,\s+[\w'-]+", re.I),
+    # stock fragment ". it is not". The first sentence must make an
+    # affirmative is/was/are claim: "Save the file. It is not uploaded
+    # automatically." is an instruction, not a pivot (Greptile, 2026-11-24).
+    re.compile(r"[^.?!;]*\b(?:is|was|are)\b[^.?!;]*[.;]\s+(?:it|this|that|they)(?:['’]s\s+not|\s+(?:is|was|are)\s+not|\s+(?:isn['’]t|wasn['’]t|aren['’]t))\b[^.?!]*", re.I),
+    # opening "Not X, Y." — sentence-initial, no "it's" to anchor on (2026-11-10).
+    # X runs up to 6 words and the match runs to the sentence end, so
+    # "Not a quick fix, a lasting record." fires and `introduced()` compares
+    # the whole sentence, not the stub "not a fix, a" (Greptile, 2026-11-24).
+    re.compile(r"(?:^|(?<=[.!?]\s))not\s+(?:a\s+|an\s+|the\s+)?[\w'-]+(?:\s+[\w'-]+){0,5},\s+[^.?!]+", re.I),
 ]
 # "a, b, and c" AND the asyndetic "a, b, c" — the first draft of this probe
 # only caught the conjoined form and missed "repeated challenges, lost time,
@@ -117,14 +122,22 @@ NEGATION_CASES = [
     "The log is a ledger. It’s not a backup.",          # reversed, curly apostrophe
     "This is a policy. It isn't a detector.",           # reversed, contraction
     "Not a fix, a record.",                             # opening "Not X, Y"
+    "Not a quick fix, a lasting record.",               # opening, multiword X (2026-11-24)
 ]
 TRICOLON_CASES = [
     "It costs time, trust, and money.",
     "It costs repeated challenges, lost time, tools abandoned.",
     "I corrected it, logged the correction, and left the original wrong version visible.",  # long items
 ]
-# Must stay silent: the reversed-pivot pattern needs a negated second sentence.
-CLEAN_CASES = ["The break is the record. It is what the check left behind."]
+# Must stay silent: the reversed-pivot pattern needs an affirmative first
+# sentence and a negated second one.
+CLEAN_CASES = [
+    "The break is the record. It is what the check left behind.",
+    "Save the file. It is not uploaded automatically.",  # instruction, not a pivot (2026-11-24)
+]
+# (slide, post): a pivot the post does not contain verbatim must still fire,
+# even when the post holds a pivot with the same opening.
+SOURCE_DIFF_CASES = [("Not a fix, a record.", "Not a fix, a workaround.")]
 
 
 def self_test() -> None:
@@ -139,6 +152,9 @@ def self_test() -> None:
     for c in CLEAN_CASES:
         hits = run_probes({"slides": [{"body": c}]}, post)["negation_pivot"]
         assert not hits, f"negation probe false positive on: {c!r}"
+    for c, src in SOURCE_DIFF_CASES:
+        hits = run_probes({"slides": [{"body": c}]}, src)["negation_pivot"]
+        assert hits, f"negation probe exempted a changed pivot: {c!r} vs post {src!r}"
 
 
 # ── Entry point ───────────────────────────────────────────────────────────
@@ -157,7 +173,8 @@ def main(argv: list[str]) -> int:
             print(f"    · {h}")
     print(f"\nself-test: negation probe {len(NEGATION_CASES)}/{len(NEGATION_CASES)}, "
           f"tricolon probe {len(TRICOLON_CASES)}/{len(TRICOLON_CASES)} restated forms, "
-          f"{len(CLEAN_CASES)} clean case(s) silent")
+          f"{len(CLEAN_CASES)} clean case(s) silent, "
+          f"{len(SOURCE_DIFF_CASES)} changed-pivot case(s) caught")
     return 1 if blocking else 0
 
 
