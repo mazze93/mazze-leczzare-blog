@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { slideAlt, toDeck, postHrefFromUrl, sortDecks, PREVIEW_WIDTH, type RawDeck } from "./carousel";
+import { slideAlt, toDeck, postHrefFromUrl, sortDecks, isShipped, PREVIEW_WIDTH, type RawDeck } from "./carousel";
 
 // The real shipped deck — tests run against the data the site actually renders.
 const SLUG = "the-attack-surface-of-security-language";
@@ -75,5 +75,28 @@ describe("sortDecks", () => {
     const d = toDeck(raw);
     const sorted = sortDecks([{ ...d, slug: "a", issued: undefined }, { ...d, slug: "b", issued: "2026-11-01" }, d]);
     expect(sorted.map((x) => x.slug)).toEqual(["b", SLUG, "a"]);
+  });
+});
+
+describe("isShipped", () => {
+  const deck = toDeck(raw);
+  const onDisk = (p: string) => existsSync(join("public", p));
+
+  it("passes a deck whose previews and PDF are committed", () => {
+    expect(isShipped(deck, onDisk)).toBe(true);
+  });
+
+  it("fails when any one preview is missing, not just the first", () => {
+    const last = deck.slides[deck.slides.length - 1].src;
+    expect(isShipped(deck, (p) => p !== last && onDisk(p))).toBe(false);
+  });
+
+  it("fails when only the PDF is missing", () => {
+    expect(isShipped(deck, (p) => p !== deck.pdfHref && onDisk(p))).toBe(false);
+  });
+
+  it("fails a deck merged before build.py --ship ran", () => {
+    const unshipped = toDeck({ ...raw, slug: "not-built-yet" });
+    expect(isShipped(unshipped, onDisk)).toBe(false);
   });
 });
