@@ -307,7 +307,7 @@ Read source for full detail — these are the non-obvious points:
 - **`Seam.astro`** — the one source for the Kintsugi gold-seam geometry (see Design Systems). Presentational, no client directive; `orientation="horizontal"|"vertical"`. Imported by `SectionBreak`, both `PullQuote`s and `AuthorCoda` — import it rather than re-authoring the path.
 
 **Carousels:**
-- **`CarouselStrip.astro`** — the on-site face of a LinkedIn carousel deck: a scroll-snap strip ("glide + focus" — centred slide forward, neighbours recede, gold-seam progress), prev/next + ←/→/Home/End, polite counter. **Mounted automatically** by `BlogPost.astro` after `.prose` for any post with `docs/social/<post id>/slides.json` (the route passes `postId`), and once per deck on `/social/`. Alt text is derived per slide from slides.json (`src/utils/carousel.ts`, pure + tested), never "Slide N"; decks without a slides.json (the two legacy image-only PDFs) never get a strip. Vanilla script, not a React island; without JS it is still a swipeable list. Images: `public/social/<slug>/NN.webp` from `build.py --ship`. Behaviour is checked by `scripts/carousel/strip_check.py` against `npm run preview`.
+- **`CarouselStrip.astro`** — the on-site face of a LinkedIn carousel deck: a scroll-snap strip ("glide + focus" — centred slide forward, neighbours recede, gold-seam progress), prev/next + ←/→/Home/End, polite counter. **Mounted automatically** by `BlogPost.astro` after `.prose` for any post with `docs/social/<post id>/slides.json` (the route passes `postId`), and once per deck on `/social/`. Alt text is derived per slide from slides.json (`src/utils/carousel.ts`, pure + tested), never "Slide N"; decks without a slides.json (the two legacy image-only PDFs) never get a strip. Vanilla script, not a React island; without JS it is still a swipeable list. Images: `public/social/<slug>/NN.webp` from `build.py --ship`. Behaviour is checked by `scripts/carousel/strip_check.py` against `npm run preview`, for every deck, in CI. **Wired on `astro:page-load`, not at module top level:** the ClientRouter executes an inline script only the first time a page carrying it is swapped in, so top-level wiring left every carousel page after the first in a tab inert (plate 1 lit, controls hidden, keys dead — shipped, fixed 2026-11-25). Any new vanilla script that touches page DOM needs the same pattern.
 
 **Also MDX-mountable:** `SectionBreak.astro` (decorative in-prose divider, `aria-hidden`), `blog/ArtifactEmbed.astro` (iframes a `public/artifacts/*.html` file with caption + fullscreen link).
 
@@ -541,7 +541,7 @@ decision log on demand — see **`BUILD_JOURNAL.md`** below.
 
 | Workflow | Trigger | What it does |
 | -------- | ------- | ------------ |
-| `ci.yml` | push / PR | `npm run check` + `npm audit --audit-level=high` |
+| `ci.yml` | push / PR | `npm test` + `npm run test:editorial` + `npm run check` + carousel `strip_check.py` (every deck, against the build) + `npm audit --audit-level=high` |
 | `codeql.yml` | push / PR / schedule | CodeQL static analysis |
 | `dependency-review.yml` | PR | Flags new vulnerable dependencies |
 | `docs-integrity.yml` | push / PR | Runs `npm run docs:check` |

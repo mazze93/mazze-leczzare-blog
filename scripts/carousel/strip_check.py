@@ -14,6 +14,10 @@ Asserts, failing loudly:
   - no horizontal page overflow at phone width (375px)
   - with reduced motion: slides are not scaled
   - without JS: the strip is still a scrollable list, controls stay hidden
+  - reached by an in-site link (ClientRouter swap, not a full load): controls
+    wired, keys step from the track and from a button, and after leaving and
+    coming back Next still moves exactly one slide. Every check above uses a
+    full load, which is how the strip shipped inert to link-followers.
 Screenshots (desktop dark/light, phone) land in --out for a human look.
 """
 from __future__ import annotations
@@ -111,6 +115,56 @@ def check_phone(page: Page) -> None:
     check(btn["width"] >= 44 and btn["height"] >= 44, f"touch target ≥ 44px ({btn['width']:.0f}px)")
 
 
+def swap_to(page: Page, href: str, carousel: bool = True) -> None:
+    """Follow an in-site link so ClientRouter swaps the page (no full load)."""
+    page.evaluate("window.__fullLoadMarker = true")  # dies on a real navigation
+    page.evaluate("""href => { const a = document.createElement('a'); a.href = href;
+      document.body.append(a); a.click(); }""", href)
+    page.wait_for_url(f"**{href}")
+    if carousel:
+        page.wait_for_selector("[data-carousel]", state="attached")
+    page.wait_for_timeout(400)
+
+
+def check_client_nav(page: Page, base: str, slug: str) -> None:
+    """The router executes the strip's inline script the FIRST time a carousel
+    page is swapped in, and never again in that tab. So the first carousel page
+    a visitor reaches works and every later one is inert. The bug only shows on
+    the second arrival, which is what this asserts against."""
+    print("── reached by in-site link (ClientRouter) ──")
+    page.goto(f"{base}/blog/")
+    swap_to(page, f"/blog/{slug}/")
+    check(page.evaluate("window.__fullLoadMarker === true"), "1st carousel page: arrived by swap, not a full load")
+    check(not state(page)["controlsHidden"], "1st carousel page: controls wired")
+
+    swap_to(page, "/social/")  # second carousel page this tab — the shipped bug
+    check(page.evaluate("window.__fullLoadMarker === true"), "2nd carousel page: arrived by swap, not a full load")
+    page.locator("[data-carousel]").first.scroll_into_view_if_needed()
+    check(not state(page)["controlsHidden"], "2nd carousel page: controls wired")
+    page.locator("[data-track]").first.focus()
+    page.keyboard.press("ArrowRight"); settle(page)
+    check(state(page)["active"] == 1, "2nd carousel page: ArrowRight on track → slide 02")
+    page.locator("[data-next]").first.focus()
+    page.keyboard.press("ArrowRight"); settle(page)
+    check(state(page)["active"] == 2, "ArrowRight with focus on Next button → slide 03")
+    page.keyboard.press("Home"); settle(page)
+    check(state(page)["active"] == 0, "Home with focus on Next button → slide 01")
+    page.locator("[data-track]").first.evaluate("t => t.scrollTo({ left: t.scrollWidth })"); settle(page)
+    check(state(page)["active"] == state(page)["total"] - 1, "scrolling the track moves the highlight")
+
+    # Leave and come back through history: wired once — not zero times, not twice.
+    swap_to(page, "/blog/", carousel=False)
+    page.go_back()
+    page.wait_for_url("**/social/")
+    page.wait_for_selector("[data-carousel]", state="attached")
+    page.wait_for_timeout(600)
+    check(not state(page)["controlsHidden"], "after back-navigation: controls wired")
+    if not state(page)["controlsHidden"]:
+        page.locator("[data-track]").first.evaluate("t => t.scrollTo({ left: 0, behavior: 'instant' })"); settle(page)
+        page.locator("[data-next]").first.click(); settle(page)
+        check(state(page)["active"] == 1, f"after back-navigation: Next moves exactly one slide (got {state(page)['counter']})")
+
+
 # ── Entry point ──────────────────────────────────────────────────────────
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -133,6 +187,10 @@ def main() -> int:
         page.evaluate("document.documentElement.dataset.theme = 'light'"); settle(page)
         page.locator("[data-carousel]").screenshot(path=str(out / "strip-desktop-light.png"))
         page.close()
+
+        nav = b.new_page(viewport={"width": 1280, "height": 900}, color_scheme="dark")
+        check_client_nav(nav, a.base, a.slug)
+        nav.close()
 
         phone = b.new_page(viewport={"width": 375, "height": 812}, color_scheme="dark", has_touch=True, is_mobile=True)
         goto(phone, url)
