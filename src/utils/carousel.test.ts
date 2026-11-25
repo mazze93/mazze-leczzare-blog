@@ -33,6 +33,19 @@ describe("slideAlt", () => {
     }
   });
 
+  it("speaks ledger rows in the PDF's states, keeping the struck row", () => {
+    const ledger = JSON.parse(
+      readFileSync(join("docs/social", "the-break-is-the-record", "slides.json"), "utf8"),
+    ) as RawDeck;
+    const s = ledger.slides.find((x) => x.kind === "ledger");
+    expect(s).toBeDefined();
+    const alt = slideAlt(s!);
+    expect(alt).toContain("Struck through, left visible: A named act");
+    expect(alt).toContain("Correction: Read directly");
+    expect(alt).toContain("Verify before you build on it.");
+    expect(toDeck(ledger).theme).toBe("ledger");
+  });
+
   it("does not double punctuation", () => {
     expect(slideAlt({ kind: "statement", headline: "Done.", body: "Ask?" })).toBe("Done. Ask?");
   });

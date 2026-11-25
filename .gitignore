@@ -219,3 +219,8 @@ files/
 
 # Carousel build intermediates (reproducible from slides.json via scripts/carousel/build.py)
 docs/social/*/build/
+
+# Python bytecode (scripts/carousel). One .pyc was committed by accident and
+# drifted on every local build; untracked 2026-11-25.
+__pycache__/
+*.pyc
