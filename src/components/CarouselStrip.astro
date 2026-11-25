@@ -41,6 +41,14 @@ const H = `h${headingLevel}` as 'h2' | 'h3';
 const id = `cs-${deck.slug}`;
 const total = deck.slides.length;
 const pad2 = (n: number) => String(n).padStart(2, '0');
+// Each deck's frame carries its own accent (global.css --deck-<theme>), so two
+// strips on /social/ aren't interchangeable. The theme name comes from
+// slides.json; anything but [a-z0-9-] is dropped before it reaches a style
+// attribute. Unknown theme → var() falls back to the site's gold seam.
+const theme = (deck.theme ?? '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+const accent = theme
+  ? `--cs-accent: var(--deck-${theme}, var(--gold-seam-bright)); --cs-accent-deep: var(--deck-${theme}-deep, var(--gold-seam-deep));`
+  : '';
 ---
 
 <section
@@ -49,7 +57,8 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   id={id}
   aria-roledescription="carousel"
   aria-labelledby={`${id}-title`}
-  style={`--cs-ratio: ${deck.ratio};`}
+  data-deck-theme={theme || undefined}
+  style={`--cs-ratio: ${deck.ratio}; ${accent}`}
 >
   <header class="cs__head">
     <div class="cs__accent" aria-hidden="true"></div>
@@ -113,6 +122,8 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 <style>
   /* ── Frame ─────────────────────────────────────────────────────────── */
   .cs {
+    --cs-accent: var(--gold-seam-bright);
+    --cs-accent-deep: var(--gold-seam-deep);
     --cs-w: clamp(220px, 66vw, 400px); /* one slide's width; 66vw leaves both neighbours peeking on phones — the swipe cue */
     --cs-ease: cubic-bezier(0.22, 1, 0.36, 1);
     width: min(1100px, calc(100% - 2em));
@@ -125,7 +136,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   .cs--index .cs__head, .cs--index .cs__bar { width: min(900px, 100%); padding: 0; }
   .cs__accent {
     width: 3.5rem; height: 2px; margin-bottom: 1rem;
-    background: linear-gradient(90deg, var(--gold-seam-deep), var(--gold-seam-bright));
+    background: linear-gradient(90deg, var(--cs-accent-deep), var(--cs-accent));
   }
   .cs__eyebrow {
     font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em;
@@ -157,7 +168,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
             mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
   }
   .cs__track:focus-visible { -webkit-mask-image: none; mask-image: none; }
-  .cs__track:focus-visible { outline: 2px solid var(--gold-seam-bright); outline-offset: 4px; border-radius: 4px; }
+  .cs__track:focus-visible { outline: 2px solid var(--cs-accent); outline-offset: 4px; border-radius: 4px; }
 
   .cs__slide {
     flex: 0 0 var(--cs-w);
@@ -189,8 +200,8 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     cursor: pointer; transition: border-color 0.2s, color 0.2s;
   }
   .cs__btn svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.6; }
-  .cs__btn:hover:not(:disabled) { border-color: var(--gold-seam); color: var(--gold-seam-bright); }
-  .cs__btn:focus-visible { outline: 2px solid var(--gold-seam-bright); outline-offset: 2px; }
+  .cs__btn:hover:not(:disabled) { border-color: var(--cs-accent); color: var(--cs-accent); }
+  .cs__btn:focus-visible { outline: 2px solid var(--cs-accent); outline-offset: 2px; }
   .cs__btn:disabled { opacity: 0.4; cursor: default; }
   .cs__count {
     font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em;
@@ -200,15 +211,15 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
   .cs__seam { height: 2px; background: var(--hairline); border-radius: 1px; overflow: hidden; }
   .cs__seam-fill {
     display: block; height: 100%;
-    background: linear-gradient(90deg, var(--gold-seam-deep), var(--gold-seam-bright));
+    background: linear-gradient(90deg, var(--cs-accent-deep), var(--cs-accent));
     transform-origin: left; transform: scaleX(var(--cs-progress, 0));
     transition: transform 0.2s linear;
   }
 
   .cs__links { display: flex; gap: 1.25rem; margin: 0; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; }
-  .cs__links a { color: var(--gold-seam-bright); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-block: 0.6rem; }
-  .cs__links a:hover { border-bottom-color: var(--gold-seam-bright); }
-  .cs__links a:focus-visible { outline: 2px solid var(--gold-seam-bright); outline-offset: 3px; }
+  .cs__links a { color: var(--cs-accent); text-decoration: none; border-bottom: 1px solid var(--hairline); padding-block: 0.6rem; }
+  .cs__links a:hover { border-bottom-color: var(--cs-accent); }
+  .cs__links a:focus-visible { outline: 2px solid var(--cs-accent); outline-offset: 3px; }
 
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

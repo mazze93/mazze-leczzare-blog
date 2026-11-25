@@ -86,6 +86,15 @@
   --hairline:         rgba(205, 162, 78, 0.16);
   --hairline-soft:    rgba(196, 189, 171, 0.12);
 
+  /* Carousel deck accents — CarouselStrip's frame takes its deck's own
+     accent (--deck-<theme>, from scripts/carousel/themes/<theme>.css) so
+     strips aren't interchangeable. Unknown theme → the site gold seam.
+     Values echo each theme's accent-on-dark token; light overrides below. */
+  --deck-lexicon:      #ee8a78; /* lexicon.css --red-ink */
+  --deck-lexicon-deep: #a32a1c; /* lexicon.css --red */
+  --deck-ledger:       #f3d28c; /* ledger.css --gold-hi */
+  --deck-ledger-deep:  #b08a42;
+
   /* Kintsugi ground + paper. --ink-* are the obsidian raises the seam sits on;
      --paper-* are the warm off-whites it reads against in light mode. */
   --ink-deep:   #0b0e15;
@@ -508,6 +517,12 @@ body[data-layout="homepage"] {
   --gold-seam-deep:   #6f5628;
   --hairline:         rgba(111, 86, 40, 0.22);
   --hairline-soft:    var(--wash-8);
+
+  /* Carousel deck accents, light: the deep end becomes the text colour. */
+  --deck-lexicon:      #a32a1c;
+  --deck-lexicon-deep: #7d1f14;
+  --deck-ledger:       #7a5c2e;
+  --deck-ledger-deep:  #5c4420;
   --paper:            var(--hv-high);
   --paper-soft:       var(--hv-mid);
   --muted-warm:       var(--ink-3);

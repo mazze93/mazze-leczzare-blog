@@ -28,10 +28,27 @@ PAIRS = [
 AA_NORMAL = 4.5
 
 TOKEN = re.compile(r"--([\w-]+):\s*(#[0-9A-Fa-f]{6})\s*;")
+# A theme with its own token names declares its pairs in a comment line:
+#   @contrast-pairs: bone/lacquer bone-2/lacquer gold/lacquer
+# Without one, PAIRS (Lexicon's names) applies — so a theme can't pass by
+# silently checking nothing: missing tokens are reported as UNVERIFIED.
+DECLARED = re.compile(r"@contrast-pairs:\s*([^\n*]+)")
 
 
 def parse_tokens(css: str) -> dict[str, str]:
     return {name: hexv for name, hexv in TOKEN.findall(css)}
+
+
+def parse_pairs(css: str) -> list[tuple[str, str]]:
+    m = DECLARED.search(css)
+    if not m:
+        return PAIRS
+    pairs: list[tuple[str, str]] = []
+    for p in m.group(1).split():
+        fg, sep, bg = p.partition("/")
+        if sep:
+            pairs.append((fg, bg))
+    return pairs or PAIRS
 
 
 def luminance(hexv: str) -> float:
@@ -51,9 +68,10 @@ def main(argv: list[str]) -> int:
     if len(argv) != 2:
         print(__doc__)
         return 2
-    tokens = parse_tokens(Path(argv[1]).read_text())
+    css = Path(argv[1]).read_text()
+    tokens = parse_tokens(css)
     failures = 0
-    for fg, bg in PAIRS:
+    for fg, bg in parse_pairs(css):
         if fg not in tokens or bg not in tokens:
             print(f"  ? {fg} on {bg}: token missing — UNVERIFIED")
             failures += 1

@@ -34,6 +34,8 @@ export interface RawSlide {
   items?: [string, string][];
   exec?: string;
   exec_caption?: string;
+  /** `ledger` kind: numbered rows; a `struck` row stays visible on the slide. */
+  rows?: { n: string; state: 'struck' | 'fix' | 'note'; text: string; tag?: string }[];
 }
 
 export interface RawDeck {
@@ -61,6 +63,8 @@ export interface Deck {
   pdfHref: string;
   issued?: string;
   eyebrow?: string;
+  /** The deck's carousel theme (scripts/carousel/themes/<theme>.css); the strip takes its accent from it. */
+  theme?: string;
   /** Aspect ratio of the frame, e.g. 1080/1350 = 0.8 */
   ratio: number;
   width: number;
@@ -115,6 +119,12 @@ export function slideAlt(s: RawSlide): string {
       return sentences([s.label, items, s.body]);
     case 'close':
       return sentences([s.label, s.callout, s.cta]);
+    case 'ledger': {
+      // Same spoken states as the PDF's hidden labels (render.py LEDGER_SR).
+      const said = { struck: 'Struck through, left visible: ', fix: 'Correction: ', note: '' } as const;
+      const rows = (s.rows ?? []).map((r) => `${said[r.state] ?? ''}${clean(r.text)}`);
+      return sentences([s.label, s.headline, ...rows, s.coda]);
+    }
     default: // statement and anything new: every text field, in order
       return sentences([s.label, entry, s.headline, s.body, list, s.coda, s.callout]);
   }
@@ -138,6 +148,7 @@ export function toDeck(raw: RawDeck): Deck {
     pdfHref: `/social/${raw.slug}.pdf`,
     issued: raw.issued,
     eyebrow: raw.eyebrow,
+    theme: raw.theme,
     ratio: raw.frame.width / raw.frame.height,
     width: PREVIEW_WIDTH,
     height: Math.round((PREVIEW_WIDTH * raw.frame.height) / raw.frame.width),
