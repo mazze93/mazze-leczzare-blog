@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { TURNSTILE_SITE_KEY } from '../consts';
 import { formatUsd, serviceFromSearch, type ServiceOffer } from '../data/services';
+import { TURNSTILE_SCRIPT_SRC, turnstileScriptUrl } from '../utils/turnstileTrustedTypes';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -19,8 +20,6 @@ const initialState: FormState = {
   message: '',
   company: '',
 };
-
-const TURNSTILE_SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
 
 declare global {
   interface Window {
@@ -57,7 +56,9 @@ function loadTurnstileScript(): Promise<void> {
       }
 
       const script = document.createElement('script');
-      script.src = TURNSTILE_SCRIPT_SRC;
+      // A TrustedScriptURL where Trusted Types exists, the plain string where
+      // it does not. The DOM lib types `src` as string only, hence the cast.
+      script.src = turnstileScriptUrl() as string;
       script.async = true;
       script.defer = true;
       script.onload = () => resolve();
