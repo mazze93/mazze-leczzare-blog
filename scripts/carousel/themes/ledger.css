@@ -1,7 +1,7 @@
 /* ==========================================================================
    Ledger — carousel theme
    For posts whose argument is about a record: what was entered, what was
-   wrong, and what was left visible. Lacquer ground, porcelain type, numbered
+   wrong, and what was left visible. Blue-black lacquer ground, porcelain type, numbered
    ledger rows, and one gold crack (render.py `"motif": "seam"`) that runs
    under every running head and continues from each slide's right edge into
    the next slide's left edge — swiped, the deck reads as one mended break.
@@ -16,10 +16,10 @@
 
    Contrast (WCAG, measured by contrast.py 2026-11-25 — rerun after any
    token change):
-     bone on lacquer ......... 15.3:1   bone on lacquer-2 ....... 14.2:1
-     bone-2 on lacquer .......  8.2:1   bone-2 on lacquer-2 .....  7.6:1
-     gold on lacquer .........  9.1:1   gold on lacquer-2 .......  8.4:1
-     brick on lacquer ........  7.6:1   brick on lacquer-2 ......  7.1:1
+     bone on lacquer ......... 15.8:1   bone on lacquer-2 ....... 15.0:1
+     bone-2 on lacquer .......  8.5:1   bone-2 on lacquer-2 .....  8.0:1
+     gold on lacquer .........  9.4:1   gold on lacquer-2 .......  8.9:1
+     brick on lacquer ........  7.9:1   brick on lacquer-2 ......  7.5:1
    Pairs checked:
    @contrast-pairs: bone/lacquer bone-2/lacquer gold/lacquer brick/lacquer bone/lacquer-2 bone-2/lacquer-2 gold/lacquer-2 brick/lacquer-2
 
@@ -28,14 +28,14 @@
    ========================================================================== */
 
 :root {
-  --lacquer:   #14110D;
-  --lacquer-2: #1D1913;
+  --lacquer:   #0A0D14;  /* deep blue-black (mazze, 2026-11-25) */
+  --lacquer-2: #0F1420;
   --bone:      #EEE7D9;
   --bone-2:    #B4AA96;
   --gold:      #D8AE5E;
   --gold-hi:   #F3D28C;
   --brick:     #E2907A;
-  --rule-l:    #3B342A;
+  --rule-l:    #283043;
 
   --display: "Cormorant Garamond", Georgia, serif;
   --text:    "Crimson Pro", Georgia, serif;
