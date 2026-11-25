@@ -6,6 +6,7 @@ import { ClientRouter } from 'astro:transitions';
 import displayFontUrl from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-400-normal.woff2?url';
 import {
   SITE_AUTHOR,
+  SITE_AUTHOR_ORCID,
   SITE_DEFAULT_OG_IMAGE,
   SITE_DESCRIPTION,
   SITE_EMAIL,
@@ -53,7 +54,10 @@ const personSchema = {
   name: SITE_AUTHOR,
   url: SITE_URL,
   email: SITE_EMAIL.replace('mailto:', ''),
+  // ORCID first: it is the identifier scholarly indexers and DOI registrars
+  // match on. Each essay's Article schema carries it too (BlogPost.astro).
   sameAs: [
+    SITE_AUTHOR_ORCID,
     SITE_URL,
     SITE_GITHUB_URL,
     'https://securepride.org',
