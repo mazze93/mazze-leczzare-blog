@@ -55,7 +55,7 @@ export function bearingAnalysis(body) {
 }
 
 function stripMarkdown(text) {
-  return compact(String(text || "").replace(/<[^>]+>/g, "").replace(/!?\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/^[#>\-*+ ]+/gm, "").replace(/[\*_\`~]/g, ""));
+  return compact(String(text || "").replace(/[<>]/g, "").replace(/!?\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/^[#>\-*+ ]+/gm, "").replace(/[\*_\`~]/g, ""));
 }
 const short = (s, n) => { const t = stripMarkdown(s); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, "") + "…" : t; };
 function sectionsOf(body) {
