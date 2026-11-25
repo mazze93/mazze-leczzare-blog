@@ -49,5 +49,25 @@ jobs:
       - name: Type-check + build
         run: npm run check
 
+      # Behavioural check of every on-site carousel against the build above.
+      # It existed and nothing ran it, and its full-load-only scenarios missed
+      # that strips reached by a second in-site link shipped inert (2026-11-25).
+      # Runs on every PR, not only carousel PRs: that bug came from the router,
+      # not from the strip. Playwright pinned to the version it was validated on.
+      - name: Carousel strip behaviour
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pw"   # system Python is PEP 668-managed
+          PY="$RUNNER_TEMP/pw/bin/python"
+          "$PY" -m pip install --quiet playwright==1.65.2
+          "$PY" -m playwright install --with-deps chromium
+          npx astro preview --port 4321 --host 127.0.0.1 > /dev/null 2>&1 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:4321/ && break; sleep 1; done
+          status=0
+          for deck in docs/social/*/slides.json; do
+            slug=$(basename "$(dirname "$deck")")
+            "$PY" scripts/carousel/strip_check.py "$slug" --out "$RUNNER_TEMP/strip/$slug" || status=1
+          done
+          exit $status
+
       - name: Security audit
         run: npm audit --audit-level=high

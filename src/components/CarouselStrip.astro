@@ -15,7 +15,10 @@
  *   - section[aria-roledescription=carousel] labelled by its heading
  *   - each slide: role=group, aria-roledescription=slide, "N of M" label,
  *     and alt text derived from the slide's own words (never "Slide 3")
- *   - the track is a focusable scroll region; ←/→/Home/End move by slide
+ *   - the track is a focusable scroll region; ←/→/Home/End move by slide,
+ *     from the track or from either control button
+ *   - wired on astro:page-load, so it works on pages reached by an in-site
+ *     link (ClientRouter), not only on a full load
  *   - position is announced politely; controls are real <button>s
  * Without JS: a native, swipeable, keyboard-scrollable strip. The controls
  *   ship `hidden` and only appear once the script has wired them.
@@ -298,7 +301,12 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     prev.addEventListener('click', () => goTo(active - 1));
     next.addEventListener('click', () => goTo(active + 1));
 
-    track.addEventListener('keydown', (e: KeyboardEvent) => {
+    // Keys work from the track and from the prev/next buttons, so a keyboard
+    // user who tabbed to a button doesn't have to tab back to keep stepping.
+    // Download/post links are left alone: arrows there mean nothing to us.
+    root.addEventListener('keydown', (e: KeyboardEvent) => {
+      const t = e.target as Node;
+      if (t !== track && !controls.contains(t)) return;
       const keys: Record<string, number> = { ArrowLeft: active - 1, ArrowRight: active + 1, Home: 0, End: slides.length - 1 };
       if (!(e.key in keys)) return;
       e.preventDefault(); // replace the browser's pixel-step scroll with slide-step
@@ -309,8 +317,18 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
     slides.forEach((s, i) => s.addEventListener('click', () => { if (i !== active) goTo(i); }));
 
     controls.hidden = false;
+    root.dataset.wired = '';
     render(nearestIndex(track, slides));
   }
 
-  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(wire);
+  // The site navigates with Astro's ClientRouter, so this module runs once
+  // per full load and never again. Wiring only at top level left every strip
+  // reached by an in-site link inert: plate 1 lit, controls hidden, keys dead
+  // (2026-11-25). astro:page-load fires after the first load and after every
+  // swap; the direct call covers any page without the router, and
+  // [data-wired] stops a strip being wired twice.
+  const wireAll = (): void =>
+    document.querySelectorAll<HTMLElement>('[data-carousel]:not([data-wired])').forEach(wire);
+  document.addEventListener('astro:page-load', wireAll);
+  wireAll();
 </script>
