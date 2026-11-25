@@ -1,0 +1,177 @@
+{
+  "checkedAt": "2026-11-19T07:58:48.499Z",
+  "links": {
+    "/blog/architecture-of-forgetting/": {
+      "status": 200,
+      "ok": true
+    },
+    "/blog/concept-is-not-the-state/": {
+      "status": 200,
+      "ok": true
+    },
+    "/blog/on-decay-rot-and-the-goblin-at-the-gate/": {
+      "status": 200,
+      "ok": true
+    },
+    "/blog/secure-pride-origin/": {
+      "status": 200,
+      "ok": true
+    },
+    "/blog/the-lighthouse-earns-its-floor/": {
+      "status": 200,
+      "ok": true
+    },
+    "/blog/what-we-dont-know-yet/": {
+      "status": 200,
+      "ok": true
+    },
+    "/intentional-fragility/": {
+      "status": 200,
+      "ok": true
+    },
+    "/papers/intentional-fragility.pdf": {
+      "status": 200,
+      "ok": true
+    },
+    "/theatre-of-dependencies/": {
+      "status": 200,
+      "ok": true
+    },
+    "/witness/checkmate.json": {
+      "status": 200,
+      "ok": true
+    },
+    "https://80.lv/articles/networking-at-gdc-2023-tips-for-artists-game-developers-and-industry-leaders": {
+      "status": 200,
+      "ok": true
+    },
+    "https://contextsynapse.mazzeleczzare.com/": {
+      "status": 200,
+      "ok": true
+    },
+    "https://doi.org/10.1038/s41598-022-05972-8": {
+      "status": 200,
+      "ok": true
+    },
+    "https://fieldnotes.mazzeleczzare.com/": {
+      "status": 200,
+      "ok": true
+    },
+    "https://github.com/Secure-Pride": {
+      "status": 200,
+      "ok": true
+    },
+    "https://github.com/advisories/GHSA-52cp-r559-cp3m": {
+      "status": 200,
+      "ok": true
+    },
+    "https://github.com/advisories/GHSA-g796-fgmg-93mv": {
+      "status": 200,
+      "ok": true
+    },
+    "https://github.com/advisories/GHSA-h67p-54hq-rp68": {
+      "status": 200,
+      "ok": true
+    },
+    "https://github.com/mazze93/context-synapse": {
+      "status": 200,
+      "ok": true,
+      "repo": {
+        "public": true,
+        "license": "MIT",
+        "homepage": "https://contextsynapse.mazzeleczzare.com/",
+        "latestRelease": {
+          "tag": "v0.3.0",
+          "publishedAt": "2026-09-21T21:15:09Z"
+        }
+      }
+    },
+    "https://github.com/mazze93/context-synapse/releases/tag/v0.3.0": {
+      "status": 200,
+      "ok": true
+    },
+    "https://github.com/mazze93/field-notes": {
+      "status": 200,
+      "ok": true,
+      "repo": {
+        "public": true,
+        "license": null,
+        "homepage": "https://fieldnotes.mazzeleczzare.com/",
+        "latestRelease": null
+      }
+    },
+    "https://github.com/mazze93/stele": {
+      "status": 200,
+      "ok": true,
+      "repo": {
+        "public": true,
+        "license": "Apache-2.0",
+        "homepage": "https://stele.mazzeleczzare.com/",
+        "latestRelease": {
+          "tag": "v1.3.0",
+          "publishedAt": "2026-11-16T10:14:57Z"
+        }
+      }
+    },
+    "https://github.com/mazze93/stratum": {
+      "status": 200,
+      "ok": true,
+      "repo": {
+        "public": true,
+        "license": "MIT",
+        "homepage": "https://stratum.mazzeleczzare.com",
+        "latestRelease": {
+          "tag": "v0.5.0",
+          "publishedAt": "2026-11-13T17:41:40Z"
+        }
+      }
+    },
+    "https://github.com/mazze93/theatre-of-dependencies": {
+      "status": 200,
+      "ok": true,
+      "repo": {
+        "public": true,
+        "license": "MIT",
+        "homepage": "https://mazzeleczzare.com/intentional-fragility/",
+        "latestRelease": null
+      }
+    },
+    "https://huggingface.co/SecurePride": {
+      "status": 200,
+      "ok": true
+    },
+    "https://open.spotify.com/show/50eMqYFskikUzz4EuoYTyf": {
+      "status": 200,
+      "ok": true
+    },
+    "https://research.mazzeleczzare.com/": {
+      "status": 200,
+      "ok": true
+    },
+    "https://research.mazzeleczzare.com/method.html": {
+      "status": 200,
+      "ok": true
+    },
+    "https://research.mazzeleczzare.com/studies/identity-dissolution": {
+      "status": 200,
+      "ok": true
+    },
+    "https://research.mazzeleczzare.com/studies/persona-integrity": {
+      "status": 200,
+      "ok": true
+    },
+    "https://securepride.org/": {
+      "status": 200,
+      "ok": true
+    },
+    "https://stele.mazzeleczzare.com/": {
+      "status": 200,
+      "ok": true
+    },
+    "https://stratum.mazzeleczzare.com/": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "findings": []
+}

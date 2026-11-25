@@ -76,6 +76,7 @@ src/
   content/signal/     # Signal transmissions (Content Collection)
   content/tesserae/   # Tesserae — mosaic-tile fragments (Content Collection)
   data/               # Page content kept apart from layout (about.ts) + checkmate-witness.json snapshot
+                      #   + work-attestation.json (weekly /work evidence record — see Work provenance)
   utils/              # Constellation logic, split pure-vs-Astro for testability (see Constellation System below):
     decay.ts          #   pure — age/committed/resolved → Zone ("undefined"|"experiment"|"signal"|"resolved")
     layout.ts         #   pure — deterministic (seeded) node position/style from a Zone
@@ -83,6 +84,7 @@ src/
     collectNodes.ts   #   astro:content wrapper — calls getCollection + nodes.ts.aggregateNodes
     carousel.ts       #   pure — slides.json → Deck (alt text per slide, preview paths, links)
     collectDecks.ts   #   import.meta.glob wrapper — discovers docs/social/*/slides.json
+    workProvenance.ts #   pure — /work tier rules: structural (offline, tested) + attestation (reads work-attestation.json)
   layouts/            # BlogPost.astro, HomepageLayout.astro
   pages/              # File-based routes
   styles/             # global.css, homepage.css, compass.css, constellation-pages.css,
@@ -152,7 +154,7 @@ files/                # HTML prototypes and design notes (not deployed; gitignor
 | `/contact`        | `src/pages/contact.astro`           | ContactForm island                       |
 | `/about`          | `src/pages/about.astro`             | Researcher page — label/content rows (Info, Research, Current Study, Methods, Publications, Background, Collaborate, Cite, Contact). Content in `src/data/about.ts`, which lists its sources; mounts `SeamCursor` |
 | `/cipher-gothic`  | `src/pages/cipher-gothic.astro`     | Design system documentation page        |
-| `/work`           | `src/pages/work.astro`              | Work/portfolio page                      |
+| `/work`           | `src/pages/work.astro`              | Work/portfolio page — one JSON per entry in `src/content/work/`, each with an evidence tier; every link carries a machine "checked" line from `src/data/work-attestation.json` (see Work provenance) |
 | `/work/research-program-operations` | `src/pages/work/research-program-operations.astro` | Résumé page for the research-operations record; carries the one approved published email (see Key Constraints) |
 | `/security`       | `src/pages/security.astro`          | Security disclosure policy               |
 | `/roadmap`        | `src/pages/roadmap.astro`           | Designed status page — phases generated from one in-file list; linked from Footer |
@@ -321,6 +323,13 @@ Read source for full detail — these are the non-obvious points:
 
 **Work plates:**
 - **`work/CheckmateWitness.astro`** — the Checkmate entry on `/work` (anchor `#checkmate`) is a full-width plate that shows rather than describes, and every mark is data. The ledger head is a tilted 3D chessboard (64 hex digits → 64 squares, block height = nibble, pure CSS `preserve-3d`). A queen's crown carries the audits: one point per audit, filled pearl = decided, empty setting = open; the orb is the chain (cracked with a gold seam if checkmate reports it broken); the band's socket is the human-only filing count. Verdicts appear as a chess game record (`#` `?` `?!` `∞` `…`). The plate is **deliberately dark in both themes** (local `--cm-*` palette, like `/gay-wandering/`), imports Playfair Display 700 italic for itself only, and animates with scroll-driven `view()` timelines (static where unsupported, off under reduced motion). **This site is checkmate's only public surface** — checkmate's own `/public` page is closed, so never link to `checkmate.mazzeleczzare.com`. Data is `src/data/checkmate-witness.json`, a committed snapshot, and **the commit is the point**: git history here is the off-checkmate record of every head. `.github/workflows/witness-checkmate.yml` refreshes it every Monday 13:00 UTC through checkmate's private CI gateway (Access service token in repo secrets) and pushes to `main`, which deploys. The same snapshot is served at `/witness/checkmate.json` in checkmate's ledger.json shape, for the `checkmate-witness` hub script. Validation lives in `src/utils/checkmateWitness.ts` (pure, tested). Only aggregates and the chain head may appear — checkmate is MAX posture. Zero hydration.
+
+**Work provenance** (added 2026-11-19, after Context Synapse sat at "Self-reported" with a public, MIT, released repo):
+- Every `/work` tier is held to its evidence by machine. `src/utils/workProvenance.ts` (pure) has two layers. **Structural** rules need only the entry and run in `npm run test` over every file in `src/content/work/`: a non-`self` tier must link evidence; a `self` entry must say in its `note` what is missing. **Attestation** rules read the record written by `scripts/ops/verify-work-evidence.mjs`: `link-unreachable` (404/410/no response = error; 403/5xx = warning), `source-not-public` (error), `tier-understated` (a `self` entry whose source is public and released), `version-behind` (a `vX.Y.Z` in `idx` older than the source's latest release — caught Stratum's stale `v0.4.0`), `no-backlink` (a source repo whose GitHub homepage does not point to the entry's site).
+- `WorkEntry.astro` renders the record as a quiet line under each link (`public · MIT · v0.3.0 · checked 19 Nov 2026`, or `unreachable at last check` in coral); the reading protocol on `/work` states the last run and links the record's git history. Links the script never checked (computed `ref`s, links added since the last run) show no line — never a stale claim.
+- `.github/workflows/verify-work-evidence.yml` runs it Mondays 14:00 UTC (an hour after the checkmate witness), commits `src/data/work-attestation.json` to `main`, and **fails after committing** on any error finding, so the page shows the break and the job is red. The unit test also fails while the committed record holds an error. Fix the entry; the next run clears it.
+- When adding a `/work` entry with a public source: add a `Source` link, set the repo's GitHub homepage to the entry's site, then run `npm run build && node scripts/ops/verify-work-evidence.mjs` and commit the record.
+- Evidence labels must fit the label column (about 6 characters, e.g. `Source`, `Tag`); longer labels wrap their arrow onto a line of their own.
 
 **Standard structural** (no non-obvious behaviour): `BaseHead.astro`, `FormattedDate.astro`.
 
@@ -528,6 +537,7 @@ Middleware serves `text/markdown` content-negotiation for any AI agent that requ
 | `verify-docs-integrity.sh`| Validates doc command refs and deployment terminology           |
 | `verify-lockfile.sh`      | Checks `package-lock.json` is in sync                          |
 | `check-docs-drift.sh`     | Compares CLAUDE.md documentation against actual filesystem state |
+| `verify-work-evidence.mjs` | Attests every `/work` evidence link: opens each one, looks up each GitHub source (public, license, homepage, latest release), resolves site paths against `dist/` (run `npm run build` first), applies `src/utils/workProvenance.ts`, writes `src/data/work-attestation.json` (`--check` reports without writing). Exits 1 on error findings. Optional `GITHUB_TOKEN` (API rate limit only). Run weekly by `verify-work-evidence.yml` |
 | `witness-checkmate.mjs` | Records checkmate's ledger head into `src/data/checkmate-witness.json` via the private CI gateway (needs `CHECKMATE_LEDGER_URL`, `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`; `--check` reports without writing); warns if the chain shrank. Run weekly by `witness-checkmate.yml` |
 | `extend-portrait.py`     | Regenerates `src/assets/images/about/mazze-portrait-wide.jpg` (the /about 2:1 hero) from `public/mazze-headshot.jpg` by extending the photo's own backdrop — run it if the headshot changes |
 
@@ -546,6 +556,7 @@ decision log on demand — see **`BUILD_JOURNAL.md`** below.
 | `dependency-review.yml` | PR | Flags new vulnerable dependencies |
 | `docs-integrity.yml` | push / PR | Runs `npm run docs:check` |
 | `lighthouse.yml` | push / PR | Lighthouse CI performance/accessibility audit |
+| `verify-work-evidence.yml` | Mondays 14:00 UTC + manual | Builds, runs `verify-work-evidence.mjs`, commits `src/data/work-attestation.json` to `main` (which deploys); fails after committing if any error finding remains |
 | `witness-checkmate.yml` | Mondays 13:00 UTC + manual | Reads checkmate's ledger head through the private gateway, commits `src/data/checkmate-witness.json` to `main` (which deploys) |
 
 ## Local edge parity

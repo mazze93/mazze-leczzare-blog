@@ -9,6 +9,13 @@ import WorkEntry from '../components/work/WorkEntry.astro';
 import { SITE_TITLE } from '../consts';
 import { HARDENING_SPRINT, formatUsd } from '../data/services';
 import { groupWork } from '../data/work';
+import { SITE_REPO_URL } from '../consts';
+import attestationData from '../data/work-attestation.json';
+import { formatCheckedDate, type Attestation } from '../utils/workProvenance';
+
+const attestation = attestationData as Attestation;
+const ATTESTATION_HISTORY_URL = `${SITE_REPO_URL}/commits/main/src/data/work-attestation.json`;
+const ATTESTATION_SCRIPT_URL = `${SITE_REPO_URL}/blob/main/scripts/ops/verify-work-evidence.mjs`;
 
 /**
  * /work — the publication surface.
@@ -76,6 +83,9 @@ const sections = groupWork(await getCollection('work'));
             <span class="tier-desc">My word, held to account. References available on request.</span>
           </li>
         </ul>
+        <p class="protocol-attest">
+          The links are checked by machine, not by me. Each week <a href={ATTESTATION_SCRIPT_URL}>a script</a> opens every one, looks up every source repository, and holds each tier to what it finds. Last run {formatCheckedDate(attestation.checkedAt)}: {Object.keys(attestation.links).length} links, {attestation.findings.length === 0 ? 'no open findings' : `${attestation.findings.length} open finding${attestation.findings.length === 1 ? '' : 's'}`}. <a href={ATTESTATION_HISTORY_URL}>Every run is in the record</a>.
+        </p>
       </section>
 
       {sections.map((section) => (
@@ -224,6 +234,16 @@ const sections = groupWork(await getCollection('work'));
     align-items: flex-start;
     gap: 0.45rem;
   }
+
+  .protocol-attest {
+    margin: 1.4rem 0 0;
+    max-width: 72ch;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.7;
+    color: var(--text-faint);
+  }
+  .protocol-attest a { color: var(--teal); }
 
   .tier-desc {
     font-family: var(--font-mono);
