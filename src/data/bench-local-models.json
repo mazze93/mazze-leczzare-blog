@@ -1,0 +1,764 @@
+{
+  "runs": {
+    "20261126T195953": {
+      "cells": [
+        {
+          "baseline_free_pct": 63,
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 58.9,
+          "gpu_pct": 100,
+          "load_s": 6.87,
+          "loaded_ctx": 4096,
+          "min_free_pct": 6,
+          "model": "gpt-oss:20b",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 1086.5,
+          "prompt_tokens_seen_20k": 2050,
+          "ram_gb": 12.74,
+          "swapouts_delta": 346446,
+          "tools_long_min_input": 2050,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 2050,
+              "secs": 2.3
+            },
+            {
+              "input_tokens": 2050,
+              "secs": 2.37
+            },
+            {
+              "input_tokens": 2050,
+              "secs": 2.35
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "baseline_free_pct": 71,
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 28.4,
+          "gpu_pct": 100,
+          "load_s": 2.17,
+          "loaded_ctx": 4096,
+          "min_free_pct": 17,
+          "model": "qwen3:14b",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 478.0,
+          "prompt_tokens_seen_20k": 2050,
+          "ram_gb": 9.66,
+          "swapouts_delta": 60355,
+          "tools_long_min_input": 2046,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 2046,
+              "secs": 12.58
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 10.05
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 12.62
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "baseline_free_pct": 71,
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 55.6,
+          "gpu_pct": 100,
+          "load_s": 4.67,
+          "loaded_ctx": 4096,
+          "min_free_pct": 13,
+          "model": "gemma4:12b",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 476.1,
+          "prompt_tokens_seen_20k": 17688,
+          "ram_gb": 7.75,
+          "swapouts_delta": 535684,
+          "tools_long_min_input": 16053,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 16067,
+              "secs": 36.33
+            },
+            {
+              "input_tokens": 16138,
+              "secs": 38.32
+            },
+            {
+              "input_tokens": 16053,
+              "secs": 39.27
+            }
+          ],
+          "tools_short_n": 8
+        },
+        {
+          "baseline_free_pct": 46,
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 98.1,
+          "gpu_pct": 100,
+          "load_s": 3.16,
+          "loaded_ctx": 4096,
+          "min_free_pct": 15,
+          "model": "gemma4:latest",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 2065.7,
+          "prompt_tokens_seen_20k": 17688,
+          "ram_gb": 9.39,
+          "swapouts_delta": 18391,
+          "tools_long_min_input": 16053,
+          "tools_long_n": 3,
+          "tools_long_requests": [
+            {
+              "input_tokens": 16067,
+              "secs": 9.5
+            },
+            {
+              "input_tokens": 16138,
+              "secs": 8.87
+            },
+            {
+              "input_tokens": 16053,
+              "secs": 8.78
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "baseline_free_pct": 45,
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 12.5,
+          "gpu_pct": 100,
+          "load_s": 9.88,
+          "loaded_ctx": 4096,
+          "min_free_pct": 8,
+          "model": "devstral:24b",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 225.7,
+          "prompt_tokens_seen_20k": 2051,
+          "ram_gb": 14.87,
+          "swapouts_delta": 256316,
+          "tools_long_min_input": 2046,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 2046,
+              "secs": 9.91
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 10.03
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 9.49
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "baseline_free_pct": 71,
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 40.4,
+          "gpu_pct": 100,
+          "load_s": 1.89,
+          "loaded_ctx": 4096,
+          "min_free_pct": 47,
+          "model": "gemma:latest",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 696.5,
+          "prompt_tokens_seen_20k": 2051,
+          "ram_gb": 7.07,
+          "swapouts_delta": 0,
+          "tools_long_min_input": 0,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            }
+          ],
+          "tools_short_n": 0
+        },
+        {
+          "baseline_free_pct": 79,
+          "comfortable": false,
+          "ctx": "32768",
+          "decode_tps": 59.1,
+          "gpu_pct": 100,
+          "load_s": 6.96,
+          "loaded_ctx": 32768,
+          "min_free_pct": 10,
+          "model": "gpt-oss:20b",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 913.8,
+          "prompt_tokens_seen_20k": 20766,
+          "ram_gb": 12.81,
+          "swapouts_delta": 180365,
+          "tools_long_min_input": 18664,
+          "tools_long_n": 3,
+          "tools_long_requests": [
+            {
+              "input_tokens": 18664,
+              "secs": 19.13
+            },
+            {
+              "input_tokens": 18878,
+              "secs": 18.82
+            },
+            {
+              "input_tokens": 18960,
+              "secs": 19.55
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "baseline_free_pct": 74,
+          "comfortable": false,
+          "ctx": "32768",
+          "decode_tps": 27.4,
+          "gpu_pct": 100,
+          "load_s": 4.17,
+          "loaded_ctx": 32768,
+          "min_free_pct": 2,
+          "model": "qwen3:14b",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 298.1,
+          "prompt_tokens_seen_20k": 22483,
+          "ram_gb": 13.81,
+          "swapouts_delta": 1690661,
+          "tools_long_min_input": 20425,
+          "tools_long_n": 3,
+          "tools_long_requests": [
+            {
+              "input_tokens": 20425,
+              "secs": 72.1
+            },
+            {
+              "input_tokens": 20464,
+              "secs": 82.2
+            },
+            {
+              "input_tokens": 20487,
+              "secs": 83.22
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "baseline_free_pct": 76,
+          "comfortable": false,
+          "ctx": "32768",
+          "decode_tps": 60.9,
+          "gpu_pct": 100,
+          "load_s": 1.7,
+          "loaded_ctx": 32768,
+          "min_free_pct": 14,
+          "model": "gemma4:12b",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 597.3,
+          "prompt_tokens_seen_20k": 17688,
+          "ram_gb": 7.75,
+          "swapouts_delta": 537530,
+          "tools_long_min_input": 16053,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 16067,
+              "secs": 29.54
+            },
+            {
+              "input_tokens": 16138,
+              "secs": 28.64
+            },
+            {
+              "input_tokens": 16053,
+              "secs": 29.99
+            }
+          ],
+          "tools_short_n": 7
+        },
+        {
+          "baseline_free_pct": 46,
+          "comfortable": false,
+          "ctx": "32768",
+          "decode_tps": 123.7,
+          "gpu_pct": 100,
+          "load_s": 2.38,
+          "loaded_ctx": 32768,
+          "min_free_pct": 27,
+          "model": "gemma4:latest",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 2576.1,
+          "prompt_tokens_seen_20k": 17688,
+          "ram_gb": 9.39,
+          "swapouts_delta": 18925,
+          "tools_long_min_input": 16053,
+          "tools_long_n": 3,
+          "tools_long_requests": [
+            {
+              "input_tokens": 16067,
+              "secs": 7.31
+            },
+            {
+              "input_tokens": 16138,
+              "secs": 6.92
+            },
+            {
+              "input_tokens": 16053,
+              "secs": 7.23
+            }
+          ],
+          "tools_short_n": 12
+        }
+      ],
+      "harness_sha256": "c3f180cdf196",
+      "hw": {
+        "cpu": "Apple M5 Pro",
+        "ram_gb": 24
+      },
+      "models": {
+        "devstral:24b": {
+          "capabilities": [
+            "completion",
+            "tools"
+          ],
+          "digest": "9bd74193e93935e9d8564d88607b220a9d341c4a36b748cffcbd9ad4f47a9ca9",
+          "native_ctx": 131072,
+          "params": "23.6B",
+          "quant": "Q4_K_M"
+        },
+        "gemma4:12b": {
+          "capabilities": [
+            "completion",
+            "vision",
+            "audio",
+            "tools",
+            "thinking"
+          ],
+          "digest": "c7597fc90b86aff6965317f37dd5465402284e26382d9b4bf2dfe3ef1491f4b6",
+          "native_ctx": 262144,
+          "params": "12.4B",
+          "quant": "nvfp4"
+        },
+        "gemma4:latest": {
+          "capabilities": [
+            "completion",
+            "vision",
+            "audio",
+            "tools",
+            "thinking"
+          ],
+          "digest": "eb2177adf7646d15faead94fdad6d3e170dc8015653418a3b7d5d52a6380be5b",
+          "native_ctx": 131072,
+          "params": "8.1B",
+          "quant": "nvfp4"
+        },
+        "gemma:latest": {
+          "capabilities": [
+            "completion"
+          ],
+          "digest": "a72c7f4d0a15522df81486d13ce432c79e191bda2558d024fbad4362c4f7cbf8",
+          "native_ctx": 8192,
+          "params": "9B",
+          "quant": "Q4_0"
+        },
+        "gpt-oss:20b": {
+          "capabilities": [
+            "completion",
+            "tools",
+            "thinking"
+          ],
+          "digest": "f38aa0c53da5f8c49d08c43a99df24ff53167fe68e24664a7777288e7656fdfe",
+          "native_ctx": 131072,
+          "params": "20.9B",
+          "quant": "MXFP4"
+        },
+        "qwen3:14b": {
+          "capabilities": [
+            "completion",
+            "tools",
+            "thinking"
+          ],
+          "digest": "bdbd181c33f2ed1b31c972991882db3cf4d192569092138a7d29e973cd9debe8",
+          "native_ctx": 40960,
+          "params": "14.8B",
+          "quant": "Q4_K_M"
+        }
+      },
+      "ollama_version": "0.40.16",
+      "rule": "comfortable = gpu==100 and swapouts==0 and min_free>=20 and needle_20k and prompt_tokens_seen_20k>=18000 and long_tools>=2/3 (long counted only if every request had >=15000 input tokens)",
+      "stop": {
+        "cell_in_progress": "devstral:24b ctx=32768 (not saved: the cell never completed)",
+        "cells_saved": 10.0,
+        "free_level_pct": 5.0,
+        "free_level_pct_after": 77.0,
+        "loaded.context_length": 32768.0,
+        "loaded.name": "devstral:24b",
+        "loaded.size_vram": 17607226817.0,
+        "runner.cpu_pct": 22.1,
+        "swap_total_mb": 10240.0,
+        "swap_used_mb": 8560.62
+      },
+      "valid": null,
+      "what": "full run, stopped by SIGINT at devstral:24b ctx=32768 (memory)"
+    },
+    "smoke-20261126T194936": {
+      "cells": [
+        {
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 50.3,
+          "gpu_pct": 100,
+          "load_s": 2.52,
+          "loaded_ctx": 4096,
+          "min_free_pct": 46,
+          "model": "llama3.1:8b",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 955.9,
+          "prompt_tokens_seen_20k": 2050,
+          "ram_gb": 5.28,
+          "swapouts_delta": 0,
+          "tools_long_n": 2,
+          "tools_long_requests": [
+            {
+              "input_tokens": 2046,
+              "secs": 2.47
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 2.44
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 2.51
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 45.6,
+          "gpu_pct": 100,
+          "load_s": 2.53,
+          "loaded_ctx": 4096,
+          "min_free_pct": 36,
+          "model": "gemma:latest",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 994.3,
+          "prompt_tokens_seen_20k": 2051,
+          "ram_gb": 7.07,
+          "swapouts_delta": 0,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            }
+          ],
+          "tools_short_n": 0
+        }
+      ],
+      "harness_sha256": "6103a40269d8",
+      "hw": {
+        "cpu": "Apple M5 Pro",
+        "ram_gb": 24
+      },
+      "models": {
+        "gemma:latest": {
+          "capabilities": [
+            "completion"
+          ],
+          "digest": "a72c7f4d0a15522df81486d13ce432c79e191bda2558d024fbad4362c4f7cbf8",
+          "native_ctx": 8192,
+          "params": "9B",
+          "quant": "Q4_0"
+        },
+        "llama3.1:8b": {
+          "capabilities": [
+            "completion",
+            "tools"
+          ],
+          "digest": "46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+          "native_ctx": 131072,
+          "params": "8.0B",
+          "quant": "Q4_K_M"
+        }
+      },
+      "ollama_version": "0.40.16",
+      "rule": "comfortable = gpu==100 and swapouts==0 and min_free>=20 and needle_20k and long_tools>=2/3",
+      "valid": true,
+      "what": "smoke 1: llama3.1:8b + control, server default context"
+    },
+    "smoke2-20261126T195134": {
+      "cells": [
+        {
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 50.8,
+          "gpu_pct": 100,
+          "load_s": 1.84,
+          "loaded_ctx": 4096,
+          "min_free_pct": 44,
+          "model": "llama3.1:8b",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 998.1,
+          "prompt_tokens_seen_20k": 2050,
+          "ram_gb": 5.28,
+          "swapouts_delta": 0,
+          "tools_long_min_input": 2046,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 2046,
+              "secs": 2.48
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 2.43
+            },
+            {
+              "input_tokens": 2046,
+              "secs": 2.51
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "comfortable": false,
+          "ctx": "default",
+          "decode_tps": 46.3,
+          "gpu_pct": 100,
+          "load_s": 1.64,
+          "loaded_ctx": 4096,
+          "min_free_pct": 34,
+          "model": "gemma:latest",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 933.7,
+          "prompt_tokens_seen_20k": 2051,
+          "ram_gb": 7.07,
+          "swapouts_delta": 0,
+          "tools_long_min_input": 0,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            }
+          ],
+          "tools_short_n": 0
+        },
+        {
+          "comfortable": false,
+          "ctx": "32768",
+          "decode_tps": 50.2,
+          "gpu_pct": 100,
+          "load_s": 1.87,
+          "loaded_ctx": 32768,
+          "min_free_pct": 10,
+          "model": "llama3.1:8b",
+          "needle_20k": true,
+          "needle_3k": true,
+          "prefill_tps": 530.5,
+          "prompt_tokens_seen_20k": 22483,
+          "ram_gb": 9.22,
+          "swapouts_delta": 241676,
+          "tools_long_min_input": 13,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": 20410,
+              "secs": 36.35
+            },
+            {
+              "input_tokens": 13,
+              "secs": 0.73
+            },
+            {
+              "input_tokens": 14,
+              "secs": 0.74
+            }
+          ],
+          "tools_short_n": 12
+        },
+        {
+          "comfortable": false,
+          "ctx": "32768",
+          "decode_tps": 46.3,
+          "gpu_pct": 100,
+          "load_s": 2.14,
+          "loaded_ctx": 8192,
+          "min_free_pct": 42,
+          "model": "gemma:latest",
+          "needle_20k": false,
+          "needle_3k": true,
+          "prefill_tps": 836.5,
+          "prompt_tokens_seen_20k": 4099,
+          "ram_gb": 9.13,
+          "swapouts_delta": 0,
+          "tools_long_min_input": 0,
+          "tools_long_n": 0,
+          "tools_long_requests": [
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            },
+            {
+              "input_tokens": null,
+              "secs": 0.0
+            }
+          ],
+          "tools_short_n": 0
+        }
+      ],
+      "harness_sha256": "893a08c9dd1a",
+      "hw": {
+        "cpu": "Apple M5 Pro",
+        "ram_gb": 24
+      },
+      "models": {
+        "gemma:latest": {
+          "capabilities": [
+            "completion"
+          ],
+          "digest": "a72c7f4d0a15522df81486d13ce432c79e191bda2558d024fbad4362c4f7cbf8",
+          "native_ctx": 8192,
+          "params": "9B",
+          "quant": "Q4_0"
+        },
+        "llama3.1:8b": {
+          "capabilities": [
+            "completion",
+            "tools"
+          ],
+          "digest": "46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+          "native_ctx": 131072,
+          "params": "8.0B",
+          "quant": "Q4_K_M"
+        }
+      },
+      "ollama_version": "0.40.16",
+      "rule": "comfortable = gpu==100 and swapouts==0 and min_free>=20 and needle_20k and prompt_tokens_seen_20k>=18000 and long_tools>=2/3 (long counted only if every request had >=15000 input tokens)",
+      "valid": true,
+      "what": "smoke 2: llama3.1:8b + control, default and 32768"
+    }
+  },
+  "sources": {
+    "20261126T195953/STOP.txt": "e616882e67dd8f5d94b4b841d9dc711fa41574f654c0ea1e226d3bd687e2b2b5",
+    "20261126T195953/results.json": "149bb6c74e63bd134acd7594b8df877c1d176c973f16949b5cb37b9fe06572e4",
+    "service-verify/20261126T204855-gemma4-latest.txt": "9100098f23c10d46b515ac31ceb830775a9d85d57f005d306399fa9cd63c48ce",
+    "service-verify/20261126T205011-gemma4-latest.txt": "64f1a70b30c895362f8648d19c1e7809326bd445e94bdaf68892aa2c034682a3",
+    "service-verify/20261126T205032-llama3-1-8b.txt": "51039657f197bc87bf9e83775a26e1a25a845ff1e5f0b599bb57fe0b89d9f8c6",
+    "service-verify/20261126T205238-gemma4-latest.txt": "c2f9132f9091eb4e752bb7a49373a86f8f396049286188bab4d2aa32f56500c2",
+    "service-verify/20261126T205304-llama3-1-8b.txt": "1f7aabe0692b884feb71c8a022cc5747ea829ab145df7b6d911b296d6931a0a0",
+    "smoke-20261126T194936/results.json": "7051aa02d112c214cd6cb79e2411348ea489f2014ebedd9877573161b08452de",
+    "smoke2-20261126T195134/results.json": "74714eb2e761516a8a864994cc58b31ee3a599ded19b6bbcdbf9603fa5adfe9e"
+  },
+  "verify": [
+    {
+      "exit": 1,
+      "failure": "prompt truncated: model saw 16399 tokens (need >= 18000)",
+      "file": "20261126T204855-gemma4-latest.txt",
+      "harness_sha256": null,
+      "model": "gemma4:latest"
+    },
+    {
+      "control_logged": 0,
+      "control_seen": 45822,
+      "exit": 1,
+      "failure": "control was not capped at 32768 (saw 45822): context is not what status claims",
+      "file": "20261126T205011-gemma4-latest.txt",
+      "harness_sha256": "97d1ce821cb4",
+      "model": "gemma4:latest"
+    },
+    {
+      "control_logged": 2,
+      "control_seen": 16386,
+      "exit": 1,
+      "failure": "server logged truncation of the ~20k prompt",
+      "file": "20261126T205032-llama3-1-8b.txt",
+      "harness_sha256": "97d1ce821cb4",
+      "model": "llama3.1:8b",
+      "test_logged": 1,
+      "test_seen": 20973
+    },
+    {
+      "control_logged": 0,
+      "control_seen": 45822,
+      "exit": 0,
+      "failure": null,
+      "file": "20261126T205238-gemma4-latest.txt",
+      "harness_sha256": "ad5359821e03",
+      "model": "gemma4:latest",
+      "test_logged": 0,
+      "test_seen": 16399
+    },
+    {
+      "control_logged": 1,
+      "control_seen": 16386,
+      "exit": 0,
+      "failure": null,
+      "file": "20261126T205304-llama3-1-8b.txt",
+      "harness_sha256": "ad5359821e03",
+      "model": "llama3.1:8b",
+      "test_logged": 0,
+      "test_seen": 20974
+    }
+  ]
+}

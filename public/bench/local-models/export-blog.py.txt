@@ -1,0 +1,75 @@
+#!/usr/bin/env -S python3 -I
+"""export-blog — committed bench results -> one sanitized dataset for publishing.
+
+Deterministic: same inputs, same bytes out (sorted keys, no wall-clock time).
+Every number traces to a source file listed in `sources` with its sha256.
+Drops anything that can carry local state: file paths, error bodies, model
+output text, raw usage. Keeps measurements, verdict inputs and provenance.
+
+  export-blog.py OUT.json
+"""
+import hashlib, json, re, sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent / "results"
+RUNS = {  # run id -> what it was
+    "smoke-20261126T194936": "smoke 1: llama3.1:8b + control, server default context",
+    "smoke2-20261126T195134": "smoke 2: llama3.1:8b + control, default and 32768",
+    "20261126T195953": "full run, stopped by SIGINT at devstral:24b ctx=32768 (memory)",
+}
+CELL_KEYS = ["model", "ctx", "gpu_pct", "ram_gb", "load_s", "decode_tps", "prefill_tps",
+             "prompt_tokens_seen_20k", "loaded_ctx", "needle_3k", "needle_20k",
+             "tools_short_n", "tools_long_n", "tools_long_min_input", "baseline_free_pct",
+             "min_free_pct", "swapouts_delta", "comfortable", "skipped"]
+MODEL_KEYS = ["params", "quant", "native_ctx", "capabilities", "digest"]
+
+def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+
+def main(out):
+    data = {"sources": {}, "runs": {}, "verify": []}
+    for rid, what in RUNS.items():
+        src = ROOT / rid / "results.json"
+        r = json.loads(src.read_text())
+        data["sources"][f"{rid}/results.json"] = sha(src)
+        data["runs"][rid] = {
+            "what": what,
+            "harness_sha256": r["harness_sha256"][:12],
+            "ollama_version": r.get("ollama_version"),
+            "hw": {"cpu": r["hw"]["cpu"], "ram_gb": r["hw"]["ram_gb"]},
+            "rule": r["rule"], "valid": r.get("valid"),
+            "models": {m: {k: v.get(k) for k in MODEL_KEYS} for m, v in r["models"].items()},
+            "cells": [{**{k: c.get(k) for k in CELL_KEYS if k in c},
+                       # per long request: numbers only (no model output, no raw usage)
+                       **({"tools_long_requests": [{"input_tokens": x.get("input_tokens"), "secs": x.get("secs")}
+                                                   for x in c["tools_long_detail"]]}
+                          if c.get("tools_long_detail") else {})}
+                      for c in r["cells"]],
+        }
+        stop = ROOT / rid / "STOP.txt"
+        if stop.exists():
+            data["sources"][f"{rid}/STOP.txt"] = sha(stop)
+            kv = dict(l.split(None, 1) for l in stop.read_text().splitlines() if l and not l.startswith("#"))
+            data["runs"][rid]["stop"] = {k: (float(v) if re.fullmatch(r"[\d.]+", v) else v) for k, v in kv.items()}
+    pat = re.compile(r"control \(.*\): model saw (\d+), truncation log lines: (\d+)|"
+                     r"test \(.*\): model saw (\d+), truncation log lines: (\d+)")
+    for f in sorted((ROOT / "service-verify").glob("*.txt")):
+        t = f.read_text()
+        data["sources"][f"service-verify/{f.name}"] = sha(f)
+        ex = re.search(r"exit=(\d+)", t)
+        v = {"file": f.name, "model": t.split()[3], "exit": int(ex.group(1)) if ex else None,
+             "harness_sha256": (re.search(r"sha=([0-9a-f]+)", t) or [None, None])[1]}
+        for m in pat.finditer(t):
+            if m.group(1): v["control_seen"], v["control_logged"] = int(m.group(1)), int(m.group(2))
+            else: v["test_seen"], v["test_logged"] = int(m.group(3)), int(m.group(4))
+        v["failure"] = next((l[2:] for l in t.splitlines() if l.startswith("× ")), None)
+        data["verify"].append(v)
+    blob = json.dumps(data, indent=2, sort_keys=True) + "\n"
+    if "/Users/" in blob: raise SystemExit("refusing: a local path survived sanitizing")
+    if out == "-": sys.stdout.write(blob); return
+    Path(out).write_text(blob)
+    print(f"{out}  sha256={hashlib.sha256(blob.encode()).hexdigest()[:12]}  "
+          f"cells={sum(len(r['cells']) for r in data['runs'].values())} verify={len(data['verify'])}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2: raise SystemExit(__doc__)
+    main(sys.argv[1])

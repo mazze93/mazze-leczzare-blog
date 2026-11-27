@@ -1,0 +1,117 @@
+#!/usr/bin/env zsh
+# check-agent-shell — deterministic check of the agent/human shell split in zshrc.
+#
+# Runs one probe in three shells, each started from the same minimal
+# environment (env -i, launchd's default PATH) so the result does not depend on
+# whatever shell launched this script:
+#   agent     zsh -il with CLAUDECODE=1 AI_AGENT=check
+#   human     zsh -il with neither set
+#   snapshot  zsh -f sourcing the newest ~/.claude/shell-snapshots file, which
+#             is what Claude Code replays before every Bash call
+# Then asserts the invariants and exits non-zero if any fail.
+#
+# Prints only command kinds, resolved binary paths, PATH positions and version
+# strings: no environment values. Usage: check-agent-shell [dir]  (default ~/Projects)
+#
+# Snapshots exist only while their session runs (deleted on exit), so the
+# snapshot section checks the newest LIVE session. A replayed file is still a
+# proxy; the ground truth is the Bash tool's own shell. From inside a Claude
+# Code session, run:
+#   eval "$(~/Projects/tools/dotfiles/bin/check-agent-shell --probe)"
+# --probe prints the probe so it runs in the calling shell (aliases are not
+# inherited by a child process, so the script cannot see them itself).
+emulate -L zsh
+setopt err_return no_unset pipe_fail
+
+BASE_PATH=/usr/bin:/bin:/usr/sbin:/sbin
+SNAP_DIR="$HOME/.claude/shell-snapshots"
+ZSHRC="${${(%):-%x}:A:h:h}/zshrc"
+ZPROFILE="${ZSHRC:h}/zprofile"   # PATH the snapshot replays comes from here
+
+# One key=value per line. Runs inside the shell under test.
+PROBE='
+for c in rm ls cat; do print -r -- "$c=${$(whence -w $c)#*: }"; done
+print -r -- "python3=$(whence -p python3)"
+print -r -- "pyver=$(python3 --version 2>/dev/null)"
+print -r -- "mise_warn=$(python3 -c pass 2>&1 | grep -c "mise WARN")"
+print -r -- "shims_idx=${path[(i)*mise/shims]}"
+print -r -- "brew_idx=${path[(i)/opt/homebrew/bin]}"
+print -r -- "path_len=${#path}"
+[[ -o noclobber ]] && print noclobber=on || print noclobber=off
+(( $+functions[mindful_gate] )) && print env_guard=loaded || print env_guard=missing
+'
+
+if [[ ${1-} == --probe ]]; then print -r -- "$PROBE"; exit 0; fi
+DIR="${1:-$HOME/Projects}"
+
+run_login() {  # $1 = agent|human
+  local -a extra=()
+  [[ $1 == agent ]] && extra=(CLAUDECODE=1 AI_AGENT=check)
+  ( cd "$DIR" && env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh \
+      TERM=dumb PATH="$BASE_PATH" "${extra[@]}" \
+      /bin/zsh -il -c "$PROBE" </dev/null 2>/dev/null )
+}
+
+run_snapshot() {
+  local snap=$1
+  ( cd "$DIR" && env -i HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL=/bin/zsh \
+      TERM=dumb PATH="$BASE_PATH" CLAUDECODE=1 \
+      /bin/zsh -f -c "source ${(q)snap} >/dev/null 2>&1; $PROBE" </dev/null 2>/dev/null )
+}
+
+typeset -A A H S
+parse() {  # $1 = name of assoc array; stdin = key=value lines
+  local line
+  while IFS= read -r line; do [[ $line == *=* ]] && eval "$1[\${line%%=*}]=\${line#*=}"; done
+}
+
+parse A < <(run_login agent)
+parse H < <(run_login human)
+
+snap=( $SNAP_DIR/snapshot-zsh-*.sh(N.om[1]) )
+snap_note="none found"
+if (( $#snap )); then
+  parse S < <(run_snapshot $snap[1])
+  snap_note="${snap[1]:t} ($(stat -f %Sm $snap[1]))"
+fi
+
+fails=0
+check() {  # $1 label, $2 condition (eval'd), $3 detail
+  if eval "$2"; then printf '  PASS  %-44s %s\n' "$1" "$3"
+  else printf '  FAIL  %-44s %s\n' "$1" "$3"; fails=$((fails+1)); fi
+}
+shim_first() { [[ ${1:-0} -le ${2:-0} && ${1:-0} -le ${3:-0} ]]; }  # shims_idx<=brew_idx<=len
+
+print "check-agent-shell  dir=$DIR"
+print "agent"
+check "rm/ls/cat are plain commands"        '[[ ${A[rm]-} == command && ${A[ls]-} == command && ${A[cat]-} == command ]]' "rm=${A[rm]-?} ls=${A[ls]-?} cat=${A[cat]-?}"
+check "python3 via mise shim"               '[[ ${A[python3]-} == *mise/shims/python3 ]]' "${A[python3]-?}"
+check "mise shims ahead of Homebrew"        'shim_first ${A[shims_idx]-0} ${A[brew_idx]-0} ${A[path_len]-0}' "shims=${A[shims_idx]-?} brew=${A[brew_idx]-?}"
+check "no mise WARN on stderr"              '[[ ${A[mise_warn]-x} == 0 ]]' "count=${A[mise_warn]-?}"
+check "env-guard loaded, noclobber on"      '[[ ${A[env_guard]-} == loaded && ${A[noclobber]-} == on ]]' "${A[env_guard]-?} noclobber=${A[noclobber]-?}"
+print "human"
+check "rm/ls/cat keep their aliases"        '[[ ${H[rm]-} == alias && ${H[ls]-} == alias && ${H[cat]-} == alias ]]' "rm=${H[rm]-?} ls=${H[ls]-?} cat=${H[cat]-?}"
+check "env-guard loaded, noclobber on"      '[[ ${H[env_guard]-} == loaded && ${H[noclobber]-} == on ]]' "${H[env_guard]-?} noclobber=${H[noclobber]-?}"
+print "parity"
+check "agent python == human python"        '[[ -n ${A[pyver]-} && ${A[pyver]-} == ${H[pyver]-} ]]' "agent='${A[pyver]-?}' human='${H[pyver]-?}'"
+print "snapshot  $snap_note"
+if (( $#snap )); then
+  check "snapshot newer than zshrc"         '[[ $snap[1] -nt $ZSHRC ]]' "zshrc $(stat -f %Sm $ZSHRC)"
+  check "snapshot newer than zprofile"      '[[ $snap[1] -nt $ZPROFILE ]]' "zprofile $(stat -f %Sm $ZPROFILE)"
+  check "rm/ls/cat are plain commands"      '[[ ${S[rm]-} == command && ${S[ls]-} == command && ${S[cat]-} == command ]]' "rm=${S[rm]-?} ls=${S[ls]-?} cat=${S[cat]-?}"
+  check "python3 via mise shim"             '[[ ${S[python3]-} == *mise/shims/python3 ]]' "${S[python3]-?}"
+  check "mise shims ahead of Homebrew"      'shim_first ${S[shims_idx]-0} ${S[brew_idx]-0} ${S[path_len]-0}' "shims=${S[shims_idx]-?} brew=${S[brew_idx]-?}"
+fi
+# ~/.claude/settings.json env.PATH overrides the PATH the snapshot builds (found
+# 2026-11-27: a pinned PATH without shims kept agents on brew python even with
+# zshrc and zprofile correct). It must carry the shims ahead of Homebrew.
+print "claude settings env.PATH"
+CS="$HOME/.claude/settings.json"
+if [[ -r $CS ]] && pinned=$(jq -r '.env.PATH // empty' "$CS" 2>/dev/null) && [[ -n $pinned ]]; then
+  local -a pp=( ${(s.:.)pinned} )
+  check "pinned PATH: shims ahead of Homebrew" 'shim_first ${pp[(i)*mise/shims]} ${pp[(i)/opt/homebrew/bin]} ${#pp}' "shims=${pp[(i)*mise/shims]} brew=${pp[(i)/opt/homebrew/bin]} of ${#pp}"
+else
+  print "  (no env.PATH pinned: the snapshot's PATH applies)"
+fi
+print "\n$fails failed"
+(( fails == 0 ))

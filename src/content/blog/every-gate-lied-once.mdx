@@ -1,0 +1,223 @@
+---
+title: "Every Gate I Built Lied Once"
+subtitle: "Choosing a local model for Claude Code on a 24 GB Mac: a shell probe, a symlink installer, a benchmark, and a 4,096-token default that had been quietly breaking everything"
+description: "A measured field record: a rerunnable benchmark of five local models through the same Anthropic-compatible route Claude Code uses, the server default that truncated every real prompt to about 2,000 tokens, and the six times one of my own verification gates reported success it had not earned."
+pubDate: 2026-11-26
+category: "AI"
+tags: ["local models", "Ollama", "Claude Code", "benchmarking", "verification"]
+readingTime: "~14 min"
+contentType: "artifact"
+artifactNote: "Scripts and dataset are published at /bench/local-models/: verbatim copies from a private dotfiles repo (one file has two lines redacted, marked in place), with SHA256SUMS. Every chart reads from data.json; every number in it traces to a committed results.json by sha256."
+sessionTranscript: "https://claude.ai/code/session_018xHHJSfDXwkVuoD9UehhFp"
+draft: true
+---
+
+import BenchChart from '../../components/blog/BenchChart.astro';
+import raw from '../../data/bench-local-models.json';
+import { truncationRows, decodeRows, ramRows, memoryRows, cell, FULL, ORDER, fmtInt } from '../../utils/benchLocalModels';
+
+export const d = raw;
+export const full = d.runs[FULL];
+
+The question was one line: *what is the best model I can run comfortably on this machine as the default?* The machine is an M5 Pro MacBook Pro with 24 GB of unified memory. "The default" means the model behind `claude-local`, a small launcher that points Claude Code at a local Ollama server instead of Anthropic's API. My first answer came from blog posts and a registry lookup, and it was reasonable and unmeasured. Mazze asked for the measured version: deterministic scripts, chained so they can be rerun, instead of a trail of one-off probes. This is that version. It took longer than the question deserved, because every verification gate I built along the way reported success at least once when it had not earned it.
+
+The short answer is at the end. The longer one is that the model barely mattered until the server stopped throwing away nine-tenths of every prompt.
+
+## The shell lied first
+
+Before any model came up, there was a smaller mismatch. The session's shell tools resolved `python3` to Homebrew's 3.15.2, while Mazze's terminal resolved it to mise's 3.15.1. A dotfiles script, `check-agent-shell`, already existed to catch exactly this split. It runs one probe in three shells (an agent login shell, a human login shell, and a replay of Claude Code's shell snapshot) and asserts that tools resolve the same way. Run as `eval "$(check-agent-shell --probe)"`, it reads the calling shell itself, which is the ground truth.
+
+Both login shells passed and the snapshot failed. The snapshot's `PATH` line held eight entries. None of the entries `zshrc` adds (cargo, mise shims, the ICU paths) were among them, although functions defined in `zshrc` were present in the same file. So the snapshot replays the `PATH` the Claude Code process *inherited*, and the inherited `PATH` came from `~/.zprofile`, a file `zshrc`'s careful `mise activate --shims` never touches. The fix was one line in `zprofile`, which also had to become a tracked file in the dotfiles repo:
+
+```zsh
+[[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
+```
+
+The checker had a hole of its own. It confirmed the snapshot was newer than `zshrc` and never compared it against `zprofile`, so a snapshot built before the fix still passed that check. That check now covers both files. The migration ran as one fail-fast script that asserted its preconditions, backed up the original, checked that the new file kept the old bytes as its prefix, linked it, and then tested the exact launch shape that had produced the bad snapshot.
+
+## Links nobody had recorded
+
+Moving `zprofile` into the repo meant another hand-made symlink, joining eight others that existed only on disk. `link-dotfiles` encodes that set. It plans every entry before changing anything. A regular file at a target is moved to a timestamped backup, a wrong or dangling symlink is replaced, and a directory at a target is an error nobody resolves automatically. `--check` exits non-zero on drift, and `--dry-run` prints the plan.
+
+I wrote it, ran `--check` against the real home directory, got nine out of nine, and nearly called it done. That run proved nothing, since every link was already correct. The adversarial pass, `test-link-dotfiles`, runs fourteen probes against throwaway `$HOME` sandboxes. It fingerprints each sandbox (every path, type, link target and content hash) rather than trusting exit codes. Two of the probes failed against the first draft:
+
+- **Two backups of the same path within one second overwrote each other.** The backup directory was named by a one-second timestamp, so the second run moved its file onto the first backup. That was silent data loss in the one code path meant to prevent it.
+- **A parent path component that was a regular file caused a partial apply.** Three links were created before `mkdir` failed on the fourth, which broke the script's only promise: that an error anywhere means nothing changes.
+
+The fixes were a next-free-suffix backup name, with the move confirmed before `ln -sf` gets a chance to delete anything, and a planning-time walk up each target's parent chain. Two more probes then checked that the parent check had not become too strict: a symlinked parent directory must still work, and a dangling one must stop the run. Both held.
+
+## A benchmark that measures the route Claude Code actually takes
+
+`claude-local` sets `ANTHROPIC_BASE_URL` to the Ollama server and lets Claude Code speak the Anthropic Messages API to it. That fact shaped the whole benchmark. The route that matters is `/v1/messages`, and requests on that route have no way to set a context size.
+
+`bench-local-models` starts a private `ollama serve` on its own port for each context setting, with one parallel slot and one loaded model. That makes results independent of how anyone's own server was launched. It refuses to start if the user's server has a model loaded, because the memory figures would be contaminated. For each model and context setting, which the script calls a *cell*, it records:
+
+- **fit:** resident size and GPU share from `/api/ps`;
+- **speed:** decode tokens per second over 256 tokens, and prefill tokens per second on a ~20,000-token prompt;
+- **truncation:** how many of those ~20,000 tokens the model reported receiving;
+- **recall:** a fact planted at token zero of a 3k-token and a 20k-token system prompt, asked for at the end, through `/v1/messages`;
+- **tool use:** three tools, each asked three ways, plus three prompts that should not call a tool. The same three tool tasks are then repeated behind an ~18,000-token system prompt, which is Claude Code's real shape;
+- **memory:** free memory sampled every half second, plus the system swap-out counter, across the cell.
+
+The verdict rule is written into the script before any data exists. A cell is *comfortable* only if the model is fully on the GPU, no swap-outs occurred, free memory never fell below 20%, the 20k recall passed, and at least two of the three long-prompt tool calls were correct. A negative control runs in every cell: `gemma:latest`, which has no tool support and an 8k native context. If it passes tool use or 20k recall, the whole run is marked invalid.
+
+```zsh
+bench-local-models --models llama3.1:8b --ctx default          # smoke
+bench-local-models --pull                                       # candidates x default,32768,65536
+```
+
+## The 4,096-token default
+
+The first smoke run answered a question nobody had asked. With the server started the way it had been (by hand, with no `OLLAMA_*` variables), both models received about 2,050 tokens of the 20,000 sent. The private server's log said why: `n_ctx = 4096`. Ollama 0.40.16 defaults to a 4,096-token context, and a prompt past that is cut to roughly half the window. Claude Code's system prompt and tool definitions alone run to about 20,000 tokens. **Until that point, `claude-local` had been handing every model about a tenth of its own instructions**, whichever model it ran.
+
+<BenchChart
+  kind="dumbbell"
+  title="Prompt tokens the model actually received, out of a ~20,000-token prompt"
+  subtitle="Hollow: server started with no context setting (n_ctx 4,096). Filled: server with OLLAMA_CONTEXT_LENGTH=32768. The gemma4 engine never truncated, so its count reflects its tokenizer, not a cut."
+  rows={truncationRows(d)}
+  max={24000}
+  ticks={[0, 4000, 8000, 12000, 16000, 20000, 24000]}
+  refs={[{ value: 4096, label: "default n_ctx 4,096" }]}
+  fromLabel="default server"
+  toLabel="32k server"
+/>
+
+`devstral:24b` has no 32k point because that cell was stopped, as described below. The control, `gemma:latest`, stops at 4,099 even on the 32k server, because its own native context is 8,192 and the window gets halved on overflow there too.
+
+## Six gates that reported success they had not earned
+
+The benchmark is where this pattern stopped being incidental. Each line below is a check I wrote and trusted, followed by what it was actually measuring.
+
+<div style={{ overflowX: 'auto' }}>
+
+| Gate | It said | What was true | Caught by |
+|---|---|---|---|
+| Long-prompt tool use at the default context | 2 of 3 passed | The "18k" prompt arrived as 2,046 tokens; the passes were on a short prompt | reading `usage.input_tokens` per request |
+| Long-prompt gate, first fix | 0 of 3 counted | Requests two and three hit the prompt cache, and `input_tokens` counts only the uncached tail (20,410, then 13, then 14) | the 0.7-second response times |
+| "Arrived whole" threshold (≥18,000 tokens) | `gemma4` truncated | `gemma4`'s tokenizer counts the same text as 17,688 tokens at every context | the identical count at 4,096 and 32,768 |
+| Service `verify`, first version | `gemma4` truncated at 16,399 | the same tokenizer effect, in a different script | a positive control |
+| Service `verify`, log match on `truncat` | `llama3.1` truncated | the pattern matched llama.cpp's `truncated = 0` statistics lines | reading the matched lines |
+| My own "same pid" and "deterministic" checks | ✓ | both compared two empty strings; `e3b0c442…` is the sha256 of nothing | recognising that hash |
+
+</div>
+
+The fixes share a shape. Each long-prompt request now gets its own seeded system prompt, so none is served from cache and every one is a cold ~18k prefill. Truncation is judged by the server's own `msg="truncating input prompt"` line, never by a token count. Every comparison asserts that its inputs are non-empty before it compares them. The rule history is recorded in the script, and every change made it stricter, never looser.
+
+## Fixing the server, then proving the fix
+
+Requests on `/v1/messages` cannot set `num_ctx`, so the fix belongs to whatever starts the server. `launchd/local.ollama.plist.in` is a LaunchAgent template: `OLLAMA_CONTEXT_LENGTH=32768`, listening on 127.0.0.1 only, restarted if it exits. It also sets `OLLAMA_NUM_PARALLEL=1`, because every parallel slot gets its own context and multiplies memory. `ollama-service install` renders the template with the stable `/opt/homebrew/bin` path rather than the versioned Cellar path a `brew upgrade` would strand. It also refuses to run alongside `brew services`. `ollama-service status` checks that launchd owns the port and that both variables are actually in the running process's environment. `claude-local` now refuses to start unless `status` passes. Its old hint, `brew services start ollama`, was replaced, because that start path gave the 4,096 default.
+
+`status` shows the variable reached the process. It doesn't show the server honours it, and that took `verify`, which needed rewriting twice. The final version sends a **positive control** first: a prompt far past 32k that *must* be truncated. That proves the signal is visible for that model before any silence gets trusted. The control showed two engines inside the same Ollama.
+
+<div style={{ overflowX: 'auto' }}>
+<table>
+  <thead><tr><th>run</th><th>model</th><th>control seen</th><th>test seen</th><th>result</th></tr></thead>
+  <tbody>
+    {d.verify.map((v) => (
+      <tr>
+        <td><code>{v.file.slice(9, 13)}</code></td>
+        <td><code>{v.model}</code></td>
+        <td>{fmtInt(v.control_seen)}{v.control_logged ? " (logged cut)" : ""}</td>
+        <td>{fmtInt(v.test_seen)}</td>
+        <td>{v.exit === 0 ? "pass" : v.failure}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+</div>
+
+On the llama-server path (`llama3.1:8b`) the control was cut to 16,386 and logged the cut, and the ~20k test then arrived whole at 20,974 with the planted fact recalled. On Ollama's own engine (`gemma4`) the control arrived *whole*, at 45,822 tokens, past the 32,768 that `/api/ps` reports. That engine also read 17,688 tokens at the "4,096" default during the benchmark. I can describe the behaviour; I can't explain it from what I measured, so I won't. `verify` treats it as a third outcome: if nothing truncates at 45k, the smaller test can't have been cut.
+
+## What the models did
+
+The full run downloaded the candidates and measured every model at the server's default context and at 32k. I stopped it with SIGINT about fifty minutes in, during `devstral:24b` at 32k. That model held 17.6 GB on the GPU, free memory had fallen to 5%, `vm.swapusage` showed 8,561 of 10,240 MB in use, and the runner was at 22% CPU while it waited on swap (recorded in `STOP.txt` alongside the run). The `devstral` question was answered, and its 65k cell would have thrashed a working machine for an hour more. Ten cells were saved, the 65k pass never started, and the harness shut down its own server cleanly.
+
+<BenchChart
+  kind="bars"
+  title="Decode speed at 32k context, tokens per second"
+  subtitle="256 generated tokens, temperature 0, fixed seed. Full run, ctx 32768."
+  rows={decodeRows(d)}
+  max={150}
+  ticks={[0, 25, 50, 75, 100, 125, 150]}
+  decimals={1}
+/>
+
+<BenchChart
+  kind="bars"
+  title="Resident size at 32k context, GB"
+  subtitle="Size reported by /api/ps with the model loaded; every cell reported 100% on the GPU."
+  rows={ramRows(d)}
+  max={18}
+  ticks={[0, 3, 6, 9, 12, 15, 18]}
+  decimals={1}
+/>
+
+<BenchChart
+  kind="dumbbell"
+  title="Free memory before load vs. lowest point during the cell, at 32k"
+  subtitle="kern.memorystatus_level sampled every 0.5 s. The rule requires the low point to stay at or above 20%."
+  rows={memoryRows(d)}
+  max={100}
+  ticks={[0, 20, 40, 60, 80, 100]}
+  refs={[{ value: 20, label: "rule: ≥ 20%" }]}
+  unit="%"
+  fromLabel="before load"
+  toLabel="lowest during"
+/>
+
+<div style={{ overflowX: 'auto' }}>
+<table>
+  <thead><tr><th>model</th><th>ctx</th><th>tools, short</th><th>tools, long</th><th>recall 20k</th><th>swap-outs</th></tr></thead>
+  <tbody>
+    {full.cells.map((c) => (
+      <tr>
+        <td><code>{c.model}</code></td>
+        <td>{c.ctx}</td>
+        <td>{c.tools_short_n}/12</td>
+        <td>{c.tools_long_n}/3</td>
+        <td>{c.needle_20k ? "yes" : "no"}</td>
+        <td>{fmtInt(c.swapouts_delta)}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+</div>
+
+At 32k, `gemma4:latest`, a 7.5B model, leads on everything this harness measures. It decodes at 123.7 tokens per second and is resident at 9.4 GB. Free memory never dropped below 27%, it had the fewest swap-outs, every short and long tool call was right, and it recalled the planted fact at 20k. `gpt-oss:20b` matches it on tool use and recall at half the speed, with free memory dropping to 10%. `qwen3:14b` also scores perfectly, but took free memory to 2% with 1.69 million swap-outs. `gemma4:12b` is the instructive failure. It is smaller and faster than `gpt-oss`, and every long-prompt tool call it made was wrong. It called `list_dir` for all three tasks, once with the path `"망."`.
+
+By the declared rule, **every cell failed**, and two of the reasons are defects in the harness rather than in the models. The swap counter is system-wide, and free memory before load ranged from 45% to 79% in this run, so swap can't be attributed to any one model. Even the best cell showed some. The 18,000-token "arrived whole" threshold fails `gemma4` for its tokenizer, as the table above shows. A rescore against a log-based truncation rule is the next step. It needs no models and no downloads.
+
+## So which default
+
+**`gemma4:latest`, provisionally**, and it was already `claude-local`'s default. The model was never the problem: it had never been pulled, and the server it would have run on was cutting every prompt to about 2,000 tokens. `gpt-oss:20b` is the heavier option that fits, if the machine has headroom to spare. `qwen3:14b`, `devstral:24b` and `gemma4:12b` are out for this machine and this route, the first two on memory and the third on long-prompt tool use.
+
+That recommendation is bounded by what was run. This harness measures fit, speed, recall and choosing the correct tool. **It does not measure whether a model writes correct code**, and that matters most for a coding agent. The memory results come from one machine with uncontrolled background load. The 65k context was never reached. All of it depends on Ollama 0.40.16 and these model digests, which are in the dataset.
+
+## Rerun it
+
+Everything above is published at [/bench/local-models/](/bench/local-models/SHA256SUMS) as verbatim copies of scripts from a private dotfiles repo. The one exception is `link-dotfiles.txt`, which has two machine-specific manifest lines redacted and marked in place. `SHA256SUMS` pins each file to the dotfiles commit it came from. The chain, in order:
+
+```zsh
+eval "$(check-agent-shell --probe)"           # what the agent's shell actually resolves
+link-dotfiles --check && test-link-dotfiles   # links, and 14 sandboxed probes of the linker
+ollama-service install --replace              # launchd-owned server, 32k context, one slot
+ollama-service verify llama3.1:8b             # positive control, then a ~20k prompt must arrive whole
+bench-local-models --models gemma4:latest,gpt-oss:20b --ctx 32768,65536
+bench/export-blog.py data.json                # committed results -> this post's dataset
+```
+
+| File | What it is |
+|---|---|
+| [`bench-local-models.txt`](/bench/local-models/bench-local-models.txt) | The benchmark harness; stdlib Python, run as `python3 -I` |
+| [`ollama-service.txt`](/bench/local-models/ollama-service.txt) | Install, status and verify for the launchd server |
+| [`local.ollama.plist.in.txt`](/bench/local-models/local.ollama.plist.in.txt) | The LaunchAgent template |
+| [`claude-local.txt`](/bench/local-models/claude-local.txt) | The launcher, with its new server preflight |
+| [`check-agent-shell.txt`](/bench/local-models/check-agent-shell.txt) | The agent/human shell parity check |
+| [`link-dotfiles.txt`](/bench/local-models/link-dotfiles.txt) | The symlink installer (two lines redacted) |
+| [`test-link-dotfiles.txt`](/bench/local-models/test-link-dotfiles.txt) | Its fourteen adversarial probes |
+| [`export-blog.py.txt`](/bench/local-models/export-blog.py.txt) | Committed results → sanitized dataset |
+| [`data.json`](/bench/local-models/data.json) | The dataset every chart and table here reads from |
+
+## What this did not check
+
+Code quality, as above. Two benchmark runs at the same moment. Reboot and login behaviour of the LaunchAgent. A hand-run server holding the port while launchd's isn't running. Whether `gemma4`'s untruncated reads at a nominal 4,096 context hold beyond 45k tokens, or under concurrent load. Any machine but this one. A check that claims to have covered everything has become the next gate that lies, and there have been enough of those in this one post.

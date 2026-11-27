@@ -1,0 +1,81 @@
+#!/bin/zsh
+# claude-local — run a Claude Code session against local Ollama inference.
+#
+# Uses Ollama's native Anthropic-compatible API (/v1/messages, Ollama >= 0.14).
+# Model selection: OLLAMA_CLAUDE_MODEL env var, or first argument to override,
+# e.g.:  claude-local                      # default model
+#        OLLAMA_CLAUDE_MODEL=gpt-oss:20b claude-local
+#        OLLAMA_CLAUDE_MODEL=qwen3-coder claude-local  # per-invocation override
+#
+# Normal `claude` sessions are unaffected — env vars are scoped to this process.
+
+set -e
+
+# Validate the actual selection before starting Claude; trailing CLI overrides
+# otherwise bypass the installed/local-model checks below.
+for arg in "$@"; do
+  case "$arg" in
+    --model|--model=*|--fallback-model|--fallback-model=*)
+      echo "claude-local: select a model with OLLAMA_CLAUDE_MODEL; CLI model overrides are refused." >&2
+      exit 2 ;;
+  esac
+done
+
+# The default has rotted twice: `gemma4` was missing in July, so it moved to
+# `gpt-oss:20b`, which was then removed (found 2026-10-11). Pinning a name was
+# never the fix; the missing-model check below makes a gone model fail loudly.
+# gemma4:latest (8B, ~9.6 GB) is the pulled model that fits a 24 GB Mac.
+MODEL="${OLLAMA_CLAUDE_MODEL:-gemma4:latest}"
+
+# Ollama can expose cloud-backed models in its local inventory.
+case "$MODEL" in
+  *:cloud|*-cloud)
+    echo "claude-local: cloud-backed models are refused in the local lane." >&2
+    exit 2 ;;
+esac
+
+# The server must be the launchd one with a 32k context: a server started any
+# other way defaults to n_ctx=4096 and silently truncates Claude Code's ~20k
+# system prompt to ~2k (bench/results/smoke-20261126T194936).
+if ! "${0:A:h}/ollama-service" status --quiet; then
+  echo "claude-local: the Ollama server is not the 32k-context launchd service." >&2
+  echo "Fix with 'ollama-service install' (add --replace to stop a hand-run server)." >&2
+  exit 1
+fi
+
+# Refuse to start on a model that isn't pulled; a silent no-op reads as success.
+if ! curl -sf --max-time 5 http://localhost:11434/api/tags \
+     | jq -e --arg m "$MODEL" 'any(.models[]; .name == $m or .name == ($m + ":latest"))' >/dev/null; then
+  echo "claude-local: model '$MODEL' is not pulled. Installed:" >&2
+  curl -sf http://localhost:11434/api/tags | jq -r '.models[].name' | sed 's/^/  /' >&2
+  echo "Pull it ('ollama pull $MODEL') or set OLLAMA_CLAUDE_MODEL." >&2
+  exit 1
+fi
+
+# Inspect model metadata as well as its name; custom aliases can hide a remote.
+if ! curl -sf --max-time 5 http://localhost:11434/api/show \
+    -H 'Content-Type: application/json' \
+    -d "$(jq -cn --arg model "$MODEL" '{model:$model}')" \
+    | jq -e '(.remote_model // "") == "" and (.remote_host // "") == ""' >/dev/null; then
+  echo "claude-local: model metadata is unavailable or indicates remote inference." >&2
+  exit 2
+fi
+
+# Route Claude Code at the local Ollama endpoint.
+export ANTHROPIC_BASE_URL="http://localhost:11434"
+export ANTHROPIC_AUTH_TOKEN="ollama"   # required by the client, ignored by Ollama
+unset ANTHROPIC_CUSTOM_HEADERS CLAUDE_CODE_SUBAGENT_MODEL
+unset ANTHROPIC_API_KEY                # avoid dual-credential conflicts
+
+# Map every model tier Claude Code might request to the local model, so
+# background/small-model calls don't try to reach claude-haiku on Ollama.
+export ANTHROPIC_MODEL="$MODEL"
+export ANTHROPIC_SMALL_FAST_MODEL="$MODEL"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="$MODEL"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="$MODEL"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="$MODEL"
+
+# Local endpoint has no Anthropic-side features; keep traffic minimal.
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
+exec claude --model "$MODEL" "$@"

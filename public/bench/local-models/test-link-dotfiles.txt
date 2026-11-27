@@ -1,0 +1,147 @@
+#!/usr/bin/env zsh
+# test-link-dotfiles — adversarial probes for bin/link-dotfiles.
+# Every probe runs against a disposable $HOME sandbox (never the real one),
+# asserts its precondition before reading a result, and measures the sandbox
+# store (paths, types, link targets, content hashes) instead of trusting
+# exit codes. Usage: test-link-dotfiles [path-to-link-dotfiles]
+emulate -L zsh
+setopt no_unset pipe_fail
+
+BIN=${${(%):-%x}:A:h}
+LD=${1:-$BIN/link-dotfiles}
+REPO=${BIN:h}
+[[ -x $LD ]] || { print -u2 "not executable: $LD"; exit 2; }
+ROOT=$(/usr/bin/mktemp -d -t link-dotfiles-test)
+trap '/bin/rm -rf $ROOT' EXIT
+pass=0 fail=0
+
+# Store fingerprint: every path under $1 with type, link target, content hash.
+store() {
+  ( cd $1 && /usr/bin/find . -print0 | /usr/bin/sort -z | while IFS= read -r -d '' p; do
+      if [[ -L $p ]]; then print -r -- "L $p -> $(/usr/bin/readlink $p)"
+      elif [[ -d $p ]]; then print -r -- "D $p"
+      else print -r -- "F $p $(/sbin/md5 -q $p)"; fi
+    done ) | /sbin/md5 -q
+}
+sandbox() { local d=$ROOT/${1}; /bin/mkdir -p $d; print -r -- $d; }
+run()     { HOME=$1 XDG_STATE_HOME= /usr/bin/env -u XDG_STATE_HOME HOME=$1 $LD ${@:2} >$ROOT/out 2>&1; }
+expect()  { # $1 probe id, $2 description, $3 condition
+  if eval $3; then print "  PASS  $1 $2"; (( ++pass ))
+  else print "  FAIL  $1 $2"; /usr/bin/sed 's/^/        | /' $ROOT/out; (( ++fail )); fi
+}
+precond() { eval $2 || { print "  SKIP  $1 precondition failed: $2"; (( ++fail )); return 1; } }
+all_ok()  { HOME=$1 /usr/bin/env -u XDG_STATE_HOME HOME=$1 $LD --check >/dev/null 2>&1; }
+
+print "test-link-dotfiles  $LD"
+
+# P1 fresh home: creates parents; second run changes nothing
+h=$(sandbox p1)
+run $h; rc=$?
+expect P1a "fresh home: exit 0, all links ok"        '(( rc == 0 )) && all_ok $h'
+s1=$(store $h); run $h; rc=$?; s2=$(store $h)
+expect P1b "second run: exit 0, store unchanged"      '(( rc == 0 )) && [[ $s1 == $s2 ]]'
+
+# P2 regular file at target: byte-identical backup, then linked
+h=$(sandbox p2); print -r -- "precious $RANDOM" > $h/.zshrc; want=$(/sbin/md5 -q $h/.zshrc)
+precond P2 '[[ -f $h/.zshrc && ! -L $h/.zshrc ]]' && {
+  run $h; rc=$?
+  bak=( $h/.local/state/link-dotfiles/*/.zshrc(N) )
+  expect P2 "file backed up byte-identical, then linked" \
+    '(( rc == 0 )) && (( $#bak == 1 )) && [[ $(/sbin/md5 -q $bak[1]) == $want ]] && all_ok $h'
+}
+
+# P3 wrong symlink and dangling symlink: relinked
+h=$(sandbox p3); print x > $h/other
+/bin/ln -s $h/other $h/.zshrc; /bin/ln -s $h/nowhere $h/.tmux.conf
+precond P3 '[[ -L $h/.zshrc && -L $h/.tmux.conf && ! -e $h/.tmux.conf ]]' && {
+  run $h; rc=$?
+  expect P3 "wrong + dangling symlinks relinked, other untouched" \
+    '(( rc == 0 )) && all_ok $h && [[ $(<$h/other) == x ]]'
+}
+
+# P4 directory at one target, others missing: nothing applied anywhere
+h=$(sandbox p4); /bin/mkdir -p $h/.zshrc; print keep > $h/.zshrc/f
+precond P4 '[[ -d $h/.zshrc ]]' && {
+  s1=$(store $h); run $h; rc=$?; s2=$(store $h)
+  expect P4 "dir at target: exit 2, store unchanged"   '(( rc == 2 )) && [[ $s1 == $s2 ]]'
+}
+
+# P5 --check / --dry-run are read-only on a drifted home
+h=$(sandbox p5); print f > $h/.zshrc; /bin/ln -s $h/nowhere $h/.tmux.conf
+precond P5 '[[ -f $h/.zshrc ]]' && {
+  s1=$(store $h)
+  run $h --check;   rc1=$?
+  run $h --dry-run; rc2=$?
+  s2=$(store $h)
+  expect P5 "--check exit 1, --dry-run exit 0, store unchanged" \
+    '(( rc1 == 1 && rc2 == 0 )) && [[ $s1 == $s2 ]]'
+}
+
+# P6 symlink loop at target: terminates, relinked
+h=$(sandbox p6); /bin/ln -s $h/.zshrc $h/.zshrc
+precond P6 '[[ -L $h/.zshrc ]]' && {
+  ( run $h ) & pid=$!; ( /bin/sleep 10; kill $pid 2>/dev/null ) & w=$!
+  wait $pid; rc=$?; kill $w 2>/dev/null
+  expect P6 "self-loop: terminates, relinked"           '(( rc == 0 )) && all_ok $h'
+}
+
+# P7 HOME with spaces
+h=$(sandbox "p7 with spaces/home dir")
+run $h; rc=$?
+expect P7 "HOME with spaces: exit 0, all ok"           '(( rc == 0 )) && all_ok $h'
+
+# P8 symlink to a directory at target: the link is replaced, dir untouched
+h=$(sandbox p8); /bin/mkdir -p $h/realdir/.config; print keep > $h/realdir/f
+/bin/mkdir -p $h/.config; /bin/ln -s $h/realdir $h/.config/starship.toml
+precond P8 '[[ -L $h/.config/starship.toml && -d $h/.config/starship.toml ]]' && {
+  run $h; rc=$?
+  expect P8 "symlink->dir replaced, dir contents untouched" \
+    '(( rc == 0 )) && all_ok $h && [[ $(<$h/realdir/f) == keep ]] && [[ ! -e $h/realdir/starship.toml && ! -e $h/realdir/zshrc ]]'
+}
+
+# P9 two backups of the same path in the same second: both survive
+h=$(sandbox p9)
+print first > $h/.zshrc; run $h; rc1=$?
+/bin/rm $h/.zshrc; print second > $h/.zshrc; run $h; rc2=$?
+precond P9 '(( rc1 == 0 ))' && {
+  got=( ${(f)"$(/usr/bin/find $h/.local/state/link-dotfiles -type f -exec /bin/cat {} \; | /usr/bin/sort)"} )
+  expect P9 "same-second backups: both 'first' and 'second' kept" \
+    '(( rc2 == 0 )) && [[ ${(j:,:)got} == first,second ]]'
+  # R3: the pass above is hollow unless the two runs actually collided
+  sfx=( $h/.local/state/link-dotfiles/*/.zshrc.1(N) )
+  (( $#sfx )) && print "  note  P9 collision exercised (.zshrc.1 present)" \
+              || print "  note  P9 runs fell in different seconds; collision NOT exercised"
+}
+
+# R1 parent is a symlink to a real directory: allowed, link lands inside it
+h=$(sandbox r1); /bin/mkdir -p $h/elsewhere/bin $h/.local; /bin/ln -s $h/elsewhere/bin $h/.local/bin
+precond R1 '[[ -L $h/.local/bin && -d $h/.local/bin ]]' && {
+  run $h; rc=$?
+  expect R1 "parent symlink->dir: allowed, link inside target dir" \
+    '(( rc == 0 )) && all_ok $h && [[ -L $h/elsewhere/bin/zed ]]'
+}
+
+# R2 parent is a dangling symlink: error, nothing applied
+h=$(sandbox r2); /bin/ln -s $h/nowhere $h/.config
+precond R2 '[[ -L $h/.config && ! -e $h/.config ]]' && {
+  s1=$(store $h); run $h; rc=$?; s2=$(store $h)
+  expect R2 "parent dangling symlink: exit 2, store unchanged" '(( rc == 2 )) && [[ $s1 == $s2 ]]'
+}
+
+# P10 parent component is a regular file: nothing applied anywhere
+h=$(sandbox p10); print notadir > $h/.config
+precond P10 '[[ -f $h/.config ]]' && {
+  s1=$(store $h); run $h; rc=$?; s2=$(store $h)
+  expect P10 "parent is a file: exit 2, store unchanged" '(( rc == 2 )) && [[ $s1 == $s2 ]]'
+}
+
+# P11 invoked via the ~/Code alias: links resolve to the canonical repo path
+if [[ -d $HOME/Code/tools/dotfiles ]]; then
+  h=$(sandbox p11)
+  HOME=$h /usr/bin/env -u XDG_STATE_HOME HOME=$h $HOME/Code/tools/dotfiles/bin/link-dotfiles >$ROOT/out 2>&1; rc=$?
+  expect P11 "via ~/Code: links point at ${REPO}" \
+    '(( rc == 0 )) && [[ $(/usr/bin/readlink $h/.zshrc) == $REPO/zshrc ]]'
+fi
+
+print "\n$pass passed, $fail failed"
+(( fail == 0 ))

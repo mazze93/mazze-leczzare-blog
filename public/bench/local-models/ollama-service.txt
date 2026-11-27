@@ -1,0 +1,147 @@
+#!/usr/bin/env zsh
+# ollama-service — run the claude-local Ollama server under launchd with the
+# environment it needs (32k context, one slot), and prove it.
+#
+#   ollama-service install [--replace]  render + (re)load the LaunchAgent; idempotent.
+#                                       --replace stops a server on :11434 that
+#                                       launchd does not own (e.g. a hand-run one)
+#   ollama-service status [--quiet]     read-only; exit 1 unless launchd owns the
+#                                       :11434 listener and its env has the values below
+#   ollama-service verify [model]       LOADS A MODEL: sends a ~20k-token prompt via
+#                                       /v1/messages; exit 1 unless it arrives whole
+#                                       and a fact at its start is recalled
+#
+# Source of truth: ../launchd/local.ollama.plist.in. The installed plist is a
+# rendered copy (launchd needs absolute paths), compared byte-for-byte.
+emulate -L zsh
+setopt err_return no_unset pipe_fail
+
+REPO=${${(%):-%x}:A:h:h}
+TEMPLATE=$REPO/launchd/local.ollama.plist.in
+LABEL=local.ollama
+PLIST=$HOME/Library/LaunchAgents/$LABEL.plist
+DOMAIN=gui/$(/usr/bin/id -u)
+PORT=11434
+WANT=(OLLAMA_CONTEXT_LENGTH=32768 OLLAMA_NUM_PARALLEL=1)
+die() { print -u2 "× $*"; return 1; }
+ok()  { [[ ${QUIET-} == 1 ]] || print "✓ $*"; }
+
+render() {
+  local bin; bin=$(whence -p ollama) || die "ollama not on PATH"
+  # Keep the stable /opt/homebrew/bin path, not ${bin:A}: the resolved Cellar
+  # path changes on every `brew upgrade` and would strand the plist.
+  /usr/bin/sed -e "s|@HOME@|$HOME|g" -e "s|@OLLAMA@|$bin|g" $TEMPLATE
+}
+# "Nothing there" is an empty answer, not an error: lsof exits 1 with no
+# listener and launchctl print exits 113 for an unloaded job, and under
+# pipe_fail + err_return either one aborted install mid-way.
+listener_pid() { { /usr/sbin/lsof -nP -iTCP:$PORT -sTCP:LISTEN -t 2>/dev/null || true } | head -1; }
+agent_pid() { { /bin/launchctl print $DOMAIN/$LABEL 2>/dev/null || true } | /usr/bin/awk '$1=="pid"{print $3; exit}'; }
+
+cmd_status() {
+  local lp ap envs w
+  [[ -f $PLIST ]] || die "$PLIST not installed (run: ollama-service install)" || return 1
+  cmp -s $PLIST <(render) || die "$PLIST differs from template (run: ollama-service install)" || return 1
+  ok "plist matches template"
+  ap=$(agent_pid); [[ -n $ap ]] || die "launchd job $LABEL not running" || return 1
+  lp=$(listener_pid); [[ $lp == $ap ]] || die ":$PORT listener pid=${lp:-none}, launchd pid=$ap (another server holds the port?)" || return 1
+  ok "launchd owns :$PORT (pid $ap)"
+  envs=$(/bin/ps eww -o command= -p $ap)
+  for w in $WANT; do [[ " $envs " == *" $w "* ]] || die "server env lacks $w" || return 1; done
+  ok "server env: $WANT"
+  /usr/bin/curl -sf --max-time 3 http://127.0.0.1:$PORT/api/version >/dev/null || die "API not answering" || return 1
+  ok "API answering"
+}
+
+cmd_install() {
+  local replace=${1-} lp ap tmp
+  [[ -f $TEMPLATE ]] || die "missing $TEMPLATE" || return 1
+  if /opt/homebrew/bin/brew services list 2>/dev/null | /usr/bin/awk '$1=="ollama"{print $2}' | grep -qx started; then
+    die "brew services also runs ollama; stop it first: brew services stop ollama" || return 1
+  fi
+  tmp=$(render) || return 1
+  /bin/mkdir -p ${PLIST:h} $HOME/Library/Logs/ollama
+  if ! cmp -s $PLIST <(print -r -- $tmp); then
+    print -r -- $tmp > $PLIST.new
+    /usr/bin/plutil -lint -s $PLIST.new || { /bin/rm -f $PLIST.new; die "rendered plist invalid"; return 1; }
+    /bin/mv -f $PLIST.new $PLIST
+    ok "wrote $PLIST"
+    /bin/launchctl bootout $DOMAIN/$LABEL 2>/dev/null || true   # reload with new env
+  fi
+  lp=$(listener_pid) ap=$(agent_pid)
+  if [[ -n $lp && $lp != ${ap:-x} ]]; then
+    [[ $replace == --replace ]] || die ":$PORT held by pid $lp ($(/bin/ps -o command= -p $lp)); rerun with --replace" || return 1
+    print "  stopping pid $lp ($(/bin/ps -o command= -p $lp))"
+    kill $lp
+    for _ in {1..40}; do [[ -z $(listener_pid) ]] && break; /bin/sleep 0.25; done
+    [[ -z $(listener_pid) ]] || die "pid $lp did not release :$PORT" || return 1
+  fi
+  [[ -n $(agent_pid) ]] || /bin/launchctl bootstrap $DOMAIN $PLIST
+  for _ in {1..60}; do /usr/bin/curl -sf --max-time 1 http://127.0.0.1:$PORT/api/version >/dev/null && break; /bin/sleep 0.5; done
+  cmd_status
+}
+
+cmd_verify() {
+  local model=${1:-llama3.1:8b} code body resp seen said
+  cmd_status || return 1
+  code="VAULT-$RANDOM-$RANDOM"
+  # A token-count threshold is tokenizer-dependent (gemma4 counts this text as
+  # ~16.4k, llama3.1 as ~20k), so truncation is judged by the server itself:
+  #  1. control: a prompt far over 32k MUST be truncated — proves the signal
+  #     (log line, else the capped token count) is visible for this model;
+  #  2. test: the ~20k prompt must show neither signal, and a fact placed at
+  #     token 0 must be recalled.
+  local log=$HOME/Library/Logs/ollama/server.log
+  local seen= said= logged= cap_seen= cap_logged=   # declared once: zsh prints a re-declared local
+  ask() {  # $1 sentences, $2 code -> sets seen, said, logged
+    local body resp off
+    body=$(/usr/bin/env python3 -I - "$model" "$2" "$1" <<'PY'
+import json, random, sys
+model, code, n = sys.argv[1], sys.argv[2], int(sys.argv[3])
+rng = random.Random(20261126)
+words = "amber basin cedar delta ember fjord granite harbor island jasper kettle lagoon meadow".split()
+hay = " ".join(" ".join(rng.choice(words) for _ in range(12)).capitalize() + "." for _ in range(n))
+print(json.dumps({"model": model, "max_tokens": 64, "temperature": 0,
+  "system": f"Remember this: the vault code is {code}.\n\n" + hay,
+  "messages": [{"role": "user", "content": "What is the vault code from the start of the system prompt? Reply with only the code."}]}))
+PY
+) || return 1
+    off=$(/usr/bin/stat -f %z $log 2>/dev/null || print 0)
+    resp=$(/usr/bin/curl -sf --max-time 900 http://127.0.0.1:$PORT/v1/messages \
+           -H 'content-type: application/json' -H 'x-api-key: ollama' -H 'anthropic-version: 2023-06-01' \
+           -d "$body") || { die "request failed"; return 1; }
+    seen=$(print -r -- $resp | /opt/homebrew/bin/jq '.usage.input_tokens // 0')
+    said=$(print -r -- $resp | /opt/homebrew/bin/jq -r '[.content[]?|select(.type=="text").text]|join("")')
+    # Exact message only: llama.cpp also prints "truncated = 0" stats lines,
+    # which a looser 'truncat' match counted as truncation (2026-11-26).
+    logged=$( { /usr/bin/tail -c +$((off + 1)) $log 2>/dev/null || true } | grep -c 'msg="truncating input prompt"' || true)
+  }
+  ask 3500 "CONTROL-$RANDOM" || return 1
+  cap_seen=$seen cap_logged=$logged
+  print "  control (~45k+ tokens sent): model saw $cap_seen, truncation log lines: $cap_logged"
+  ask 1250 $code || return 1
+  /usr/bin/curl -sf http://127.0.0.1:$PORT/api/generate -d "{\"model\":\"$model\",\"keep_alive\":0}" >/dev/null || true
+  print "  test (~20k tokens sent): model saw $seen, truncation log lines: $logged"
+  if (( cap_logged > 0 )); then
+    # llama-server path: truncation is logged, and the control proved it.
+    (( logged == 0 )) || { die "server logged truncation of the ~20k prompt"; return 1; }
+    ok "no truncation logged (log signal proven by control)"
+  elif (( cap_seen > 32768 )); then
+    # Observed for gemma4 (Ollama's own engine): /api/ps reports the server
+    # context, but prompts past it arrive whole. Nothing truncates at this
+    # size, so the smaller test prompt cannot have been truncated.
+    ok "engine does not truncate: control arrived whole ($cap_seen > 32768 tokens)"
+  else
+    (( seen < cap_seen )) || { die "test prompt hit the cap ($seen >= $cap_seen)"; return 1; }
+    ok "test prompt below the observed cap ($seen < $cap_seen; no log signal for this model)"
+  fi
+  [[ $said == *$code* ]] || { die "needle not recalled (said: ${said[1,80]})"; return 1; }
+  ok "model $model recalled the fact at token 0 of $seen"
+}
+
+case ${1-} in
+  install) cmd_install ${2-} ;;
+  status)  [[ ${2-} == --quiet ]] && QUIET=1; cmd_status ;;
+  verify)  cmd_verify ${2-} ;;
+  *) print -u2 "usage: ollama-service install [--replace] | status [--quiet] | verify [model]"; exit 2 ;;
+esac

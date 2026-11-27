@@ -1,0 +1,381 @@
+#!/usr/bin/env -S python3 -I
+"""bench-local-models — measured, rerunnable benchmark of claude-local candidates.
+
+For each model x server context setting it starts a PRIVATE `ollama serve`
+(port 11435, one slot, one loaded model, same model store) so results do not
+depend on how the user's own server was launched, then measures:
+
+  fit       /api/ps size, size_vram -> GPU %, loaded context length
+  load      cold load seconds
+  speed     decode tok/s (256 tokens), prefill tok/s (~20k-token prompt)
+  trunc     prompt tokens the model actually saw for the ~20k prompt
+  needle    recall of a fact at the START of a 3k and a 20k system prompt,
+            via /v1/messages (the Anthropic route claude-local uses)
+  tools     /v1/messages tool_use: 3 tools x 3 phrasings, + 3 no-tool controls
+  long      tool_use behind an ~18k-token system prompt (Claude Code's shape)
+  memory    min kern.memorystatus_level (free %) sampled every 0.5 s,
+            vm_stat swapouts delta across the cell
+
+Declared before any data (deterministic verdict):
+  comfortable = gpu==100 and swapouts==0 and min_free>=20
+                and needle_20k and long_tools>=2/3
+Negative control gemma:latest (no tools capability, 8k native context) must
+FAIL tools and needle_20k; if it passes either, the run is marked INVALID.
+
+Determinism: temperature 0, seeded haystacks, fixed phrasings. Results record
+ollama version, model digests, hardware and this file's sha256.
+
+Usage:
+  bench-local-models [--models a,b] [--ctx default,32768,65536] [--pull]
+                     [--reserve-gb 25] [--out DIR]
+Never deletes models; prints `ollama rm` for the ones it pulled.
+"""
+import argparse, hashlib, json, os, random, re, shutil, subprocess, sys
+import threading, time, urllib.error, urllib.request
+from pathlib import Path
+
+HERE = Path(__file__).resolve()
+REPO = HERE.parent.parent
+DEFAULT_MODELS = ["gpt-oss:20b", "qwen3:14b", "gemma4:12b", "gemma4:latest", "devstral:24b"]
+CONTROL = "gemma:latest"
+DEFAULT_CTX = ["default", "32768", "65536"]
+USER_BASE = "http://127.0.0.1:11434"
+PORT = 11435
+BASE = f"http://127.0.0.1:{PORT}"
+SEED = 20261126
+UNTRUNC_MIN = 18000   # ~20k prompt must arrive at least this whole
+LONG_MIN = 15000      # long-tool request counts only above this many input tokens
+# Rule history: 2026-11-26 smoke run showed default n_ctx=4096 truncating the
+# ~20k prompts to 2046 tokens while long_tools still scored 2/3 (vacuous). The
+# two thresholds above were added then; they only make the rule stricter.
+REGISTRY = "https://registry.ollama.ai/v2/library"
+
+WORDS = ("amber basin cedar delta ember fjord granite harbor island jasper kettle "
+         "lagoon meadow nectar oasis prairie quartz river summit tundra upland valley "
+         "willow xenon yarrow zephyr anchor beacon canyon dune estuary forest glacier "
+         "hollow inlet juniper knoll ledge marsh north orchard plateau quarry ridge "
+         "shoal timber umber vista wharf yonder zenith").split()
+
+TOOLS = [
+    {"name": "read_file", "description": "Read a file from the workspace and return its contents.",
+     "input_schema": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
+    {"name": "list_dir", "description": "List the entries of a directory in the workspace.",
+     "input_schema": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
+    {"name": "run_command", "description": "Run a shell command in the workspace and return its output.",
+     "input_schema": {"type": "object", "properties": {"command": {"type": "string"}}, "required": ["command"]}},
+]
+def _norm(p): return str(p or "").strip().lstrip("./").rstrip("/")
+TASKS = [
+    ("read_file", lambda i: _norm(i.get("path")).endswith("src/app.py"),
+     ["Open src/app.py and tell me what it does.", "Show me the contents of src/app.py.",
+      "What's in the file src/app.py? Read it."]),
+    ("list_dir", lambda i: _norm(i.get("path")) == "docs",
+     ["List what's in the docs folder.", "Which files are inside docs/?",
+      "Show me the directory listing of docs."]),
+    ("run_command", lambda i: "pytest" in str(i.get("command", "")),
+     ["Run the test suite with pytest -q.", "Execute pytest -q and report the result.",
+      "Use pytest -q to run the tests."]),
+    (None, None,
+     ["What is 2+2? Answer directly without using any tools.", "Say hello in French. Do not use tools.",
+      "What color is the sky on a clear day? Answer in one word, no tools."]),
+]
+AGENT_SYS = ("You are a coding agent working in a repository. Use the provided tools to act "
+             "on the workspace whenever the user asks about files, directories or commands.")
+
+# ---------------------------------------------------------------- helpers
+def log(*a): print(*a, file=sys.stderr, flush=True)
+
+def req(base, path, body=None, timeout=900, headers=None):
+    data = None if body is None else json.dumps(body).encode()
+    h = {"content-type": "application/json", **(headers or {})}
+    r = urllib.request.Request(base + path, data=data, headers=h, method="GET" if body is None else "POST")
+    try:
+        with urllib.request.urlopen(r, timeout=timeout) as resp:
+            return json.loads(resp.read() or b"{}")
+    except urllib.error.HTTPError as e:
+        return {"_error": e.code, "_body": e.read().decode(errors="replace")[:500]}
+    except Exception as e:  # connection reset, timeout
+        return {"_error": type(e).__name__, "_body": str(e)[:500]}
+
+def sh(*cmd):
+    return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
+
+def swapouts():
+    m = re.search(r"Swapouts:\s+(\d+)", sh("/usr/bin/vm_stat"))
+    return int(m.group(1)) if m else None
+
+def free_level():
+    v = sh("/usr/sbin/sysctl", "-n", "kern.memorystatus_level")
+    return int(v) if v.isdigit() else None
+
+class MemMonitor:
+    def __init__(self): self.min = None; self._stop = threading.Event()
+    def __enter__(self):
+        self.swap0, self.base = swapouts(), free_level()
+        def loop():
+            while not self._stop.is_set():
+                v = free_level()
+                if v is not None: self.min = v if self.min is None else min(self.min, v)
+                self._stop.wait(0.5)
+        self.t = threading.Thread(target=loop, daemon=True); self.t.start(); return self
+    def __exit__(self, *a):
+        self._stop.set(); self.t.join()
+        s1 = swapouts()
+        self.swap_delta = None if None in (self.swap0, s1) else s1 - self.swap0
+
+def haystack(tokens, seed):
+    rng = random.Random(seed)
+    words, out, n = int(tokens / 1.35), [], 0
+    while n < words:
+        k = rng.randint(8, 16); out.append(" ".join(rng.choice(WORDS) for _ in range(k)).capitalize() + ".")
+        n += k
+    return " ".join(out)
+
+def needle_code(seed):
+    rng = random.Random(seed)
+    return f"{rng.randint(100,999)}-{rng.choice(['ZEBRA','ORCHID','COBALT','LANTERN'])}-{rng.randint(10,99)}"
+
+def messages(model, system, user, tools=None, max_tokens=2048):
+    body = {"model": model, "max_tokens": max_tokens, "temperature": 0, "system": system,
+            "messages": [{"role": "user", "content": user}]}
+    if tools: body["tools"] = tools
+    t = time.monotonic()
+    r = req(BASE, "/v1/messages", body, headers={"x-api-key": "ollama", "anthropic-version": "2023-06-01"})
+    r["_secs"] = round(time.monotonic() - t, 2)
+    blocks = r.get("content") or []
+    r["_text"] = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
+    r["_tool_uses"] = [b for b in blocks if b.get("type") == "tool_use"]
+    return r
+
+def registry_size(model):
+    n, _, t = model.partition(":")
+    r = urllib.request.Request(f"{REGISTRY}/{n}/manifests/{t or 'latest'}",
+        headers={"Accept": "application/vnd.docker.distribution.manifest.v2+json"})
+    with urllib.request.urlopen(r, timeout=20) as resp:
+        return sum(l["size"] for l in json.loads(resp.read())["layers"])
+
+# ---------------------------------------------------------------- server
+class Server:
+    def __init__(self, ctx, logdir):
+        self.ctx, self.logdir = ctx, logdir
+    def __enter__(self):
+        env = {k: v for k, v in os.environ.items() if not k.startswith("OLLAMA_")}
+        env.update(OLLAMA_HOST=f"127.0.0.1:{PORT}", OLLAMA_MAX_LOADED_MODELS="1",
+                   OLLAMA_NUM_PARALLEL="1", OLLAMA_KEEP_ALIVE="10m")
+        if self.ctx != "default": env["OLLAMA_CONTEXT_LENGTH"] = self.ctx
+        self.logf = open(self.logdir / f"server-ctx-{self.ctx}.log", "a")
+        self.p = subprocess.Popen([shutil.which("ollama"), "serve"], env=env,
+                                  stdout=self.logf, stderr=subprocess.STDOUT)
+        for _ in range(60):
+            if "version" in req(BASE, "/api/version", timeout=2): return self
+            time.sleep(0.5)
+        raise SystemExit(f"private server on :{PORT} did not start (ctx={self.ctx})")
+    def __exit__(self, *a):
+        self.p.terminate()
+        try: self.p.wait(15)
+        except subprocess.TimeoutExpired: self.p.kill()
+        self.logf.close()
+
+def unload(model):
+    req(BASE, "/api/generate", {"model": model, "keep_alive": 0, "prompt": ""}, timeout=60)
+    for _ in range(40):
+        if not (req(BASE, "/api/ps").get("models") or []): return
+        time.sleep(0.5)
+
+# ---------------------------------------------------------------- one cell
+def bench_cell(model, ctx, info):
+    cell = {"model": model, "ctx": ctx}
+    native = info["native_ctx"]
+    # The control runs everywhere: failing past its native context is its job.
+    if model != CONTROL and ctx != "default" and native and int(ctx) > native:
+        cell["skipped"] = f"ctx {ctx} exceeds native {native}"; return cell
+    unload(model)
+    with MemMonitor() as mem:
+        t = time.monotonic()
+        r = req(BASE, "/api/generate", {"model": model, "prompt": "hi", "stream": False,
+                                        "options": {"num_predict": 1, "temperature": 0, "seed": SEED}})
+        cell["load_s"] = round(time.monotonic() - t, 2)
+        if "_error" in r: cell["error"] = r; return cell
+        ps = (req(BASE, "/api/ps").get("models") or [{}])[0]
+        size, vram = ps.get("size", 0), ps.get("size_vram", 0)
+        cell.update(ram_gb=round(size / 1e9, 2), vram_gb=round(vram / 1e9, 2),
+                    gpu_pct=round(100 * vram / size) if size else None,
+                    loaded_ctx=ps.get("context_length"))
+
+        r = req(BASE, "/api/generate", {"model": model, "stream": False,
+            "prompt": "Write a Python function that parses an ISO 8601 date string and returns a datetime. Include docstring and tests.",
+            "options": {"num_predict": 256, "temperature": 0, "seed": SEED}})
+        if r.get("eval_duration"):
+            cell["decode_tps"] = round(r["eval_count"] / (r["eval_duration"] / 1e9), 1)
+
+        r = req(BASE, "/api/generate", {"model": model, "stream": False,
+            "prompt": haystack(20000, SEED + 1) + "\nSummarize the text above in one word.",
+            "options": {"num_predict": 1, "temperature": 0, "seed": SEED}})
+        if r.get("prompt_eval_duration"):
+            cell["prefill_tps"] = round(r["prompt_eval_count"] / (r["prompt_eval_duration"] / 1e9), 1)
+        cell["prompt_tokens_seen_20k"] = r.get("prompt_eval_count")
+
+        for size_tok, key in ((3000, "needle_3k"), (20000, "needle_20k")):
+            code = needle_code(SEED + size_tok)
+            sysmsg = f"Remember this: the vault code is {code}.\n\n" + haystack(size_tok, SEED + size_tok)
+            m = messages(model, sysmsg, "What is the vault code from the start of the system prompt? Reply with only the code.")
+            cell[key] = code in m["_text"]
+            cell[key + "_detail"] = {"secs": m["_secs"], "input_tokens": (m.get("usage") or {}).get("input_tokens"),
+                                     "error": m.get("_error"), "said": m["_text"][:120]}
+
+        short, short_detail = 0, []
+        for name, pred, phrasings in TASKS:
+            for ph in phrasings:
+                m = messages(model, AGENT_SYS, ph, tools=TOOLS)
+                tu = m["_tool_uses"]
+                ok = (not tu and "_error" not in m) if name is None else \
+                     bool(tu) and tu[0].get("name") == name and pred(tu[0].get("input") or {})
+                short += ok
+                short_detail.append({"task": name or "no_tool", "ok": ok, "error": m.get("_error"),
+                                     "got": [(b.get("name"), b.get("input")) for b in tu][:2]})
+        cell["tools_short"] = f"{short}/12"; cell["tools_short_n"] = short
+        cell["tools_short_detail"] = short_detail
+
+        # One haystack per request: a shared prefix is served from the prompt
+        # cache and usage.input_tokens then counts only the uncached tail
+        # (smoke2: 20410 then 13, 14), which hid real long-prompt passes.
+        long_ok, long_detail = 0, []
+        for idx, (name, pred, phrasings) in enumerate(TASKS[:3]):
+            long_sys = AGENT_SYS + "\n\nProject notes follow.\n" + haystack(18000, SEED + 70 + idx)
+            m = messages(model, long_sys, phrasings[0], tools=TOOLS)
+            tu = m["_tool_uses"]
+            ok = bool(tu) and tu[0].get("name") == name and pred(tu[0].get("input") or {})
+            long_ok += ok
+            long_detail.append({"task": name, "ok": ok, "secs": m["_secs"], "error": m.get("_error"),
+                                "input_tokens": (m.get("usage") or {}).get("input_tokens"),
+                                "usage": m.get("usage"),
+                                "got": [(b.get("name"), b.get("input")) for b in tu][:2]})
+        # A long test that was truncated tested nothing: count it only if the
+        # model reported receiving >= LONG_MIN input tokens for every request.
+        seen = [d["input_tokens"] or 0 for d in long_detail]
+        cell["tools_long_min_input"] = min(seen)
+        cell["tools_long_effective"] = min(seen) >= LONG_MIN
+        if not cell["tools_long_effective"]: long_ok = 0
+        cell["tools_long"] = f"{long_ok}/3"; cell["tools_long_n"] = long_ok
+        cell["tools_long_detail"] = long_detail
+    cell["min_free_pct"], cell["swapouts_delta"] = mem.min, mem.swap_delta
+    cell["baseline_free_pct"] = mem.base  # before load: what else was using memory
+    cell["comfortable"] = bool(cell.get("gpu_pct") == 100 and mem.swap_delta == 0
+                               and (mem.min or 0) >= 20 and cell.get("needle_20k")
+                               and (cell.get("prompt_tokens_seen_20k") or 0) >= UNTRUNC_MIN
+                               and cell.get("tools_long_n", 0) >= 2)
+    unload(model)
+    return cell
+
+# ---------------------------------------------------------------- main
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--models", default=",".join(DEFAULT_MODELS))
+    ap.add_argument("--ctx", default=",".join(DEFAULT_CTX))
+    ap.add_argument("--pull", action="store_true")
+    ap.add_argument("--reserve-gb", type=float, default=25)
+    ap.add_argument("--out", type=Path, default=None)
+    a = ap.parse_args()
+
+    models = [m for m in a.models.split(",") if m]
+    if CONTROL not in models: models.append(CONTROL)
+    ctxs = [c for c in a.ctx.split(",") if c]
+    stamp = time.strftime("%Y%m%dT%H%M%S")
+    out = a.out or REPO / "bench" / "results" / stamp
+    out.mkdir(parents=True, exist_ok=True)
+
+    # preconditions
+    if not shutil.which("ollama"): raise SystemExit("ollama not on PATH")
+    up = req(USER_BASE, "/api/ps")
+    if "_error" not in up and up.get("models"):
+        raise SystemExit("user server on :11434 has models loaded; unload them first "
+                         "(memory figures would be contaminated): " +
+                         ", ".join(m["name"] for m in up["models"]))
+    if "version" in req(BASE, "/api/version", timeout=2):
+        raise SystemExit(f"port {PORT} already in use")
+
+    run = {"stamp": stamp, "seed": SEED, "harness_sha256": hashlib.sha256(HERE.read_bytes()).hexdigest(),
+           "dotfiles_commit": sh("git", "-C", str(REPO), "rev-parse", "--short", "HEAD"),
+           "hw": {"cpu": sh("/usr/sbin/sysctl", "-n", "machdep.cpu.brand_string"),
+                  "ram_gb": int(sh("/usr/sbin/sysctl", "-n", "hw.memsize")) // 2**30,
+                  "iogpu_wired_limit_mb": sh("/usr/sbin/sysctl", "-n", "iogpu.wired_limit_mb")},
+           "rule": (f"comfortable = gpu==100 and swapouts==0 and min_free>=20 and needle_20k "
+                    f"and prompt_tokens_seen_20k>={UNTRUNC_MIN} and long_tools>=2/3 "
+                    f"(long counted only if every request had >={LONG_MIN} input tokens)"),
+           "control": CONTROL, "pulled": [], "skipped_models": {}, "models": {}, "cells": []}
+
+    with Server("default", out) as _:
+        run["ollama_version"] = req(BASE, "/api/version").get("version")
+        have = {m["name"] for m in req(BASE, "/api/tags").get("models", [])}
+        for m in models:
+            name = m if ":" in m else m + ":latest"
+            if name not in have:
+                if not a.pull: run["skipped_models"][m] = "not pulled (rerun with --pull)"; continue
+                need = registry_size(m) / 1e9
+                free = shutil.disk_usage(Path.home()).free / 1e9
+                if free - need < a.reserve_gb:
+                    run["skipped_models"][m] = f"disk guard: {free:.1f} GB free - {need:.1f} GB < reserve {a.reserve_gb} GB"
+                    continue
+                log(f"pulling {m} ({need:.1f} GB, {free:.1f} GB free)")
+                r = req(BASE, "/api/pull", {"model": m, "stream": False}, timeout=7200)
+                if r.get("status") != "success":
+                    run["skipped_models"][m] = f"pull failed: {r}"; continue
+                run["pulled"].append(m)
+            s = req(BASE, "/api/show", {"model": m})
+            mi = s.get("model_info") or {}
+            run["models"][m] = {
+                "digest": next((x["digest"] for x in req(BASE, "/api/tags")["models"] if x["name"] == name), None),
+                "capabilities": s.get("capabilities"),
+                "native_ctx": next((v for k, v in mi.items() if k.endswith(".context_length")), None),
+                "params": (s.get("details") or {}).get("parameter_size"),
+                "quant": (s.get("details") or {}).get("quantization_level")}
+
+    for ctx in ctxs:
+        with Server(ctx, out):
+            for m, info in run["models"].items():
+                log(f"[ctx={ctx}] {m}")
+                try: cell = bench_cell(m, ctx, info)
+                except Exception as e: cell = {"model": m, "ctx": ctx, "error": repr(e)}
+                log_txt = (out / f"server-ctx-{ctx}.log").read_text(errors="replace")
+                cell["server_truncations_so_far"] = log_txt.count("truncating input prompt")
+                cell["server_n_ctx"] = sorted(set(re.findall(r"n_ctx\s*=\s*(\d+)", log_txt)))
+                run["cells"].append(cell)
+                (out / "results.json").write_text(json.dumps(run, indent=2))  # checkpoint per cell
+
+    ctl = [c for c in run["cells"] if c["model"] == CONTROL and "skipped" not in c and "error" not in c]
+    leak = [c["ctx"] for c in ctl if c.get("tools_short_n", 0) > 3 or c.get("needle_20k")]
+    run["valid"] = bool(ctl) and not leak
+    run["invalid_reason"] = None if run["valid"] else (f"control passed at ctx {leak}" if ctl else "control did not run")
+    ok = [c for c in run["cells"] if c.get("comfortable") and c["model"] != CONTROL]
+    ok.sort(key=lambda c: (-(c["tools_long_n"] + c["tools_short_n"]), -(c.get("decode_tps") or 0)))
+    run["recommendation"] = ({"model": ok[0]["model"], "ctx": ok[0]["ctx"]} if ok and run["valid"] else None)
+    run["cleanup"] = [f"ollama rm {m}" for m in run["pulled"]]
+    (out / "results.json").write_text(json.dumps(run, indent=2))
+
+    cols = ["model", "ctx", "gpu_pct", "ram_gb", "load_s", "decode_tps", "prefill_tps",
+            "prompt_tokens_seen_20k", "server_n_ctx", "needle_3k", "needle_20k", "tools_short",
+            "tools_long", "tools_long_min_input", "baseline_free_pct", "min_free_pct",
+            "swapouts_delta", "comfortable"]
+    md = [f"# bench-local-models {stamp}", "",
+          f"ollama {run['ollama_version']} · {run['hw']['cpu']} · {run['hw']['ram_gb']} GB · "
+          f"harness {run['harness_sha256'][:12]} · dotfiles {run['dotfiles_commit']}", "",
+          f"Rule: `{run['rule']}`", "",
+          f"Valid: **{run['valid']}**" + (f" ({run['invalid_reason']})" if not run["valid"] else ""),
+          f"Recommendation: **{run['recommendation']}**", "",
+          "| " + " | ".join(cols) + " |", "|" + "---|" * len(cols)]
+    for c in run["cells"]:
+        if "skipped" in c or "error" in c:
+            md.append(f"| {c['model']} | {c['ctx']} | " + (c.get("skipped") or f"error: {str(c['error'])[:80]}") + " |")
+        else:
+            md.append("| " + " | ".join(str(c.get(k, "")) for k in cols) + " |")
+    if run["skipped_models"]:
+        md += ["", "Skipped models:"] + [f"- `{k}`: {v}" for k, v in run["skipped_models"].items()]
+    if run["cleanup"]:
+        md += ["", "Pulled by this run (remove with):"] + [f"- `{c}`" for c in run["cleanup"]]
+    (out / "summary.md").write_text("\n".join(md) + "\n")
+    print(out / "summary.md")
+    print("\n".join(md))
+    return 0 if run["valid"] else 3
+
+if __name__ == "__main__":
+    sys.exit(main())

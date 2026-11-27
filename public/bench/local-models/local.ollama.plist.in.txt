@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Ollama server for claude-local. Rendered and installed by bin/ollama-service
+  (@HOME@ and @OLLAMA@ are filled in there; launchd does not expand ~ or $VARS).
+
+  OLLAMA_CONTEXT_LENGTH: Ollama 0.40.16 defaults to n_ctx=4096 and truncates a
+  longer prompt to ~2k, which cuts Claude Code's ~20k system prompt to pieces
+  (bench/results/smoke-20261126T194936). claude-local's /v1/messages requests
+  cannot set num_ctx, so the server must.
+  OLLAMA_NUM_PARALLEL=1: each parallel slot gets its own context, multiplying
+  memory; one slot is also what bench-local-models measured.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.ollama</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>@OLLAMA@</string>
+    <string>serve</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>OLLAMA_HOST</key>
+    <string>127.0.0.1:11434</string>
+    <key>OLLAMA_CONTEXT_LENGTH</key>
+    <string>32768</string>
+    <key>OLLAMA_NUM_PARALLEL</key>
+    <string>1</string>
+    <key>HOME</key>
+    <string>@HOME@</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+  <key>StandardOutPath</key>
+  <string>@HOME@/Library/Logs/ollama/server.log</string>
+  <key>StandardErrorPath</key>
+  <string>@HOME@/Library/Logs/ollama/server.log</string>
+</dict>
+</plist>

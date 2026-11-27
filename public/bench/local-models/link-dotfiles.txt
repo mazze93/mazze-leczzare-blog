@@ -1,0 +1,116 @@
+#!/usr/bin/env zsh
+# link-dotfiles — create the $HOME symlinks into this repo. Idempotent.
+#
+#   link-dotfiles            plan, then apply (only if no entry is in error)
+#   link-dotfiles --dry-run  print the plan, change nothing
+#   link-dotfiles --check    print the plan, change nothing; exit 1 on drift
+#
+# Per target:
+#   ok      already a symlink resolving to the repo file
+#   create  nothing there; parent dirs are created
+#   relink  a symlink to anything else (or dangling); the old target is printed
+#   backup  a regular file; moved to $STATE/<timestamp>/<path>, then linked
+#   error   a directory or other non-file; never touched — resolve by hand
+# Every entry is planned before anything changes, so an error anywhere
+# means nothing is applied. Exit: 0 ok/applied, 1 drift (--check), 2 error.
+#
+# The repo path is this script's resolved location, so it works from
+# ~/Code (a symlink to ~/Projects) and after the repo moves. $HOME is read
+# from the environment, so tests can point it at a sandbox.
+emulate -L zsh
+setopt err_return no_unset pipe_fail
+
+REPO=${${(%):-%x}:A:h:h}
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/link-dotfiles
+
+# repo-relative source   ->   $HOME-relative target
+LINKS=(
+  zshrc                     .zshrc
+  zprofile                  .zprofile
+  tmux.conf                 .tmux.conf
+  starship.toml             .config/starship.toml
+  # [redacted for publication: machine-specific config entry]
+  bin/zed                   .local/bin/zed
+  bin/zed-workspace-settings .local/bin/zed-workspace-settings
+  bin/claude-desktop-cred   .local/bin/claude-desktop-cred
+  bin/claude-local          .local/bin/claude-local
+  bin/link-dotfiles         .local/bin/link-dotfiles
+  bin/ollama-service        .local/bin/ollama-service
+  # [redacted for publication: private helper entry]
+)
+
+mode=apply
+case ${1-} in
+  '')        ;;
+  --check)   mode=check ;;
+  --dry-run) mode=dry ;;
+  *) print -u2 "usage: link-dotfiles [--check|--dry-run]"; return 2 ;;
+esac
+
+typeset -a plan_act plan_src plan_dst plan_note
+errors=0 drift=0
+for rel dst_rel in $LINKS; do
+  src=$REPO/$rel dst=$HOME/$dst_rel act= note=
+  # first ancestor (below $HOME) that exists but is not a directory, if any
+  bad_parent= p=${dst:h}
+  while [[ $p != $HOME && $p == $HOME/* ]]; do
+    [[ -e $p || -L $p ]] && [[ ! -d $p ]] && bad_parent=$p
+    p=${p:h}
+  done
+  if [[ ! -f $src ]]; then
+    act=error note="source missing: $src"
+  elif [[ -n $bad_parent ]]; then
+    act=error note="parent not a directory: ~/${bad_parent#$HOME/}"
+  elif [[ -L $dst ]]; then
+    # :A resolves the whole chain; on a loop it leaves the path unresolved,
+    # which can never equal src, so a loop is relinked rather than hanging.
+    if [[ ${dst:A} == ${src:A} ]]; then act=ok
+    else act=relink note="was -> $(/usr/bin/readlink $dst)"; fi
+  elif [[ ! -e $dst ]]; then
+    act=create
+  elif [[ -f $dst ]]; then
+    act=backup
+  else
+    act=error note="not a regular file or symlink; resolve by hand"
+  fi
+  [[ $act == error ]] && (( ++errors ))
+  [[ $act != ok && $act != error ]] && (( ++drift ))
+  plan_act+=$act plan_src+=$src plan_dst+=$dst plan_note+=$note
+  printf '  %-7s %-34s %s\n' $act "~/$dst_rel" "$note"
+done
+
+if (( errors )); then print -u2 "× $errors error(s); nothing changed"; return 2; fi
+if [[ $mode == check ]]; then
+  (( drift )) && { print "! $drift link(s) drifted"; return 1; }
+  print "✓ all ${#plan_act} links ok"; return 0
+fi
+[[ $mode == dry ]] && { print "dry run: $drift change(s) planned"; return 0; }
+(( drift )) || { print "✓ all ${#plan_act} links ok; nothing to do"; return 0; }
+
+stamp=$(/bin/date +%Y%m%dT%H%M%S)
+integer i
+for i in {1..${#plan_act}}; do
+  act=$plan_act[i] src=$plan_src[i] dst=$plan_dst[i]
+  # re-check right before acting: the plan may be stale (narrows, does not
+  # close, the window against a concurrent writer)
+  case $act in
+    ok) continue ;;
+    create) [[ ! -e $dst && ! -L $dst ]] ;;
+    relink) [[ -L $dst ]] ;;
+    backup) [[ -f $dst && ! -L $dst ]] ;;
+  esac || { print -u2 "× ~/${dst#$HOME/} changed since planning; stopped"; return 2; }
+  if [[ $act == backup ]]; then
+    bak=$STATE/$stamp/${dst#$HOME/}
+    integer n=1
+    while [[ -e $bak || -L $bak ]]; do bak=$STATE/$stamp/${dst#$HOME/}.$((n++)); done
+    /bin/mkdir -p ${bak:h}
+    /bin/mv -n $dst $bak
+    # ln -sf below would delete anything still at dst: prove it moved
+    [[ ! -e $dst && ! -L $dst && -f $bak ]] || { print -u2 "× backup of $dst failed"; return 2; }
+    print "  backed up ~/${dst#$HOME/} -> $bak"
+  fi
+  /bin/mkdir -p ${dst:h}
+  /bin/ln -sfh $src $dst
+  [[ ${dst:A} == ${src:A} ]] || { print -u2 "× failed to link $dst"; return 2; }
+done
+print "✓ applied $drift change(s)"

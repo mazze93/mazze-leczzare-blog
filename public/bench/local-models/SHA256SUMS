@@ -1,0 +1,11 @@
+# Published from mazze93/dotfiles @ 0e0b73b (private repo; these are verbatim copies
+# except link-dotfiles.txt, which has two manifest lines redacted and marked in place).
+c3f180cdf1968d3a0f6442272000a35308376da40ccf7cd639b11834bddcdf70  bench-local-models.txt
+ed5924613ccb6cacfd22661109488965137f28c01a52a801937da0425436d3ed  check-agent-shell.txt
+4e5ada11a51807a17fc5ec2938d60f6c628e5f629a801986ad83291b86e7db36  claude-local.txt
+4f80b936680447aa8e6e5224ad81547afb5daa23cbc95fb988f9d39ff1ab0011  export-blog.py.txt
+f43d25cd37c9e694076b2b5499724238aab9e4a71e889f350d7f51e9602ae4e7  link-dotfiles.txt
+08d979ae27da13c57dc320730b2f99c06c277b6393e15f5e0f30ea4456153573  local.ollama.plist.in.txt
+ad5359821e03ee97094661d3bcde0148bced4c8736e4f05f5e13513248a56519  ollama-service.txt
+3303c3e348091240c9ac36fc28770608c61ee9bc8acc188c9f0e9f8737aef7df  test-link-dotfiles.txt
+31de84ea37632b6a1b4894f732a29d076beef356c02ab0cbf4c6fbcbcc664cb7  data.json

@@ -1,0 +1,201 @@
+---
+// BenchChart — static, build-time chart for measured data. HTML/CSS
+// positioning (not a scaled SVG) so text stays at real size on phones.
+// Zero hydration. Every chart ships its data table (identity is never
+// colour-alone; hover titles are a convenience, the table is the access path).
+//
+// kind="bars":     one series; bar grows from a square baseline to a 4px
+//                  rounded end; value printed at the tip.
+// kind="dumbbell": before -> after per row; hollow dot = `fromLabel`,
+//                  filled dot = `toLabel` (shape carries identity, one hue).
+// refs: labelled dashed threshold lines (dashed because they ARE thresholds;
+//       gridlines stay solid hairlines).
+// Palette: one chart teal per mode, validated with the dataviz
+// validate_palette.js against each mode's surface (dark #1fb3ad on #0b0e15,
+// light #008a7a on #f5f0e8: band, chroma and 3:1 contrast pass).
+
+interface Row { label: string; value?: number; from?: number | null; to?: number | null; note?: string }
+interface Ref { value: number; label: string }
+interface Props {
+  kind: "bars" | "dumbbell";
+  title: string;
+  subtitle?: string;
+  rows: Row[];
+  max: number;
+  ticks: number[];
+  refs?: Ref[];
+  unit?: string;
+  fromLabel?: string;
+  toLabel?: string;
+  decimals?: number;
+}
+const { kind, title, subtitle, rows, max, ticks, refs = [], unit = "", fromLabel = "before",
+        toLabel = "after", decimals = 0 } = Astro.props;
+
+const pct = (v: number) => `${Math.max(0, Math.min(100, (v / max) * 100)).toFixed(2)}%`;
+const fmt = (v: number | null | undefined) =>
+  v === null || v === undefined ? "—"
+    : v.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + unit;
+// One tick style per axis: compact throughout once the axis reaches 10,000.
+const tick = (v: number) => (max >= 10000 ? (v === 0 ? "0" : `${v / 1000}K`) : v.toLocaleString("en-US"))
+  + (unit && unit.trim() === "%" ? "%" : "");
+const summary = kind === "bars"
+  ? `${title}. ` + rows.map((r) => `${r.label}: ${fmt(r.value)}`).join("; ")
+  : `${title}. ` + rows.map((r) => `${r.label}: ${fromLabel} ${fmt(r.from)}, ${toLabel} ${fmt(r.to)}`).join("; ");
+const n = rows.length;
+---
+
+<figure class="bench-chart">
+  <figcaption>
+    <span class="bc-title">{title}</span>
+    {subtitle && <span class="bc-sub">{subtitle}</span>}
+  </figcaption>
+
+  {kind === "dumbbell" && (
+    <p class="bc-legend" aria-hidden="true">
+      <span class="bc-key"><span class="bc-dot bc-from"></span>{fromLabel}</span>
+      <span class="bc-key"><span class="bc-dot bc-to"></span>{toLabel}</span>
+    </p>
+  )}
+
+  <div class="bc-plot" role="img" aria-label={summary} style={`--rows:${n}`}>
+    <div class="bc-grid" style={`grid-row: 1 / span ${n}`} aria-hidden="true">
+      {ticks.map((t) => <span class="bc-gridline" style={`left:${pct(t)}`}></span>)}
+      {refs.map((r) => (
+        <span class="bc-ref" style={`left:${pct(r.value)}`}><span class="bc-ref-label">{r.label}</span></span>
+      ))}
+    </div>
+
+    {rows.map((r, i) => (
+      <>
+        <span class="bc-label" style={`grid-row:${i + 1}`}>
+          <span class="bc-mono">{r.label}</span>
+          {r.note && <span class="bc-note">{r.note}</span>}
+        </span>
+        <span class="bc-track" style={`grid-row:${i + 1}`}
+              title={kind === "bars" ? `${r.label}: ${fmt(r.value)}` : `${r.label}: ${fromLabel} ${fmt(r.from)} → ${toLabel} ${fmt(r.to)}`}>
+          {kind === "bars" && r.value !== undefined && (
+            <>
+              <span class="bc-bar" style={`width:${pct(r.value)}`}></span>
+              <span class="bc-tip" style={`left:${pct(r.value)}`}>{fmt(r.value)}</span>
+            </>
+          )}
+          {kind === "dumbbell" && (
+            <>
+              {r.from != null && r.to != null && (
+                <span class="bc-span" style={`left:${pct(Math.min(r.from, r.to))};width:calc(${pct(Math.max(r.from, r.to))} - ${pct(Math.min(r.from, r.to))})`}></span>
+              )}
+              {r.from != null && <span class="bc-dot bc-from bc-abs" style={`left:${pct(r.from)}`}></span>}
+              {r.to != null && <span class="bc-dot bc-to bc-abs" style={`left:${pct(r.to)}`}></span>}
+            </>
+          )}
+        </span>
+        {kind === "dumbbell" && <span class="bc-val" style={`grid-row:${i + 1}`}>{fmt(r.to)}</span>}
+      </>
+    ))}
+
+    <div class="bc-axis" aria-hidden="true">
+      {ticks.map((t) => <span class="bc-tick" style={`left:${pct(t)}`}>{tick(t)}</span>)}
+    </div>
+  </div>
+
+  <details class="bc-table">
+    <summary>Data table</summary>
+    <table>
+      <thead>
+        <tr><th scope="col">Model</th>
+          {kind === "bars" ? <th scope="col">Value</th> : <><th scope="col">{fromLabel}</th><th scope="col">{toLabel}</th></>}
+          <th scope="col">Note</th></tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr><th scope="row"><span class="bc-mono">{r.label}</span></th>
+            {kind === "bars" ? <td>{fmt(r.value)}</td> : <><td>{fmt(r.from)}</td><td>{fmt(r.to)}</td></>}
+            <td>{r.note ?? ""}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </details>
+</figure>
+
+<style>
+  .bench-chart {
+    --bc-ink: #1fb3ad;
+    --bc-ground: var(--bg, #0b0e15);
+    --bc-text: var(--text, #c8cec8);
+    --bc-dim: var(--text-dim, #8a9890);
+    --bc-grid: var(--hairline-soft, rgba(196, 189, 171, 0.12));
+    margin: 2.25rem 0;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: var(--bc-text);
+  }
+  :global([data-theme="light"]) .bench-chart { --bc-ink: #008a7a; }
+
+  figcaption { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.9rem; }
+  .bc-title { font-weight: 600; font-size: 0.98rem; color: var(--prose-heading, var(--bc-text)); }
+  .bc-sub { font-size: 0.82rem; color: var(--bc-dim); line-height: 1.45; }
+
+  .bc-legend { display: flex; gap: 1.25rem; margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--bc-dim); }
+  .bc-key { display: inline-flex; align-items: center; gap: 0.45rem; }
+
+  .bc-plot {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 10.5rem) 1fr 4.6rem;
+    grid-template-rows: repeat(var(--rows), minmax(2.1rem, auto)) auto;
+    column-gap: 0.75rem;
+    row-gap: 0.55rem;
+    align-items: center;
+  }
+  .bc-label { grid-column: 1; display: flex; flex-direction: column; line-height: 1.2; }
+  .bc-label .bc-mono { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--bc-text); background: none; padding: 0; }
+  .bc-note { font-size: 0.7rem; color: var(--bc-dim); margin-top: 0.15rem; }
+  .bc-track { grid-column: 2; position: relative; height: 1.25rem; z-index: 1; }
+  .bc-val { grid-column: 3; font-size: 0.78rem; font-variant-numeric: tabular-nums; color: var(--bc-text); text-align: right; }
+
+  .bc-grid { grid-column: 2; position: relative; align-self: stretch; z-index: 0; }
+  .bc-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--bc-grid); }
+  .bc-ref { position: absolute; top: -0.4rem; bottom: 0; border-left: 1.5px dashed var(--bc-dim); }
+  .bc-ref-label {
+    position: absolute; top: -1.05rem; left: 0.3rem; white-space: nowrap;
+    font-size: 0.7rem; color: var(--bc-dim);
+  }
+
+  .bc-bar {
+    position: absolute; left: 0; top: 50%; height: 14px; transform: translateY(-50%);
+    background: var(--bc-ink); border-radius: 0 4px 4px 0;
+  }
+  .bc-tip {
+    position: absolute; top: 50%; transform: translate(0.4rem, -50%);
+    font-size: 0.78rem; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--bc-text);
+  }
+
+  .bc-span {
+    position: absolute; top: 50%; height: 2px; transform: translateY(-50%);
+    background: var(--bc-ink); opacity: 0.45;
+  }
+  .bc-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; box-sizing: border-box; }
+  .bc-from { border: 2px solid var(--bc-ink); background: var(--bc-ground); }
+  .bc-to { background: var(--bc-ink); box-shadow: 0 0 0 2px var(--bc-ground); }
+  .bc-abs { position: absolute; top: 50%; transform: translate(-50%, -50%); }
+
+  .bc-axis { grid-column: 2; grid-row: calc(var(--rows) + 1); position: relative; height: 1.3rem; border-top: 1px solid var(--bc-grid); margin-top: 0.3rem; }
+  .bc-tick {
+    position: absolute; top: 0.25rem; transform: translateX(-50%);
+    font-size: 0.7rem; font-variant-numeric: tabular-nums; color: var(--bc-dim);
+  }
+
+  .bc-table { margin-top: 0.9rem; font-size: 0.8rem; }
+  .bc-table summary { cursor: pointer; color: var(--bc-dim); }
+  .bc-table table { border-collapse: collapse; margin-top: 0.5rem; width: 100%; }
+  .bc-table th, .bc-table td { text-align: left; padding: 0.3rem 0.6rem 0.3rem 0; border-bottom: 1px solid var(--bc-grid); font-variant-numeric: tabular-nums; }
+  .bc-table .bc-mono { font-family: 'DM Mono', monospace; font-size: 0.76rem; background: none; padding: 0; }
+
+  @media (max-width: 560px) {
+    .bc-plot { grid-template-columns: minmax(6rem, 7.5rem) 1fr 3.8rem; column-gap: 0.5rem; }
+    .bc-ref-label { font-size: 0.64rem; }
+  }
+  @media (forced-colors: active) {
+    .bc-bar, .bc-to, .bc-span { background: CanvasText; }
+    .bc-from { border-color: CanvasText; }
+  }
+</style>
